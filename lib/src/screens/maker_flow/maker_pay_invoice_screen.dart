@@ -1,0 +1,248 @@
+import 'dart:async'; // For Timer
+import 'dart:io'; // For Platform check
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For Clipboard
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart'; // For QR code display
+import 'package:url_launcher/url_launcher.dart'; // For launching URLs/Intents
+import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
+import 'package:android_intent_plus/flag.dart'; // Import for flags enum
+import '../../providers/providers.dart'; // Import providers
+import '../../models/offer.dart'; // Import Offer model for status enum comparison
+import '../../services/api_service.dart'; // Import ApiService
+
+class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
+  final VoidCallback onPaymentConfirmed; // Callback for next step
+
+  const MakerPayInvoiceScreen({required this.onPaymentConfirmed, super.key});
+
+  @override
+  ConsumerState<MakerPayInvoiceScreen> createState() =>
+      _MakerPayInvoiceScreenState();
+}
+
+class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
+  Timer? _statusPollTimer;
+  String? _polledOfferStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start polling immediately when this screen is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _startPollingInvoiceStatus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _statusPollTimer?.cancel(); // Cancel timer on dispose
+    super.dispose();
+  }
+
+  // --- Polling Logic ---
+  void _startPollingInvoiceStatus() {
+    _statusPollTimer?.cancel(); // Cancel existing timer
+    final paymentHash = ref.read(
+      paymentHashProvider,
+    ); // Read, don't watch in timer callback
+    if (paymentHash == null || !mounted) return;
+
+    print(
+      '[MakerPayInvoiceScreen] Starting polling for payment hash: $paymentHash',
+    );
+    _statusPollTimer = Timer.periodic(const Duration(seconds: 1), (
+      timer,
+    ) async {
+      // Check mounted at the beginning of the callback
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      final apiService = ref.read(apiServiceProvider); // Use read inside timer
+      try {
+        final status = await apiService.getOfferStatus(paymentHash);
+        print('[MakerPayInvoiceScreen] Poll result for $paymentHash: $status');
+        if (status != null && status != 'pending_creation') {
+          final offerStatus = OfferStatus.values.byName(status);
+          if (offerStatus.index >= OfferStatus.funded.index) {
+            print(
+              '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
+            );
+            _statusPollTimer?.cancel(); // Stop polling
+            final publicKey = ref.read(publicKeyProvider).value;
+            if (publicKey == null) {
+              throw Exception("Public key not available.");
+            }
+
+            final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+
+            if (fullOfferData == null) {
+              throw Exception(
+                "Could not fetch active offer details. It might have expired.",
+              );
+            }
+
+            final fullOffer = Offer.fromJson(fullOfferData);
+
+            ref.read(activeOfferProvider.notifier).state = fullOffer;
+
+            if (mounted) {
+              widget.onPaymentConfirmed(); // Trigger callback to parent
+            }
+          } else {
+            if (mounted) {
+              setState(() {
+                _polledOfferStatus = status;
+              });
+            }
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _polledOfferStatus = 'pending_creation';
+            });
+          }
+        }
+      } catch (e) {
+        print('[MakerPayInvoiceScreen] Error polling offer status: $e');
+        // Optionally set error state via provider if needed
+        // ref.read(errorProvider.notifier).state = 'Polling failed: $e';
+      }
+    });
+  }
+
+  // --- Intent/URL Launching ---
+  Future<void> _launchLightningUrl(String invoice) async {
+    final link = 'lightning:$invoice';
+    try {
+      if (Platform.isAndroid) {
+        final intent = AndroidIntent(
+          action: 'action_view',
+          data: link,
+          flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+        );
+        await intent.launch();
+      } else {
+        final url = Uri.parse(link);
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          print('Could not launch $link');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Could not open Lightning app for invoice.'),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print('Error launching lightning URL: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening Lightning app: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final holdInvoice = ref.watch(
+      holdInvoiceProvider,
+    ); // Watch the invoice state
+
+    // Add Scaffold wrapper
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Pay Invoice"),
+        // Optionally add a back button if needed, though navigation might handle it
+        // leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+      ),
+      body: Builder(
+        // Use Builder to get context below Scaffold if needed for SnackBar
+        builder: (context) {
+          if (holdInvoice == null) {
+            // Should not happen if navigation is correct, but handle defensively
+            return const Center(
+              child: Text("Error: Invoice details not found."),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const Text(
+                    'Pay this Hold Invoice:',
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 15),
+                  // Display QR Code (tappable)
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => _launchLightningUrl(holdInvoice),
+                      child: QrImageView(
+                        data: holdInvoice.toUpperCase(),
+                        version: QrVersions.auto,
+                        size: 200.0,
+                        backgroundColor: Colors.white, // Ensure QR is visible
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  // Display Invoice String (selectable and tappable)
+                  InkWell(
+                    onTap: () => _launchLightningUrl(holdInvoice),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: SelectableText(
+                        holdInvoice,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.copy),
+                    label: const Text('Copy Invoice'),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: holdInvoice));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Invoice copied to clipboard!'),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  // Polling status indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 15,
+                        height: 15,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 8),
+                      Text('Waiting for payment confirmation...'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
