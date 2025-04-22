@@ -282,8 +282,27 @@ class RoleSelectionScreen extends ConsumerWidget {
                         title: Text(
                           "Role: ${activeRole == AppRole.maker ? 'Maker' : 'Taker'}",
                         ),
-                        subtitle: Text(
-                          "Status: ${activeOffer!.status}\nAmount: ${activeOffer.amountSats} sats",
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Status: ${activeOffer!.status}\nAmount: ${activeOffer.amountSats} sats",
+                            ),
+                            if (activeOffer.status ==
+                                    OfferStatus.takerPaymentFailed.name &&
+                                activeOffer.takerLightningAddress != null &&
+                                activeOffer.takerLightningAddress!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6.0),
+                                child: Text(
+                                  "Lightning address: ${activeOffer.takerLightningAddress}",
+                                  style: TextStyle(
+                                    color: Colors.blueGrey[700],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () {
