@@ -214,6 +214,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             return TakerWaitConfirmationScreen(offer: activeOffer);
           } else if (activeOffer.status ==
               OfferStatus.takerPaymentFailed.name) {
+            return Text("DUPA");
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
