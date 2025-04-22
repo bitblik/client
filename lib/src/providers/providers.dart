@@ -65,6 +65,7 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
   final offerData = await apiService.getMyActiveOffer(publicKey);
 
   if (offerData != null) {
+    print("[DEBUG] my-active-offer response: $offerData");
     try {
       // Helper to safely parse DateTime directly inside constructor call
       DateTime? parseOptionalDateTime(String? dateString) {
