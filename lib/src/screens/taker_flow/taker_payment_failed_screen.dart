@@ -33,6 +33,18 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
               'Please provide a new Lightning invoice for the same amount.',
               textAlign: TextAlign.center,
             ),
+            if (offer.takerLightningAddress != null &&
+                offer.takerLightningAddress!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                child: Text(
+                  'Lightning address used: ${offer.takerLightningAddress}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey),
+                ),
+              ),
             const SizedBox(height: 24),
             TextField(
               controller: bolt11Controller,
