@@ -116,8 +116,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             const SizedBox(width: 4),
             Text(
               'alpha',
-              style: TextStyle(fontSize: 10, color: Colors.black45)
-              ),
+              style: TextStyle(fontSize: 10, color: Colors.black45),
+            ),
           ],
         ),
         actions: [
@@ -212,6 +212,28 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               activeOffer.status == OfferStatus.blikSentToMaker.name ||
               activeOffer.status == OfferStatus.makerConfirmed.name) {
             return TakerWaitConfirmationScreen(offer: activeOffer);
+          } else if (activeOffer.status ==
+              OfferStatus.takerPaymentFailed.name) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (activeOffer.takerLightningAddress != null &&
+                    activeOffer.takerLightningAddress!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      'Your Lightning address: ${activeOffer.takerLightningAddress}',
+                      style: TextStyle(
+                        color: Colors.blueGrey[700],
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                const Expanded(child: OfferListScreen()),
+              ],
+            );
           } else {
             print(
               "[AppScaffold] Taker role active but offer status (${activeOffer.status}) not suitable for flow screens. Showing OfferListScreen.",
