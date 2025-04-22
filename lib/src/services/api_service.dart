@@ -204,4 +204,51 @@ class ApiService {
       rethrow; // Rethrow to allow UI to handle it
     }
   }
+
+  Future<void> updateTakerInvoice({
+    required String offerId,
+    required String newBolt11,
+    required String userPubkey,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/offers/$offerId/update-invoice'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-pubkey': userPubkey,
+      },
+      body: jsonEncode({'bolt11': newBolt11}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update invoice');
+    }
+  }
+
+  // POST /offers/{offerId}/retry-taker-payment
+  Future<void> retryTakerPayment({
+    required String offerId,
+    required String userPubkey,
+  }) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/retry-taker-payment');
+    final headers = {
+      'Content-Type': 'application/json',
+      'x-user-pubkey': userPubkey,
+    };
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({}),
+    );
+    if (response.statusCode != 200) {
+      String errorMessage =
+          'Failed to retry taker payment: ${response.statusCode}';
+      try {
+        final errorBody = jsonDecode(response.body);
+        if (errorBody is Map && errorBody.containsKey('error')) {
+          errorMessage += ' - ${errorBody['error']}';
+        }
+      } catch (_) {}
+      throw Exception(errorMessage);
+    }
+  }
 }

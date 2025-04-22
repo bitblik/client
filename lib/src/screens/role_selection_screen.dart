@@ -15,6 +15,7 @@ import 'maker_flow/maker_confirm_payment_screen.dart';
 import 'offer_list_screen.dart';
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
+import 'taker_flow/taker_payment_failed_screen.dart'; // Import new screen
 
 class RoleSelectionScreen extends ConsumerWidget {
   const RoleSelectionScreen({super.key});
@@ -63,6 +64,9 @@ class RoleSelectionScreen extends ConsumerWidget {
         offerStatus == OfferStatus.makerConfirmed) {
       // Pass the offer to the constructor using offer
       destinationScreen = TakerWaitConfirmationScreen(offer: offer);
+    } else if (offerStatus == OfferStatus.takerPaymentFailed) {
+      // Navigate to the new payment failed screen
+      destinationScreen = TakerPaymentFailedScreen(offer: offer);
     } else {
       print(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",
@@ -167,7 +171,6 @@ class RoleSelectionScreen extends ConsumerWidget {
           //   textAlign: TextAlign.center,
           // ),
           // const SizedBox(height: 20),
-
           initialOfferAsync.when(
             loading:
                 () => const Center(
@@ -325,29 +328,32 @@ class RoleSelectionScreen extends ConsumerWidget {
                                     .getBlikCodeForMaker(
                                       activeOffer.id,
                                       makerId,
-                                    ).then((blikCode) {
-                                  Navigator.of(
-                                    context,
-                                  ).pop(); // Pop loading dialog
+                                    )
+                                    .then((blikCode) {
+                                      Navigator.of(
+                                        context,
+                                      ).pop(); // Pop loading dialog
 
-                                  if (blikCode != null) {
-                                    ref
-                                        .read(receivedBlikCodeProvider.notifier)
-                                        .state = blikCode;
-                                    // Now navigate to the confirm screen
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) =>
-                                        const MakerConfirmPaymentScreen(),
-                                      ),
-                                    );
-                                  } else {
-                                    throw Exception(
-                                      "Could not retrieve BLIK code for this offer.",
-                                    );
-                                  }
-                                });
+                                      if (blikCode != null) {
+                                        ref
+                                            .read(
+                                              receivedBlikCodeProvider.notifier,
+                                            )
+                                            .state = blikCode;
+                                        // Now navigate to the confirm screen
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder:
+                                                (_) =>
+                                                    const MakerConfirmPaymentScreen(),
+                                          ),
+                                        );
+                                      } else {
+                                        throw Exception(
+                                          "Could not retrieve BLIK code for this offer.",
+                                        );
+                                      }
+                                    });
                               } catch (e) {
                                 Navigator.of(
                                   context,
