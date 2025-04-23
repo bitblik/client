@@ -1,6 +1,7 @@
 // RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/providers.dart'; // Import providers
 import '../models/offer.dart'; // Import Offer model
 import '../services/key_service.dart'; // Import KeyService
@@ -219,11 +220,12 @@ class RoleSelectionScreen extends ConsumerWidget {
                             : () {
                               ref.read(appRoleProvider.notifier).state =
                                   AppRole.maker;
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => MakerAmountForm(),
-                                ),
-                              );
+                              context.go("/pay");
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //     builder: (_) => MakerAmountForm(),
+                              //   ),
+                              // );
                             },
                     child: const Text('PAY with Lightning'),
                   ),
@@ -235,11 +237,12 @@ class RoleSelectionScreen extends ConsumerWidget {
                             : () {
                               ref.read(appRoleProvider.notifier).state =
                                   AppRole.taker;
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const OfferListScreen(),
-                                ),
-                              );
+                              context.go("/offers");
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //     builder: (_) => const OfferListScreen(),
+                              //   ),
+                              // );
                             },
                     child: const Text('SELL BLIK code for sats'),
                   ),

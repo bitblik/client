@@ -157,23 +157,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     final errorMessage = ref.watch(errorProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create Offer: Amount"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back to Role Selection',
-          onPressed: () => _resetToRoleSelection("Offer creation cancelled."),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: 'Go Home',
-            onPressed: () => _resetToRoleSelection("Offer creation cancelled."),
-          ),
-        ],
-      ),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -232,7 +216,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             ],
           ),
         ),
-      ),
     );
   }
 }
