@@ -204,12 +204,17 @@ class RoleSelectionScreen extends ConsumerWidget {
                 }
               }
 
+              // Exclude takerPaid from active offer, show in finished section
+              final isTakerPaid =
+                  hasActiveOffer &&
+                  activeOffer!.status == OfferStatus.takerPaid.name;
+              final hasRealActiveOffer = hasActiveOffer && !isTakerPaid;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ElevatedButton(
                     onPressed:
-                        hasActiveOffer
+                        hasRealActiveOffer
                             ? null
                             : () {
                               ref.read(appRoleProvider.notifier).state =
@@ -225,7 +230,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed:
-                        hasActiveOffer
+                        hasRealActiveOffer
                             ? null
                             : () async {
                               final keyService = ref.read(keyServiceProvider);
@@ -268,7 +273,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 30),
 
-                  if (hasActiveOffer) ...[
+                  if (hasActiveOffer && !isTakerPaid) ...[
                     const Divider(),
                     const SizedBox(height: 15),
                     Text(
@@ -304,107 +309,185 @@ class RoleSelectionScreen extends ConsumerWidget {
                               ),
                           ],
                         ),
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        onTap: () {
-                          // Make onTap async
-                          // Set base providers immediately
-                          ref.read(activeOfferProvider.notifier).state =
-                              activeOffer;
-                          ref.read(appRoleProvider.notifier).state =
-                              activeRole!;
+                        trailing:
+                            (activeOffer.status == OfferStatus.takerPaid.name)
+                                ? null
+                                : const Icon(Icons.arrow_forward_ios),
+                        onTap:
+                            (activeOffer.status == OfferStatus.takerPaid.name)
+                                ? null
+                                : () {
+                                  // Make onTap async
+                                  // Set base providers immediately
+                                  ref.read(activeOfferProvider.notifier).state =
+                                      activeOffer;
+                                  // ref.read(appRoleProvider.notifier).state =
+                                  //     activeRole!;
 
-                          if (activeRole == AppRole.maker) {
-                            // Set payment hash if available
-                            if (activeOffer.holdInvoicePaymentHash != null) {
-                              ref.read(paymentHashProvider.notifier).state =
-                                  activeOffer.holdInvoicePaymentHash!;
-                            }
+                                  if (activeRole == AppRole.maker) {
+                                    // Set payment hash if available
+                                    if (activeOffer.holdInvoicePaymentHash !=
+                                        null) {
+                                      ref
+                                          .read(paymentHashProvider.notifier)
+                                          .state = activeOffer
+                                              .holdInvoicePaymentHash!;
+                                    }
 
-                            final offerStatus = OfferStatus.values.byName(
-                              activeOffer.status,
-                            );
+                                    final offerStatus = OfferStatus.values
+                                        .byName(activeOffer.status);
 
-                            // Check if we need to fetch BLIK before navigating to confirm screen
-                            if (offerStatus == OfferStatus.blikReceived ||
-                                offerStatus == OfferStatus.blikSentToMaker) {
-                              // Show loading indicator while fetching
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder:
-                                    (context) => const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                              );
-                              try {
-                                final apiService = ref.read(apiServiceProvider);
-                                final makerId =
-                                    ref.read(publicKeyProvider).value;
-                                if (makerId == null) {
-                                  throw Exception("Maker public key not found");
-                                }
-                                apiService
-                                    .getBlikCodeForMaker(
-                                      activeOffer.id,
-                                      makerId,
-                                    )
-                                    .then((blikCode) {
-                                      Navigator.of(
-                                        context,
-                                      ).pop(); // Pop loading dialog
-
-                                      if (blikCode != null) {
-                                        ref
-                                            .read(
-                                              receivedBlikCodeProvider.notifier,
-                                            )
-                                            .state = blikCode;
-                                        // Now navigate to the confirm screen
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder:
-                                                (_) =>
-                                                    const MakerConfirmPaymentScreen(),
+                                    // Check if we need to fetch BLIK before navigating to confirm screen
+                                    if (offerStatus ==
+                                            OfferStatus.blikReceived ||
+                                        offerStatus ==
+                                            OfferStatus.blikSentToMaker) {
+                                      // Show loading indicator while fetching
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder:
+                                            (context) => const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                      );
+                                      try {
+                                        final apiService = ref.read(
+                                          apiServiceProvider,
+                                        );
+                                        final makerId =
+                                            ref.read(publicKeyProvider).value;
+                                        if (makerId == null) {
+                                          throw Exception(
+                                            "Maker public key not found",
+                                          );
+                                        }
+                                        // apiService
+                                        //     .getBlikCodeForMaker(
+                                        //       activeOffer.id,
+                                        //       makerId,
+                                        //     )
+                                        //     .then((blikCode) {
+                                        //       Navigator.of(
+                                        //         context,
+                                        //       ).pop(); // Pop loading dialog
+                                        //
+                                        //       if (blikCode != null) {
+                                        //         ref
+                                        //             .read(
+                                        //               receivedBlikCodeProvider
+                                        //                   .notifier,
+                                        //             )
+                                        //             .state = blikCode;
+                                        //         // Now navigate to the confirm screen
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (_) =>
+                                                            const MakerConfirmPaymentScreen(),
+                                                  ),
+                                                );
+                                            //   } else {
+                                            //     throw Exception(
+                                            //       "Could not retrieve BLIK code for this offer.",
+                                            //     );
+                                            //   }
+                                            // });
+                                      } catch (e) {
+                                        Navigator.of(
+                                          context,
+                                        ).pop(); // Pop loading dialog
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Error resuming offer: $e',
+                                            ),
+                                            backgroundColor: Colors.red,
                                           ),
                                         );
-                                      } else {
-                                        throw Exception(
-                                          "Could not retrieve BLIK code for this offer.",
-                                        );
+                                        // Reset state as we couldn't resume properly
+                                        ref
+                                            .read(appRoleProvider.notifier)
+                                            .state = AppRole.none;
+                                        ref
+                                            .read(activeOfferProvider.notifier)
+                                            .state = null;
                                       }
-                                    });
-                              } catch (e) {
-                                Navigator.of(
-                                  context,
-                                ).pop(); // Pop loading dialog
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error resuming offer: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                // Reset state as we couldn't resume properly
-                                ref.read(appRoleProvider.notifier).state =
-                                    AppRole.none;
-                                ref.read(activeOfferProvider.notifier).state =
-                                    null;
-                              }
-                            } else {
-                              // For other maker states, use the existing navigation logic
-                              _navigateToMakerStep(context, activeOffer);
-                            }
-                          } else {
-                            // Taker role
-                            // Use updated navigation logic for Taker, passing the offer
-                            _navigateToTakerStep(
-                              context,
-                              activeOffer!, // Pass the non-null activeOffer
-                            );
-                          }
-                        },
+                                    } else {
+                                      // For other maker states, use the existing navigation logic
+                                      _navigateToMakerStep(
+                                        context,
+                                        activeOffer,
+                                      );
+                                    }
+                                  } else {
+                                    // Taker role
+                                    // Use updated navigation logic for Taker, passing the offer
+                                    _navigateToTakerStep(
+                                      context,
+                                      activeOffer!, // Pass the non-null activeOffer
+                                    );
+                                  }
+                                },
                       ),
                     ),
                   ],
+
+                  // Finished Offers Section
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final finishedAsync = ref.watch(finishedOffersProvider);
+                      return finishedAsync.when(
+                        loading:
+                            () => const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                        error:
+                            (err, stack) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16.0,
+                              ),
+                              child: Text(
+                                'Error loading finished offers: $err',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                        data: (finishedOffers) {
+                          if (finishedOffers.isEmpty) return const SizedBox();
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Divider(),
+                              const SizedBox(height: 15),
+                              Text(
+                                "Finished Offers (last 24h):",
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              ...finishedOffers.map(
+                                (offer) => Card(
+                                  child: ListTile(
+                                    title: Text(
+                                      "Amount: ${offer.amountSats} sats",
+                                    ),
+                                    subtitle: Text(
+                                      "Status: ${offer.status}\nPaid at: ${offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-'}",
+                                    ),
+                                    // No arrow, not clickable
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
               );
             },

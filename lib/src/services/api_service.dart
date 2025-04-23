@@ -191,6 +191,25 @@ class ApiService {
     }
   }
 
+  // GET /my-finished-offers
+  Future<List<Offer>> getMyFinishedOffers(String userPubkey) async {
+    final url = Uri.parse('$_baseUrl/my-finished-offers');
+    final headers = {'x-user-pubkey': userPubkey};
+
+    try {
+      final response = await http.get(url, headers: headers);
+      final List<dynamic>? result = _handleResponse(response);
+      if (result != null && result.isNotEmpty) {
+        return result.map((json) => Offer.fromJson(json)).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error calling getMyFinishedOffers: $e');
+      return [];
+    }
+  }
+
   // DELETE /offers/{offerId}/cancel
   Future<void> cancelOffer(String offerId, String makerId) async {
     final url = Uri.parse('$_baseUrl/offers/$offerId/cancel');
