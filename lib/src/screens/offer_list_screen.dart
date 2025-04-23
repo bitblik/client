@@ -2,6 +2,7 @@ import 'dart:async'; // Import async for Timer
 import 'dart:async'; // Import async for Timer
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/providers.dart';
 // import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
@@ -74,9 +75,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     if (scaffoldMessenger != null && message.isNotEmpty) {
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
     }
-    if (navigator != null && navigator.canPop()) {
-      navigator.popUntil((route) => route.isFirst);
-    }
+    context.go('/');
+    // if (navigator != null && navigator.canPop()) {
+    //   navigator.popUntil((route) => route.isFirst);
+    // }
   }
 
   @override
@@ -88,16 +90,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
     final myActiveOfferAsyncValue = ref.watch(initialActiveOfferProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Available Offers'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back to Role Selection',
-          onPressed: () => _resetToRoleSelection(""),
-        ),
-      ),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16.0),
         child: lightningAddressAsync.when(
           loading: () {
@@ -648,7 +641,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             );
           },
         ),
-      ),
     );
   }
 }

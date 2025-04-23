@@ -19,15 +19,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/',
         builder:
             (context, state) => const AppScaffold(body: RoleSelectionScreen()),
-      ),
-      GoRoute(
-        path: '/offers',
-        builder: (context, state) => const AppScaffold(body: OfferListScreen()),
-      ),
-      GoRoute(
-        path: '/pay',
-        builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
-      ),
+        routes: [
+          GoRoute(
+            path: '/offers',
+            builder: (context, state) => const AppScaffold(body: OfferListScreen()),
+          ),
+          GoRoute(
+            path: '/pay',
+            builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
+          ),
+          ]
+      )
     ],
   );
 });
@@ -109,6 +111,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -121,12 +124,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           ],
         ),
         actions: [
-          // Navigation button to offers
-          IconButton(
-            icon: const Icon(Icons.list),
-            tooltip: 'Offers',
-            onPressed: () => context.go('/offers'),
-          ),
+          // // Navigation button to offers
+          // IconButton(
+          //   icon: const Icon(Icons.list),
+          //   tooltip: 'Offers',
+          //   onPressed: () => context.go('/offers'),
+          // ),
           // Reset button
           if (appRole != AppRole.none)
             IconButton(
