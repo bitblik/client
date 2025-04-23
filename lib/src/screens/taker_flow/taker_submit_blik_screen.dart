@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -433,49 +434,77 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
   }
 
-  // Future<void> _pasteFromClipboard() async {
-  //   final clipboard = ClipboardEvents.instance;
-  //   if (clipboard!=null) {
-  //     clipboard.registerPasteEventListener((event) async {
-  //       // Requesting the clipboard reader will prevent the default paste action
-  //       // such as inserting the text in editable element.
-  //       await event.getClipboardReader().then((value) {
-  //         value.getValue(Formats.plainText, (value) {
-  //           if (value!=null && value.isNotEmpty) {
-  //             final pastedText = value;
-  //             final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
-  //             if (digitsOnly.length == 6) {
-  //               _blikController.text = digitsOnly;
-  //               _blikController.selection = TextSelection.fromPosition(
-  //                 TextPosition(offset: _blikController.text.length),
-  //               );
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(
-  //                   content: Text('Pasted BLIK code.'),
-  //                   duration: Duration(seconds: 1),
-  //                 ),
-  //               );
-  //             } else {
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(
-  //                   content: Text(
-  //                     'Clipboard does not contain a valid 6-digit BLIK code.',
-  //                   ),
-  //                 ),
-  //               );
-  //             }
-  //           } else {
-  //             ScaffoldMessenger.of(context).showSnackBar(
-  //               const SnackBar(
-  //                 content: Text('Clipboard is empty or does not contain text.'),
-  //               ),
-  //             );
-  //           }
-  //         });
-  //       });
-  //     });
-  //   }
-  // }
+  Future<void> _pasteFromClipboard() async {
+    FlutterClipboard.paste().then((value) {
+      setState(() {
+        if (value.isNotEmpty) {
+          final pastedText = value;
+          final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
+          if (digitsOnly.length == 6) {
+            _blikController.text = digitsOnly;
+            _blikController.selection = TextSelection.fromPosition(
+              TextPosition(offset: _blikController.text.length),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Pasted BLIK code.'),
+                duration: Duration(seconds: 1),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Clipboard does not contain a valid 6-digit BLIK code.',
+                ),
+              ),
+            );
+          }
+        }
+        });
+    });
+    //   final clipboard = ClipboardEvents.instance;
+    //   if (clipboard!=null) {
+    //     clipboard.registerPasteEventListener((event) async {
+    //       // Requesting the clipboard reader will prevent the default paste action
+    //       // such as inserting the text in editable element.
+    //       await event.getClipboardReader().then((value) {
+    //         value.getValue(Formats.plainText, (value) {
+    //           if (value!=null && value.isNotEmpty) {
+    //             final pastedText = value;
+    //             final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
+    //             if (digitsOnly.length == 6) {
+    //               _blikController.text = digitsOnly;
+    //               _blikController.selection = TextSelection.fromPosition(
+    //                 TextPosition(offset: _blikController.text.length),
+    //               );
+    //               ScaffoldMessenger.of(context).showSnackBar(
+    //                 const SnackBar(
+    //                   content: Text('Pasted BLIK code.'),
+    //                   duration: Duration(seconds: 1),
+    //                 ),
+    //               );
+    //             } else {
+    //               ScaffoldMessenger.of(context).showSnackBar(
+    //                 const SnackBar(
+    //                   content: Text(
+    //                     'Clipboard does not contain a valid 6-digit BLIK code.',
+    //                   ),
+    //                 ),
+    //               );
+    //             }
+    //           } else {
+    //             ScaffoldMessenger.of(context).showSnackBar(
+    //               const SnackBar(
+    //                 content: Text('Clipboard is empty or does not contain text.'),
+    //               ),
+    //             );
+    //           }
+    //         });
+    //       });
+    //     });
+    //   }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -571,12 +600,12 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                       ),
                     ),
                   ),
-                  // const SizedBox(width: 8),
-                  // IconButton(
-                  //   icon: const Icon(Icons.content_paste),
-                  //   tooltip: 'Paste from Clipboard',
-                  //   onPressed: _pasteFromClipboard,
-                  // ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.content_paste),
+                    tooltip: 'Paste from Clipboard',
+                    onPressed: _pasteFromClipboard,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),

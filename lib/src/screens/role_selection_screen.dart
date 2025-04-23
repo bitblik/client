@@ -232,35 +232,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                     onPressed:
                         hasRealActiveOffer
                             ? null
-                            : () async {
-                              final keyService = ref.read(keyServiceProvider);
-                              String? currentLnAddress =
-                                  lnAddressAsyncValue.value;
-
-                              if (currentLnAddress == null ||
-                                  currentLnAddress.isEmpty) {
-                                if (lnAddressAsyncValue.isLoading) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Loading address... Try again.',
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                currentLnAddress =
-                                    await _promptForLightningAddress(
-                                      context,
-                                      keyService,
-                                    );
-                                if (currentLnAddress == null ||
-                                    currentLnAddress.isEmpty) {
-                                  return;
-                                }
-                                ref.invalidate(lightningAddressProvider);
-                              }
-
+                            : () {
                               ref.read(appRoleProvider.notifier).state =
                                   AppRole.taker;
                               Navigator.of(context).push(
@@ -381,19 +353,19 @@ class RoleSelectionScreen extends ConsumerWidget {
                                         //             )
                                         //             .state = blikCode;
                                         //         // Now navigate to the confirm screen
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder:
-                                                        (_) =>
-                                                            const MakerConfirmPaymentScreen(),
-                                                  ),
-                                                );
-                                            //   } else {
-                                            //     throw Exception(
-                                            //       "Could not retrieve BLIK code for this offer.",
-                                            //     );
-                                            //   }
-                                            // });
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder:
+                                                (_) =>
+                                                    const MakerConfirmPaymentScreen(),
+                                          ),
+                                        );
+                                        //   } else {
+                                        //     throw Exception(
+                                        //       "Could not retrieve BLIK code for this offer.",
+                                        //     );
+                                        //   }
+                                        // });
                                       } catch (e) {
                                         Navigator.of(
                                           context,
