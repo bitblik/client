@@ -93,11 +93,11 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
                   bool isPaid = false;
                   while (!isPaid) {
                     await Future.delayed(const Duration(seconds: 2));
-                    final activeOffer = await apiService.getMyActiveOffer(
-                      offer.takerPubkey ?? '',
+                    final activeOfferStatus = await apiService.getOfferStatus(
+                      offer.holdInvoicePaymentHash ?? '',
                     );
-                    if (activeOffer != null &&
-                        activeOffer['status'] == 'takerPaid') {
+                    if (activeOfferStatus != null &&
+                        activeOfferStatus == 'takerPaid') {
                       isPaid = true;
                     }
                   }

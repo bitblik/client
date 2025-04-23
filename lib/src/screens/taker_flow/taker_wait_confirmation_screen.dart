@@ -185,10 +185,12 @@ class _TakerWaitConfirmationScreenState
         _handlePaymentSuccess();
       } else {
         if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
-          final destinationScreen = TakerPaymentFailedScreen(offer: currentOffer);
-          Navigator.of(
-            context,
-          ).pushReplacement(MaterialPageRoute(builder: (_) => destinationScreen));
+          final destinationScreen = TakerPaymentFailedScreen(
+            offer: currentOffer,
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => destinationScreen),
+          );
         }
         // _resetToOfferList(
         //   "Offer is no longer awaiting confirmation (Status: $currentStatusEnum).",
@@ -276,7 +278,9 @@ class _TakerWaitConfirmationScreenState
     if (mounted) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(
-          content: Text('Payment Successful! You will receive the funds shortly.'),
+          content: Text(
+            'Payment Successful! You will receive the funds shortly.',
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -382,71 +386,58 @@ class _TakerWaitConfirmationScreenState
       });
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Waiting for Confirmation'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => _resetToOfferList("Cancelled Taker action."),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (errorMessage != null) ...[
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (errorMessage != null) ...[
               Text(
-                'Waiting for Maker: $_confirmationCountdownSeconds s',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color:
-                      _confirmationCountdownSeconds <= 15
-                          ? Colors.orange
-                          : Theme.of(context).colorScheme.secondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                'Waiting for Maker Confirmation',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              if (isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                const Center(
-                  child: Icon(
-                    Icons.timer_outlined,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
-                ),
-              const SizedBox(height: 20),
-              const Text(
-                'The Maker needs to use your BLIK code and confirm the payment was successful in their app. You will receive the Lightning payment automatically after confirmation.',
+                errorMessage,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              Text(
-                '(Offer Status: ${displayOffer.status})', // Use latest status
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
             ],
-          ),
+            Text(
+              'Waiting for Maker: $_confirmationCountdownSeconds s',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color:
+                    _confirmationCountdownSeconds <= 15
+                        ? Colors.orange
+                        : Theme.of(context).colorScheme.secondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              'Waiting for Maker Confirmation',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              const Center(
+                child: Icon(Icons.timer_outlined, size: 40, color: Colors.grey),
+              ),
+            const SizedBox(height: 20),
+            const Text(
+              'The Maker needs to use your BLIK code and confirm the payment was successful in their app. You will receive the Lightning payment automatically after confirmation.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '(Offer Status: ${displayOffer.status})', // Use latest status
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

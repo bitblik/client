@@ -324,92 +324,73 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     // Correct signature: remove WidgetRef ref
     final offer = ref.watch(activeOfferProvider); // Access ref directly
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Waiting for Taker"), // Updated title
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Go Home',
-          onPressed: _goHome,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: 'Go Home',
-            onPressed: _goHome,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              if (offer != null) ...[
-                Text(
-                  'Your Offer:',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text('Amount: ${offer.amountSats} sats'),
-                Text('Fee: ${offer.feeSats} sats'),
-                Text('Status: ${offer.status.toUpperCase()}'),
-                const SizedBox(height: 30),
-              ],
-              const Text(
-                'Waiting for a Taker to reserve your offer...', // Updated text
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            if (offer != null) ...[
+              Text(
+                'Your Offer:',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
+              const SizedBox(height: 8),
+              Text('Amount: ${offer.amountSats} sats'),
+              Text('Fee: ${offer.feeSats} sats'),
+              Text('Status: ${offer.status.toUpperCase()}'),
               const SizedBox(height: 30),
-              const CircularProgressIndicator(),
-              const SizedBox(height: 40),
-              Consumer(
-                builder: (context, ref, _) {
-                  final error = ref.watch(errorProvider);
-                  if (error != null &&
-                      error.contains("Failed to cancel offer")) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Text(
-                        error,
-                        style: TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              ElevatedButton(
-                onPressed:
-                    _isCancelling ||
-                            (offer != null &&
-                                offer.status != OfferStatus.funded.name &&
-                                offer.status != OfferStatus.published.name)
-                        ? null
-                        : _cancelOffer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                ),
-                child:
-                    _isCancelling
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
-                          ),
-                        )
-                        : const Text("Cancel Offer"),
-              ),
             ],
-          ),
+            const Text(
+              'Waiting for a Taker to reserve your offer...', // Updated text
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 30),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 40),
+            Consumer(
+              builder: (context, ref, _) {
+                final error = ref.watch(errorProvider);
+                if (error != null && error.contains("Failed to cancel offer")) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Text(
+                      error,
+                      style: TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            ElevatedButton(
+              onPressed:
+                  _isCancelling ||
+                          (offer != null &&
+                              offer.status != OfferStatus.funded.name &&
+                              offer.status != OfferStatus.published.name)
+                      ? null
+                      : _cancelOffer,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+              ),
+              child:
+                  _isCancelling
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                        ),
+                      )
+                      : const Text("Cancel Offer"),
+            ),
+          ],
         ),
       ),
     );

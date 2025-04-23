@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../providers/providers.dart';
-import '../../services/api_service.dart'; // To call initiateOffer
-// Import the next screens
-import 'maker_pay_invoice_screen.dart';
-import 'maker_wait_taker_screen.dart'; // Contains MakerWaitTakerScreen now
-import 'maker_confirm_payment_screen.dart';
-import '../../models/offer.dart'; // Import Offer model for AppRole enum
 
 class MakerAmountForm extends ConsumerStatefulWidget {
   const MakerAmountForm({super.key});
@@ -75,26 +71,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     }
   }
 
-  // Helper to reset state and go back to role selection
-  void _resetToRoleSelection(String message) {
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
-    ref.read(holdInvoiceProvider.notifier).state = null;
-    ref.read(paymentHashProvider.notifier).state = null;
-    ref.read(receivedBlikCodeProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-        if (scaffoldMessenger != null) {
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
-        }
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    });
-  }
-
   Future<void> _initiateOffer() async {
     final publicKeyAsyncValue = ref.read(publicKeyProvider);
     final makerId = publicKeyAsyncValue.value;
@@ -109,7 +85,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
     if (fiatAmount == null || fiatAmount <= 0 || fee == null || fee < 0) {
       ref.read(errorProvider.notifier).state =
-          'Please enter a valid PLN amount and fee percentage.';
+          'Please enter a valid PLN amount';
       return;
     }
 
@@ -127,20 +103,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       ref.read(paymentHashProvider.notifier).state = result['paymentHash'];
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder:
-                (context) => MakerPayInvoiceScreen(
-                  onPaymentConfirmed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const MakerWaitTakerScreen(),
-                      ),
-                    );
-                  },
-                ),
-          ),
-        );
+          context.go("/pay");
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error initiating offer: $e';
