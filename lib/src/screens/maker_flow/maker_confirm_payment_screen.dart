@@ -143,9 +143,7 @@ class _MakerConfirmPaymentScreenState
     // Handle case where BLIK code is somehow null when reaching this screen
     if (receivedBlikCode == null) {
       // Show info and progress indicator in the Scaffold
-      return Scaffold(
-        appBar: AppBar(title: const Text('Confirm Payment')),
-        body: Center(
+      return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -158,7 +156,6 @@ class _MakerConfirmPaymentScreenState
               CircularProgressIndicator(),
             ],
           ),
-        ),
       );
     }
 
