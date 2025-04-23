@@ -75,7 +75,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     if (scaffoldMessenger != null && message.isNotEmpty) {
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
     }
-    context.go('/');
+    context.pop();
     // if (navigator != null && navigator.canPop()) {
     //   navigator.popUntil((route) => route.isFirst);
     // }
