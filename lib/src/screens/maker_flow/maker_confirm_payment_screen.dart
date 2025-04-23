@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
@@ -111,14 +112,7 @@ class _MakerConfirmPaymentScreenState
       }
       // Navigate to Success Screen instead of resetting here
       if (context.mounted) {
-        // Check mounted before navigation
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder:
-                (_) =>
-                    MakerSuccessScreen(completedOffer: offer), // Pass the offer
-          ),
-        );
+        context.go('/maker-success',extra: offer);
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error confirming payment: $e';

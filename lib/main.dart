@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bitblik/src/screens/maker_flow/maker_confirm_payment_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
+import 'package:bitblik/src/screens/maker_flow/maker_success_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_for_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             (context, state) =>
         const AppScaffold(body: MakerConfirmPaymentScreen()),
       ),
+      GoRoute(
+        path: '/maker-success',
+        builder:
+            (context, state) =>
+        AppScaffold(body: MakerSuccessScreen(completedOffer: state.extra as Offer,)),
+      ),
+
       GoRoute(
         path: '/submit-blik',
         builder:

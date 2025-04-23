@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // To reset state
 
@@ -19,8 +20,8 @@ class MakerSuccessScreen extends ConsumerWidget {
     ref.read(isLoadingProvider.notifier).state = false;
     ref.invalidate(availableOffersProvider); // Invalidate offer list
 
+    context.go('/');
     // Navigate back to the root (RoleSelectionScreen)
-    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override

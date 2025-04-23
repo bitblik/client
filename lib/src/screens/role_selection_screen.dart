@@ -402,10 +402,10 @@ class RoleSelectionScreen extends ConsumerWidget {
                                   (offer) => Card(
                                     child: ListTile(
                                       title: Text(
-                                        "Amount: ${offer.amountSats} sats",
+                                        "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
                                       ),
                                       subtitle: Text(
-                                        "Status: ${offer.status}\nPaid at: ${offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-'}",
+                                        "${offer.amountSats} + ${offer.feeSats} (fee) sats\nStatus: ${offer.status}\nPaid at: ${offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-'}",
                                       ),
                                     ),
                                   ),
@@ -424,5 +424,24 @@ class RoleSelectionScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+String formatDouble(double value) {
+  // Check if the value is effectively a whole number
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  } else {
+    // Format with up to 2 decimal places, removing trailing zeros
+    String asString = value.toStringAsFixed(2);
+    // Remove trailing zeros after decimal point
+    if (asString.contains('.')) {
+      asString = asString.replaceAll(RegExp(r'0+$'), '');
+      // Remove decimal point if it's the last character
+      if (asString.endsWith('.')) {
+        asString = asString.substring(0, asString.length - 1);
+      }
+    }
+    return asString;
   }
 }

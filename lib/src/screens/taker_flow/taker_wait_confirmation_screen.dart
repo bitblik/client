@@ -3,6 +3,7 @@ import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
 import '../../services/api_service.dart'; // Needed for potential status checks
@@ -231,6 +232,7 @@ class _TakerWaitConfirmationScreenState
 
         // --- Handle Status Updates ---
         if (fetchedStatus == OfferStatus.settled ||
+            fetchedStatus == OfferStatus.payingTaker ||
             fetchedStatus == OfferStatus.takerPaid) {
           print(
             "[TakerWaitConfirmation] Offer settled/paid (Status: $fetchedStatus). Payment successful!",
@@ -316,9 +318,10 @@ class _TakerWaitConfirmationScreenState
       if (scaffoldMessenger != null) {
         scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
       }
-      if (navigator != null && navigator.canPop()) {
-        navigator.popUntil((route) => route.isFirst);
-      }
+      context.go('/');
+      // if (navigator != null && navigator.canPop()) {
+      //   navigator.popUntil((route) => route.isFirst);
+      // }
     }
   }
 
