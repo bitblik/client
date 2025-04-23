@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:clipboard/clipboard.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -271,11 +271,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final navigator = Navigator.maybeOf(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        if (scaffoldMessenger != null) {
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
-        }
         if (navigator != null) {
           navigator.popUntil((route) => route.isFirst);
+        }
+        if (scaffoldMessenger != null) {
+          scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
         }
       }
     });
@@ -434,11 +434,14 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
   }
 
+
   Future<void> _pasteFromClipboard() async {
-    FlutterClipboard.paste().then((value) {
+    final textData = await Clipboard.getData(Clipboard.kTextPlain);
+    // FlutterClipboard.paste().then((value) {
       setState(() {
-        if (value.isNotEmpty) {
-          final pastedText = value;
+        if (textData!=null && textData.text != null && textData.text!.isNotEmpty) {
+          print("clipboard.getData:${textData.text}");
+          final pastedText = textData.text!;
           final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
           if (digitsOnly.length == 6) {
             _blikController.text = digitsOnly;
@@ -462,7 +465,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
           }
         }
         });
-    });
     //   final clipboard = ClipboardEvents.instance;
     //   if (clipboard!=null) {
     //     clipboard.registerPasteEventListener((event) async {
