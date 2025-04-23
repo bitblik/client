@@ -65,7 +65,7 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
   final offerData = await apiService.getMyActiveOffer(publicKey);
 
   if (offerData != null) {
-    print("[DEBUG] my-active-offer response: $offerData");
+    // print("[DEBUG] my-active-offer response: $offerData");
     try {
       // Helper to safely parse DateTime directly inside constructor call
       DateTime? parseOptionalDateTime(String? dateString) {
@@ -83,6 +83,7 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
             offerData['maker_pubkey'] as String? ??
             '', // Assuming non-null from backend for active offers
         takerPubkey: offerData['taker_pubkey'] as String?,
+        takerLightningAddress: offerData['taker_lightning_address'] as String?,
         reservedAt: parseOptionalDateTime(offerData['reserved_at'] as String?),
         blikReceivedAt: parseOptionalDateTime(
           offerData['blik_received_at'] as String?,
@@ -99,12 +100,30 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
   return null;
 });
 
-// Provider to expose the stored Lightning Address
+/// Provider to expose the stored Lightning Address
 final lightningAddressProvider = FutureProvider<String?>((ref) async {
   final keyService = ref.watch(keyServiceProvider);
   // Ensure KeyService is initialized (which loads keys) before getting address
   await keyService.init();
   return keyService.getLightningAddress();
+});
+
+/// Provider for finished (takerPaid, <24h) offers for the current user (taker)
+final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
+  final publicKey = await ref.watch(publicKeyProvider.future);
+  if (publicKey == null) return [];
+  final apiService = ref.watch(apiServiceProvider);
+  final offersData = await apiService.getMyFinishedOffers(publicKey);
+  final now = DateTime.now().toUtc();
+  if (offersData == null) return [];
+
+  return offersData.where((offer) {
+    if (offer.status == 'takerPaid') {
+      final paidAt = offer.takerPaidAt;
+      return paidAt != null && now.difference(paidAt.toUtc()).inHours < 24;
+    }
+    return false;
+  }).toList();
 });
 
 // You might add more providers here as needed for:

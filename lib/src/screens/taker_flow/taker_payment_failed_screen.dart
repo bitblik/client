@@ -27,12 +27,6 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            Text(
-              'The payment for ${offer.amountSats} sats could not be completed. '
-              'Please provide a new Lightning invoice for the same amount.',
-              textAlign: TextAlign.center,
-            ),
             if (offer.takerLightningAddress != null &&
                 offer.takerLightningAddress!.isNotEmpty)
               Padding(
@@ -45,6 +39,12 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
                   ).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey),
                 ),
               ),
+            const SizedBox(height: 16),
+            Text(
+              'The payment for ${offer.amountSats} sats could not be completed. '
+              'Please provide a new Lightning invoice for the same amount.',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 24),
             TextField(
               controller: bolt11Controller,

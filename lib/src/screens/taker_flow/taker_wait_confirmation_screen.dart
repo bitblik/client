@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -183,9 +184,15 @@ class _TakerWaitConfirmationScreenState
           currentStatusEnum == OfferStatus.takerPaid) {
         _handlePaymentSuccess();
       } else {
-        _resetToOfferList(
-          "Offer is no longer awaiting confirmation (Status: $currentStatusEnum).",
-        );
+        if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
+          final destinationScreen = TakerPaymentFailedScreen(offer: currentOffer);
+          Navigator.of(
+            context,
+          ).pushReplacement(MaterialPageRoute(builder: (_) => destinationScreen));
+        }
+        // _resetToOfferList(
+        //   "Offer is no longer awaiting confirmation (Status: $currentStatusEnum).",
+        // );
       }
       return;
     }
@@ -269,7 +276,7 @@ class _TakerWaitConfirmationScreenState
     if (mounted) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(
-          content: Text('Payment Successful! You received the funds.'),
+          content: Text('Payment Successful! You will receive the funds shortly.'),
           backgroundColor: Colors.green,
         ),
       );

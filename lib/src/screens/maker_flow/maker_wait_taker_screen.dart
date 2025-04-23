@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitblik/src/screens/role_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
@@ -262,7 +263,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
   // Simple navigation back to root without resetting state
   void _goHome() {
     _statusCheckTimer?.cancel();
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    Navigator.of(context).popUntil(ModalRoute.withName('/'));
   }
 
   // Function to handle offer cancellation

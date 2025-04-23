@@ -5,8 +5,32 @@ import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
 import 'maker_success_screen.dart'; // Import the new success screen
 
-class MakerConfirmPaymentScreen extends ConsumerWidget {
+class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
   const MakerConfirmPaymentScreen({super.key});
+
+  @override
+  ConsumerState<MakerConfirmPaymentScreen> createState() =>
+      _MakerConfirmPaymentScreenState();
+}
+
+class _MakerConfirmPaymentScreenState
+    extends ConsumerState<MakerConfirmPaymentScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchBlikCode();
+  }
+
+  Future<void> _fetchBlikCode() async {
+    final offer = ref.read(activeOfferProvider);
+    final makerId = ref.read(publicKeyProvider).value;
+    if (offer == null || makerId == null) return;
+    final apiService = ref.read(apiServiceProvider);
+    final blikCode = await apiService.getBlikCodeForMaker(offer.id, makerId);
+    if (blikCode != null) {
+      ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
+    }
+  }
 
   // Helper to reset state and go back to role selection
   void _resetToRoleSelection(
@@ -107,7 +131,8 @@ class MakerConfirmPaymentScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final isLoading = ref.watch(isLoadingProvider);
     final errorMessage = ref.watch(errorProvider);
     final receivedBlikCode = ref.watch(receivedBlikCodeProvider);
@@ -117,15 +142,22 @@ class MakerConfirmPaymentScreen extends ConsumerWidget {
 
     // Handle case where BLIK code is somehow null when reaching this screen
     if (receivedBlikCode == null) {
-      // This indicates a state error, maybe reset?
-      print(
-        "[MakerConfirmPaymentScreen] Error: Reached confirm screen but BLIK code is null.",
-      );
-      // Optionally reset or show specific error message
-      return Center(
-        child: Text(
-          "Error: BLIK code not available.",
-          style: TextStyle(color: Colors.red),
+      // Show info and progress indicator in the Scaffold
+      return Scaffold(
+        appBar: AppBar(title: const Text('Confirm Payment')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "Retrieving BLIK code...",
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24),
+              CircularProgressIndicator(),
+            ],
+          ),
         ),
       );
     }
