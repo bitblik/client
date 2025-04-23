@@ -1,0 +1,213 @@
+{
+  "appTitle": "BitBlik",
+  "greeting": "Hello!",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "@greeting": {
+    "description": "A simple greeting"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Generic error title"
+  },
+  "errorOfferDetailsMissing": "Error: Offer details missing or invalid.",
+  "@errorOfferDetailsMissing": {
+    "description": "Displayed when offer details are missing or invalid"
+  },
+  "waitingForBlik": "Waiting for BLIK",
+  "@waitingForBlik": {
+    "description": "AppBar title when waiting for BLIK code"
+  },
+  "offerReservedByTaker": "Offer Reserved by Taker!",
+  "@offerReservedByTaker": {
+    "description": "Displayed when offer is reserved by taker"
+  },
+  "waitingForTakerBlik": "Waiting for Taker to submit their BLIK code.",
+  "@waitingForTakerBlik": {
+    "description": "Displayed while waiting for taker to submit BLIK code"
+  },
+  "takerHas20Seconds": "Taker has 20 seconds to provide the code.",
+  "@takerHas20Seconds": {
+    "description": "Displayed to indicate taker has 20 seconds"
+  },
+  "goHome": "Go Home",
+  "@goHome": {
+    "description": "Tooltip for home button"
+  },
+  "errorActiveOfferDetailsLost": "Error: Active offer details lost.",
+  "@errorActiveOfferDetailsLost": {
+    "description": "Displayed when active offer details are lost"
+  },
+  "errorFailedToRetrieveBlik": "Error: Failed to retrieve BLIK code.",
+  "@errorFailedToRetrieveBlik": {
+    "description": "Displayed when BLIK code retrieval fails"
+  },
+  "errorRetrievingBlik": "Error retrieving BLIK code: {details}",
+  "@errorRetrievingBlik": {
+    "description": "Displayed when there is an error retrieving BLIK code",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "offerNoLongerAvailable": "Offer is no longer available (Status: {status}).",
+  "@offerNoLongerAvailable": {
+    "description": "Displayed when offer is no longer available",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "yourOffer": "Your Offer:",
+  "@yourOffer": {
+    "description": "Label for user's offer"
+  },
+  "amountSats": "Amount: {amount} sats",
+  "@amountSats": {
+    "description": "Amount in sats",
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "feeSats": "Fee: {fee} sats",
+  "@feeSats": {
+    "description": "Fee in sats",
+    "placeholders": {
+      "fee": {}
+    }
+  },
+  "status": "Status: {status}",
+  "@status": {
+    "description": "Status of the offer",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "waitingForTaker": "Waiting for a Taker to reserve your offer...",
+  "@waitingForTaker": {
+    "description": "Displayed while waiting for a taker"
+  },
+  "cancelOffer": "Cancel Offer",
+  "@cancelOffer": {
+    "description": "Button to cancel offer"
+  },
+  "errorCouldNotIdentifyOffer": "Error: Could not identify offer to cancel.",
+  "@errorCouldNotIdentifyOffer": {
+    "description": "Displayed when offer to cancel cannot be identified"
+  },
+  "offerCannotBeCancelled": "Offer cannot be cancelled in current state ({status}).",
+  "@offerCannotBeCancelled": {
+    "description": "Displayed when offer cannot be cancelled in current state",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "offerCancelledSuccessfully": "Offer cancelled successfully.",
+  "@offerCancelledSuccessfully": {
+    "description": "Displayed when offer is cancelled successfully"
+  },
+  "failedToCancelOffer": "Failed to cancel offer: {details}",
+  "@failedToCancelOffer": {
+    "description": "Displayed when offer cancellation fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "enterLightningAddress": "Enter your Lightning Address to continue",
+  "@enterLightningAddress": {
+    "description": "Prompt to enter Lightning Address"
+  },
+  "lightningAddressHint": "user@domain.com",
+  "@lightningAddressHint": {
+    "description": "Hint for Lightning Address input"
+  },
+  "lightningAddressLabel": "Lightning Address",
+  "@lightningAddressLabel": {
+    "description": "Label for Lightning Address input"
+  },
+  "lightningAddressInvalid": "Please enter a valid Lightning Address",
+  "@lightningAddressInvalid": {
+    "description": "Validation error for Lightning Address"
+  },
+  "saveAndContinue": "Save & Continue",
+  "@saveAndContinue": {
+    "description": "Button to save and continue"
+  },
+  "editLightningAddress": "Edit Lightning Address",
+  "@editLightningAddress": {
+    "description": "Dialog title for editing Lightning Address"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "lightningAddressSaved": "Lightning Address saved!",
+  "@lightningAddressSaved": {
+    "description": "Snackbar message when Lightning Address is saved"
+  },
+  "lightningAddressUpdated": "Lightning Address updated!",
+  "@lightningAddressUpdated": {
+    "description": "Snackbar message when Lightning Address is updated"
+  },
+  "errorSavingAddress": "Error saving address: {details}",
+  "@errorSavingAddress": {
+    "description": "Snackbar message when saving Lightning Address fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "getNotifiedSimplex": "Get notified of new orders with SimpleX",
+  "@getNotifiedSimplex": {
+    "description": "SimpleX notification prompt"
+  },
+  "noOffersAvailable": "No offers available yet.",
+  "@noOffersAvailable": {
+    "description": "Displayed when there are no offers"
+  },
+  "take": "TAKE",
+  "@take": {
+    "description": "Button to take an offer"
+  },
+  "resume": "RESUME",
+  "@resume": {
+    "description": "Button to resume an offer"
+  },
+  "offerAmountSats": "Amount: {amount} sats",
+  "@offerAmountSats": {
+    "description": "Offer amount in sats",
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "offerFeeStatusId": "Fee: {fee} sats | Status: {status}\\nID: {id}...",
+  "@offerFeeStatusId": {
+    "description": "Offer fee, status, and ID",
+    "placeholders": {
+      "fee": {},
+      "status": {},
+      "id": {}
+    }
+  },
+  "finishedOffers": "Finished Offers",
+  "@finishedOffers": {
+    "description": "Section title for finished offers"
+  },
+  "errorLoadingOffers": "Error loading offers: {details}",
+  "@errorLoadingOffers": {
+    "description": "Error loading offers",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button"
+  },
+  "errorOfferUnexpectedState": "Error: Offer is in an unexpected state.",
+  "@errorOfferUnexpectedState": {
+    "description": "Displayed when offer is in an unexpected state"
+  }
+}
