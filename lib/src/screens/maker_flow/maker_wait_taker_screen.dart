@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
-import 'maker_wait_for_blik_screen.dart'; // Import the new screen
+// Import the new screen
+import 'maker_wait_for_blik_screen.dart';
 import 'maker_confirm_payment_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // Renamed class
 class MakerWaitTakerScreen extends ConsumerStatefulWidget {
@@ -275,8 +277,10 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
       print("[MakerWaitTakerScreen] Cannot cancel: Missing offer or maker ID.");
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Error: Could not identify offer to cancel."),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.errorCouldNotIdentifyOffer,
+            ),
           ),
         );
       return;
@@ -287,7 +291,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Offer cannot be cancelled in current state (${offer.status}).",
+              AppLocalizations.of(
+                context,
+              )!.offerCannotBeCancelled(offer.status),
             ),
           ),
         );
@@ -333,18 +339,28 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           children: <Widget>[
             if (offer != null) ...[
               Text(
-                'Your Offer:',
+                AppLocalizations.of(context)!.yourOffer,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-              Text('Amount: ${offer.amountSats} sats'),
-              Text('Fee: ${offer.feeSats} sats'),
-              Text('Status: ${offer.status.toUpperCase()}'),
+              Text(
+                AppLocalizations.of(
+                  context,
+                )!.amountSats(offer.amountSats.toString()),
+              ),
+              Text(
+                AppLocalizations.of(context)!.feeSats(offer.feeSats.toString()),
+              ),
+              Text(
+                AppLocalizations.of(
+                  context,
+                )!.status(offer.status.toUpperCase()),
+              ),
               const SizedBox(height: 30),
             ],
-            const Text(
-              'Waiting for a Taker to reserve your offer...', // Updated text
-              style: TextStyle(fontSize: 18),
+            Text(
+              AppLocalizations.of(context)!.waitingForTaker,
+              style: const TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
@@ -388,7 +404,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
                           valueColor: AlwaysStoppedAnimation(Colors.white),
                         ),
                       )
-                      : const Text("Cancel Offer"),
+                      : Text(AppLocalizations.of(context)!.cancelOffer),
             ),
           ],
         ),
