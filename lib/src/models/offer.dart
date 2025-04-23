@@ -9,6 +9,7 @@ enum OfferStatus {
   settled, // DVM settled hold invoice
   takerPaid, // DVM paid Taker
   takerPaymentFailed, // DVM failed to pay Taker after settling hold invoice
+  payingTaker, // paying the taker
   expired, // Offer timed out
   failed, // A general error occurred before payout attempt
   cancelled, // Offer explicitly cancelled by Maker (Added based on backend logic)

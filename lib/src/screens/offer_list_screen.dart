@@ -640,13 +640,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         ),
                                         child: ListTile(
                                           title: Text(
-                                            'Amount: ${offer.amountSats} sats',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
                                           ),
                                           subtitle: Text(
-                                            'Fee: ${offer.feeSats} sats | Status: ${offer.status}\nID: ${offer.id.substring(0, 8)}...',
+                                            "${offer.amountSats} + ${offer.feeSats} (fee) sats\nStatus: ${offer.status}",
                                           ),
                                           isThreeLine: true,
                                           trailing: trailingWidget,
@@ -747,5 +744,23 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
         },
       ),
     );
+  }
+}
+String formatDouble(double value) {
+  // Check if the value is effectively a whole number
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  } else {
+    // Format with up to 2 decimal places, removing trailing zeros
+    String asString = value.toStringAsFixed(2);
+    // Remove trailing zeros after decimal point
+    if (asString.contains('.')) {
+      asString = asString.replaceAll(RegExp(r'0+$'), '');
+      // Remove decimal point if it's the last character
+      if (asString.endsWith('.')) {
+        asString = asString.substring(0, asString.length - 1);
+      }
+    }
+    return asString;
   }
 }

@@ -175,12 +175,14 @@ class _MakerWaitForBlikScreenState
               print(
                 "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
               );
-              Navigator.of(context).pushReplacement(
-                // Use pushReplacement
-                MaterialPageRoute(
-                  builder: (_) => const MakerConfirmPaymentScreen(),
-                ),
-              );
+              context.go('/confirm-blik');
+              //
+              // Navigator.of(context).pushReplacement(
+              //   // Use pushReplacement
+              //   MaterialPageRoute(
+              //     builder: (_) => const MakerConfirmPaymentScreen(),
+              //   ),
+              // );
             }
           } else {
             // BLIK code is missing even though status is correct - backend issue?
