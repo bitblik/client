@@ -19,6 +19,8 @@ class Offer {
   final String id;
   final int amountSats;
   final int feeSats;
+  final double fiatAmount;
+  final String fiatCurrency;
   final String status; // e.g., "funded", "reserved", etc. Use OfferStatus.name
   final DateTime createdAt;
   final String makerPubkey;
@@ -42,6 +44,8 @@ class Offer {
     required this.amountSats,
     required this.feeSats,
     required this.status,
+    required this.fiatAmount,
+    required this.fiatCurrency,
     required this.createdAt,
     required this.makerPubkey,
     this.takerPubkey,
@@ -68,6 +72,8 @@ class Offer {
       id: json['id'] as String,
       amountSats: json['amount_sats'] as int,
       feeSats: json['fee_sats'] as int,
+      fiatAmount: json['fiat_amount']?? 0,
+      fiatCurrency: json['fiat_currency']?? '',
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       makerPubkey: json['maker_pubkey'] as String? ?? '',
@@ -142,6 +148,8 @@ class Offer {
       amountSats: amountSats ?? this.amountSats,
       feeSats: feeSats ?? this.feeSats,
       status: status ?? this.status,
+      fiatAmount: fiatAmount,
+      fiatCurrency: fiatCurrency,
       createdAt: createdAt ?? this.createdAt,
       makerPubkey: makerPubkey ?? this.makerPubkey,
       takerPubkey: takerPubkey ?? this.takerPubkey,

@@ -423,6 +423,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     amountSats:
                                                         offer.amountSats,
                                                     feeSats: offer.feeSats,
+                                                    fiatCurrency: offer.fiatCurrency,
+                                                    fiatAmount: offer.fiatAmount,
                                                     status:
                                                         OfferStatus
                                                             .reserved

@@ -325,13 +325,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               "Maker public key not found",
                                             );
                                           }
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) =>
-                                                      const MakerConfirmPaymentScreen(),
-                                            ),
-                                          );
+                                          context.go('/confirm-blik');
                                         } catch (e) {
                                           Navigator.of(context).pop();
                                           ScaffoldMessenger.of(

@@ -77,6 +77,8 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
         id: offerData['id'] as String,
         amountSats: offerData['amount_sats'] as int,
         feeSats: offerData['fee_sats'] as int,
+        fiatAmount: offerData['fiat_amount']?? 0,
+        fiatCurrency: offerData['fiat_currency']?? '',
         status: offerData['status'] as String,
         createdAt: DateTime.parse(offerData['created_at'] as String),
         makerPubkey:

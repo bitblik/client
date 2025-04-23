@@ -402,7 +402,7 @@ class _TakerWaitConfirmationScreenState
               const SizedBox(height: 10),
             ],
             Text(
-              'Waiting for Maker: $_confirmationCountdownSeconds s',
+              'Waiting for Maker confirmation: $_confirmationCountdownSeconds s',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -414,8 +414,8 @@ class _TakerWaitConfirmationScreenState
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 15),
-            const Text(
-              'Waiting for Maker Confirmation',
+            Text(
+              'Confirm the amount is ${currentOfferState.fiatAmount} ${currentOfferState.fiatCurrency}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
