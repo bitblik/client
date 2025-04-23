@@ -16,14 +16,63 @@ class MakerAmountForm extends ConsumerStatefulWidget {
 }
 
 class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
-  final _amountController = TextEditingController();
+  final _fiatController = TextEditingController();
   final _feeController = TextEditingController(text: '1'); // Default fee 1%
+  double? _satsEquivalent;
+  double? _rate;
+  bool _isFetchingRate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fiatController.addListener(_onFiatChanged);
+    _fetchRate();
+  }
 
   @override
   void dispose() {
-    _amountController.dispose();
+    _fiatController.dispose();
     _feeController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchRate() async {
+    setState(() {
+      _isFetchingRate = true;
+    });
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      // Use the offer API to get the rate (simulate with a dummy offer, or add a dedicated endpoint)
+      final result = await apiService.initiateOfferFiatPreview();
+      setState(() {
+        _rate = result['rate']?.toDouble();
+      });
+      _onFiatChanged();
+    } catch (_) {
+      setState(() {
+        _rate = null;
+      });
+    } finally {
+      setState(() {
+        _isFetchingRate = false;
+      });
+    }
+  }
+
+  void _onFiatChanged() {
+    final fiat = double.tryParse(_fiatController.text);
+    if (fiat != null && _rate != null) {
+      final btcPerPln = 1 / _rate!;
+      final btcAmount = fiat * btcPerPln;
+      final sats = btcAmount * 100000000;
+      setState(() {
+        _satsEquivalent = sats;
+      });
+    } else {
+      setState(() {
+        _satsEquivalent = null;
+      });
+    }
   }
 
   // Helper to reset state and go back to role selection
@@ -55,12 +104,12 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
           'Error: Public key not loaded yet.';
       return;
     }
-    final amount = int.tryParse(_amountController.text);
+    final fiatAmount = double.tryParse(_fiatController.text);
     final fee = int.tryParse(_feeController.text);
 
-    if (amount == null || amount <= 0 || fee == null || fee < 0) {
+    if (fiatAmount == null || fiatAmount <= 0 || fee == null || fee < 0) {
       ref.read(errorProvider.notifier).state =
-          'Please enter a valid amount and fee percentage.';
+          'Please enter a valid PLN amount and fee percentage.';
       return;
     }
 
@@ -69,8 +118,8 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      final result = await apiService.initiateOffer(
-        amountSats: amount,
+      final result = await apiService.initiateOfferFiat(
+        fiatAmount: fiatAmount,
         feePercentage: fee,
         makerId: makerId,
       );
@@ -83,12 +132,9 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             builder:
                 (context) => MakerPayInvoiceScreen(
                   onPaymentConfirmed: () {
-                    // Navigate to MakerWaitTakerScreen after payment confirmation
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder:
-                            (context) =>
-                                const MakerWaitTakerScreen(), // Corrected navigation
+                        builder: (context) => const MakerWaitTakerScreen(),
                       ),
                     );
                   },
@@ -143,29 +189,35 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                 const SizedBox(height: 10),
               ],
               const Text(
-                'Enter Amount (sats) to Pay:',
+                'Enter Amount (PLN) to Pay:',
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 8),
               TextField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
+                controller: _fiatController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Amount (sats)',
+                  labelText: 'Amount (PLN)',
                 ),
               ),
-              // const SizedBox(height: 10),
-              // const Text('Premium Fee (%):', style: TextStyle(fontSize: 16)),
-              // const SizedBox(height: 8),
-              // TextField(
-              //   controller: _feeController,
-              //   keyboardType: TextInputType.number,
-              //   decoration: const InputDecoration(
-              //     border: OutlineInputBorder(),
-              //     labelText: 'Fee % (e.g., 1)',
-              //   ),
-              // ),
+              const SizedBox(height: 10),
+              if (_isFetchingRate)
+                const Text(
+                  'Fetching exchange rate from coingecko API',
+                  textAlign: TextAlign.center,
+                )
+              else if (_satsEquivalent != null)
+                Text(
+                  '≈ ${_satsEquivalent!.toStringAsFixed(0)} sats',
+                  style: const TextStyle(fontSize: 16, color: Colors.blue),
+                  textAlign: TextAlign.center,
+                )
+              else
+                Text(
+                  'PLN/BTC rate (coingecko API) = ${_rate?.toStringAsFixed(0)}',
+                  textAlign: TextAlign.center,
+                ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed:
