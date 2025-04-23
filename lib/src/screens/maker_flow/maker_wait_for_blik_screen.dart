@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../services/api_service.dart';
 import '../../models/offer.dart';
@@ -87,12 +88,14 @@ class _MakerWaitForBlikScreenState
           // Pop the current screen first
           Navigator.of(context).pop();
           // Then push the confirmation screen
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const MakerConfirmPaymentScreen(),
-            ),
-          );
-          Navigator.of(context).pop(); // Pop THIS screen only
+          context.go('/confirm-blik');
+          //
+          // Navigator.of(context).push(
+          //   MaterialPageRoute(
+          //     builder: (_) => const MakerConfirmPaymentScreen(),
+          //   ),
+          // );
+          // Navigator.of(context).pop(); // Pop THIS screen only
         }
         return; // Don't proceed with API check if locally expired
       }

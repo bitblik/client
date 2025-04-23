@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bitblik/src/screens/role_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
@@ -195,11 +196,13 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           if (blikCode != null && blikCode.isNotEmpty) {
             ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
             if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const MakerConfirmPaymentScreen(),
-                ),
-              );
+              context.go('/confirm-blik');
+              //
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(
+              //     builder: (_) => const MakerConfirmPaymentScreen(),
+              //   ),
+              // );
             }
           } else {
             print(

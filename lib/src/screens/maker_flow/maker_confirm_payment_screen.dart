@@ -160,13 +160,7 @@ class _MakerConfirmPaymentScreenState
     }
 
     // Wrap the Padding with Scaffold and SingleChildScrollView
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirm Payment'),
-        // Optionally add a back button or home button if needed
-        // leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => ...),
-      ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         // Added SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -241,7 +235,6 @@ class _MakerConfirmPaymentScreenState
             ],
           ),
         ),
-      ),
     );
   }
 }
