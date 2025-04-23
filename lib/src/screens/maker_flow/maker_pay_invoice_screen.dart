@@ -9,12 +9,12 @@ import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
 import 'package:android_intent_plus/flag.dart'; // Import for flags enum
 import '../../providers/providers.dart'; // Import providers
 import '../../models/offer.dart'; // Import Offer model for status enum comparison
-import '../../services/api_service.dart'; // Import ApiService
+import '../../services/api_service.dart';
+import 'maker_wait_taker_screen.dart'; // Import ApiService
+import 'package:go_router/go_router.dart';
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
-  final VoidCallback onPaymentConfirmed; // Callback for next step
-
-  const MakerPayInvoiceScreen({required this.onPaymentConfirmed, super.key});
+  const MakerPayInvoiceScreen({super.key});
 
   @override
   ConsumerState<MakerPayInvoiceScreen> createState() =>
@@ -90,7 +90,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             ref.read(activeOfferProvider.notifier).state = fullOffer;
 
             if (mounted) {
-              widget.onPaymentConfirmed(); // Trigger callback to parent
+              context.go("/wait-taker");
             }
           } else {
             if (mounted) {
@@ -157,95 +157,83 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     ); // Watch the invoice state
 
     // Add Scaffold wrapper
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Pay Invoice"),
-        // Optionally add a back button if needed, though navigation might handle it
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Builder(
-        // Use Builder to get context below Scaffold if needed for SnackBar
-        builder: (context) {
-          if (holdInvoice == null) {
-            // Should not happen if navigation is correct, but handle defensively
-            return const Center(
-              child: Text("Error: Invoice details not found."),
-            );
-          }
+    return Builder(
+      // Use Builder to get context below Scaffold if needed for SnackBar
+      builder: (context) {
+        if (holdInvoice == null) {
+          // Should not happen if navigation is correct, but handle defensively
+          return const Center(child: Text("Error: Invoice details not found."));
+        }
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const Text(
-                    'Pay this Hold Invoice:',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 15),
-                  // Display QR Code (tappable)
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => _launchLightningUrl(holdInvoice),
-                      child: QrImageView(
-                        data: holdInvoice.toUpperCase(),
-                        version: QrVersions.auto,
-                        size: 200.0,
-                        backgroundColor: Colors.white, // Ensure QR is visible
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  // Display Invoice String (selectable and tappable)
-                  InkWell(
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  'Pay this Hold Invoice:',
+                  style: TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15),
+                // Display QR Code (tappable)
+                Center(
+                  child: GestureDetector(
                     onTap: () => _launchLightningUrl(holdInvoice),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: SelectableText(
-                        holdInvoice,
-                        textAlign: TextAlign.center,
-                      ),
+                    child: QrImageView(
+                      data: holdInvoice.toUpperCase(),
+                      version: QrVersions.auto,
+                      size: 200.0,
+                      backgroundColor: Colors.white, // Ensure QR is visible
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.copy),
-                    label: const Text('Copy Invoice'),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: holdInvoice));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Invoice copied to clipboard!'),
-                        ),
-                      );
-                    },
+                ),
+                const SizedBox(height: 15),
+                // Display Invoice String (selectable and tappable)
+                InkWell(
+                  onTap: () => _launchLightningUrl(holdInvoice),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SelectableText(
+                      holdInvoice,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  const SizedBox(height: 25),
-                  // Polling status indicator
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 15,
-                        height: 15,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(height: 15),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.copy),
+                  label: const Text('Copy Invoice'),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: holdInvoice));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invoice copied to clipboard!'),
                       ),
-                      SizedBox(width: 8),
-                      Text('Waiting for payment confirmation...'),
-                    ],
-                  ),
-                ],
-              ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 25),
+                // Polling status indicator
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 15,
+                      height: 15,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                    Text('Waiting for payment confirmation...'),
+                  ],
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
 import '../../services/api_service.dart';
@@ -416,11 +417,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         "[TakerSubmitBlikScreen] BLIK submitted. Navigating to WaitConfirmation.",
       );
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => TakerWaitConfirmationScreen(offer: updatedOffer),
-          ),
-        );
+        context.go('/wait-confirmation',extra: updatedOffer);
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error submitting BLIK: $e';
@@ -433,7 +430,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
     }
   }
-
 
   Future<void> _pasteFromClipboard() async {
     final textData = await Clipboard.getData(Clipboard.kTextPlain);
@@ -465,47 +461,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
           }
         }
         });
-    //   final clipboard = ClipboardEvents.instance;
-    //   if (clipboard!=null) {
-    //     clipboard.registerPasteEventListener((event) async {
-    //       // Requesting the clipboard reader will prevent the default paste action
-    //       // such as inserting the text in editable element.
-    //       await event.getClipboardReader().then((value) {
-    //         value.getValue(Formats.plainText, (value) {
-    //           if (value!=null && value.isNotEmpty) {
-    //             final pastedText = value;
-    //             final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
-    //             if (digitsOnly.length == 6) {
-    //               _blikController.text = digitsOnly;
-    //               _blikController.selection = TextSelection.fromPosition(
-    //                 TextPosition(offset: _blikController.text.length),
-    //               );
-    //               ScaffoldMessenger.of(context).showSnackBar(
-    //                 const SnackBar(
-    //                   content: Text('Pasted BLIK code.'),
-    //                   duration: Duration(seconds: 1),
-    //                 ),
-    //               );
-    //             } else {
-    //               ScaffoldMessenger.of(context).showSnackBar(
-    //                 const SnackBar(
-    //                   content: Text(
-    //                     'Clipboard does not contain a valid 6-digit BLIK code.',
-    //                   ),
-    //                 ),
-    //               );
-    //             }
-    //           } else {
-    //             ScaffoldMessenger.of(context).showSnackBar(
-    //               const SnackBar(
-    //                 content: Text('Clipboard is empty or does not contain text.'),
-    //               ),
-    //             );
-    //           }
-    //         });
-    //       });
-    //     });
-    //   }
   }
 
   @override

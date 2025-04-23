@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
+import 'package:bitblik/src/screens/maker_flow/maker_wait_for_blik_screen.dart';
+import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,6 +32,37 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/create',
         builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
+      ),
+      GoRoute(
+        path: '/pay',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: MakerPayInvoiceScreen()),
+      ),
+      GoRoute(
+        path: '/wait-taker',
+        builder:
+            (context, state) => const AppScaffold(body: MakerWaitTakerScreen()),
+      ),
+      GoRoute(
+        path: '/wait-blik',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: MakerWaitForBlikScreen()),
+      ),
+      GoRoute(
+        path: '/submit-blik',
+        builder:
+            (context, state) => AppScaffold(
+              body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer),
+            ),
+      ),
+      GoRoute(
+        path: '/wait-confirmation',
+        builder:
+            (context, state) => AppScaffold(
+              body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
+            ),
       ),
     ],
   );
@@ -154,41 +188,85 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         ],
       ),
       body: _buildBody(appRole, widget.body),
-      bottomNavigationBar: publicKeyAsync.when(
-        data:
-            (publicKey) =>
-                publicKey != null
-                    ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SelectableText(
-                        'Your PubKey: $publicKey',
-                        style: Theme.of(context).textTheme.bodySmall,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          publicKeyAsync.when(
+            data:
+                (publicKey) =>
+                    publicKey != null
+                        ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SelectableText(
+                            'Your PubKey: $publicKey',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                        : const SizedBox.shrink(),
+            loading:
+                () => const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+            error:
+                (err, stack) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Error loading key: $err',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+          ),
+          Consumer(
+            builder: (context, ref, _) {
+              final lightningAddressAsync = ref.watch(lightningAddressProvider);
+              return lightningAddressAsync.when(
+                data:
+                    (address) =>
+                        address != null && address.isNotEmpty
+                            ? Padding(
+                              padding: const EdgeInsets.only(
+                                left: 8.0,
+                                right: 8.0,
+                                bottom: 8.0,
+                              ),
+                              child: SelectableText(
+                                'Your Lightning Address: $address',
+                                style: Theme.of(context).textTheme.bodySmall,
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                            : const SizedBox.shrink(),
+                loading: () => const SizedBox.shrink(),
+                error:
+                    (err, stack) => Padding(
+                      padding: const EdgeInsets.only(
+                        left: 8.0,
+                        right: 8.0,
+                        bottom: 8.0,
+                      ),
+                      child: Text(
+                        'Error loading lightning address: $err',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.red),
                         textAlign: TextAlign.center,
                       ),
-                    )
-                    : null,
-        loading:
-            () => const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            ),
-        error:
-            (err, stack) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Error loading key: $err',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            ),
+                    ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
