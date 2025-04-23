@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../models/offer.dart';
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 import 'maker_confirm_payment_screen.dart'; // Import next screen
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});
@@ -61,7 +62,9 @@ class _MakerWaitForBlikScreenState
         "[MakerWaitForBlik] Error: Missing offer, payment hash or public key.",
       );
       if (offer == null && mounted) {
-        _resetToRoleSelection("Error: Active offer details lost.");
+        _resetToRoleSelection(
+          AppLocalizations.of(context)!.errorOfferDetailsMissing,
+        );
       }
       return;
     }
@@ -182,17 +185,13 @@ class _MakerWaitForBlikScreenState
               "[MakerWaitForBlik] Error: Status is ${currentStatus.name} but API returned no BLIK code. Resetting.",
             );
             if (mounted) {
-              _resetToRoleSelection(
-                "Error: Received confirmation status but failed to retrieve BLIK code.",
-              );
+              _resetToRoleSelection(AppLocalizations.of(context)!.error);
             }
           }
         } catch (e) {
           print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(
-              "Error retrieving BLIK code: ${e.toString()}",
-            );
+            _resetToRoleSelection(AppLocalizations.of(context)!.error);
           }
         }
       } else if (currentStatus == OfferStatus.funded) {
@@ -227,9 +226,7 @@ class _MakerWaitForBlikScreenState
         );
         _statusCheckTimer?.cancel();
         if (mounted) {
-          _resetToRoleSelection(
-            "Offer is no longer waiting for BLIK (Status: ${currentStatus.name}).",
-          );
+          _resetToRoleSelection(AppLocalizations.of(context)!.error);
         }
       }
     } catch (e) {
@@ -273,22 +270,22 @@ class _MakerWaitForBlikScreenState
     if (offer == null || offer.reservedAt == null) {
       // Should ideally not happen if navigated correctly, but handle defensively
       return Scaffold(
-        appBar: AppBar(title: const Text("Error")),
-        body: const Center(
-          child: Text("Error: Offer details missing or invalid."),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.error)),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.errorOfferDetailsMissing),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Waiting for BLIK"),
+        title: Text(AppLocalizations.of(context)!.waitingForBlik),
         automaticallyImplyLeading:
             false, // Prevent back button since we handle navigation
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            tooltip: 'Go Home',
+            tooltip: AppLocalizations.of(context)!.goHome,
             onPressed:
                 _goHome, // Allow going home, but maybe reconsider cancellation here?
           ),
@@ -301,15 +298,18 @@ class _MakerWaitForBlikScreenState
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const Text(
-                'Offer Reserved by Taker!',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                AppLocalizations.of(context)!.offerReservedByTaker,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
               Text(
-                'Waiting for Taker to submit their BLIK code.',
-                style: TextStyle(fontSize: 16),
+                AppLocalizations.of(context)!.waitingForTakerBlik,
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -322,7 +322,7 @@ class _MakerWaitForBlikScreenState
               const CircularProgressIndicator(), // General waiting indicator
               const SizedBox(height: 20),
               Text(
-                'Taker has 20 seconds to provide the code.',
+                AppLocalizations.of(context)!.takerHas20Seconds,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),

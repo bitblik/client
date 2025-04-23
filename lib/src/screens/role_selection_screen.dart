@@ -24,7 +24,7 @@ class RoleSelectionScreen extends ConsumerWidget {
   // Helper to navigate to the correct Maker step based on status
   void _navigateToMakerStep(BuildContext context, Offer offer) {
     final offerStatus = OfferStatus.values.byName(offer.status);
-    Widget targetScreen;
+    Widget? targetScreen;
 
     switch (offerStatus) {
       case OfferStatus
@@ -33,6 +33,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       case OfferStatus.published:
         // Waiting for a taker to reserve
         targetScreen = const MakerWaitTakerScreen();
+        context.go("/wait-taker", extra: offer);
         break;
       case OfferStatus.reserved:
         // Taker reserved, waiting for BLIK
@@ -49,7 +50,10 @@ class RoleSelectionScreen extends ConsumerWidget {
         return; // Don't navigate
     }
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => targetScreen));
+    if (targetScreen!=null) {
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => targetScreen!));
+    }
   }
 
   // Helper to navigate to the correct Taker step based on offer status

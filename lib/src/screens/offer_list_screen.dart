@@ -11,6 +11,7 @@ import '../widgets/progress_indicators.dart'; // Import the progress indicators
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // --- OfferListScreen ---
 
@@ -120,9 +121,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Enter your Lightning Address to continue',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context)!.enterLightningAddress,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Form(
@@ -131,16 +135,20 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     controller: _addressController,
                     focusNode: _addressFocusNode,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'user@domain.com',
-                      labelText: 'Lightning Address',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText:
+                          AppLocalizations.of(context)!.lightningAddressHint,
+                      labelText:
+                          AppLocalizations.of(context)!.lightningAddressLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
                           !value.contains('@')) {
-                        return 'Please enter a valid Lightning Address';
+                        return AppLocalizations.of(
+                          context,
+                        )!.lightningAddressInvalid;
                       }
                       return null;
                     },
@@ -167,7 +175,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       }
                     }
                   },
-                  child: const Text('Save & Continue'),
+                  child: Text(AppLocalizations.of(context)!.saveAndContinue),
                 ),
               ],
             );
@@ -505,7 +513,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             () =>
                                                 null, // Disable if public key loading/error
                                       ),
-                                      child: const Text('TAKE'),
+                                      child: Text(AppLocalizations.of(context)!.take),
                                     );
                                   } else if (isReserved || isBlikReceived) {
                                     trailingWidget = myActiveOfferAsyncValue.when(
