@@ -161,7 +161,10 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       appBar: AppBar(
         title: const Text("Pay Invoice"),
         // Optionally add a back button if needed, though navigation might handle it
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Builder(
         // Use Builder to get context below Scaffold if needed for SnackBar
