@@ -220,7 +220,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                             : () {
                               ref.read(appRoleProvider.notifier).state =
                                   AppRole.maker;
-                              context.go("/pay");
+                              context.push("/create");
                               // Navigator.of(context).push(
                               //   MaterialPageRoute(
                               //     builder: (_) => MakerAmountForm(),
@@ -237,7 +237,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                             : () {
                               ref.read(appRoleProvider.notifier).state =
                                   AppRole.taker;
-                              context.go("/offers");
+                              context.push("/offers");
                               // Navigator.of(context).push(
                               //   MaterialPageRoute(
                               //     builder: (_) => const OfferListScreen(),

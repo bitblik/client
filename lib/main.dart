@@ -13,23 +13,23 @@ import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 // Create a GoRouter provider for navigation
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    debugLogDiagnostics: true,
     initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
         builder:
             (context, state) => const AppScaffold(body: RoleSelectionScreen()),
-        routes: [
-          GoRoute(
-            path: '/offers',
-            builder: (context, state) => const AppScaffold(body: OfferListScreen()),
-          ),
-          GoRoute(
-            path: '/pay',
-            builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
-          ),
-          ]
-      )
+        // routes: [,
+      ),
+      GoRoute(
+        path: '/offers',
+        builder: (context, state) => const AppScaffold(body: OfferListScreen()),
+      ),
+      GoRoute(
+        path: '/create',
+        builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
+      ),
     ],
   );
 });
