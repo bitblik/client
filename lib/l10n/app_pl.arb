@@ -1,0 +1,213 @@
+{
+  "appTitle": "BitBlik",
+  "greeting": "Cześć!",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "@greeting": {
+    "description": "A simple greeting"
+  },
+  "error": "Błąd",
+  "@error": {
+    "description": "Generic error title"
+  },
+  "errorOfferDetailsMissing": "Błąd: Brak lub nieprawidłowe dane oferty.",
+  "@errorOfferDetailsMissing": {
+    "description": "Displayed when offer details are missing or invalid"
+  },
+  "waitingForBlik": "Oczekiwanie na BLIK",
+  "@waitingForBlik": {
+    "description": "AppBar title when waiting for BLIK code"
+  },
+  "offerReservedByTaker": "Oferta zarezerwowana przez odbiorcę!",
+  "@offerReservedByTaker": {
+    "description": "Displayed when offer is reserved by taker"
+  },
+  "waitingForTakerBlik": "Oczekiwanie na kod BLIK od odbiorcy.",
+  "@waitingForTakerBlik": {
+    "description": "Displayed while waiting for taker to submit BLIK code"
+  },
+  "takerHas20Seconds": "Odbiorca ma 20 sekund na podanie kodu.",
+  "@takerHas20Seconds": {
+    "description": "Displayed to indicate taker has 20 seconds"
+  },
+  "goHome": "Strona główna",
+  "@goHome": {
+    "description": "Tooltip for home button"
+  },
+  "errorActiveOfferDetailsLost": "Błąd: Utracono dane aktywnej oferty.",
+  "@errorActiveOfferDetailsLost": {
+    "description": "Displayed when active offer details are lost"
+  },
+  "errorFailedToRetrieveBlik": "Błąd: Nie udało się pobrać kodu BLIK.",
+  "@errorFailedToRetrieveBlik": {
+    "description": "Displayed when BLIK code retrieval fails"
+  },
+  "errorRetrievingBlik": "Błąd podczas pobierania kodu BLIK: {details}",
+  "@errorRetrievingBlik": {
+    "description": "Displayed when there is an error retrieving BLIK code",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "offerNoLongerAvailable": "Oferta jest już niedostępna (Status: {status}).",
+  "@offerNoLongerAvailable": {
+    "description": "Displayed when offer is no longer available",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "yourOffer": "Twoja oferta:",
+  "@yourOffer": {
+    "description": "Label for user's offer"
+  },
+  "amountSats": "Kwota: {amount} sats",
+  "@amountSats": {
+    "description": "Amount in sats",
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "feeSats": "Opłata: {fee} sats",
+  "@feeSats": {
+    "description": "Fee in sats",
+    "placeholders": {
+      "fee": {}
+    }
+  },
+  "status": "Status: {status}",
+  "@status": {
+    "description": "Status of the offer",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "waitingForTaker": "Oczekiwanie na odbiorcę, który zarezerwuje ofertę...",
+  "@waitingForTaker": {
+    "description": "Displayed while waiting for a taker"
+  },
+  "cancelOffer": "Anuluj ofertę",
+  "@cancelOffer": {
+    "description": "Button to cancel offer"
+  },
+  "errorCouldNotIdentifyOffer": "Błąd: Nie można zidentyfikować oferty do anulowania.",
+  "@errorCouldNotIdentifyOffer": {
+    "description": "Displayed when offer to cancel cannot be identified"
+  },
+  "offerCannotBeCancelled": "Nie można anulować oferty w obecnym stanie ({status}).",
+  "@offerCannotBeCancelled": {
+    "description": "Displayed when offer cannot be cancelled in current state",
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "offerCancelledSuccessfully": "Oferta została pomyślnie anulowana.",
+  "@offerCancelledSuccessfully": {
+    "description": "Displayed when offer is cancelled successfully"
+  },
+  "failedToCancelOffer": "Nie udało się anulować oferty: {details}",
+  "@failedToCancelOffer": {
+    "description": "Displayed when offer cancellation fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "enterLightningAddress": "Wprowadź swój adres Lightning, aby kontynuować",
+  "@enterLightningAddress": {
+    "description": "Prompt to enter Lightning Address"
+  },
+  "lightningAddressHint": "użytkownik@domena.com",
+  "@lightningAddressHint": {
+    "description": "Hint for Lightning Address input"
+  },
+  "lightningAddressLabel": "Adres Lightning",
+  "@lightningAddressLabel": {
+    "description": "Label for Lightning Address input"
+  },
+  "lightningAddressInvalid": "Wprowadź poprawny adres Lightning",
+  "@lightningAddressInvalid": {
+    "description": "Validation error for Lightning Address"
+  },
+  "saveAndContinue": "Zapisz i kontynuuj",
+  "@saveAndContinue": {
+    "description": "Button to save and continue"
+  },
+  "editLightningAddress": "Edytuj adres Lightning",
+  "@editLightningAddress": {
+    "description": "Dialog title for editing Lightning Address"
+  },
+  "cancel": "Anuluj",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "save": "Zapisz",
+  "@save": {
+    "description": "Save button"
+  },
+  "lightningAddressSaved": "Adres Lightning zapisany!",
+  "@lightningAddressSaved": {
+    "description": "Snackbar message when Lightning Address is saved"
+  },
+  "lightningAddressUpdated": "Adres Lightning zaktualizowany!",
+  "@lightningAddressUpdated": {
+    "description": "Snackbar message when Lightning Address is updated"
+  },
+  "errorSavingAddress": "Błąd zapisu adresu: {details}",
+  "@errorSavingAddress": {
+    "description": "Snackbar message when saving Lightning Address fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "getNotifiedSimplex": "Otrzymuj powiadomienia o nowych ofertach przez SimpleX",
+  "@getNotifiedSimplex": {
+    "description": "SimpleX notification prompt"
+  },
+  "noOffersAvailable": "Brak dostępnych ofert.",
+  "@noOffersAvailable": {
+    "description": "Displayed when there are no offers"
+  },
+  "take": "WEŹ",
+  "@take": {
+    "description": "Button to take an offer"
+  },
+  "resume": "WZNÓW",
+  "@resume": {
+    "description": "Button to resume an offer"
+  },
+  "offerAmountSats": "Kwota: {amount} sats",
+  "@offerAmountSats": {
+    "description": "Offer amount in sats",
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "offerFeeStatusId": "Opłata: {fee} sats | Status: {status}\\nID: {id}...",
+  "@offerFeeStatusId": {
+    "description": "Offer fee, status, and ID",
+    "placeholders": {
+      "fee": {},
+      "status": {},
+      "id": {}
+    }
+  },
+  "finishedOffers": "Zakończone oferty",
+  "@finishedOffers": {
+    "description": "Section title for finished offers"
+  },
+  "errorLoadingOffers": "Błąd ładowania ofert: {details}",
+  "@errorLoadingOffers": {
+    "description": "Error loading offers",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "retry": "Ponów",
+  "@retry": {
+    "description": "Retry button"
+  },
+  "errorOfferUnexpectedState": "Błąd: Oferta jest w nieoczekiwanym stanie.",
+  "@errorOfferUnexpectedState": {
+    "description": "Displayed when offer is in an unexpected state"
+  }
+}
