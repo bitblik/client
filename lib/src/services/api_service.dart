@@ -32,27 +32,45 @@ class ApiService {
     }
   }
 
-  // POST /initiate-offer
-  Future<Map<String, dynamic>> initiateOffer({
-    required int amountSats,
+  // POST /initiate-offer (fiat version)
+  Future<Map<String, dynamic>> initiateOfferFiat({
+    required double fiatAmount,
     required int feePercentage,
     required String makerId,
   }) async {
     final url = Uri.parse('$_baseUrl/initiate-offer');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
-      'amount_sats': amountSats,
+      'fiat_amount': fiatAmount,
       'fee_percentage': feePercentage,
       'maker_id': makerId,
     });
 
     try {
       final response = await http.post(url, headers: headers, body: body);
-      // Expects {'holdInvoice': 'lnbc...', 'paymentHash': '...'}
       return _handleResponse(response) as Map<String, dynamic>;
     } catch (e) {
-      print('Error calling initiateOffer: $e');
-      rethrow; // Rethrow to allow UI to handle it
+      print('Error calling initiateOfferFiat: $e');
+      rethrow;
+    }
+  }
+
+  // POST /initiate-offer (preview for rate only)
+  Future<Map<String, dynamic>> initiateOfferFiatPreview() async {
+    final url = Uri.parse('$_baseUrl/initiate-offer');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'fiat_amount': 1,
+      'fee_percentage': 0,
+      'maker_id': 'preview',
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      return _handleResponse(response) as Map<String, dynamic>;
+    } catch (e) {
+      print('Error calling initiateOfferFiatPreview: $e');
+      rethrow;
     }
   }
 
