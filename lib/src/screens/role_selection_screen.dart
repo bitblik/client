@@ -56,7 +56,7 @@ class RoleSelectionScreen extends ConsumerWidget {
 
     if (offerStatus == OfferStatus.reserved) {
       // Pass the offer to the constructor using initialOffer
-      context.go('/submit-blik',extra: offer);
+      context.go('/submit-blik', extra: offer);
     } else if (offerStatus == OfferStatus.blikReceived ||
         offerStatus == OfferStatus.blikSentToMaker ||
         offerStatus == OfferStatus.makerConfirmed) {
@@ -64,7 +64,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       context.go("/wait-confirmation", extra: offer);
     } else if (offerStatus == OfferStatus.takerPaymentFailed) {
       // Navigate to the new payment failed screen
-      context.go('/taker-failed',extra: offer);
+      context.go('/taker-failed', extra: offer);
     } else {
       print(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",
@@ -160,12 +160,7 @@ class RoleSelectionScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // const Text(
-            //   'Choose Your Role:',
-            //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            //   textAlign: TextAlign.center,
-            // ),
-            // const SizedBox(height: 20),
+            const SizedBox(height: 24),
             initialOfferAsync.when(
               loading:
                   () => const Center(
