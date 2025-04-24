@@ -24,7 +24,6 @@ class RoleSelectionScreen extends ConsumerWidget {
   // Helper to navigate to the correct Maker step based on status
   void _navigateToMakerStep(BuildContext context, Offer offer) {
     final offerStatus = OfferStatus.values.byName(offer.status);
-    Widget? targetScreen;
 
     switch (offerStatus) {
       case OfferStatus
@@ -32,12 +31,12 @@ class RoleSelectionScreen extends ConsumerWidget {
       case OfferStatus.funded:
       case OfferStatus.published:
         // Waiting for a taker to reserve
-        targetScreen = const MakerWaitTakerScreen();
+        // targetScreen = const MakerWaitTakerScreen();
         context.go("/wait-taker", extra: offer);
         break;
       case OfferStatus.reserved:
         // Taker reserved, waiting for BLIK
-        targetScreen = const MakerWaitForBlikScreen();
+        context.go("/wait-blik", extra: offer);
         break;
       // Removed blikReceived and blikSentToMaker cases here.
       // They are now handled exclusively within the onTap handler
@@ -49,21 +48,15 @@ class RoleSelectionScreen extends ConsumerWidget {
         );
         return; // Don't navigate
     }
-
-    if (targetScreen!=null) {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => targetScreen!));
-    }
   }
 
   // Helper to navigate to the correct Taker step based on offer status
   void _navigateToTakerStep(BuildContext context, Offer offer) {
     final offerStatus = OfferStatus.values.byName(offer.status);
-    Widget? destinationScreen;
 
     if (offerStatus == OfferStatus.reserved) {
       // Pass the offer to the constructor using initialOffer
-      destinationScreen = TakerSubmitBlikScreen(initialOffer: offer);
+      context.go('/submit-blik',extra: offer);
     } else if (offerStatus == OfferStatus.blikReceived ||
         offerStatus == OfferStatus.blikSentToMaker ||
         offerStatus == OfferStatus.makerConfirmed) {
@@ -71,7 +64,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       context.go("/wait-confirmation", extra: offer);
     } else if (offerStatus == OfferStatus.takerPaymentFailed) {
       // Navigate to the new payment failed screen
-      destinationScreen = TakerPaymentFailedScreen(offer: offer);
+      context.go('/taker-failed',extra: offer);
     } else {
       print(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",
@@ -82,12 +75,6 @@ class RoleSelectionScreen extends ConsumerWidget {
         ),
       );
       return; // Don't navigate
-    }
-
-    if (destinationScreen != null) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => destinationScreen!));
     }
   }
 

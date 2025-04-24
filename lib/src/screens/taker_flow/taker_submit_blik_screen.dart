@@ -272,9 +272,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final navigator = Navigator.maybeOf(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        if (navigator != null) {
-          navigator.popUntil((route) => route.isFirst);
-        }
+        context.go("/offers");
         if (scaffoldMessenger != null) {
           scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
         }
@@ -488,15 +486,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
 
     // --- Main UI Build ---
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Enter BLIK'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => _resetToOfferList("Cancelled Taker action."),
-        ),
-      ),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -517,10 +507,17 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
               ),
               Card(
                 child: ListTile(
-                  title: Text('Amount: ${displayOffer.amountSats} sats'),
-                  subtitle: Text(
-                    'Fee: ${displayOffer.feeSats} sats\nID: ${displayOffer.id.substring(0, 6)}...',
+                  title: Text(
+                    "${formatDouble(displayOffer.fiatAmount)} ${displayOffer.fiatCurrency}",
                   ),
+                  subtitle: Text(
+                    "${displayOffer.amountSats} + ${displayOffer.feeSats} (fee) sats\nStatus: ${displayOffer.status}",
+                  ),
+
+                  // title: Text('Amount: ${displayOffer.amountSats} sats'),
+                  // subtitle: Text(
+                  //   'Fee: ${displayOffer.feeSats} sats\nID: ${displayOffer.id.substring(0, 6)}...',
+                  // ),
                   isThreeLine: true,
                 ),
               ),
@@ -580,7 +577,25 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
             ],
           ),
         ),
-      ),
     );
+  }
+}
+
+String formatDouble(double value) {
+  // Check if the value is effectively a whole number
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  } else {
+    // Format with up to 2 decimal places, removing trailing zeros
+    String asString = value.toStringAsFixed(2);
+    // Remove trailing zeros after decimal point
+    if (asString.contains('.')) {
+      asString = asString.replaceAll(RegExp(r'0+$'), '');
+      // Remove decimal point if it's the last character
+      if (asString.endsWith('.')) {
+        asString = asString.substring(0, asString.length - 1);
+      }
+    }
+    return asString;
   }
 }

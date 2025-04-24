@@ -4,6 +4,7 @@ import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_success_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_for_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
+import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -80,6 +81,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             (context, state) => AppScaffold(
               body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
             ),
+      ),
+      GoRoute(
+        path: '/taker-failed',
+        builder:
+            (context, state) => AppScaffold(
+          body: TakerPaymentFailedScreen(offer: state.extra as Offer),
+        ),
       ),
     ],
   );

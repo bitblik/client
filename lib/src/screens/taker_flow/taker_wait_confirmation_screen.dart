@@ -318,10 +318,7 @@ class _TakerWaitConfirmationScreenState
       if (scaffoldMessenger != null) {
         scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
       }
-      context.go('/');
-      // if (navigator != null && navigator.canPop()) {
-      //   navigator.popUntil((route) => route.isFirst);
-      // }
+      context.go('/offers');
     }
   }
 
@@ -405,6 +402,12 @@ class _TakerWaitConfirmationScreenState
               const SizedBox(height: 10),
             ],
             Text(
+              'Offer Status: ${displayOffer.status}',
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
               'Waiting for Maker confirmation: $_confirmationCountdownSeconds s',
               style: TextStyle(
                 fontSize: 16,
@@ -418,7 +421,7 @@ class _TakerWaitConfirmationScreenState
             ),
             const SizedBox(height: 15),
             Text(
-              'Confirm the amount is ${currentOfferState.fiatAmount} ${currentOfferState.fiatCurrency}',
+              'VERY IMPORTANT: Be sure to accept only BLIK confirmation for amount of ${formatDouble(currentOfferState.fiatAmount)} ${currentOfferState.fiatCurrency}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -431,18 +434,30 @@ class _TakerWaitConfirmationScreenState
               ),
             const SizedBox(height: 20),
             const Text(
-              'The Maker needs to use your BLIK code and confirm the payment was successful in their app. You will receive the Lightning payment automatically after confirmation.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              '(Offer Status: ${displayOffer.status})', // Use latest status
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              'The offer maker has been sent your BLIK code and needs to enter it in the payment terminal. You then will need to accept the BLIK code in your bank app, be sure to only accept the correct amount. You will receive the Lightning payment automatically after confirmation.',
               textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
     );
+  }
+}
+String formatDouble(double value) {
+  // Check if the value is effectively a whole number
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  } else {
+    // Format with up to 2 decimal places, removing trailing zeros
+    String asString = value.toStringAsFixed(2);
+    // Remove trailing zeros after decimal point
+    if (asString.contains('.')) {
+      asString = asString.replaceAll(RegExp(r'0+$'), '');
+      // Remove decimal point if it's the last character
+      if (asString.endsWith('.')) {
+        asString = asString.substring(0, asString.length - 1);
+      }
+    }
+    return asString;
   }
 }
