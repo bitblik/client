@@ -5,6 +5,7 @@ import '../../providers/providers.dart';
 import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
 import 'maker_success_screen.dart'; // Import the new success screen
+import 'package:flutter/services.dart'; // Add this import for clipboard
 
 class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
   const MakerConfirmPaymentScreen({super.key});
@@ -112,7 +113,7 @@ class _MakerConfirmPaymentScreenState
       }
       // Navigate to Success Screen instead of resetting here
       if (context.mounted) {
-        context.go('/maker-success',extra: offer);
+        context.go('/maker-success', extra: offer);
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error confirming payment: $e';
@@ -122,6 +123,16 @@ class _MakerConfirmPaymentScreenState
         ref.read(isLoadingProvider.notifier).state = false;
       }
     }
+  }
+
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('BLIK code copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -138,97 +149,107 @@ class _MakerConfirmPaymentScreenState
     if (receivedBlikCode == null) {
       // Show info and progress indicator in the Scaffold
       return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text(
-                "Retrieving BLIK code...",
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 24),
-              CircularProgressIndicator(),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              "Retrieving BLIK code...",
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            CircularProgressIndicator(),
+          ],
+        ),
       );
     }
 
     // Wrap the Padding with Scaffold and SingleChildScrollView
     return SingleChildScrollView(
-        // Added SingleChildScrollView
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Keep centering attempt
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              // Display Error Messages
-              if (errorMessage != null) ...[
+      // Added SingleChildScrollView
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Keep centering attempt
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // Display Error Messages
+            if (errorMessage != null) ...[
+              Text(
+                errorMessage,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+            ],
+            const Text(
+              'BLIK Code Received!',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  receivedBlikCode,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () => _copyToClipboard(receivedBlikCode),
+                  tooltip: 'Copy to clipboard',
+                ),
               ],
-              const Text(
-                'BLIK Code Received!',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            // Added style with slightly smaller font size to prevent overflow
+            const Text(
+              'Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14), // Adjust font size as needed
+              softWrap: true, // Ensure text wraps
+            ),
+            const SizedBox(height: 25),
+            ElevatedButton(
+              onPressed:
+                  isLoading || publicKeyAsyncValue.isLoading
+                      ? null
+                      : () => _confirmPayment(context, ref),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15,
+                ), // Make button larger
               ),
-              const SizedBox(height: 15),
-              Text(
-                receivedBlikCode, // Display the received code
-                style: const TextStyle(
-                  fontSize: 32, // Make it larger
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 3, // Add spacing
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              // Added style with slightly smaller font size to prevent overflow
-              const Text(
-                'Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14), // Adjust font size as needed
-                softWrap: true, // Ensure text wraps
-              ),
-              const SizedBox(height: 25),
-              ElevatedButton(
-                onPressed:
-                    isLoading || publicKeyAsyncValue.isLoading
-                        ? null
-                        : () => _confirmPayment(context, ref),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                  ), // Make button larger
-                ),
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          // Consistent loading indicator size
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
+              child:
+                  isLoading
+                      ? const SizedBox(
+                        // Consistent loading indicator size
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
-                        )
-                        : const Text(
-                          'Confirm Payment Success',
-                          style: TextStyle(fontSize: 16),
                         ),
-              ),
-            ],
-          ),
+                      )
+                      : const Text(
+                        'Confirm Payment Success',
+                        style: TextStyle(fontSize: 16),
+                      ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
