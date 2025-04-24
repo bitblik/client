@@ -3,6 +3,133 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
 
+// Widget for 10min Funded Offer Progress Bar
+class FundedOfferProgressIndicator extends ConsumerStatefulWidget {
+  final DateTime createdAt;
+
+  const FundedOfferProgressIndicator({super.key, required this.createdAt});
+
+  @override
+  ConsumerState<FundedOfferProgressIndicator> createState() =>
+      _FundedOfferProgressIndicatorState();
+}
+
+class _FundedOfferProgressIndicatorState
+    extends ConsumerState<FundedOfferProgressIndicator> {
+  Timer? _timer;
+  double _progress = 1.0;
+  int _remainingSeconds = 600; // 10 minutes
+  final Duration _maxFundedTime = const Duration(minutes: 10);
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateProgress();
+    if (_progress <= 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _triggerRefresh());
+    } else {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant FundedOfferProgressIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.createdAt != oldWidget.createdAt) {
+      _timer?.cancel();
+      _calculateProgress();
+      if (_progress > 0)
+        _startTimer();
+      else
+        _triggerRefresh();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _calculateProgress() {
+    final now = DateTime.now();
+    final expiresAt = widget.createdAt.add(_maxFundedTime);
+    final totalDuration = _maxFundedTime.inMilliseconds;
+    final remainingDuration = expiresAt.difference(now).inMilliseconds;
+    if (!mounted) return;
+    setState(() {
+      if (remainingDuration <= 0) {
+        _progress = 0.0;
+        _remainingSeconds = 0;
+      } else {
+        _progress = remainingDuration / totalDuration;
+        _remainingSeconds = (remainingDuration / 1000).ceil().clamp(0, 600);
+      }
+    });
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (_progress <= 0) return;
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      _calculateProgress();
+      if (_progress <= 0) {
+        timer.cancel();
+        _triggerRefresh();
+      }
+    });
+  }
+
+  Future<void> _triggerRefresh() async {
+    if (mounted) {
+      ref.invalidate(availableOffersProvider);
+      ref.invalidate(initialActiveOfferProvider);
+    }
+  }
+
+  String _formatMMSS(int totalSeconds) {
+    final minutes = (totalSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_progress <= 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: 4.0,
+        bottom: 8.0,
+        left: 16.0,
+        right: 16.0,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          LinearProgressIndicator(
+            value: _progress,
+            backgroundColor: Colors.grey[400],
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+            minHeight: 20,
+          ),
+          Text(
+            'Waiting for taker: ${_formatMMSS(_remainingSeconds)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // Widget for 20s Reservation Progress Bar
 class ReservationProgressIndicator extends ConsumerStatefulWidget {
   final DateTime reservedAt;
