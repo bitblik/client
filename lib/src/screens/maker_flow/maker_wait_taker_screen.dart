@@ -1,15 +1,13 @@
 import 'dart:async';
-import 'package:bitblik/src/screens/role_selection_screen.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/providers.dart';
-import '../../services/api_service.dart';
+
 import '../../models/offer.dart'; // For OfferStatus enum
-// Import the new screen
-import 'maker_wait_for_blik_screen.dart';
-import 'maker_confirm_payment_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../providers/providers.dart';
+import '../../widgets/progress_indicators.dart';
 
 // Renamed class
 class MakerWaitTakerScreen extends ConsumerStatefulWidget {
@@ -148,9 +146,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           print(
             "[MakerWaitTakerScreen] Navigating to MakerWaitForBlikScreen (awaiting)...",
           );
-          await Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const MakerWaitForBlikScreen()),
-          );
+          context.go('/wait-blik');
           // When back on this screen, check status and restart timer if appropriate
           print("[MakerWaitTakerScreen] Returned from MakerWaitForBlikScreen.");
           if (mounted) {
@@ -197,12 +193,6 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
             ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
             if (mounted) {
               context.go('/confirm-blik');
-              //
-              // Navigator.of(context).pushReplacement(
-              //   MaterialPageRoute(
-              //     builder: (_) => const MakerConfirmPaymentScreen(),
-              //   ),
-              // );
             }
           } else {
             print(
@@ -219,6 +209,13 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               "Error retrieving BLIK code: ${e.toString()}",
             );
           }
+        }
+      } else if (currentStatus == OfferStatus.expired) {
+        _statusCheckTimer?.cancel();
+        if (mounted) {
+          _resetToRoleSelection(
+            "Offer is no longer available (Status: ${currentStatus.name}).",
+          );
         }
       } else {
         // Handle other unexpected states explicitly
@@ -260,7 +257,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         if (scaffoldMessenger != null) {
           scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
         }
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        context.go("/");
       }
     });
   }
@@ -361,13 +358,23 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               ),
               const SizedBox(height: 30),
             ],
+            if (offer != null &&
+                offer.status == OfferStatus.funded.name &&
+                offer.createdAt != null)
+              FundedOfferProgressIndicator(
+                key: ValueKey('progress_funded_${offer.id}'),
+                createdAt: offer.createdAt!,
+              ),
             Text(
               AppLocalizations.of(context)!.waitingForTaker,
               style: const TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            const CircularProgressIndicator(),
+            if (offer == null ||
+                offer.status != OfferStatus.funded.name ||
+                offer.createdAt == null)
+              const CircularProgressIndicator(),
             const SizedBox(height: 40),
             Consumer(
               builder: (context, ref, _) {

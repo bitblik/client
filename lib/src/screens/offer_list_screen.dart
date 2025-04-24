@@ -423,8 +423,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     amountSats:
                                                         offer.amountSats,
                                                     feeSats: offer.feeSats,
-                                                    fiatCurrency: offer.fiatCurrency,
-                                                    fiatAmount: offer.fiatAmount,
+                                                    fiatCurrency:
+                                                        offer.fiatCurrency,
+                                                    fiatAmount:
+                                                        offer.fiatAmount,
                                                     status:
                                                         OfferStatus
                                                             .reserved
@@ -515,7 +517,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             () =>
                                                 null, // Disable if public key loading/error
                                       ),
-                                      child: Text(AppLocalizations.of(context)!.take),
+                                      child: Text(
+                                        AppLocalizations.of(context)!.take,
+                                      ),
                                     );
                                   } else if (isReserved || isBlikReceived) {
                                     trailingWidget = myActiveOfferAsyncValue.when(
@@ -649,6 +653,13 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           trailing: trailingWidget,
                                         ),
                                       ),
+                                      if (isFunded && offer.createdAt != null)
+                                        FundedOfferProgressIndicator(
+                                          key: ValueKey(
+                                            'progress_funded_${offer.id}',
+                                          ),
+                                          createdAt: offer.createdAt!,
+                                        ),
                                       if (isReserved &&
                                           offer.reservedAt != null)
                                         ReservationProgressIndicator(
@@ -746,6 +757,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     );
   }
 }
+
 String formatDouble(double value) {
   // Check if the value is effectively a whole number
   if (value == value.roundToDouble()) {
