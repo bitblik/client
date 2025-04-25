@@ -1,18 +1,22 @@
 enum OfferStatus {
-  created, // Initial state, hold invoice generated
-  funded, // Maker paid the hold invoice
-  published, // Offer announced on Nostr/Notifications
-  reserved, // Taker reserved the offer
-  blikReceived, // Taker provided BLIK code
-  blikSentToMaker, // DVM sent BLIK to Maker
-  makerConfirmed, // Maker confirmed successful BLIK usage
-  settled, // DVM settled hold invoice
-  takerPaid, // DVM paid Taker
-  takerPaymentFailed, // DVM failed to pay Taker after settling hold invoice
-  payingTaker, // paying the taker
-  expired, // Offer timed out
-  failed, // A general error occurred before payout attempt
-  cancelled, // Offer explicitly cancelled by Maker (Added based on backend logic)
+  created, // Initial state, invoice generated but not paid
+  funded, // Hold invoice paid by maker, offer listed
+
+  expired, // Offer timed out (e.g., reservation, BLIK confirmation)
+  cancelled, // Offer explicitly cancelled by Maker while in 'funded' state
+
+  reserved, // Taker has expressed interest, 15s timer started
+  blikReceived, // Taker submitted BLIK, 120s timer started
+  blikSentToMaker, // Maker requested BLIK code
+
+  invalidBlik, // Maker marked the BLIK code as invalid
+
+  makerConfirmed, // Maker confirmed BLIK payment success
+  settled, // Hold invoice settled by coordinator
+
+  payingTaker, // Taker is being paid
+  takerPaymentFailed, // Settled, but LNURL payment to taker failed
+  takerPaid, // Taker successfully paid via LNURL-pay
 }
 
 // Represents an offer listed by the coordinator.

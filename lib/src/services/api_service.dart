@@ -5,7 +5,8 @@ import '../models/offer.dart'; // Import the client-side Offer model
 class ApiService {
   // TODO: Make base URL configurable
   final String _baseUrl =
-      'https://api.bitblik.app'; // Updated backend IP address
+      // 'https://api.bitblik.app'; // Updated backend IP address
+  'http://192.168.1.28:8080';
 
   // Helper method for handling HTTP responses
   dynamic _handleResponse(http.Response response) {
