@@ -12,6 +12,8 @@ import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // --- OfferListScreen ---
 
@@ -27,6 +29,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   bool _timerActive = false;
   bool _requestedFocus = false;
+  String? _validationError;
+  bool _hasValidatedInitialAddress = false;
+  bool _isValidating = false;
 
   // Persistent controller and form key for lightning address input
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
@@ -34,10 +39,56 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   final FocusNode _addressFocusNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    _hasValidatedInitialAddress = false;
+    _isValidating = false;
+  }
+
+  @override
   void dispose() {
     _refreshTimer?.cancel();
     _addressFocusNode.dispose();
     super.dispose();
+  }
+
+  // Add LNURL validation function
+  Future<String?> _validateLightningAddress(String address) async {
+    if (!address.contains('@')) {
+      return AppLocalizations.of(context)!.lightningAddressInvalid;
+    }
+
+    final parts = address.split('@');
+    final username = parts[0];
+    final domain = parts[1];
+
+    try {
+      final lnurlpUrl = Uri.https(domain, '/.well-known/lnurlp/$username');
+      final response = await http.get(lnurlpUrl);
+
+      if (response.statusCode != 200) {
+        return 'Invalid: Could not fetch LNURL information';
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (data['status'] == 'ERROR') {
+        return 'Invalid: ${data['reason']}';
+      }
+
+      if (data['tag'] != 'payRequest') {
+        return 'Invalid: Not a valid LNURL-pay endpoint';
+      }
+
+      if (data['callback'] == null ||
+          data['minSendable'] == null ||
+          data['maxSendable'] == null) {
+        return 'Invalid: Missing required LNURL-pay fields';
+      }
+
+      return null; // Validation passed
+    } catch (e) {
+      return 'Invalid: Could not verify LNURL endpoint';
+    }
   }
 
   void _startRefreshTimer() {
@@ -103,6 +154,24 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
           return Center(child: Text('Error loading Lightning Address: $e'));
         },
         data: (lightningAddress) {
+          // Perform one-time validation when address is loaded
+          if (!_hasValidatedInitialAddress &&
+              lightningAddress != null &&
+              lightningAddress.isNotEmpty) {
+            _hasValidatedInitialAddress = true;
+            setState(() {
+              _isValidating = true;
+            });
+            _validateLightningAddress(lightningAddress).then((error) {
+              if (mounted) {
+                setState(() {
+                  _validationError = error;
+                  _isValidating = false;
+                });
+              }
+            });
+          }
+
           if (lightningAddress == null || lightningAddress.isEmpty) {
             _stopRefreshTimer();
 
@@ -150,14 +219,49 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           context,
                         )!.lightningAddressInvalid;
                       }
-                      return null;
+                      return _validationError;
+                    },
+                    onChanged: (value) async {
+                      if (value.isNotEmpty && value.contains('@')) {
+                        final error = await _validateLightningAddress(value);
+                        if (mounted) {
+                          setState(() {
+                            _validationError = error;
+                          });
+                        }
+                      } else {
+                        setState(() {
+                          _validationError = null;
+                        });
+                      }
+                    },
+                    onFieldSubmitted: (value) async {
+                      if (_addressFormKey.currentState!.validate() &&
+                          _validationError == null) {
+                        try {
+                          await keyService.saveLightningAddress(
+                            _addressController.text,
+                          );
+                          ref.invalidate(lightningAddressProvider);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Lightning Address saved!'),
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error saving address: $e')),
+                          );
+                        }
+                      }
                     },
                   ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () async {
-                    if (_addressFormKey.currentState!.validate()) {
+                    if (_addressFormKey.currentState!.validate() &&
+                        _validationError == null) {
                       try {
                         await keyService.saveLightningAddress(
                           _addressController.text,
@@ -193,6 +297,32 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    if (_isValidating)
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else if (_validationError == null &&
+                        _hasValidatedInitialAddress)
+                      Tooltip(
+                        message: 'Valid Lightning Address',
+                        child: const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                      )
+                    else if (_validationError != null)
+                      Tooltip(
+                        message: _validationError!,
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: Text(
                         lightningAddress,
@@ -212,6 +342,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         );
                         final _editFormKey = GlobalKey<FormState>();
                         final _editFocusNode = FocusNode();
+                        String? _editValidationError;
+
                         final result = await showDialog<String>(
                           context: context,
                           builder: (context) {
@@ -219,71 +351,132 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               _editFocusNode.requestFocus();
                             });
-                            return AlertDialog(
-                              title: const Text('Edit Lightning Address'),
-                              content: Form(
-                                key: _editFormKey,
-                                child: TextFormField(
-                                  controller: _editController,
-                                  focusNode: _editFocusNode,
-                                  keyboardType: TextInputType.emailAddress,
-                                  decoration: const InputDecoration(
-                                    hintText: 'user@domain.com',
-                                    labelText: 'Lightning Address',
+                            return StatefulBuilder(
+                              builder: (context, setState) {
+                                return AlertDialog(
+                                  title: const Text('Edit Lightning Address'),
+                                  content: Form(
+                                    key: _editFormKey,
+                                    child: TextFormField(
+                                      controller: _editController,
+                                      focusNode: _editFocusNode,
+                                      keyboardType: TextInputType.emailAddress,
+                                      decoration: const InputDecoration(
+                                        hintText: 'user@domain.com',
+                                        labelText: 'Lightning Address',
+                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty ||
+                                            !value.contains('@')) {
+                                          return 'Please enter a valid Lightning Address';
+                                        }
+                                        return _editValidationError;
+                                      },
+                                      onChanged: (value) async {
+                                        if (value.isNotEmpty &&
+                                            value.contains('@')) {
+                                          final error =
+                                              await _validateLightningAddress(
+                                                value,
+                                              );
+                                          setState(() {
+                                            _editValidationError = error;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _editValidationError = null;
+                                          });
+                                        }
+                                      },
+                                      onFieldSubmitted: (value) async {
+                                        if (_editFormKey.currentState!
+                                                .validate() &&
+                                            _editValidationError == null) {
+                                          try {
+                                            await keyService
+                                                .saveLightningAddress(
+                                                  _editController.text,
+                                                );
+                                            ref.invalidate(
+                                              lightningAddressProvider,
+                                            );
+                                            Navigator.of(
+                                              context,
+                                            ).pop(_editController.text);
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Lightning Address updated!',
+                                                ),
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Error saving address: $e',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                    ),
                                   ),
-                                  validator: (value) {
-                                    if (value == null ||
-                                        value.isEmpty ||
-                                        !value.contains('@')) {
-                                      return 'Please enter a valid Lightning Address';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    if (_editFormKey.currentState!.validate()) {
-                                      try {
-                                        await keyService.saveLightningAddress(
-                                          _editController.text,
-                                        );
-                                        ref.invalidate(
-                                          lightningAddressProvider,
-                                        );
-                                        Navigator.of(
-                                          context,
-                                        ).pop(_editController.text);
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Lightning Address updated!',
-                                            ),
-                                          ),
-                                        );
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Error saving address: $e',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  child: const Text('Save'),
-                                ),
-                              ],
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        if (_editFormKey.currentState!
+                                                .validate() &&
+                                            _editValidationError == null) {
+                                          try {
+                                            await keyService
+                                                .saveLightningAddress(
+                                                  _editController.text,
+                                                );
+                                            ref.invalidate(
+                                              lightningAddressProvider,
+                                            );
+                                            Navigator.of(
+                                              context,
+                                            ).pop(_editController.text);
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Lightning Address updated!',
+                                                ),
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Error saving address: $e',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: const Text('Save'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                         );
