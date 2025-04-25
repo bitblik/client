@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
-import '../../services/api_service.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
-import 'maker_success_screen.dart'; // Import the new success screen
+// Import the new success screen
 import 'package:flutter/services.dart'; // Add this import for clipboard
 
 class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {

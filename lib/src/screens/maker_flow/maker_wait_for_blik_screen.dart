@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
-import '../../services/api_service.dart';
 import '../../models/offer.dart';
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 import 'maker_confirm_payment_screen.dart'; // Import next screen

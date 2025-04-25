@@ -77,8 +77,8 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
         id: offerData['id'] as String,
         amountSats: offerData['amount_sats'] as int,
         feeSats: offerData['fee_sats'] as int,
-        fiatAmount: offerData['fiat_amount']?? 0,
-        fiatCurrency: offerData['fiat_currency']?? '',
+        fiatAmount: offerData['fiat_amount'] ?? 0,
+        fiatCurrency: offerData['fiat_currency'] ?? '',
         status: offerData['status'] as String,
         createdAt: DateTime.parse(offerData['created_at'] as String),
         makerPubkey:
@@ -117,7 +117,6 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
   final apiService = ref.watch(apiServiceProvider);
   final offersData = await apiService.getMyFinishedOffers(publicKey);
   final now = DateTime.now().toUtc();
-  if (offersData == null) return [];
 
   return offersData.where((offer) {
     if (offer.status == 'takerPaid') {

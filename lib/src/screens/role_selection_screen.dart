@@ -338,7 +338,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                     } else {
                                       _navigateToTakerStep(
                                         context,
-                                        activeOffer!,
+                                        activeOffer,
                                       );
                                     }
                                   },

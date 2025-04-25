@@ -366,10 +366,11 @@ class _TakerWaitConfirmationScreenState
         "[TakerWaitConfirmation build] Offer status ($currentStatusEnum) not valid for this screen. Resetting.",
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted)
+        if (mounted) {
           _resetToOfferList(
             "Offer is in an unexpected state ($currentStatusEnum).",
           );
+        }
       });
       return const Scaffold(
         body: Center(
@@ -443,6 +444,7 @@ class _TakerWaitConfirmationScreenState
     );
   }
 }
+
 String formatDouble(double value) {
   // Check if the value is effectively a whole number
   if (value == value.roundToDouble()) {
