@@ -38,10 +38,11 @@ class _FundedOfferProgressIndicatorState
     if (widget.createdAt != oldWidget.createdAt) {
       _timer?.cancel();
       _calculateProgress();
-      if (_progress > 0)
+      if (_progress > 0) {
         _startTimer();
-      else
+      } else {
         _triggerRefresh();
+      }
     }
   }
 
@@ -168,10 +169,11 @@ class _ReservationProgressIndicatorState
       print("[ReservationProgress] reservedAt changed. Recalculating.");
       _timer?.cancel();
       _calculateProgress();
-      if (_progress > 0)
+      if (_progress > 0) {
         _startTimer();
-      else
+      } else {
         _triggerRefresh();
+      }
     }
   }
 
@@ -298,10 +300,11 @@ class _BlikConfirmationProgressIndicatorState
       print("[BlikConfirmProgress] blikReceivedAt changed. Recalculating.");
       _timer?.cancel();
       _calculateProgress();
-      if (_progress > 0)
+      if (_progress > 0) {
         _startTimer();
-      else
+      } else {
         _triggerRefresh();
+      }
     }
   }
 

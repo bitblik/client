@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
-import '../../services/api_service.dart';
 
 class TakerPaymentFailedScreen extends ConsumerWidget {
   final Offer offer;

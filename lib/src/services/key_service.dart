@@ -13,7 +13,7 @@ String bytesToHex(List<int> bytes) {
 Uint8List hexToBytes(String hex) {
   hex = hex.replaceAll(RegExp(r'\s+'), ''); // Remove spaces if any
   if (hex.length % 2 != 0) {
-    hex = '0' + hex; // Pad with leading zero if odd length
+    hex = '0$hex'; // Pad with leading zero if odd length
   }
   final bytes = <int>[];
   for (int i = 0; i < hex.length; i += 2) {

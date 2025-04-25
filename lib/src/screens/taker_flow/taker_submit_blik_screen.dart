@@ -375,7 +375,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         int.tryParse(blikCode) == null) {
       ref.read(errorProvider.notifier).state =
           'Please enter a valid 6-digit BLIK code.';
-      if (offer != null) _startBlikInputTimer(offer);
+      _startBlikInputTimer(offer);
       return;
     }
     if (lnAddress == null || lnAddress.isEmpty || !lnAddress.contains('@')) {
@@ -385,7 +385,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         print("[TakerSubmitBlikScreen] User cancelled LN Address prompt.");
         ref.read(errorProvider.notifier).state =
             'Lightning Address is required.';
-        if (offer != null) _startBlikInputTimer(offer);
+        _startBlikInputTimer(offer);
         return;
       }
       print("[TakerSubmitBlikScreen] LN Address obtained: $lnAddress");
@@ -415,11 +415,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         "[TakerSubmitBlikScreen] BLIK submitted. Navigating to WaitConfirmation.",
       );
       if (mounted) {
-        context.go('/wait-confirmation',extra: updatedOffer);
+        context.go('/wait-confirmation', extra: updatedOffer);
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error submitting BLIK: $e';
-      if (mounted && offer != null) {
+      if (mounted) {
         _startBlikInputTimer(offer);
       }
     } finally {
@@ -432,33 +432,35 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   Future<void> _pasteFromClipboard() async {
     final textData = await Clipboard.getData(Clipboard.kTextPlain);
     // FlutterClipboard.paste().then((value) {
-      setState(() {
-        if (textData!=null && textData.text != null && textData.text!.isNotEmpty) {
-          print("clipboard.getData:${textData.text}");
-          final pastedText = textData.text!;
-          final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
-          if (digitsOnly.length == 6) {
-            _blikController.text = digitsOnly;
-            _blikController.selection = TextSelection.fromPosition(
-              TextPosition(offset: _blikController.text.length),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Pasted BLIK code.'),
-                duration: Duration(seconds: 1),
+    setState(() {
+      if (textData != null &&
+          textData.text != null &&
+          textData.text!.isNotEmpty) {
+        print("clipboard.getData:${textData.text}");
+        final pastedText = textData.text!;
+        final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
+        if (digitsOnly.length == 6) {
+          _blikController.text = digitsOnly;
+          _blikController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _blikController.text.length),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Pasted BLIK code.'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Clipboard does not contain a valid 6-digit BLIK code.',
               ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Clipboard does not contain a valid 6-digit BLIK code.',
-                ),
-              ),
-            );
-          }
+            ),
+          );
         }
-        });
+      }
+    });
   }
 
   @override
@@ -487,96 +489,96 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
     // --- Main UI Build ---
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (errorMessage != null) ...[
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-              ],
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (errorMessage != null) ...[
               Text(
-                'Selected Offer:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                errorMessage,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
               ),
-              Card(
-                child: ListTile(
-                  title: Text(
-                    "${formatDouble(displayOffer.fiatAmount)} ${displayOffer.fiatCurrency}",
-                  ),
-                  subtitle: Text(
-                    "${displayOffer.amountSats} + ${displayOffer.feeSats} (fee) sats\nStatus: ${displayOffer.status}",
-                  ),
-
-                  // title: Text('Amount: ${displayOffer.amountSats} sats'),
-                  // subtitle: Text(
-                  //   'Fee: ${displayOffer.feeSats} sats\nID: ${displayOffer.id.substring(0, 6)}...',
-                  // ),
-                  isThreeLine: true,
+              const SizedBox(height: 10),
+            ],
+            Text(
+              'Selected Offer:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Card(
+              child: ListTile(
+                title: Text(
+                  "${formatDouble(displayOffer.fiatAmount)} ${displayOffer.fiatCurrency}",
                 ),
+                subtitle: Text(
+                  "${displayOffer.amountSats} + ${displayOffer.feeSats} (fee) sats\nStatus: ${displayOffer.status}",
+                ),
+
+                // title: Text('Amount: ${displayOffer.amountSats} sats'),
+                // subtitle: Text(
+                //   'Fee: ${displayOffer.feeSats} sats\nID: ${displayOffer.id.substring(0, 6)}...',
+                // ),
+                isThreeLine: true,
               ),
-              const SizedBox(height: 20),
-              // Use reservedAt from the *active* offer state
-              if (activeOffer.reservedAt != null)
-                BlikInputProgressIndicator(
-                  key: ValueKey('blik_timer_${activeOffer.id}'),
-                  reservedAt: activeOffer.reservedAt!,
-                  maxDuration: _maxBlikInputTime,
-                )
-              else
-                const SizedBox(
-                  height: 20,
-                ), // Should not happen if validation passed
-              const SizedBox(height: 15),
-              const Text(
-                'Enter 6-digit BLIK Code:',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _blikController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'BLIK Code',
-                        counterText: "",
-                      ),
+            ),
+            const SizedBox(height: 20),
+            // Use reservedAt from the *active* offer state
+            if (activeOffer.reservedAt != null)
+              BlikInputProgressIndicator(
+                key: ValueKey('blik_timer_${activeOffer.id}'),
+                reservedAt: activeOffer.reservedAt!,
+                maxDuration: _maxBlikInputTime,
+              )
+            else
+              const SizedBox(
+                height: 20,
+              ), // Should not happen if validation passed
+            const SizedBox(height: 15),
+            const Text(
+              'Enter 6-digit BLIK Code:',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _blikController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'BLIK Code',
+                      counterText: "",
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.content_paste),
-                    tooltip: 'Paste from Clipboard',
-                    onPressed: _pasteFromClipboard,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : _submitBlik,
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Text('Submit BLIK'),
-              ),
-            ],
-          ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.content_paste),
+                  tooltip: 'Paste from Clipboard',
+                  onPressed: _pasteFromClipboard,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: isLoading ? null : _submitBlik,
+              child:
+                  isLoading
+                      ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Submit BLIK'),
+            ),
+          ],
         ),
+      ),
     );
   }
 }

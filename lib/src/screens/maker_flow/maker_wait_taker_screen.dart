@@ -275,7 +275,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
     if (offer == null || makerId == null) {
       print("[MakerWaitTakerScreen] Cannot cancel: Missing offer or maker ID.");
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -283,11 +283,12 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
             ),
           ),
         );
+      }
       return;
     }
     if (offer.status != OfferStatus.funded.name &&
         offer.status != OfferStatus.published.name) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -297,6 +298,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
             ),
           ),
         );
+      }
       return;
     }
 
@@ -318,10 +320,11 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         ).showSnackBar(SnackBar(content: Text("Failed to cancel offer: $e")));
       }
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isCancelling = false;
         });
+      }
     }
   }
 
@@ -358,12 +361,10 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               ),
               const SizedBox(height: 30),
             ],
-            if (offer != null &&
-                offer.status == OfferStatus.funded.name &&
-                offer.createdAt != null)
+            if (offer != null && offer.status == OfferStatus.funded.name)
               FundedOfferProgressIndicator(
                 key: ValueKey('progress_funded_${offer.id}'),
-                createdAt: offer.createdAt!,
+                createdAt: offer.createdAt,
               ),
             Text(
               AppLocalizations.of(context)!.waitingForTaker,
@@ -371,9 +372,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            if (offer == null ||
-                offer.status != OfferStatus.funded.name ||
-                offer.createdAt == null)
+            if (offer == null || offer.status != OfferStatus.funded.name)
               const CircularProgressIndicator(),
             const SizedBox(height: 40),
             Consumer(

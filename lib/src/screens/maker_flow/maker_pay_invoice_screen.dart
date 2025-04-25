@@ -1,5 +1,6 @@
 import 'dart:async'; // For Timer
 import 'dart:io'; // For Platform check
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +10,7 @@ import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
 import 'package:android_intent_plus/flag.dart'; // Import for flags enum
 import '../../providers/providers.dart'; // Import providers
 import '../../models/offer.dart'; // Import Offer model for status enum comparison
-import '../../services/api_service.dart';
-import 'maker_wait_taker_screen.dart'; // Import ApiService
+// Import ApiService
 import 'package:go_router/go_router.dart';
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
@@ -130,7 +130,9 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
         if (await canLaunchUrl(url)) {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } else {
-          print('Could not launch $link');
+          if (kDebugMode) {
+            print('Could not launch $link');
+          }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
