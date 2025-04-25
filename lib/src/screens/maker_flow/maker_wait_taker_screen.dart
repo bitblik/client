@@ -154,8 +154,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               activeOfferProvider,
             ); // Check state again
             if (currentOfferState != null &&
-                (currentOfferState.status == OfferStatus.funded ||
-                    currentOfferState.status == OfferStatus.published)) {
+                (currentOfferState.status == OfferStatus.funded.name)) {
               print(
                 "[MakerWaitTakerScreen] Offer is FUNDED/PUBLISHED. Restarting timer.",
               );
@@ -169,8 +168,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
             print("[MakerWaitTakerScreen] Widget unmounted after return.");
           }
         }
-      } else if (currentStatus == OfferStatus.funded ||
-          currentStatus == OfferStatus.published) {
+      } else if (currentStatus == OfferStatus.funded) {
         print(
           "[MakerWaitTakerScreen] Still waiting for Taker (Status: $currentStatus).",
         );
@@ -286,8 +284,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
       }
       return;
     }
-    if (offer.status != OfferStatus.funded.name &&
-        offer.status != OfferStatus.published.name) {
+    if (offer.status != OfferStatus.funded.name) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -395,8 +392,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               onPressed:
                   _isCancelling ||
                           (offer != null &&
-                              offer.status != OfferStatus.funded.name &&
-                              offer.status != OfferStatus.published.name)
+                              offer.status != OfferStatus.funded.name)
                       ? null
                       : _cancelOffer,
               style: ElevatedButton.styleFrom(

@@ -29,9 +29,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       case OfferStatus
           .created: // Should ideally not happen if polling works, but handle defensively
       case OfferStatus.funded:
-      case OfferStatus.published:
         // Waiting for a taker to reserve
-        // targetScreen = const MakerWaitTakerScreen();
         context.go("/wait-taker", extra: offer);
         break;
       case OfferStatus.reserved:

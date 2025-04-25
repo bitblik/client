@@ -528,7 +528,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       OfferStatus.settled.name,
                       OfferStatus.takerPaid.name,
                       OfferStatus.expired.name,
-                      OfferStatus.failed.name,
                       OfferStatus.cancelled.name,
                     ];
                     final finishedOffers =
