@@ -7,8 +7,8 @@ class ApiService {
   static const _btcPlnCacheKey = 'btcPlnRate';
   // TODO: Make base URL configurable
   final String _baseUrl =
-       'https://api.bitblik.app'; // Updated backend IP address
-      //'http://192.168.1.28:8080';
+      // 'https://api.bitblik.app'; // Updated backend IP address
+      'http://192.168.1.28:8080';
 
   // Helper method for handling HTTP responses
   dynamic _handleResponse(http.Response response) {

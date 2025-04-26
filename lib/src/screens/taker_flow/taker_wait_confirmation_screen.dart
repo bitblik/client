@@ -1,12 +1,13 @@
 import 'dart:async';
+
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/providers.dart';
+
 import '../../models/offer.dart';
-import '../../services/api_service.dart'; // Needed for potential status checks
+import '../../providers/providers.dart';
 
 class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
   final Offer offer; // Accept the offer directly - REINSTATED
@@ -117,8 +118,8 @@ class _TakerWaitConfirmationScreenState
     _statusCheckTimer?.cancel();
     if (mounted) {
       print("[TakerWaitConfirmation] Confirmation timer expired.");
-      ref.read(activeOfferProvider.notifier).state = null;
-      _resetToOfferList('Maker confirmation timed out (120s).');
+      // ref.read(activeOfferProvider.notifier).state = null;
+      // _resetToOfferList('Maker confirmation timed out (120s).');
     }
   }
 
@@ -288,7 +289,8 @@ class _TakerWaitConfirmationScreenState
       );
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
-          _resetToOfferList("Offer completed successfully!");
+          // TODO go to payingTaker screen
+          context.go('/');
         }
       });
     }

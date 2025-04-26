@@ -59,13 +59,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/confirm-blik',
         builder:
             (context, state) =>
-        const AppScaffold(body: MakerConfirmPaymentScreen()),
+                const AppScaffold(body: MakerConfirmPaymentScreen()),
       ),
       GoRoute(
         path: '/maker-success',
         builder:
-            (context, state) =>
-        AppScaffold(body: MakerSuccessScreen(completedOffer: state.extra as Offer,)),
+            (context, state) => AppScaffold(
+              body: MakerSuccessScreen(completedOffer: state.extra as Offer),
+            ),
       ),
 
       GoRoute(
@@ -86,8 +87,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/taker-failed',
         builder:
             (context, state) => AppScaffold(
-          body: TakerPaymentFailedScreen(offer: state.extra as Offer),
-        ),
+              body: TakerPaymentFailedScreen(offer: state.extra as Offer),
+            ),
       ),
     ],
   );
@@ -179,16 +180,36 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('BitBlik'),
-            const SizedBox(width: 4),
-            Text(
-              'alpha',
-              style: TextStyle(fontSize: 10, color: Colors.black45),
+        title: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () {
+              // Reset relevant state providers
+              ref.read(appRoleProvider.notifier).state = AppRole.none;
+              ref.read(activeOfferProvider.notifier).state = null;
+              ref.read(holdInvoiceProvider.notifier).state = null;
+              ref.read(paymentHashProvider.notifier).state = null;
+              ref.read(receivedBlikCodeProvider.notifier).state = null;
+              ref.read(errorProvider.notifier).state = null;
+              ref.read(isLoadingProvider.notifier).state = false;
+              ref.invalidate(availableOffersProvider);
+              ref.invalidate(initialActiveOfferProvider);
+
+              // Navigate to home
+              context.go('/');
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('BitBlik'),
+                const SizedBox(width: 4),
+                Text(
+                  'alpha',
+                  style: TextStyle(fontSize: 10, color: Colors.black45),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         actions: [
           // // Navigation button to offers
