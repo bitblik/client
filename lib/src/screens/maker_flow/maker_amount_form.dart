@@ -38,12 +38,11 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      // Use the offer API to get the rate (simulate with a dummy offer, or add a dedicated endpoint)
-      final result = await apiService.initiateOfferFiatPreview();
+      final rate = await apiService.getBtcPlnRate();
       setState(() {
-        _rate = result['rate']?.toDouble();
+        _rate = rate;
       });
-      _onFiatChanged();
+      _onFiatChanged(); // Update sats equivalent after fetching rate
     } catch (_) {
       setState(() {
         _rate = null;
@@ -103,7 +102,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       ref.read(paymentHashProvider.notifier).state = result['paymentHash'];
 
       if (mounted) {
-          context.go("/pay");
+        context.go("/pay");
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = 'Error initiating offer: $e';
@@ -121,64 +120,64 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
 
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (errorMessage != null) ...[
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-              ],
-              const Text(
-                'Enter Amount (PLN) to Pay:',
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _fiatController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Amount (PLN)',
-                ),
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (errorMessage != null) ...[
+              Text(
+                errorMessage,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              if (_isFetchingRate)
-                const Text(
-                  'Fetching exchange rate from coingecko API',
-                  textAlign: TextAlign.center,
-                )
-              else if (_satsEquivalent != null)
-                Text(
-                  '≈ ${_satsEquivalent!.toStringAsFixed(0)} sats',
-                  style: const TextStyle(fontSize: 16, color: Colors.blue),
-                  textAlign: TextAlign.center,
-                )
-              else
-                Text(
-                  'PLN/BTC rate (coingecko API) = ${_rate?.toStringAsFixed(0)}',
-                  textAlign: TextAlign.center,
-                ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed:
-                    isLoading || publicKeyAsyncValue.isLoading
-                        ? null
-                        : _initiateOffer,
-                child:
-                    isLoading
-                        ? const CircularProgressIndicator(strokeWidth: 2)
-                        : const Text('Generate Invoice'),
-              ),
             ],
-          ),
+            const Text(
+              'Enter Amount (PLN) to Pay:',
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _fiatController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Amount (PLN)',
+              ),
+            ),
+            const SizedBox(height: 10),
+            if (_isFetchingRate)
+              const Text(
+                'Fetching exchange rate from coingecko API',
+                textAlign: TextAlign.center,
+              )
+            else if (_satsEquivalent != null)
+              Text(
+                '≈ ${_satsEquivalent!.toStringAsFixed(0)} sats',
+                style: const TextStyle(fontSize: 16, color: Colors.blue),
+                textAlign: TextAlign.center,
+              )
+            else
+              Text(
+                'PLN/BTC rate (coingecko API) = ${_rate?.toStringAsFixed(0)}',
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed:
+                  isLoading || publicKeyAsyncValue.isLoading
+                      ? null
+                      : _initiateOffer,
+              child:
+                  isLoading
+                      ? const CircularProgressIndicator(strokeWidth: 2)
+                      : const Text('Generate Invoice'),
+            ),
+          ],
         ),
+      ),
     );
   }
 }

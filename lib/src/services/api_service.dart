@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:memory_cache/memory_cache.dart';
 import '../models/offer.dart'; // Import the client-side Offer model
 
 class ApiService {
+  static const _btcPlnCacheKey = 'btcPlnRate';
   // TODO: Make base URL configurable
   final String _baseUrl =
-      // 'https://api.bitblik.app'; // Updated backend IP address
-  'http://192.168.1.28:8080';
+       'https://api.bitblik.app'; // Updated backend IP address
+      //'http://192.168.1.28:8080';
 
   // Helper method for handling HTTP responses
   dynamic _handleResponse(http.Response response) {
@@ -56,21 +58,48 @@ class ApiService {
     }
   }
 
-  // POST /initiate-offer (preview for rate only)
-  Future<Map<String, dynamic>> initiateOfferFiatPreview() async {
-    final url = Uri.parse('$_baseUrl/initiate-offer');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'fiat_amount': 1,
-      'fee_percentage': 0,
-      'maker_id': 'preview',
-    });
+  // GET BTC/PLN rate from CoinGecko with caching
+  Future<double> getBtcPlnRate() async {
+    // Check cache first
+    final cachedRate = MemoryCache.instance.read<double>(_btcPlnCacheKey);
+    if (cachedRate != null) {
+      return cachedRate;
+    }
 
+    // If not in cache, fetch from API
+    final url = Uri.parse(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=pln',
+    );
     try {
-      final response = await http.post(url, headers: headers, body: body);
-      return _handleResponse(response) as Map<String, dynamic>;
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final rate = data['bitcoin']['pln'];
+        if (rate is num) {
+          final doubleRate = rate.toDouble();
+          // Write to cache with 5-minute expiry
+          MemoryCache.instance.create(
+            _btcPlnCacheKey,
+            doubleRate,
+            expiry: const Duration(minutes: 5),
+          );
+          return doubleRate;
+        } else {
+          throw Exception('Invalid rate format received from CoinGecko');
+        }
+      } else {
+        throw Exception(
+          'Failed to fetch BTC/PLN rate: ${response.statusCode} ${response.body}',
+        );
+      }
     } catch (e) {
-      print('Error calling initiateOfferFiatPreview: $e');
+      print('Error fetching BTC/PLN rate from CoinGecko: $e');
+      // Attempt to return last known value if fetch fails, otherwise rethrow
+      final lastKnown = MemoryCache.instance.read<double>(_btcPlnCacheKey);
+      if (lastKnown != null) {
+        print('Returning stale BTC/PLN rate due to fetch error.');
+        return lastKnown;
+      }
       rethrow;
     }
   }
