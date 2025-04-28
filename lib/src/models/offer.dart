@@ -23,7 +23,7 @@ enum OfferStatus {
 class Offer {
   final String id;
   final int amountSats;
-  final int feeSats;
+  final int makerFees; // Renamed from feeSats
   final double fiatAmount;
   final String fiatCurrency;
   final String status; // e.g., "funded", "reserved", etc. Use OfferStatus.name
@@ -43,11 +43,12 @@ class Offer {
   final DateTime? makerConfirmedAt;
   final DateTime? settledAt;
   final DateTime? takerPaidAt;
+  final int? takerFees; // Renamed from takerFeesSats
 
   Offer({
     required this.id,
     required this.amountSats,
-    required this.feeSats,
+    required this.makerFees, // Renamed from feeSats
     required this.status,
     required this.fiatAmount,
     required this.fiatCurrency,
@@ -65,6 +66,7 @@ class Offer {
     this.makerConfirmedAt,
     this.settledAt,
     this.takerPaidAt,
+    this.takerFees, // Renamed from takerFeesSats
   });
 
   // Factory constructor to create an Offer from JSON data (Map).
@@ -76,9 +78,9 @@ class Offer {
     return Offer(
       id: json['id'] as String,
       amountSats: json['amount_sats'] as int,
-      feeSats: json['fee_sats'] as int,
-      fiatAmount: json['fiat_amount']?? 0,
-      fiatCurrency: json['fiat_currency']?? '',
+      makerFees: json['maker_fees'] as int, // Renamed key and field
+      fiatAmount: json['fiat_amount'] ?? 0,
+      fiatCurrency: json['fiat_currency'] ?? '',
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       makerPubkey: json['maker_pubkey'] as String? ?? '',
@@ -100,6 +102,7 @@ class Offer {
       ),
       settledAt: parseOptionalDateTime(json['settled_at'] as String?),
       takerPaidAt: parseOptionalDateTime(json['taker_paid_at'] as String?),
+      takerFees: json['taker_fees'] as int?, // Renamed key and field
     );
   }
 
@@ -108,7 +111,7 @@ class Offer {
     return {
       'id': id,
       'amount_sats': amountSats,
-      'fee_sats': feeSats,
+      'maker_fees': makerFees, // Renamed key and field
       'status': status,
       'created_at': createdAt.toIso8601String(),
       'maker_pubkey': makerPubkey,
@@ -124,6 +127,7 @@ class Offer {
       'maker_confirmed_at': makerConfirmedAt?.toIso8601String(),
       'settled_at': settledAt?.toIso8601String(),
       'taker_paid_at': takerPaidAt?.toIso8601String(),
+      'taker_fees': takerFees, // Renamed key and field
     };
   }
 
@@ -131,7 +135,7 @@ class Offer {
   Offer copyWith({
     String? id,
     int? amountSats,
-    int? feeSats,
+    int? makerFees, // Renamed parameter
     String? status,
     DateTime? createdAt,
     String? makerPubkey,
@@ -147,11 +151,12 @@ class Offer {
     DateTime? makerConfirmedAt,
     DateTime? settledAt,
     DateTime? takerPaidAt,
+    int? takerFees, // Renamed parameter
   }) {
     return Offer(
       id: id ?? this.id,
       amountSats: amountSats ?? this.amountSats,
-      feeSats: feeSats ?? this.feeSats,
+      makerFees: makerFees ?? this.makerFees, // Renamed parameter and field
       status: status ?? this.status,
       fiatAmount: fiatAmount,
       fiatCurrency: fiatCurrency,
@@ -171,11 +176,12 @@ class Offer {
       makerConfirmedAt: makerConfirmedAt ?? this.makerConfirmedAt,
       settledAt: settledAt ?? this.settledAt,
       takerPaidAt: takerPaidAt ?? this.takerPaidAt,
+      takerFees: takerFees ?? this.takerFees, // Renamed parameter and field
     );
   }
 
   @override
   String toString() {
-    return 'Offer(id: $id, amountSats: $amountSats, feeSats: $feeSats, status: $status, maker: ${makerPubkey.substring(0, 6)}..., taker: ${takerPubkey?.substring(0, 6)}..., createdAt: $createdAt)';
+    return 'Offer(id: $id, amountSats: $amountSats, makerFees: $makerFees, status: $status, maker: ${makerPubkey.substring(0, 6)}..., taker: ${takerPubkey?.substring(0, 6)}..., createdAt: $createdAt)'; // Renamed field
   }
 }
