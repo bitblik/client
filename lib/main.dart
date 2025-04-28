@@ -19,6 +19,9 @@ import 'src/models/offer.dart'; // Needed for OfferStatus enum
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 
+final double kMakerFeePercentage = 0.5;
+final double kTakerFeePercentage = 0.5;
+
 // Create a GoRouter provider for navigation
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
