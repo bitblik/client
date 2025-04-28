@@ -217,331 +217,557 @@
   "@errorOfferUnexpectedState": {
     "description": "Displayed when offer is in an unexpected state"
   },
-
   "errorPublicKeyNotLoaded": "Error: Public key not loaded yet.",
-  "@errorPublicKeyNotLoaded": { "description": "Error when public key is missing for offer creation" },
+  "@errorPublicKeyNotLoaded": {
+    "description": "Error when public key is missing for offer creation"
+  },
   "errorInvalidNumberFormat": "Invalid number format",
-  "@errorInvalidNumberFormat": { "description": "Validation error for number input" },
+  "@errorInvalidNumberFormat": {
+    "description": "Validation error for number input"
+  },
   "errorAmountMustBePositive": "Amount must be positive",
-  "@errorAmountMustBePositive": { "description": "Validation error for non-positive amount" },
+  "@errorAmountMustBePositive": {
+    "description": "Validation error for non-positive amount"
+  },
   "errorInvalidFeePercentage": "Invalid fee percentage",
-  "@errorInvalidFeePercentage": { "description": "Validation error for fee input" },
+  "@errorInvalidFeePercentage": {
+    "description": "Validation error for fee input"
+  },
   "errorInitiatingOffer": "Error initiating offer: {details}",
   "@errorInitiatingOffer": {
     "description": "Error message when initiating an offer fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "enterAmountToPay": "Enter Amount (PLN) to Pay:",
-  "@enterAmountToPay": { "description": "Label instructing user to enter PLN amount" },
+  "@enterAmountToPay": {
+    "description": "Label instructing user to enter PLN amount"
+  },
   "amountLabel": "Amount (PLN)",
-  "@amountLabel": { "description": "Label for the amount input field" },
+  "@amountLabel": {
+    "description": "Label for the amount input field"
+  },
   "fetchingExchangeRate": "Fetching exchange rate...",
-  "@fetchingExchangeRate": { "description": "Text shown while fetching exchange rate" },
+  "@fetchingExchangeRate": {
+    "description": "Text shown while fetching exchange rate"
+  },
   "satsEquivalent": "≈ {sats} sats",
   "@satsEquivalent": {
     "description": "Displays the calculated sats equivalent",
-    "placeholders": { "sats": { "type": "String" } }
+    "placeholders": {
+      "sats": {
+        "type": "String"
+      }
+    }
   },
   "plnBtcRate": "PLN/BTC rate ≈ {rate}",
   "@plnBtcRate": {
     "description": "Displays the fetched PLN/BTC exchange rate",
-    "placeholders": { "rate": { "type": "String" } }
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
   },
   "errorFetchingRate": "Could not fetch exchange rate.",
-  "@errorFetchingRate": { "description": "Error message when fetching exchange rate fails" },
+  "@errorFetchingRate": {
+    "description": "Error message when fetching exchange rate fails"
+  },
   "generateInvoice": "Generate Invoice",
-  "@generateInvoice": { "description": "Button text to generate the invoice" },
-
+  "@generateInvoice": {
+    "description": "Button text to generate the invoice"
+  },
   "payHoldInvoiceTitle": "Pay this Hold Invoice:",
-  "@payHoldInvoiceTitle": { "description": "Title instructing the maker to pay the hold invoice" },
+  "@payHoldInvoiceTitle": {
+    "description": "Title instructing the maker to pay the hold invoice"
+  },
   "errorCouldNotOpenLightningApp": "Could not open Lightning app for invoice.",
-  "@errorCouldNotOpenLightningApp": { "description": "Error shown when the Lightning app cannot be launched via URL" },
+  "@errorCouldNotOpenLightningApp": {
+    "description": "Error shown when the Lightning app cannot be launched via URL"
+  },
   "errorOpeningLightningApp": "Error opening Lightning app: {details}",
   "@errorOpeningLightningApp": {
     "description": "Error shown when launching the Lightning app fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "copyInvoice": "Copy Invoice",
-  "@copyInvoice": { "description": "Button text to copy the invoice" },
+  "@copyInvoice": {
+    "description": "Button text to copy the invoice"
+  },
   "invoiceCopied": "Invoice copied to clipboard!",
-  "@invoiceCopied": { "description": "Snackbar message confirming invoice copy" },
+  "@invoiceCopied": {
+    "description": "Snackbar message confirming invoice copy"
+  },
   "waitingForPaymentConfirmation": "Waiting for payment confirmation...",
-  "@waitingForPaymentConfirmation": { "description": "Status text while polling for invoice payment" },
+  "@waitingForPaymentConfirmation": {
+    "description": "Status text while polling for invoice payment"
+  },
   "errorPublicKeyNotAvailable": "Public key not available.",
-  "@errorPublicKeyNotAvailable": { "description": "Error when public key is needed but not found after payment" },
+  "@errorPublicKeyNotAvailable": {
+    "description": "Error when public key is needed but not found after payment"
+  },
   "errorCouldNotFetchActiveOffer": "Could not fetch active offer details. It might have expired.",
-  "@errorCouldNotFetchActiveOffer": { "description": "Error when fetching full offer details fails after payment" },
-
+  "@errorCouldNotFetchActiveOffer": {
+    "description": "Error when fetching full offer details fails after payment"
+  },
   "errorMissingPaymentHashOrKey": "Error: Missing payment hash or public key.",
-  "@errorMissingPaymentHashOrKey": { "description": "Error shown when payment hash or public key is missing during confirmation" },
+  "@errorMissingPaymentHashOrKey": {
+    "description": "Error shown when payment hash or public key is missing during confirmation"
+  },
   "errorOfferIncorrectStateConfirmation": "Offer not in correct state for confirmation (Status: {status})",
   "@errorOfferIncorrectStateConfirmation": {
     "description": "Error shown when trying to confirm payment but offer is in wrong state",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "paymentConfirmedTakerPaid": "Payment Confirmed! Taker will be paid.",
-  "@paymentConfirmedTakerPaid": { "description": "Snackbar message after maker confirms payment" },
+  "@paymentConfirmedTakerPaid": {
+    "description": "Snackbar message after maker confirms payment"
+  },
   "errorConfirmingPayment": "Error confirming payment: {details}",
   "@errorConfirmingPayment": {
     "description": "Error shown when confirming maker payment fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "blikCopied": "BLIK code copied to clipboard",
-  "@blikCopied": { "description": "Snackbar message confirming BLIK code copy" },
+  "@blikCopied": {
+    "description": "Snackbar message confirming BLIK code copy"
+  },
   "retrievingBlikCode": "Retrieving BLIK code...",
-  "@retrievingBlikCode": { "description": "Status text while waiting for BLIK code to be fetched" },
+  "@retrievingBlikCode": {
+    "description": "Status text while waiting for BLIK code to be fetched"
+  },
   "blikCodeReceivedTitle": "BLIK Code Received!",
-  "@blikCodeReceivedTitle": { "description": "Title indicating BLIK code has been received" },
+  "@blikCodeReceivedTitle": {
+    "description": "Title indicating BLIK code has been received"
+  },
   "copyToClipboardTooltip": "Copy to clipboard",
-  "@copyToClipboardTooltip": { "description": "Tooltip for the copy icon button" },
+  "@copyToClipboardTooltip": {
+    "description": "Tooltip for the copy icon button"
+  },
   "blikInstructionsMaker": "Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.",
-  "@blikInstructionsMaker": { "description": "Instructions for the maker after receiving the BLIK code" },
+  "@blikInstructionsMaker": {
+    "description": "Instructions for the maker after receiving the BLIK code"
+  },
   "confirmPaymentSuccessButton": "Confirm Payment Success",
-  "@confirmPaymentSuccessButton": { "description": "Button text for maker to confirm successful payment" },
-
+  "@confirmPaymentSuccessButton": {
+    "description": "Button text for maker to confirm successful payment"
+  },
   "errorInvalidOfferStateReceived": "Error: Invalid offer state received.",
-  "@errorInvalidOfferStateReceived": { "description": "Error when the screen receives an offer in an unexpected initial state" },
+  "@errorInvalidOfferStateReceived": {
+    "description": "Error when the screen receives an offer in an unexpected initial state"
+  },
   "errorInternalOfferIncomplete": "Internal error: Offer details incomplete.",
-  "@errorInternalOfferIncomplete": { "description": "Error when critical offer details (like payment hash) are missing" },
+  "@errorInternalOfferIncomplete": {
+    "description": "Error when critical offer details (like payment hash) are missing"
+  },
   "errorOfferInvalidStatus": "Offer has an invalid status.",
-  "@errorOfferInvalidStatus": { "description": "Error when the offer status string is not a valid enum value" },
+  "@errorOfferInvalidStatus": {
+    "description": "Error when the offer status string is not a valid enum value"
+  },
   "errorOfferNotAwaitingConfirmation": "Offer is no longer awaiting confirmation (Status: {status}).",
   "@errorOfferNotAwaitingConfirmation": {
     "description": "Message shown when polling reveals the offer is no longer in a waiting state",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "errorUnexpectedStatusFromServer": "Received an unexpected offer status from the server.",
-  "@errorUnexpectedStatusFromServer": { "description": "Error when the status string from the server is unknown" },
+  "@errorUnexpectedStatusFromServer": {
+    "description": "Error when the status string from the server is unknown"
+  },
   "offerCancelledOrExpired": "Offer was cancelled or expired.",
-  "@offerCancelledOrExpired": { "description": "Message shown when polling reveals the offer was cancelled or expired" },
+  "@offerCancelledOrExpired": {
+    "description": "Message shown when polling reveals the offer was cancelled or expired"
+  },
   "paymentSuccessfulTaker": "Payment Successful! You will receive the funds shortly.",
-  "@paymentSuccessfulTaker": { "description": "Snackbar message shown to the taker upon successful payment" },
+  "@paymentSuccessfulTaker": {
+    "description": "Snackbar message shown to the taker upon successful payment"
+  },
   "errorOfferUnexpectedStateWithStatus": "Offer is in an unexpected state ({status}).",
   "@errorOfferUnexpectedStateWithStatus": {
     "description": "Error shown when the offer is found in an unexpected state during build or processing",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "offerStatusLabel": "Offer Status: {status}",
   "@offerStatusLabel": {
     "description": "Label displaying the current offer status",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "waitingMakerConfirmation": "Waiting for Maker confirmation: {seconds} s",
   "@waitingMakerConfirmation": {
     "description": "Countdown timer showing time left for maker confirmation",
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "importantBlikAmountConfirmation": "VERY IMPORTANT: Be sure to accept only BLIK confirmation for amount of {amount} {currency}",
   "@importantBlikAmountConfirmation": {
     "description": "Important instruction for the taker about confirming the correct BLIK amount",
     "placeholders": {
-      "amount": { "type": "String" },
-      "currency": { "type": "String" }
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
     }
   },
   "blikInstructionsTaker": "The offer maker has been sent your BLIK code and needs to enter it in the payment terminal. You then will need to accept the BLIK code in your bank app, be sure to only accept the correct amount. You will receive the Lightning payment automatically after confirmation.",
-  "@blikInstructionsTaker": { "description": "Detailed instructions for the taker while waiting for confirmation" },
-
+  "@blikInstructionsTaker": {
+    "description": "Detailed instructions for the taker while waiting for confirmation"
+  },
   "submitBlikWithinSeconds": "Submit BLIK within: {seconds} s",
   "@submitBlikWithinSeconds": {
     "description": "Countdown timer text in the progress bar for submitting BLIK",
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "errorFetchedOfferIdMismatch": "Fetched active offer ID ({fetchedId}) does not match initial offer ID ({initialId}). State mismatch?",
   "@errorFetchedOfferIdMismatch": {
     "description": "Error when the fetched offer ID doesn't match the expected one",
-    "placeholders": { "fetchedId": {}, "initialId": {} }
+    "placeholders": {
+      "fetchedId": {},
+      "initialId": {}
+    }
   },
   "errorOfferNotReserved": "Offer is no longer in reserved state ({status}).",
   "@errorOfferNotReserved": {
     "description": "Error when trying to submit BLIK but the offer is not reserved",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "errorOfferReservationTimestampMissing": "Offer reservation timestamp is missing.",
-  "@errorOfferReservationTimestampMissing": { "description": "Error when the reservedAt field is unexpectedly null" },
+  "@errorOfferReservationTimestampMissing": {
+    "description": "Error when the reservedAt field is unexpectedly null"
+  },
   "errorOfferPaymentHashMissing": "Offer payment hash is missing after fetch.",
-  "@errorOfferPaymentHashMissing": { "description": "Error when the payment hash is missing after fetching full offer details" },
+  "@errorOfferPaymentHashMissing": {
+    "description": "Error when the payment hash is missing after fetching full offer details"
+  },
   "errorLoadingOfferDetails": "Error loading offer details: {details}",
   "@errorLoadingOfferDetails": {
     "description": "Generic error message when fetching full offer details fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "blikInputTimeExpired": "BLIK input time expired.",
-  "@blikInputTimeExpired": { "description": "Message shown when the 20-second timer for BLIK input runs out" },
+  "@blikInputTimeExpired": {
+    "description": "Message shown when the 20-second timer for BLIK input runs out"
+  },
   "errorOfferStateChanged": "Error: Offer state changed.",
-  "@errorOfferStateChanged": { "description": "Error shown when the offer state changes unexpectedly during BLIK submission" },
+  "@errorOfferStateChanged": {
+    "description": "Error shown when the offer state changes unexpectedly during BLIK submission"
+  },
   "errorOfferStateNotValid": "Error: Offer state is no longer valid.",
-  "@errorOfferStateNotValid": { "description": "Error shown when trying to submit BLIK but the offer state is invalid" },
+  "@errorOfferStateNotValid": {
+    "description": "Error shown when trying to submit BLIK but the offer state is invalid"
+  },
   "errorInvalidBlikFormat": "Please enter a valid 6-digit BLIK code.",
-  "@errorInvalidBlikFormat": { "description": "Validation error for the BLIK code input field" },
+  "@errorInvalidBlikFormat": {
+    "description": "Validation error for the BLIK code input field"
+  },
   "errorLightningAddressRequired": "Lightning Address is required.",
-  "@errorLightningAddressRequired": { "description": "Error shown if the user cancels the LN Address prompt" },
+  "@errorLightningAddressRequired": {
+    "description": "Error shown if the user cancels the LN Address prompt"
+  },
   "errorSubmittingBlik": "Error submitting BLIK: {details}",
   "@errorSubmittingBlik": {
     "description": "Error shown when the API call to submit BLIK fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "blikPasted": "Pasted BLIK code.",
-  "@blikPasted": { "description": "Snackbar message confirming successful paste of BLIK code" },
+  "@blikPasted": {
+    "description": "Snackbar message confirming successful paste of BLIK code"
+  },
   "errorClipboardInvalidBlik": "Clipboard does not contain a valid 6-digit BLIK code.",
-  "@errorClipboardInvalidBlik": { "description": "Snackbar message when pasted content is not a valid BLIK code" },
+  "@errorClipboardInvalidBlik": {
+    "description": "Snackbar message when pasted content is not a valid BLIK code"
+  },
   "errorOfferDetailsNotLoaded": "Offer details could not be loaded.",
-  "@errorOfferDetailsNotLoaded": { "description": "Fallback text shown if offer details fail to load for the screen" },
+  "@errorOfferDetailsNotLoaded": {
+    "description": "Fallback text shown if offer details fail to load for the screen"
+  },
   "selectedOfferLabel": "Selected Offer:",
-  "@selectedOfferLabel": { "description": "Label above the selected offer details card" },
+  "@selectedOfferLabel": {
+    "description": "Label above the selected offer details card"
+  },
   "offerDetailsSubtitle": "{sats} + {fee} (fee) sats\nStatus: {status}",
   "@offerDetailsSubtitle": {
     "description": "Subtitle for the offer card showing sats, fee, and status",
     "placeholders": {
-      "sats": { "type": "int" },
-      "fee": { "type": "int" },
-      "status": { "type": "String" }
+      "sats": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
     }
   },
   "enterBlikCodeLabel": "Enter 6-digit BLIK Code:",
-  "@enterBlikCodeLabel": { "description": "Label instructing the user to enter the BLIK code" },
+  "@enterBlikCodeLabel": {
+    "description": "Label instructing the user to enter the BLIK code"
+  },
   "blikCodeLabel": "BLIK Code",
-  "@blikCodeLabel": { "description": "Label for the BLIK code input field" },
+  "@blikCodeLabel": {
+    "description": "Label for the BLIK code input field"
+  },
   "pasteFromClipboardTooltip": "Paste from Clipboard",
-  "@pasteFromClipboardTooltip": { "description": "Tooltip for the paste button next to the BLIK input" },
+  "@pasteFromClipboardTooltip": {
+    "description": "Tooltip for the paste button next to the BLIK input"
+  },
   "submitBlikButton": "Submit BLIK",
-  "@submitBlikButton": { "description": "Text for the button to submit the BLIK code" },
-
+  "@submitBlikButton": {
+    "description": "Text for the button to submit the BLIK code"
+  },
   "errorCheckingActiveOffers": "Error checking active offers: {details}",
   "@errorCheckingActiveOffers": {
     "description": "Error message shown when fetching initial active offers fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "payWithLightningButton": "PAY with Lightning",
-  "@payWithLightningButton": { "description": "Button text for the Maker role (paying with LN)" },
+  "@payWithLightningButton": {
+    "description": "Button text for the Maker role (paying with LN)"
+  },
   "sellBlikButton": "SELL BLIK code for sats",
-  "@sellBlikButton": { "description": "Button text for the Taker role (selling BLIK for sats)" },
+  "@sellBlikButton": {
+    "description": "Button text for the Taker role (selling BLIK for sats)"
+  },
   "activeOfferTitle": "You have an active offer:",
-  "@activeOfferTitle": { "description": "Title indicating the user has an active offer" },
+  "@activeOfferTitle": {
+    "description": "Title indicating the user has an active offer"
+  },
   "roleLabel": "Role: {role}",
   "@roleLabel": {
     "description": "Label showing the user's role in the active offer",
-    "placeholders": { "role": { "type": "String" } }
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
   },
   "roleMaker": "Maker",
-  "@roleMaker": { "description": "The Maker role name" },
+  "@roleMaker": {
+    "description": "The Maker role name"
+  },
   "roleTaker": "Taker",
-  "@roleTaker": { "description": "The Taker role name" },
+  "@roleTaker": {
+    "description": "The Taker role name"
+  },
   "activeOfferSubtitle": "Status: {status}\nAmount: {amount} sats",
   "@activeOfferSubtitle": {
     "description": "Subtitle for the active offer card showing status and amount",
     "placeholders": {
-      "status": { "type": "String" },
-      "amount": { "type": "int" }
+      "status": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
     }
   },
   "lightningAddressLabelShort": "Lightning address: {address}",
   "@lightningAddressLabelShort": {
     "description": "Label showing the taker's LN address in the active offer card (e.g., for failed payments)",
-    "placeholders": { "address": { "type": "String" } }
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
   },
   "errorMakerPublicKeyNotFound": "Maker public key not found",
-  "@errorMakerPublicKeyNotFound": { "description": "Error when trying to resume a maker offer but the public key is missing" },
+  "@errorMakerPublicKeyNotFound": {
+    "description": "Error when trying to resume a maker offer but the public key is missing"
+  },
   "errorResumingOffer": "Error resuming offer: {details}",
   "@errorResumingOffer": {
     "description": "Snackbar message when resuming an active offer fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "errorLoadingFinishedOffers": "Error loading finished offers: {details}",
   "@errorLoadingFinishedOffers": {
     "description": "Error message shown when fetching finished offers fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "finishedOffersTitle": "Finished Offers (last 24h):",
-  "@finishedOffersTitle": { "description": "Title for the section showing recently finished offers" },
+  "@finishedOffersTitle": {
+    "description": "Title for the section showing recently finished offers"
+  },
   "finishedOfferSubtitle": "{sats} + {fee} (fee) sats\nStatus: {status}\nPaid at: {date}",
   "@finishedOfferSubtitle": {
     "description": "Subtitle for a finished offer card showing details and payment time",
     "placeholders": {
-      "sats": { "type": "int" },
-      "fee": { "type": "int" },
-      "status": { "type": "String" },
-      "date": { "type": "String" }
+      "sats": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "errorCannotResumeOfferState": "Cannot resume offer in state: {status}",
   "@errorCannotResumeOfferState": {
     "description": "Snackbar message when trying to resume an offer in an unsupported state",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
   "errorCannotResumeTakerOfferState": "Cannot resume Taker offer in state: {status}",
   "@errorCannotResumeTakerOfferState": {
     "description": "Snackbar message when trying to resume a Taker offer in an unsupported state",
-    "placeholders": { "status": {} }
+    "placeholders": {
+      "status": {}
+    }
   },
-
   "paymentFailedTitle": "Payment Failed",
-  "@paymentFailedTitle": { "description": "Title for the payment failed screen (AppBar and Headline)" },
+  "@paymentFailedTitle": {
+    "description": "Title for the payment failed screen (AppBar and Headline)"
+  },
   "paymentFailedInstructions": "The payment for {amount} sats could not be completed. Please provide a new Lightning invoice for the net amount of {netAmount} sats (original amount minus {fee} sats fee).",
   "@paymentFailedInstructions": {
     "description": "Instructions on the payment failed screen explaining the situation and asking for a new invoice",
     "placeholders": {
-      "amount": { "type": "int" },
-      "netAmount": { "type": "int" },
-      "fee": { "type": "int" }
+      "amount": {
+        "type": "int"
+      },
+      "netAmount": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "int"
+      }
     }
   },
   "newLightningInvoiceLabel": "New Lightning Invoice",
-  "@newLightningInvoiceLabel": { "description": "Label for the text field where the user enters a new invoice" },
+  "@newLightningInvoiceLabel": {
+    "description": "Label for the text field where the user enters a new invoice"
+  },
   "newLightningInvoiceHint": "Enter your BOLT11 invoice",
-  "@newLightningInvoiceHint": { "description": "Hint text for the new invoice text field" },
+  "@newLightningInvoiceHint": {
+    "description": "Hint text for the new invoice text field"
+  },
   "errorEnterValidInvoice": "Please enter a valid invoice",
-  "@errorEnterValidInvoice": { "description": "Snackbar validation error when the new invoice field is empty" },
+  "@errorEnterValidInvoice": {
+    "description": "Snackbar validation error when the new invoice field is empty"
+  },
   "errorUpdatingInvoice": "Error updating invoice: {details}",
   "@errorUpdatingInvoice": {
     "description": "Snackbar error message when submitting the new invoice fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "submitNewInvoiceButton": "Submit New Invoice",
-  "@submitNewInvoiceButton": { "description": "Button text to submit the newly entered invoice" },
-
+  "@submitNewInvoiceButton": {
+    "description": "Button text to submit the newly entered invoice"
+  },
   "offerCompletedTitle": "Offer Completed",
-  "@offerCompletedTitle": { "description": "AppBar title for the success screen" },
+  "@offerCompletedTitle": {
+    "description": "AppBar title for the success screen"
+  },
   "paymentConfirmedHeadline": "Payment Confirmed!",
-  "@paymentConfirmedHeadline": { "description": "Headline text on the success screen" },
+  "@paymentConfirmedHeadline": {
+    "description": "Headline text on the success screen"
+  },
   "takerPaidSubtitle": "The Taker has been paid.",
-  "@takerPaidSubtitle": { "description": "Subtitle text on the success screen confirming taker payment" },
+  "@takerPaidSubtitle": {
+    "description": "Subtitle text on the success screen confirming taker payment"
+  },
   "offerDetailsTitle": "Offer Details:",
-  "@offerDetailsTitle": { "description": "Title for the card showing completed offer details" },
+  "@offerDetailsTitle": {
+    "description": "Title for the card showing completed offer details"
+  },
   "offerIdLabel": "Offer ID: {id}...",
   "@offerIdLabel": {
     "description": "Label showing the truncated Offer ID in the details card",
-    "placeholders": { "id": { "type": "String" } }
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
   },
-
   "errorLoadingLightningAddress": "Error loading Lightning Address: {details}",
   "@errorLoadingLightningAddress": {
     "description": "Error message when fetching the saved Lightning Address fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
   "validLightningAddressTooltip": "Valid Lightning Address",
-  "@validLightningAddressTooltip": { "description": "Tooltip for the green checkmark indicating a valid LN Address" },
+  "@validLightningAddressTooltip": {
+    "description": "Tooltip for the green checkmark indicating a valid LN Address"
+  },
   "errorFailedToReserveOfferNoTimestamp": "Failed to reserve offer (no timestamp returned).",
-  "@errorFailedToReserveOfferNoTimestamp": { "description": "Error message when reserving an offer succeeds but doesn't return a timestamp" },
+  "@errorFailedToReserveOfferNoTimestamp": {
+    "description": "Error message when reserving an offer succeeds but doesn't return a timestamp"
+  },
   "errorFailedToReserveOffer": "Failed to reserve offer: {details}",
   "@errorFailedToReserveOffer": {
     "description": "Generic error message when reserving an offer fails",
-    "placeholders": { "details": {} }
+    "placeholders": {
+      "details": {}
+    }
   },
-
   "progressWaitingForTaker": "Waiting for taker: {time}",
   "@progressWaitingForTaker": {
     "description": "Text inside the progress bar when an offer is funded and waiting for a taker",
-    "placeholders": { "time": { "type": "String", "example": "09:59" } }
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "09:59"
+      }
+    }
   },
   "progressReserved": "Reserved: {seconds} s left",
   "@progressReserved": {
     "description": "Text inside the progress bar when an offer is reserved by a taker",
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "progressConfirming": "Confirming: {seconds} s left",
   "@progressConfirming": {
     "description": "Text inside the progress bar when waiting for the maker to confirm payment after BLIK is received",
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   }
 }
