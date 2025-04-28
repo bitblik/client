@@ -54,8 +54,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   // Add LNURL validation function
   Future<String?> _validateLightningAddress(String address) async {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (!address.contains('@')) {
-      return AppLocalizations.of(context)!.lightningAddressInvalid;
+      return strings.lightningAddressInvalid;
     }
 
     final parts = address.split('@');
@@ -66,28 +67,29 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       final lnurlpUrl = Uri.https(domain, '/.well-known/lnurlp/$username');
       final response = await http.get(lnurlpUrl);
 
+      // TODO: Add specific localization keys for these LNURL validation errors if needed
       if (response.statusCode != 200) {
-        return 'Invalid: Could not fetch LNURL information';
+        return '${strings.lightningAddressInvalid}: Could not fetch LNURL information';
       }
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['status'] == 'ERROR') {
-        return 'Invalid: ${data['reason']}';
+        return '${strings.lightningAddressInvalid}: ${data['reason']}';
       }
 
       if (data['tag'] != 'payRequest') {
-        return 'Invalid: Not a valid LNURL-pay endpoint';
+        return '${strings.lightningAddressInvalid}: Not a valid LNURL-pay endpoint';
       }
 
       if (data['callback'] == null ||
           data['minSendable'] == null ||
           data['maxSendable'] == null) {
-        return 'Invalid: Missing required LNURL-pay fields';
+        return '${strings.lightningAddressInvalid}: Missing required LNURL-pay fields';
       }
 
       return null; // Validation passed
     } catch (e) {
-      return 'Invalid: Could not verify LNURL endpoint';
+      return '${strings.lightningAddressInvalid}: Could not verify LNURL endpoint';
     }
   }
 
@@ -135,6 +137,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
 
@@ -151,7 +154,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
         },
         error: (e, s) {
           _stopRefreshTimer();
-          return Center(child: Text('Error loading Lightning Address: $e'));
+          // Use localized string with placeholder
+          return Center(
+            child: Text(strings.errorLoadingLightningAddress(e.toString())),
+          );
         },
         data: (lightningAddress) {
           // Perform one-time validation when address is loaded
@@ -243,14 +249,26 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             _addressController.text,
                           );
                           ref.invalidate(lightningAddressProvider);
+                          // Use localized string
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Lightning Address saved!'),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.lightningAddressSaved,
+                              ),
                             ),
                           );
                         } catch (e) {
+                          // Use localized string with placeholder
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error saving address: $e')),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.errorSavingAddress(e.toString()),
+                              ),
+                            ),
                           );
                         }
                       }
@@ -267,14 +285,26 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           _addressController.text,
                         );
                         ref.invalidate(lightningAddressProvider);
+                        // Use localized string
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Lightning Address saved!'),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.lightningAddressSaved,
+                            ),
                           ),
                         );
                       } catch (e) {
+                        // Use localized string with placeholder
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error saving address: $e')),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.errorSavingAddress(e.toString()),
+                            ),
+                          ),
                         );
                       }
                     }
@@ -305,8 +335,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       )
                     else if (_validationError == null &&
                         _hasValidatedInitialAddress)
+                      // Use localized string for tooltip
                       Tooltip(
-                        message: 'Valid Lightning Address',
+                        message: strings.validLightningAddressTooltip,
                         child: const Icon(
                           Icons.check_circle,
                           color: Colors.green,
@@ -335,7 +366,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit),
-                      tooltip: 'Edit Lightning Address',
+                      // Use localized string
+                      tooltip:
+                          AppLocalizations.of(context)!.editLightningAddress,
                       onPressed: () async {
                         final _editController = TextEditingController(
                           text: lightningAddress,
@@ -354,22 +387,37 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             return StatefulBuilder(
                               builder: (context, setState) {
                                 return AlertDialog(
-                                  title: const Text('Edit Lightning Address'),
+                                  // Use localized string
+                                  title: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.editLightningAddress,
+                                  ),
                                   content: Form(
                                     key: _editFormKey,
                                     child: TextFormField(
                                       controller: _editController,
                                       focusNode: _editFocusNode,
                                       keyboardType: TextInputType.emailAddress,
-                                      decoration: const InputDecoration(
-                                        hintText: 'user@domain.com',
-                                        labelText: 'Lightning Address',
+                                      // Use localized strings
+                                      decoration: InputDecoration(
+                                        hintText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.lightningAddressHint,
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.lightningAddressLabel,
                                       ),
                                       validator: (value) {
                                         if (value == null ||
                                             value.isEmpty ||
                                             !value.contains('@')) {
-                                          return 'Please enter a valid Lightning Address';
+                                          // Use localized string
+                                          return AppLocalizations.of(
+                                            context,
+                                          )!.lightningAddressInvalid;
                                         }
                                         return _editValidationError;
                                       },
@@ -404,22 +452,30 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             Navigator.of(
                                               context,
                                             ).pop(_editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Lightning Address updated!',
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
+                                            // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  'Error saving address: $e',
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.lightningAddressUpdated,
+                                                ),
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            // Use localized string with placeholder
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.errorSavingAddress(
+                                                    e.toString(),
+                                                  ),
                                                 ),
                                               ),
                                             );
@@ -432,7 +488,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     TextButton(
                                       onPressed:
                                           () => Navigator.of(context).pop(),
-                                      child: const Text('Cancel'),
+                                      // Use localized string
+                                      child: Text(
+                                        AppLocalizations.of(context)!.cancel,
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () async {
@@ -450,29 +509,40 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             Navigator.of(
                                               context,
                                             ).pop(_editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Lightning Address updated!',
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
+                                            // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  'Error saving address: $e',
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.lightningAddressUpdated,
+                                                ),
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            // Use localized string with placeholder
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.errorSavingAddress(
+                                                    e.toString(),
+                                                  ),
                                                 ),
                                               ),
                                             );
                                           }
                                         }
                                       },
-                                      child: const Text('Save'),
+                                      // Use localized string
+                                      child: Text(
+                                        AppLocalizations.of(context)!.save,
+                                      ),
                                     ),
                                   ],
                                 );
@@ -503,10 +573,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     children: [
                       Image.asset('assets/simplex.png', height: 24, width: 24),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Get notified of new orders with SimpleX',
+                      // Use localized string
+                      Text(
+                        AppLocalizations.of(context)!.getNotifiedSimplex,
                         style: TextStyle(
-                          color: Colors.blue,
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary, // Use theme color
                           decoration: TextDecoration.underline,
                         ),
                       ),
@@ -519,8 +593,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: offersAsyncValue.when(
                   data: (offers) {
                     if (offers.isEmpty) {
-                      return const Center(
-                        child: Text('No offers available yet.'),
+                      // Use localized string
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.noOffersAvailable,
+                        ),
                       );
                     }
                     // Separate finished offers
@@ -614,7 +691,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     id: offer.id,
                                                     amountSats:
                                                         offer.amountSats,
-                                                    feeSats: offer.feeSats,
+                                                    makerFees:
+                                                        offer
+                                                            .makerFees, // Renamed
                                                     fiatCurrency:
                                                         offer.fiatCurrency,
                                                     fiatAmount:
@@ -658,19 +737,21 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                   Navigator.of(
                                                     context,
                                                   ).pop(); // Pop loading
+                                                  // Use localized string
                                                   ref
-                                                          .read(
-                                                            errorProvider
-                                                                .notifier,
-                                                          )
-                                                          .state =
-                                                      'Failed to reserve offer (no timestamp returned).';
+                                                      .read(
+                                                        errorProvider.notifier,
+                                                      )
+                                                      .state = strings
+                                                          .errorFailedToReserveOfferNoTimestamp;
                                                   if (scaffoldMessenger
                                                       .mounted) {
                                                     scaffoldMessenger.showSnackBar(
                                                       SnackBar(
+                                                        // Use localized string
                                                         content: Text(
-                                                          'Error: ${ref.read(errorProvider)}',
+                                                          strings
+                                                              .errorFailedToReserveOfferNoTimestamp,
                                                         ),
                                                       ),
                                                     );
@@ -684,19 +765,21 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                   context,
                                                 ).canPop())
                                                   Navigator.of(context).pop();
+                                                // Use localized string with placeholder
+                                                final errorMsg = strings
+                                                    .errorFailedToReserveOffer(
+                                                      e.toString(),
+                                                    );
                                                 ref
-                                                        .read(
-                                                          errorProvider
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    'Failed to reserve offer: $e';
+                                                    .read(
+                                                      errorProvider.notifier,
+                                                    )
+                                                    .state = errorMsg;
                                                 if (scaffoldMessenger.mounted) {
                                                   scaffoldMessenger.showSnackBar(
                                                     SnackBar(
-                                                      content: Text(
-                                                        'Error: ${ref.read(errorProvider)}',
-                                                      ),
+                                                      // Use localized string
+                                                      content: Text(errorMsg),
                                                     ),
                                                   );
                                                 }
@@ -719,7 +802,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         if (myOffer != null &&
                                             offer.id == myOffer.id) {
                                           return ElevatedButton(
-                                            child: const Text('RESUME'),
+                                            // Use localized string
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.resume,
+                                            ),
                                             onPressed: () {
                                               ref
                                                   .read(
@@ -764,9 +852,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  // Use localized string
+                                                  SnackBar(
                                                     content: Text(
-                                                      "Error: Offer is in an unexpected state.",
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.errorOfferUnexpectedState,
                                                     ),
                                                   ),
                                                 );
@@ -835,11 +926,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           vertical: 5.0,
                                         ),
                                         child: ListTile(
+                                          // Use localized strings with placeholders
                                           title: Text(
-                                            "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
+                                            // Assuming PLN for now, might need dynamic currency later
+                                            '${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}',
                                           ),
                                           subtitle: Text(
-                                            "${offer.amountSats} + ${offer.feeSats} (fee) sats\nStatus: ${offer.status}",
+                                            // Combine amount, fee, status, and ID using localized strings
+                                            '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.makerFees.toString(), offer.status, offer.id.substring(0, 8))}',
                                           ),
                                           isThreeLine: true,
                                           trailing: trailingWidget,
@@ -881,9 +975,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Finished Offers',
-                                  style: TextStyle(
+                                // Use localized string
+                                Text(
+                                  AppLocalizations.of(context)!.finishedOffers,
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -901,14 +996,26 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             vertical: 5.0,
                                           ),
                                           child: ListTile(
+                                            // Use localized string with placeholder
                                             title: Text(
-                                              'Amount: ${offer.amountSats} sats',
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.offerAmountSats(
+                                                offer.amountSats.toString(),
+                                              ),
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
+                                            // Use localized string with placeholders
                                             subtitle: Text(
-                                              'Fee: ${offer.feeSats} sats | Status: ${offer.status}\nID: ${offer.id.substring(0, 8)}...',
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.offerFeeStatusId(
+                                                offer.makerFees.toString(),
+                                                offer.status,
+                                                offer.id.substring(0, 8),
+                                              ),
                                             ),
                                             isThreeLine: true,
                                           ),
@@ -930,12 +1037,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Error loading offers: $error'),
+                            // Use localized string with placeholder
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.errorLoadingOffers(error.toString()),
+                            ),
                             const SizedBox(height: 10),
                             ElevatedButton(
                               onPressed:
                                   () => ref.invalidate(availableOffersProvider),
-                              child: const Text('Retry'),
+                              // Use localized string
+                              child: Text(AppLocalizations.of(context)!.retry),
                             ),
                           ],
                         ),

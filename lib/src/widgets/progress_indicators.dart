@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 // Widget for 10min Funded Offer Progress Bar
 class FundedOfferProgressIndicator extends ConsumerStatefulWidget {
@@ -100,6 +101,7 @@ class _FundedOfferProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -117,8 +119,9 @@ class _FundedOfferProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             minHeight: 20,
           ),
+          // Use localized string with placeholder
           Text(
-            'Waiting for taker: ${_formatMMSS(_remainingSeconds)}',
+            strings.progressWaitingForTaker(_formatMMSS(_remainingSeconds)),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -228,6 +231,7 @@ class _ReservationProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -245,8 +249,9 @@ class _ReservationProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
             minHeight: 20,
           ),
+          // Use localized string with placeholder
           Text(
-            'Reserved: $_remainingSeconds s left',
+            strings.progressReserved(_remainingSeconds),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -362,6 +367,7 @@ class _BlikConfirmationProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -379,8 +385,9 @@ class _BlikConfirmationProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
             minHeight: 20,
           ),
+          // Use localized string with placeholder
           Text(
-            'Confirming: $_remainingSeconds s left',
+            strings.progressConfirming(_remainingSeconds),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,

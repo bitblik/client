@@ -5,6 +5,7 @@ import '../../providers/providers.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
 // Import the new success screen
 import 'package:flutter/services.dart'; // Add this import for clipboard
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
   const MakerConfirmPaymentScreen({super.key});
@@ -61,12 +62,14 @@ class _MakerConfirmPaymentScreenState
   }
 
   Future<void> _confirmPayment(BuildContext context, WidgetRef ref) async {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     final paymentHash = ref.read(paymentHashProvider);
     final makerId = ref.read(publicKeyProvider).value; // Read current value
 
     if (paymentHash == null || makerId == null) {
+      // Use localized string
       ref.read(errorProvider.notifier).state =
-          'Error: Missing payment hash or public key.';
+          strings.errorMissingPaymentHashOrKey;
       return;
     }
 
@@ -76,8 +79,8 @@ class _MakerConfirmPaymentScreenState
     // Read the active offer to get its ID
     final offer = ref.read(activeOfferProvider);
     if (offer == null) {
-      ref.read(errorProvider.notifier).state =
-          'Error: Active offer details not found.';
+      // Use localized string (reusing existing one)
+      ref.read(errorProvider.notifier).state = strings.errorOfferDetailsMissing;
       ref.read(isLoadingProvider.notifier).state = false;
       return;
     }
@@ -90,8 +93,9 @@ class _MakerConfirmPaymentScreenState
       if (offerStatus == null ||
           (offerStatus != OfferStatus.blikReceived.name &&
               offerStatus != OfferStatus.blikSentToMaker.name)) {
+        // Use localized string with placeholder
         throw Exception(
-          "Offer not in correct state for confirmation (Status: $offerStatus)",
+          strings.errorOfferIncorrectStateConfirmation(offerStatus ?? 'null'),
         );
       }
 
@@ -104,10 +108,9 @@ class _MakerConfirmPaymentScreenState
       // Use context safely
       final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
       if (scaffoldMessenger != null) {
+        // Use localized string
         scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Payment Confirmed! Taker will be paid.'),
-          ),
+          SnackBar(content: Text(strings.paymentConfirmedTakerPaid)),
         );
       }
       // Navigate to Success Screen instead of resetting here
@@ -115,7 +118,10 @@ class _MakerConfirmPaymentScreenState
         context.go('/maker-success', extra: offer);
       }
     } catch (e) {
-      ref.read(errorProvider.notifier).state = 'Error confirming payment: $e';
+      // Use localized string with placeholder
+      ref.read(errorProvider.notifier).state = strings.errorConfirmingPayment(
+        e.toString(),
+      );
     } finally {
       // Ensure loading state is reset even if widget is disposed during async operation
       if (ref.context.mounted) {
@@ -126,16 +132,19 @@ class _MakerConfirmPaymentScreenState
 
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
+    final strings = AppLocalizations.of(context)!; // Get strings instance
+    // Use localized string
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('BLIK code copied to clipboard'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(strings.blikCopied),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     final ref = this.ref;
     final isLoading = ref.watch(isLoadingProvider);
     final errorMessage = ref.watch(errorProvider);
@@ -150,14 +159,15 @@ class _MakerConfirmPaymentScreenState
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
+            // Use localized string
             Text(
-              "Retrieving BLIK code...",
-              style: TextStyle(fontSize: 18),
+              strings.retrievingBlikCode,
+              style: const TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
-            CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(),
           ],
         ),
       );
@@ -181,9 +191,10 @@ class _MakerConfirmPaymentScreenState
               ),
               const SizedBox(height: 10),
             ],
-            const Text(
-              'BLIK Code Received!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Use localized string
+            Text(
+              strings.blikCodeReceivedTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 15),
@@ -203,16 +214,20 @@ class _MakerConfirmPaymentScreenState
                 IconButton(
                   icon: const Icon(Icons.copy),
                   onPressed: () => _copyToClipboard(receivedBlikCode),
-                  tooltip: 'Copy to clipboard',
+                  // Use localized string
+                  tooltip: strings.copyToClipboardTooltip,
                 ),
               ],
             ),
             const SizedBox(height: 20),
             // Added style with slightly smaller font size to prevent overflow
-            const Text(
-              'Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.',
+            // Use localized string
+            Text(
+              strings.blikInstructionsMaker,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14), // Adjust font size as needed
+              style: const TextStyle(
+                fontSize: 14,
+              ), // Adjust font size as needed
               softWrap: true, // Ensure text wraps
             ),
             const SizedBox(height: 25),
@@ -241,9 +256,10 @@ class _MakerConfirmPaymentScreenState
                           ),
                         ),
                       )
-                      : const Text(
-                        'Confirm Payment Success',
-                        style: TextStyle(fontSize: 16),
+                      // Use localized string
+                      : Text(
+                        strings.confirmPaymentSuccessButton,
+                        style: const TextStyle(fontSize: 16),
                       ),
             ),
           ],

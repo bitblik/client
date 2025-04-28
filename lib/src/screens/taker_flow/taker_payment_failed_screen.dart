@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class TakerPaymentFailedScreen extends ConsumerWidget {
   final Offer offer;
@@ -11,9 +12,16 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bolt11Controller = TextEditingController();
+    final strings = AppLocalizations.of(context)!; // Get strings
+
+    // Calculate net amount
+    final takerFees =
+        offer.takerFees ?? (offer.amountSats * 0.005).ceil(); // Renamed
+    final netAmountSats = offer.amountSats - takerFees; // Renamed
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Payment Failed')),
+      // Use localized string
+      appBar: AppBar(title: Text(strings.paymentFailedTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -21,8 +29,9 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 64),
             const SizedBox(height: 16),
+            // Use localized string
             Text(
-              'Payment Failed',
+              strings.paymentFailedTitle,
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
@@ -30,8 +39,11 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
                 offer.takerLightningAddress!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                // Use localized string (reuse existing key)
                 child: Text(
-                  'Lightning address used: ${offer.takerLightningAddress}',
+                  strings.lightningAddressLabelShort(
+                    offer.takerLightningAddress!,
+                  ),
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
@@ -39,18 +51,24 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: 16),
+            // Use localized string with placeholders
             Text(
-              'The payment for ${offer.amountSats} sats could not be completed. '
-              'Please provide a new Lightning invoice for the same amount.',
+              strings.paymentFailedInstructions(
+                offer.amountSats,
+                netAmountSats,
+                takerFees,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             TextField(
               controller: bolt11Controller,
-              decoration: const InputDecoration(
-                labelText: 'New Lightning Invoice',
-                hintText: 'Enter your BOLT11 invoice',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                // Use localized string
+                labelText: strings.newLightningInvoiceLabel,
+                // Use localized string
+                hintText: strings.newLightningInvoiceHint,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -59,10 +77,9 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
               onPressed: () async {
                 final newInvoice = bolt11Controller.text.trim();
                 if (newInvoice.isEmpty) {
+                  // Use localized string
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid invoice'),
-                    ),
+                    SnackBar(content: Text(strings.errorEnterValidInvoice)),
                   );
                   return;
                 }
@@ -110,16 +127,20 @@ class TakerPaymentFailedScreen extends ConsumerWidget {
                   // Pop loading dialog
                   if (context.mounted) {
                     Navigator.of(context).pop();
+                    // Use localized string with placeholder
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error updating invoice: $e'),
+                        content: Text(
+                          strings.errorUpdatingInvoice(e.toString()),
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Submit New Invoice'),
+              // Use localized string
+              child: Text(strings.submitNewInvoiceButton),
             ),
           ],
         ),

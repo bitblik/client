@@ -12,6 +12,7 @@ import '../../providers/providers.dart'; // Import providers
 import '../../models/offer.dart'; // Import Offer model for status enum comparison
 // Import ApiService
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
   const MakerPayInvoiceScreen({super.key});
@@ -72,17 +73,19 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
               '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
             );
             _statusPollTimer?.cancel(); // Stop polling
+            final strings =
+                AppLocalizations.of(context)!; // Get strings instance
             final publicKey = ref.read(publicKeyProvider).value;
             if (publicKey == null) {
-              throw Exception("Public key not available.");
+              // Use localized string
+              throw Exception(strings.errorPublicKeyNotAvailable);
             }
 
             final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
             if (fullOfferData == null) {
-              throw Exception(
-                "Could not fetch active offer details. It might have expired.",
-              );
+              // Use localized string
+              throw Exception(strings.errorCouldNotFetchActiveOffer);
             }
 
             final fullOffer = Offer.fromJson(fullOfferData);
@@ -116,6 +119,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     final link = 'lightning:$invoice';
     try {
       if (Platform.isAndroid) {
@@ -134,10 +138,9 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             print('Could not launch $link');
           }
           if (mounted) {
+            // Use localized string
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Could not open Lightning app for invoice.'),
-              ),
+              SnackBar(content: Text(strings.errorCouldNotOpenLightningApp)),
             );
           }
         }
@@ -145,8 +148,11 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     } catch (e) {
       print('Error launching lightning URL: $e');
       if (mounted) {
+        // Use localized string with placeholder
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error opening Lightning app: $e')),
+          SnackBar(
+            content: Text(strings.errorOpeningLightningApp(e.toString())),
+          ),
         );
       }
     }
@@ -154,6 +160,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!; // Get strings instance
     final holdInvoice = ref.watch(
       holdInvoiceProvider,
     ); // Watch the invoice state
@@ -164,7 +171,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       builder: (context) {
         if (holdInvoice == null) {
           // Should not happen if navigation is correct, but handle defensively
-          return const Center(child: Text("Error: Invoice details not found."));
+          // Use localized string (errorOfferDetailsMissing seems appropriate)
+          return Center(child: Text(strings.errorOfferDetailsMissing));
         }
 
         return Padding(
@@ -174,9 +182,10 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Pay this Hold Invoice:',
-                  style: TextStyle(fontSize: 18),
+                // Use localized string
+                Text(
+                  strings.payHoldInvoiceTitle,
+                  style: const TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 15),
@@ -207,13 +216,13 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                 const SizedBox(height: 15),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.copy),
-                  label: const Text('Copy Invoice'),
+                  // Use localized string
+                  label: Text(strings.copyInvoice),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: holdInvoice));
+                    // Use localized string
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Invoice copied to clipboard!'),
-                      ),
+                      SnackBar(content: Text(strings.invoiceCopied)),
                     );
                   },
                 ),
@@ -228,7 +237,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                     SizedBox(width: 8),
-                    Text('Waiting for payment confirmation...'),
+                    // Use localized string
+                    Text(strings.waitingForPaymentConfirmation),
                   ],
                 ),
               ],

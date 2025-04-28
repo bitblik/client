@@ -76,7 +76,7 @@ final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
       return Offer(
         id: offerData['id'] as String,
         amountSats: offerData['amount_sats'] as int,
-        feeSats: offerData['fee_sats'] as int,
+        makerFees: offerData['maker_fees'] as int, // Renamed key and field
         fiatAmount: offerData['fiat_amount'] ?? 0,
         fiatCurrency: offerData['fiat_currency'] ?? '',
         status: offerData['status'] as String,
