@@ -677,6 +677,9 @@
     "description": "Label for the text field where the user enters a new invoice"
   },
   "newLightningInvoiceHint": "Wprowadź swoją fakturę BOLT11",
+  "@newLightningInvoiceHint": {
+    "description": "Hint text for the new invoice text field"
+  },
   "errorEnterValidInvoice": "Proszę wprowadzić prawidłową fakturę",
   "@errorEnterValidInvoice": {
     "description": "Snackbar validation error when the new invoice field is empty"
