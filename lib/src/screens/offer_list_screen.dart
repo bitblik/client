@@ -554,6 +554,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align items to the top
                     children: [
                       Image.asset('assets/simplex.png', height: 24, width: 24),
                       const SizedBox(width: 8),
