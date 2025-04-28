@@ -313,7 +313,7 @@
   "@errorCouldNotFetchActiveOffer": {
     "description": "Error when fetching full offer details fails after payment"
   },
-  "errorMissingPaymentHashOrKey": "Błąd: Brak hashu płatności lub klucza publicznego.",
+  "errorMissingPaymentHashOrKey": "Błąd: Brak hasha płatności lub klucza publicznego.",
   "@errorMissingPaymentHashOrKey": {
     "description": "Error shown when payment hash or public key is missing during confirmation"
   },
@@ -457,7 +457,7 @@
   "@errorOfferReservationTimestampMissing": {
     "description": "Error when the reservedAt field is unexpectedly null"
   },
-  "errorOfferPaymentHashMissing": "Brak hashu płatności oferty po pobraniu.",
+  "errorOfferPaymentHashMissing": "Brak hasha płatności oferty po pobraniu.",
   "@errorOfferPaymentHashMissing": {
     "description": "Error when the payment hash is missing after fetching full offer details"
   },
