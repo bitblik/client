@@ -215,8 +215,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         ),
         actions: [
           // Language Switcher Dropdown
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          // Wrap with Container for white background when closed
+          Container(
+            color: Color(0x00fef7ff),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+            ), // Keep horizontal padding
             child: DropdownButton<Locale>(
               // Determine current value: provider state, or system locale if provider is null
               // Ensure the value exists in the items list. Default to 'en' if system/saved locale isn't supported.
