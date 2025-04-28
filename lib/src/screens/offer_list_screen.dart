@@ -119,7 +119,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     _timerActive = false;
   }
 
-
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context)!; // Get strings instance
@@ -559,14 +558,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       Image.asset('assets/simplex.png', height: 24, width: 24),
                       const SizedBox(width: 8),
                       // Use localized string
-                      Text(
-                        AppLocalizations.of(context)!.getNotifiedSimplex,
-                        style: TextStyle(
-                          color:
-                              Theme.of(
-                                context,
-                              ).colorScheme.primary, // Use theme color
-                          decoration: TextDecoration.underline,
+                      Flexible(
+                        // Wrap with Flexible
+                        child: Text(
+                          AppLocalizations.of(context)!.getNotifiedSimplex,
+                          textAlign: TextAlign.center, // Center align text
+                          style: TextStyle(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.primary, // Use theme color
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
                     ],
