@@ -1,23 +1,11 @@
 // RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/providers.dart'; // Import providers
+
 import '../models/offer.dart'; // Import Offer model
-import '../services/key_service.dart'; // Import KeyService
-import '../services/api_service.dart'; // Explicitly import ApiService
-// Import flow screens for navigation
-import 'maker_flow/maker_amount_form.dart';
-// import 'maker_flow/maker_pay_invoice_screen.dart'; // Not directly navigated to from here
-import 'maker_flow/maker_wait_taker_screen.dart'; // Corrected import path (file still named this)
-import 'maker_flow/maker_wait_for_blik_screen.dart';
-import 'maker_flow/maker_confirm_payment_screen.dart';
-// Removed import 'taker_flow_screen.dart';
-import 'offer_list_screen.dart';
-import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
-import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
-import 'taker_flow/taker_payment_failed_screen.dart'; // Import new screen
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
+import '../providers/providers.dart'; // Import providers
 
 class RoleSelectionScreen extends ConsumerWidget {
   const RoleSelectionScreen({super.key});
@@ -87,90 +75,90 @@ class RoleSelectionScreen extends ConsumerWidget {
     }
   }
 
-  // Helper to Prompt for Lightning Address
-  static Future<String?> _promptForLightningAddress(
-    BuildContext context,
-    KeyService keyService,
-  ) async {
-    final controller = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        final strings = AppLocalizations.of(context)!; // Get strings
-        return AlertDialog(
-          // Reuse existing key
-          title: Text(strings.enterLightningAddress),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: controller,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                // Reuse existing key
-                hintText: strings.lightningAddressHint,
-                // Reuse existing key
-                labelText: strings.lightningAddressLabel,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty || !value.contains('@')) {
-                  // Reuse existing key
-                  return strings.lightningAddressInvalid;
-                }
-                return null;
-              },
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              // Reuse existing key
-              child: Text(strings.cancel),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(null);
-              },
-            ),
-            TextButton(
-              // Reuse existing key
-              child: Text(strings.saveAndContinue),
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  final address = controller.text;
-                  showDialog(
-                    context: dialogContext,
-                    barrierDismissible: false,
-                    builder:
-                        (context) =>
-                            const Center(child: CircularProgressIndicator()),
-                  );
-                  try {
-                    await keyService.saveLightningAddress(address);
-                    Navigator.of(dialogContext).pop(); // Pop loading
-                    Navigator.of(dialogContext).pop(address); // Return saved
-                  } catch (e) {
-                    Navigator.of(dialogContext).pop(); // Pop loading
-                    // Reuse existing key with placeholder
-                    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                      SnackBar(
-                        content: Text(strings.errorSavingAddress(e.toString())),
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // // Helper to Prompt for Lightning Address
+  // static Future<String?> _promptForLightningAddress(
+  //   BuildContext context,
+  //   KeyService keyService,
+  // ) async {
+  //   final controller = TextEditingController();
+  //   final formKey = GlobalKey<FormState>();
+  //
+  //   return showDialog<String>(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext dialogContext) {
+  //       final strings = AppLocalizations.of(context)!; // Get strings
+  //       return AlertDialog(
+  //         // Reuse existing key
+  //         title: Text(strings.enterLightningAddress),
+  //         content: Form(
+  //           key: formKey,
+  //           child: TextFormField(
+  //             controller: controller,
+  //             keyboardType: TextInputType.emailAddress,
+  //             decoration: InputDecoration(
+  //               // Reuse existing key
+  //               hintText: strings.lightningAddressHint,
+  //               // Reuse existing key
+  //               labelText: strings.lightningAddressLabel,
+  //             ),
+  //             validator: (value) {
+  //               if (value == null || value.isEmpty || !value.contains('@')) {
+  //                 // Reuse existing key
+  //                 return strings.lightningAddressInvalid;
+  //               }
+  //               return null;
+  //             },
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             // Reuse existing key
+  //             child: Text(strings.cancel),
+  //             onPressed: () {
+  //               Navigator.of(dialogContext).pop(null);
+  //             },
+  //           ),
+  //           TextButton(
+  //             // Reuse existing key
+  //             child: Text(strings.saveAndContinue),
+  //             onPressed: () async {
+  //               if (formKey.currentState!.validate()) {
+  //                 final address = controller.text;
+  //                 showDialog(
+  //                   context: dialogContext,
+  //                   barrierDismissible: false,
+  //                   builder:
+  //                       (context) =>
+  //                           const Center(child: CircularProgressIndicator()),
+  //                 );
+  //                 try {
+  //                   await keyService.saveLightningAddress(address);
+  //                   Navigator.of(dialogContext).pop(); // Pop loading
+  //                   Navigator.of(dialogContext).pop(address); // Return saved
+  //                 } catch (e) {
+  //                   Navigator.of(dialogContext).pop(); // Pop loading
+  //                   // Reuse existing key with placeholder
+  //                   ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+  //                     SnackBar(
+  //                       content: Text(strings.errorSavingAddress(e.toString())),
+  //                     ),
+  //                   );
+  //                 }
+  //               }
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final initialOfferAsync = ref.watch(initialActiveOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
-    final lnAddressAsyncValue = ref.watch(lightningAddressProvider);
+    ref.watch(lightningAddressProvider);
     final strings = AppLocalizations.of(context)!; // Get strings
 
     return Padding(
@@ -333,7 +321,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               ),
                                         );
                                         try {
-                                          final apiService = ref.read(
+                                          ref.read(
                                             apiServiceProvider,
                                           );
                                           final makerId =

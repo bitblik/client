@@ -410,8 +410,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           }
         }
       case AppRole.none:
-      default:
-        return const RoleSelectionScreen();
+      return const RoleSelectionScreen();
     }
   }
 }

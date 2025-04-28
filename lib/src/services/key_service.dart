@@ -1,6 +1,6 @@
 import 'dart:math'; // For Random.secure()
-import 'dart:convert'; // For hex encoding/decoding
 import 'dart:typed_data'; // For Uint8List
+
 import 'package:bip340/bip340.dart' as bip340;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

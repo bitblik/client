@@ -1,19 +1,19 @@
 import 'dart:async'; // Import async for Timer
-import 'dart:async'; // Import async for Timer
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/providers.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
 // import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
-import '../services/key_service.dart'; // Import KeyService (still needed for prompt method)
+import '../providers/providers.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 // --- OfferListScreen ---
 
@@ -119,21 +119,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     _timerActive = false;
   }
 
-  void _resetToRoleSelection(String message) {
-    _refreshTimer?.cancel();
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
-    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-    final navigator = Navigator.maybeOf(context);
-    if (scaffoldMessenger != null && message.isNotEmpty) {
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
-    }
-    context.pop();
-    // if (navigator != null && navigator.canPop()) {
-    //   navigator.popUntil((route) => route.isFirst);
-    // }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -939,12 +924,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           trailing: trailingWidget,
                                         ),
                                       ),
-                                      if (isFunded && offer.createdAt != null)
+                                      if (isFunded)
                                         FundedOfferProgressIndicator(
                                           key: ValueKey(
                                             'progress_funded_${offer.id}',
                                           ),
-                                          createdAt: offer.createdAt!,
+                                          createdAt: offer.createdAt,
                                         ),
                                       if (isReserved &&
                                           offer.reservedAt != null)

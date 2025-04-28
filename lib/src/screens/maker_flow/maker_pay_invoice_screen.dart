@@ -24,7 +24,6 @@ class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
 
 class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   Timer? _statusPollTimer;
-  String? _polledOfferStatus;
 
   @override
   void initState() {
@@ -98,14 +97,12 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
           } else {
             if (mounted) {
               setState(() {
-                _polledOfferStatus = status;
               });
             }
           }
         } else {
           if (mounted) {
             setState(() {
-              _polledOfferStatus = 'pending_creation';
             });
           }
         }
