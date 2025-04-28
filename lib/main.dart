@@ -253,6 +253,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   AppLocalizations.supportedLocales
                       .map<DropdownMenuItem<Locale>>((Locale locale) {
                         // Simple display name logic
+                        // Add flag emoji based on language code
+                        final String flagEmoji =
+                            locale.languageCode == 'en'
+                                ? '🇬🇧 '
+                                : locale.languageCode == 'pl'
+                                ? '🇵🇱 '
+                                : ''; // No emoji for other languages
                         final String displayName =
                             locale.languageCode == 'en'
                                 ? 'English'
@@ -261,7 +268,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                 : locale.languageCode.toUpperCase();
                         return DropdownMenuItem<Locale>(
                           value: locale,
-                          child: Text(displayName),
+                          child: Text(flagEmoji + displayName), // Prepend emoji
                         );
                       })
                       .toList(),
@@ -410,7 +417,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           }
         }
       case AppRole.none:
-      return const RoleSelectionScreen();
+        return const RoleSelectionScreen();
     }
   }
 }
