@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/providers.dart';
+
 import '../../models/offer.dart';
-import '../../services/api_service.dart';
+import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
-import 'taker_wait_confirmation_screen.dart'; // Import the next screen
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 // --- BlikInputProgressIndicator Widget ---
 class BlikInputProgressIndicator extends StatefulWidget {
@@ -285,7 +284,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     ref.read(activeOfferProvider.notifier).state = null;
     ref.read(errorProvider.notifier).state = null;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-    final navigator = Navigator.maybeOf(context);
+    Navigator.maybeOf(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.go("/offers");

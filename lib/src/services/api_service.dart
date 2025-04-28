@@ -1,14 +1,15 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
 import '../models/offer.dart'; // Import the client-side Offer model
 
 class ApiService {
   static const _btcPlnCacheKey = 'btcPlnRate';
+
   // TODO: Make base URL configurable
   final String _baseUrl =
-      // 'https://api.bitblik.app'; // Updated backend IP address
-      'http://192.168.1.28:8080';
+      kDebugMode ? 'http://192.168.1.28:8080' : 'https://api.bitblik.app';
 
   // Helper method for handling HTTP responses
   dynamic _handleResponse(http.Response response) {

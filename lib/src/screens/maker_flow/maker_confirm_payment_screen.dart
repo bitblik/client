@@ -34,33 +34,6 @@ class _MakerConfirmPaymentScreenState
     }
   }
 
-  // Helper to reset state and go back to role selection
-  void _resetToRoleSelection(
-    BuildContext context,
-    WidgetRef ref,
-    String message,
-  ) {
-    // Cancel any active timers if they were somehow still running (unlikely here)
-    // ref.read(timerProvider)?.cancel(); // Example if a timer provider existed
-
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
-    ref.read(holdInvoiceProvider.notifier).state = null;
-    ref.read(paymentHashProvider.notifier).state = null;
-    ref.read(receivedBlikCodeProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
-
-    // Use WidgetsBinding to ensure context is available if called during build/callback
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Check mounted status before accessing context/scaffold
-      if (ScaffoldMessenger.maybeOf(context) != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      }
-    });
-  }
-
   Future<void> _confirmPayment(BuildContext context, WidgetRef ref) async {
     final strings = AppLocalizations.of(context)!; // Get strings instance
     final paymentHash = ref.read(paymentHashProvider);

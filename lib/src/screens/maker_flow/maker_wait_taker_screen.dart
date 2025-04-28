@@ -264,12 +264,6 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     });
   }
 
-  // Simple navigation back to root without resetting state
-  void _goHome() {
-    _statusCheckTimer?.cancel();
-    Navigator.of(context).popUntil(ModalRoute.withName('/'));
-  }
-
   // Function to handle offer cancellation
   Future<void> _cancelOffer() async {
     final offer = ref.read(activeOfferProvider);
