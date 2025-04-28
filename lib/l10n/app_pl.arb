@@ -591,5 +591,76 @@
   "@newLightningInvoiceLabel": { 
     "description": "Label for the text field where the user enters a new invoice" 
   },
-  "newLightningInvoiceHint": "Wprowadź swoją fakturę BOLT11"
+  "newLightningInvoiceHint": "Wprowadź swoją fakturę BOLT11",
+
+  "errorEnterValidInvoice": "Proszę wprowadzić prawidłową fakturę",
+  "@errorEnterValidInvoice": { 
+    "description": "Snackbar validation error when the new invoice field is empty" 
+  },
+  "errorUpdatingInvoice": "Błąd podczas aktualizacji faktury: {details}",
+  "@errorUpdatingInvoice": {
+    "description": "Snackbar error message when submitting the new invoice fails",
+    "placeholders": { "details": {} }
+  },
+  "submitNewInvoiceButton": "Wyślij nową fakturę",
+  "@submitNewInvoiceButton": { 
+    "description": "Button text to submit the newly entered invoice" 
+  },
+
+  "offerCompletedTitle": "Oferta zakończona",
+  "@offerCompletedTitle": { 
+    "description": "AppBar title for the success screen" 
+  },
+  "paymentConfirmedHeadline": "Płatność potwierdzona!",
+  "@paymentConfirmedHeadline": { 
+    "description": "Headline text on the success screen" 
+  },
+  "takerPaidSubtitle": "Kupujący otrzymał zapłatę.",
+  "@takerPaidSubtitle": { 
+    "description": "Subtitle text on the success screen confirming taker payment" 
+  },
+  "offerDetailsTitle": "Szczegóły oferty:",
+  "@offerDetailsTitle": { 
+    "description": "Title for the card showing completed offer details" 
+  },
+  "offerIdLabel": "ID Oferty: {id}...",
+  "@offerIdLabel": {
+    "description": "Label showing the truncated Offer ID in the details card",
+    "placeholders": { "id": { "type": "String" } }
+  },
+
+  "errorLoadingLightningAddress": "Błąd podczas ładowania adresu Lightning: {details}",
+  "@errorLoadingLightningAddress": {
+    "description": "Error message when fetching the saved Lightning Address fails",
+    "placeholders": { "details": {} }
+  },
+  "validLightningAddressTooltip": "Prawidłowy adres Lightning",
+  "@validLightningAddressTooltip": { 
+    "description": "Tooltip for the green checkmark indicating a valid LN Address" 
+  },
+  "errorFailedToReserveOfferNoTimestamp": "Nie udało się zarezerwować oferty (brak znacznika czasu).",
+  "@errorFailedToReserveOfferNoTimestamp": { 
+    "description": "Error message when reserving an offer succeeds but doesn't return a timestamp" 
+  },
+  "errorFailedToReserveOffer": "Nie udało się zarezerwować oferty: {details}",
+  "@errorFailedToReserveOffer": {
+    "description": "Generic error message when reserving an offer fails",
+    "placeholders": { "details": {} }
+  },
+
+  "progressWaitingForTaker": "Oczekiwanie na kupującego: {time}",
+  "@progressWaitingForTaker": {
+    "description": "Text inside the progress bar when an offer is funded and waiting for a taker",
+    "placeholders": { "time": { "type": "String", "example": "09:59" } }
+  },
+  "progressReserved": "Zarezerwowano: pozostało {seconds} s",
+  "@progressReserved": {
+    "description": "Text inside the progress bar when an offer is reserved by a taker",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "progressConfirming": "Potwierdzanie: pozostało {seconds} s",
+  "@progressConfirming": {
+    "description": "Text inside the progress bar when waiting for the maker to confirm payment after BLIK is received",
+    "placeholders": { "seconds": { "type": "int" } }
+  }
 }
