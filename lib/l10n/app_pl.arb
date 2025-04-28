@@ -11,7 +11,7 @@
   "@error": {
     "description": "Generic error title"
   },
-  "errorOfferDetailsMissing": "Błąd: Brak lub nieprawidłowe dane oferty.",
+  "errorOfferDetailsMissing": "Błąd: Brak szczegółów oferty lub są nieprawidłowe.",
   "@errorOfferDetailsMissing": {
     "description": "Displayed when offer details are missing or invalid"
   },
@@ -19,15 +19,15 @@
   "@waitingForBlik": {
     "description": "AppBar title when waiting for BLIK code"
   },
-  "offerReservedByTaker": "Oferta zarezerwowana przez odbiorcę!",
+  "offerReservedByTaker": "Oferta zarezerwowana przez Kupującego!",
   "@offerReservedByTaker": {
     "description": "Displayed when offer is reserved by taker"
   },
-  "waitingForTakerBlik": "Oczekiwanie na kod BLIK od odbiorcy.",
+  "waitingForTakerBlik": "Oczekiwanie na wprowadzenie kodu BLIK przez Kupującego.",
   "@waitingForTakerBlik": {
     "description": "Displayed while waiting for taker to submit BLIK code"
   },
-  "takerHas20Seconds": "Odbiorca ma 20 sekund na podanie kodu.",
+  "takerHas20Seconds": "Kupujący ma 20 sekund na podanie kodu.",
   "@takerHas20Seconds": {
     "description": "Displayed to indicate taker has 20 seconds"
   },
@@ -35,7 +35,7 @@
   "@goHome": {
     "description": "Tooltip for home button"
   },
-  "errorActiveOfferDetailsLost": "Błąd: Utracono dane aktywnej oferty.",
+  "errorActiveOfferDetailsLost": "Błąd: Utracono szczegóły aktywnej oferty.",
   "@errorActiveOfferDetailsLost": {
     "description": "Displayed when active offer details are lost"
   },
@@ -50,7 +50,7 @@
       "details": {}
     }
   },
-  "offerNoLongerAvailable": "Oferta jest już niedostępna (Status: {status}).",
+  "offerNoLongerAvailable": "Oferta nie jest już dostępna (Status: {status}).",
   "@offerNoLongerAvailable": {
     "description": "Displayed when offer is no longer available",
     "placeholders": {
@@ -61,16 +61,23 @@
   "@yourOffer": {
     "description": "Label for user's offer"
   },
-  "amountSats": "Kwota: {amount} sats",
+  "amountSats": "Kwota: {amount} satoshi",
   "@amountSats": {
     "description": "Amount in sats",
     "placeholders": {
       "amount": {}
     }
   },
-  "feeSats": "Opłata: {fee} sats",
-  "@feeSats": {
-    "description": "Fee in sats",
+  "makerFeeSats": "Opłata wystawiającego: {fee} satoshi",
+  "@makerFeeSats": {
+    "description": "Maker's fee in sats",
+    "placeholders": {
+      "fee": {}
+    }
+  },
+  "takerFeeSats": "Opłata kupującego: {fee} satoshi",
+  "@takerFeeSats": {
+    "description": "Taker's fee in sats",
     "placeholders": {
       "fee": {}
     }
@@ -82,7 +89,7 @@
       "status": {}
     }
   },
-  "waitingForTaker": "Oczekiwanie na odbiorcę, który zarezerwuje ofertę...",
+  "waitingForTaker": "Oczekiwanie na Kupującego, który zarezerwuje Twoją ofertę...",
   "@waitingForTaker": {
     "description": "Displayed while waiting for a taker"
   },
@@ -94,14 +101,14 @@
   "@errorCouldNotIdentifyOffer": {
     "description": "Displayed when offer to cancel cannot be identified"
   },
-  "offerCannotBeCancelled": "Nie można anulować oferty w obecnym stanie ({status}).",
+  "offerCannotBeCancelled": "Oferta nie może zostać anulowana w bieżącym stanie ({status}).",
   "@offerCannotBeCancelled": {
     "description": "Displayed when offer cannot be cancelled in current state",
     "placeholders": {
       "status": {}
     }
   },
-  "offerCancelledSuccessfully": "Oferta została pomyślnie anulowana.",
+  "offerCancelledSuccessfully": "Oferta anulowana pomyślnie.",
   "@offerCancelledSuccessfully": {
     "description": "Displayed when offer is cancelled successfully"
   },
@@ -124,7 +131,7 @@
   "@lightningAddressLabel": {
     "description": "Label for Lightning Address input"
   },
-  "lightningAddressInvalid": "Wprowadź poprawny adres Lightning",
+  "lightningAddressInvalid": "Wprowadź prawidłowy adres Lightning",
   "@lightningAddressInvalid": {
     "description": "Validation error for Lightning Address"
   },
@@ -152,14 +159,14 @@
   "@lightningAddressUpdated": {
     "description": "Snackbar message when Lightning Address is updated"
   },
-  "errorSavingAddress": "Błąd zapisu adresu: {details}",
+  "errorSavingAddress": "Błąd podczas zapisywania adresu: {details}",
   "@errorSavingAddress": {
     "description": "Snackbar message when saving Lightning Address fails",
     "placeholders": {
       "details": {}
     }
   },
-  "getNotifiedSimplex": "Otrzymuj powiadomienia o nowych ofertach przez SimpleX",
+  "getNotifiedSimplex": "Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX",
   "@getNotifiedSimplex": {
     "description": "SimpleX notification prompt"
   },
@@ -167,7 +174,7 @@
   "@noOffersAvailable": {
     "description": "Displayed when there are no offers"
   },
-  "take": "WEŹ",
+  "take": "PRZYJMIJ",
   "@take": {
     "description": "Button to take an offer"
   },
@@ -175,16 +182,16 @@
   "@resume": {
     "description": "Button to resume an offer"
   },
-  "offerAmountSats": "Kwota: {amount} sats",
+  "offerAmountSats": "Kwota: {amount} satoshi",
   "@offerAmountSats": {
     "description": "Offer amount in sats",
     "placeholders": {
       "amount": {}
     }
   },
-  "offerFeeStatusId": "Opłata: {fee} sats | Status: {status}\\nID: {id}...",
+  "offerFeeStatusId": "Opłata wystawiającego: {fee} satoshi | Status: {status}\\nID: {id}...",
   "@offerFeeStatusId": {
-    "description": "Offer fee, status, and ID",
+    "description": "Offer maker fee, status, and ID",
     "placeholders": {
       "fee": {},
       "status": {},
@@ -195,7 +202,7 @@
   "@finishedOffers": {
     "description": "Section title for finished offers"
   },
-  "errorLoadingOffers": "Błąd ładowania ofert: {details}",
+  "errorLoadingOffers": "Błąd podczas ładowania ofert: {details}",
   "@errorLoadingOffers": {
     "description": "Error loading offers",
     "placeholders": {
@@ -209,5 +216,451 @@
   "errorOfferUnexpectedState": "Błąd: Oferta jest w nieoczekiwanym stanie.",
   "@errorOfferUnexpectedState": {
     "description": "Displayed when offer is in an unexpected state"
+  },
+  "errorPublicKeyNotLoaded": "Błąd: Klucz publiczny nie został jeszcze załadowany.",
+  "@errorPublicKeyNotLoaded": { 
+    "description": "Error when public key is missing for offer creation" 
+  },
+  "errorInvalidNumberFormat": "Nieprawidłowy format liczby",
+  "@errorInvalidNumberFormat": { 
+    "description": "Validation error for number input" 
+  },
+  "errorAmountMustBePositive": "Kwota musi być dodatnia",
+  "@errorAmountMustBePositive": { 
+    "description": "Validation error for non-positive amount" 
+  },
+  "errorInvalidFeePercentage": "Nieprawidłowy procent opłaty",
+  "@errorInvalidFeePercentage": { 
+    "description": "Validation error for fee input" 
+  },
+  "errorInitiatingOffer": "Błąd podczas inicjowania oferty: {details}",
+  "@errorInitiatingOffer": {
+    "description": "Error message when initiating an offer fails",
+    "placeholders": { "details": {} }
+  },
+  "enterAmountToPay": "Wprowadź kwotę (PLN) do zapłaty:",
+  "@enterAmountToPay": { 
+    "description": "Label instructing user to enter PLN amount" 
+  },
+  "amountLabel": "Kwota (PLN)",
+  "@amountLabel": { 
+    "description": "Label for the amount input field" 
+  },
+  "fetchingExchangeRate": "Pobieranie kursu wymiany...",
+  "@fetchingExchangeRate": { 
+    "description": "Text shown while fetching exchange rate" 
+  },
+  "satsEquivalent": "≈ {sats} satoshi",
+  "@satsEquivalent": {
+    "description": "Displays the calculated sats equivalent",
+    "placeholders": { "sats": { "type": "String" } }
+  },
+  "plnBtcRate": "Kurs PLN/BTC ≈ {rate}",
+  "@plnBtcRate": {
+    "description": "Displays the fetched PLN/BTC exchange rate",
+    "placeholders": { "rate": { "type": "String" } }
+  },
+  "errorFetchingRate": "Nie udało się pobrać kursu wymiany.",
+  "@errorFetchingRate": { 
+    "description": "Error message when fetching exchange rate fails" 
+  },
+  "generateInvoice": "Wygeneruj fakturę",
+  "@generateInvoice": { 
+    "description": "Button text to generate the invoice" 
+  },
+  "payHoldInvoiceTitle": "Zapłać tę fakturę Hold:",
+  "@payHoldInvoiceTitle": { 
+    "description": "Title instructing the maker to pay the hold invoice" 
+  },
+  "errorCouldNotOpenLightningApp": "Nie można otworzyć aplikacji Lightning dla faktury.",
+  "@errorCouldNotOpenLightningApp": { 
+    "description": "Error shown when the Lightning app cannot be launched via URL" 
+  },
+  "errorOpeningLightningApp": "Błąd podczas otwierania aplikacji Lightning: {details}",
+  "@errorOpeningLightningApp": {
+    "description": "Error shown when launching the Lightning app fails",
+    "placeholders": { "details": {} }
+  },
+  "copyInvoice": "Kopiuj fakturę",
+  "@copyInvoice": { 
+    "description": "Button text to copy the invoice" 
+  },
+  "invoiceCopied": "Faktura skopiowana do schowka!",
+  "@invoiceCopied": { 
+    "description": "Snackbar message confirming invoice copy" 
+  },
+  "waitingForPaymentConfirmation": "Oczekiwanie na potwierdzenie płatności...",
+  "@waitingForPaymentConfirmation": { 
+    "description": "Status text while polling for invoice payment" 
+  },
+  "errorPublicKeyNotAvailable": "Klucz publiczny nie jest dostępny.",
+  "@errorPublicKeyNotAvailable": { 
+    "description": "Error when public key is needed but not found after payment" 
+  },
+  "errorCouldNotFetchActiveOffer": "Nie można pobrać szczegółów aktywnej oferty. Mogła wygasnąć.",
+  "@errorCouldNotFetchActiveOffer": { 
+    "description": "Error when fetching full offer details fails after payment" 
+  },
+  "errorMissingPaymentHashOrKey": "Błąd: Brak hashu płatności lub klucza publicznego.",
+  "@errorMissingPaymentHashOrKey": { 
+    "description": "Error shown when payment hash or public key is missing during confirmation" 
+  },
+  "errorOfferIncorrectStateConfirmation": "Oferta nie jest w prawidłowym stanie do potwierdzenia (Status: {status})",
+  "@errorOfferIncorrectStateConfirmation": {
+    "description": "Error shown when trying to confirm payment but offer is in wrong state",
+    "placeholders": { "status": {} }
+  },
+  "paymentConfirmedTakerPaid": "Płatność potwierdzona! Kupujący otrzyma środki.",
+  "@paymentConfirmedTakerPaid": { 
+    "description": "Snackbar message after maker confirms payment" 
+  },
+  "errorConfirmingPayment": "Błąd podczas potwierdzania płatności: {details}",
+  "@errorConfirmingPayment": {
+    "description": "Error shown when confirming maker payment fails",
+    "placeholders": { "details": {} }
+  },
+  "blikCopied": "Kod BLIK skopiowany do schowka",
+  "@blikCopied": { 
+    "description": "Snackbar message confirming BLIK code copy" 
+  },
+  "retrievingBlikCode": "Pobieranie kodu BLIK...",
+  "@retrievingBlikCode": { 
+    "description": "Status text while waiting for BLIK code to be fetched" 
+  },
+  "blikCodeReceivedTitle": "Otrzymano kod BLIK!",
+  "@blikCodeReceivedTitle": { 
+    "description": "Title indicating BLIK code has been received" 
+  },
+  "copyToClipboardTooltip": "Kopiuj do schowka",
+  "@copyToClipboardTooltip": { 
+    "description": "Tooltip for the copy icon button" 
+  },
+  "blikInstructionsMaker": "Wprowadź ten kod w terminalu płatniczym. Gdy Kupujący potwierdzi w swojej aplikacji bankowej i płatność zostanie zrealizowana, naciśnij Potwierdź poniżej.",
+  "@blikInstructionsMaker": { 
+    "description": "Instructions for the maker after receiving the BLIK code" 
+  },
+  "confirmPaymentSuccessButton": "Potwierdź udaną płatność",
+  "@confirmPaymentSuccessButton": { 
+    "description": "Button text for maker to confirm successful payment" 
+  },
+  "errorInvalidOfferStateReceived": "Błąd: Otrzymano nieprawidłowy stan oferty.",
+  "@errorInvalidOfferStateReceived": { 
+    "description": "Error when the screen receives an offer in an unexpected initial state" 
+  },
+  "errorInternalOfferIncomplete": "Błąd wewnętrzny: Niekompletne szczegóły oferty.",
+  "@errorInternalOfferIncomplete": { 
+    "description": "Error when critical offer details (like payment hash) are missing" 
+  },
+  "errorOfferInvalidStatus": "Oferta ma nieprawidłowy status.",
+  "@errorOfferInvalidStatus": { 
+    "description": "Error when the offer status string is not a valid enum value" 
+  },
+  "errorOfferNotAwaitingConfirmation": "Oferta nie oczekuje już na potwierdzenie (Status: {status}).",
+  "@errorOfferNotAwaitingConfirmation": {
+    "description": "Message shown when polling reveals the offer is no longer in a waiting state",
+    "placeholders": { "status": {} }
+  },
+  "errorUnexpectedStatusFromServer": "Otrzymano nieoczekiwany status oferty z serwera.",
+  "@errorUnexpectedStatusFromServer": { 
+    "description": "Error when the status string from the server is unknown" 
+  },
+  "offerCancelledOrExpired": "Oferta została anulowana lub wygasła.",
+  "@offerCancelledOrExpired": { 
+    "description": "Message shown when polling reveals the offer was cancelled or expired" 
+  },
+  "paymentSuccessfulTaker": "Płatność udana! Wkrótce otrzymasz środki.",
+  "@paymentSuccessfulTaker": { 
+    "description": "Snackbar message shown to the taker upon successful payment" 
+  },
+  "errorOfferUnexpectedStateWithStatus": "Oferta jest w nieoczekiwanym stanie ({status}).",
+  "@errorOfferUnexpectedStateWithStatus": {
+    "description": "Error shown when the offer is found in an unexpected state during build or processing",
+    "placeholders": { "status": {} }
+  },
+  "offerStatusLabel": "Status oferty: {status}",
+  "@offerStatusLabel": {
+    "description": "Label displaying the current offer status",
+    "placeholders": { "status": {} }
+  },
+  "waitingMakerConfirmation": "Oczekiwanie na potwierdzenie Wystawiającego: {seconds} s",
+  "@waitingMakerConfirmation": {
+    "description": "Countdown timer showing time left for maker confirmation",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "importantBlikAmountConfirmation": "BARDZO WAŻNE: Upewnij się, że akceptujesz tylko potwierdzenie BLIK na kwotę {amount} {currency}",
+  "@importantBlikAmountConfirmation": {
+    "description": "Important instruction for the taker about confirming the correct BLIK amount",
+    "placeholders": {
+      "amount": { "type": "String" },
+      "currency": { "type": "String" }
+    }
+  },
+  "blikInstructionsTaker": "Wystawiający ofertę otrzymał Twój kod BLIK i musi wprowadzić go w terminalu płatniczym. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz tylko właściwą kwotę. Otrzymasz płatność Lightning automatycznie po potwierdzeniu.",
+  "@blikInstructionsTaker": { 
+    "description": "Detailed instructions for the taker while waiting for confirmation" 
+  },
+  "submitBlikWithinSeconds": "Wprowadź BLIK w ciągu: {seconds} s",
+  "@submitBlikWithinSeconds": {
+    "description": "Countdown timer text in the progress bar for submitting BLIK",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "errorFetchedOfferIdMismatch": "Pobrane ID aktywnej oferty ({fetchedId}) nie odpowiada początkowemu ID oferty ({initialId}). Niezgodność stanu?",
+  "@errorFetchedOfferIdMismatch": {
+    "description": "Error when the fetched offer ID doesn't match the expected one",
+    "placeholders": { "fetchedId": {}, "initialId": {} }
+  },
+  "errorOfferNotReserved": "Oferta nie jest już w stanie zarezerwowanym ({status}).",
+  "@errorOfferNotReserved": {
+    "description": "Error when trying to submit BLIK but the offer is not reserved",
+    "placeholders": { "status": {} }
+  },
+  "errorOfferReservationTimestampMissing": "Brak znacznika czasu rezerwacji oferty.",
+  "@errorOfferReservationTimestampMissing": { 
+    "description": "Error when the reservedAt field is unexpectedly null" 
+  },
+  "errorOfferPaymentHashMissing": "Brak hashu płatności oferty po pobraniu.",
+  "@errorOfferPaymentHashMissing": { 
+    "description": "Error when the payment hash is missing after fetching full offer details" 
+  },
+  "errorLoadingOfferDetails": "Błąd podczas ładowania szczegółów oferty: {details}",
+  "@errorLoadingOfferDetails": {
+    "description": "Generic error message when fetching full offer details fails",
+    "placeholders": { "details": {} }
+  },
+  "blikInputTimeExpired": "Czas na wprowadzenie kodu BLIK upłynął.",
+  "@blikInputTimeExpired": { 
+    "description": "Message shown when the 20-second timer for BLIK input runs out" 
+  },
+  "errorOfferStateChanged": "Błąd: Stan oferty uległ zmianie.",
+  "@errorOfferStateChanged": { 
+    "description": "Error shown when the offer state changes unexpectedly during BLIK submission" 
+  },
+  "errorOfferStateNotValid": "Błąd: Stan oferty nie jest już prawidłowy.",
+  "@errorOfferStateNotValid": { 
+    "description": "Error shown when trying to submit BLIK but the offer state is invalid" 
+  },
+  "errorInvalidBlikFormat": "Wprowadź prawidłowy 6-cyfrowy kod BLIK.",
+  "@errorInvalidBlikFormat": { 
+    "description": "Validation error for the BLIK code input field" 
+  },
+  "errorLightningAddressRequired": "Adres Lightning jest wymagany.",
+  "@errorLightningAddressRequired": { 
+    "description": "Error shown if the user cancels the LN Address prompt" 
+  },
+  "errorSubmittingBlik": "Błąd podczas przesyłania kodu BLIK: {details}",
+  "@errorSubmittingBlik": {
+    "description": "Error shown when the API call to submit BLIK fails",
+    "placeholders": { "details": {} }
+  },
+  "blikPasted": "Wklejony kod BLIK.",
+  "@blikPasted": { 
+    "description": "Snackbar message confirming successful paste of BLIK code" 
+  },
+  "errorClipboardInvalidBlik": "Schowek nie zawiera prawidłowego 6-cyfrowego kodu BLIK.",
+  "@errorClipboardInvalidBlik": { 
+    "description": "Snackbar message when pasted content is not a valid BLIK code" 
+  },
+  "errorOfferDetailsNotLoaded": "Nie można załadować szczegółów oferty.",
+  "@errorOfferDetailsNotLoaded": { 
+    "description": "Fallback text shown if offer details fail to load for the screen" 
+  },
+  "selectedOfferLabel": "Wybrana oferta:",
+  "@selectedOfferLabel": { 
+    "description": "Label above the selected offer details card" 
+  },
+  "offerDetailsSubtitle": "{sats} + {fee} (opłata) satoshi\nStatus: {status}",
+  "@offerDetailsSubtitle": {
+    "description": "Subtitle for the offer card showing sats, fee, and status",
+    "placeholders": {
+      "sats": { "type": "int" },
+      "fee": { "type": "int" },
+      "status": { "type": "String" }
+    }
+  },
+  "enterBlikCodeLabel": "Wprowadź 6-cyfrowy kod BLIK:",
+  "@enterBlikCodeLabel": { 
+    "description": "Label instructing the user to enter the BLIK code" 
+  },
+  "blikCodeLabel": "Kod BLIK",
+  "@blikCodeLabel": { 
+    "description": "Label for the BLIK code input field" 
+  },
+  "pasteFromClipboardTooltip": "Wklej ze schowka",
+  "@pasteFromClipboardTooltip": { 
+    "description": "Tooltip for the paste button next to the BLIK input" 
+  },
+  "submitBlikButton": "Wyślij BLIK",
+  "@submitBlikButton": { 
+    "description": "Text for the button to submit the BLIK code" 
+  },
+  "errorCheckingActiveOffers": "Błąd podczas sprawdzania aktywnych ofert: {details}",
+  "@errorCheckingActiveOffers": {
+    "description": "Error message shown when fetching initial active offers fails",
+    "placeholders": { "details": {} }
+  },
+  "payWithLightningButton": "ZAPŁAĆ z Lightning",
+  "@payWithLightningButton": { 
+    "description": "Button text for the Maker role (paying with LN)" 
+  },
+  "sellBlikButton": "SPRZEDAJ kod BLIK za satoshi",
+  "@sellBlikButton": { 
+    "description": "Button text for the Taker role (selling BLIK for sats)" 
+  },
+  "activeOfferTitle": "Masz aktywną ofertę:",
+  "@activeOfferTitle": { 
+    "description": "Title indicating the user has an active offer" 
+  },
+  "roleLabel": "Rola: {role}",
+  "@roleLabel": {
+    "description": "Label showing the user's role in the active offer",
+    "placeholders": { "role": { "type": "String" } }
+  },
+  "roleMaker": "Wystawiający",
+  "@roleMaker": { 
+    "description": "The Maker role name" 
+  },
+  "roleTaker": "Kupujący",
+  "@roleTaker": { 
+    "description": "The Taker role name" 
+  },
+  "activeOfferSubtitle": "Status: {status}\nKwota: {amount} satoshi",
+  "@activeOfferSubtitle": {
+    "description": "Subtitle for the active offer card showing status and amount",
+    "placeholders": {
+      "status": { "type": "String" },
+      "amount": { "type": "int" }
+    }
+  },
+  "lightningAddressLabelShort": "Adres Lightning: {address}",
+  "@lightningAddressLabelShort": {
+    "description": "Label showing the taker's LN address in the active offer card (e.g., for failed payments)",
+    "placeholders": { "address": { "type": "String" } }
+  },
+  "errorMakerPublicKeyNotFound": "Nie znaleziono klucza publicznego Wystawiającego",
+  "@errorMakerPublicKeyNotFound": { 
+    "description": "Error when trying to resume a maker offer but the public key is missing" 
+  },
+  "errorResumingOffer": "Błąd podczas wznawiania oferty: {details}",
+  "@errorResumingOffer": {
+    "description": "Snackbar message when resuming an active offer fails",
+    "placeholders": { "details": {} }
+  },
+  "errorLoadingFinishedOffers": "Błąd podczas ładowania zakończonych ofert: {details}",
+  "@errorLoadingFinishedOffers": {
+    "description": "Error message shown when fetching finished offers fails",
+    "placeholders": { "details": {} }
+  },
+  "finishedOffersTitle": "Zakończone oferty (ostatnie 24h):",
+  "@finishedOffersTitle": { 
+    "description": "Title for the section showing recently finished offers" 
+  },
+  "finishedOfferSubtitle": "{sats} + {fee} (opłata) satoshi\nStatus: {status}\nOpłacone: {date}",
+  "@finishedOfferSubtitle": {
+    "description": "Subtitle for a finished offer card showing details and payment time",
+    "placeholders": {
+      "sats": { "type": "int" },
+      "fee": { "type": "int" },
+      "status": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "errorCannotResumeOfferState": "Nie można wznowić oferty w stanie: {status}",
+  "@errorCannotResumeOfferState": {
+    "description": "Snackbar message when trying to resume an offer in an unsupported state",
+    "placeholders": { "status": {} }
+  },
+  "errorCannotResumeTakerOfferState": "Nie można wznowić oferty Kupującego w stanie: {status}",
+  "@errorCannotResumeTakerOfferState": {
+    "description": "Snackbar message when trying to resume a Taker offer in an unsupported state",
+    "placeholders": { "status": {} }
+  },
+  "paymentFailedTitle": "Płatność nie powiodła się",
+  "@paymentFailedTitle": { 
+    "description": "Title for the payment failed screen (AppBar and Headline)" 
+  },
+  "paymentFailedInstructions": "Płatność na {amount} satoshi nie mogła zostać zrealizowana. Proszę podać nową fakturę Lightning na kwotę netto {netAmount} satoshi (oryginalna kwota minus {fee} satoshi opłaty).",
+  "@paymentFailedInstructions": {
+    "description": "Instructions on the payment failed screen explaining the situation and asking for a new invoice",
+    "placeholders": {
+      "amount": { "type": "int" },
+      "netAmount": { "type": "int" },
+      "fee": { "type": "int" }
+    }
+  },
+  "newLightningInvoiceLabel": "Nowa faktura Lightning",
+  "@newLightningInvoiceLabel": { 
+    "description": "Label for the text field where the user enters a new invoice" 
+  },
+  "newLightningInvoiceHint": "Wprowadź swoją fakturę BOLT11",
+
+  "errorEnterValidInvoice": "Proszę wprowadzić prawidłową fakturę",
+  "@errorEnterValidInvoice": { 
+    "description": "Snackbar validation error when the new invoice field is empty" 
+  },
+  "errorUpdatingInvoice": "Błąd podczas aktualizacji faktury: {details}",
+  "@errorUpdatingInvoice": {
+    "description": "Snackbar error message when submitting the new invoice fails",
+    "placeholders": { "details": {} }
+  },
+  "submitNewInvoiceButton": "Wyślij nową fakturę",
+  "@submitNewInvoiceButton": { 
+    "description": "Button text to submit the newly entered invoice" 
+  },
+
+  "offerCompletedTitle": "Oferta zakończona",
+  "@offerCompletedTitle": { 
+    "description": "AppBar title for the success screen" 
+  },
+  "paymentConfirmedHeadline": "Płatność potwierdzona!",
+  "@paymentConfirmedHeadline": { 
+    "description": "Headline text on the success screen" 
+  },
+  "takerPaidSubtitle": "Kupujący otrzymał zapłatę.",
+  "@takerPaidSubtitle": { 
+    "description": "Subtitle text on the success screen confirming taker payment" 
+  },
+  "offerDetailsTitle": "Szczegóły oferty:",
+  "@offerDetailsTitle": { 
+    "description": "Title for the card showing completed offer details" 
+  },
+  "offerIdLabel": "ID Oferty: {id}...",
+  "@offerIdLabel": {
+    "description": "Label showing the truncated Offer ID in the details card",
+    "placeholders": { "id": { "type": "String" } }
+  },
+
+  "errorLoadingLightningAddress": "Błąd podczas ładowania adresu Lightning: {details}",
+  "@errorLoadingLightningAddress": {
+    "description": "Error message when fetching the saved Lightning Address fails",
+    "placeholders": { "details": {} }
+  },
+  "validLightningAddressTooltip": "Prawidłowy adres Lightning",
+  "@validLightningAddressTooltip": { 
+    "description": "Tooltip for the green checkmark indicating a valid LN Address" 
+  },
+  "errorFailedToReserveOfferNoTimestamp": "Nie udało się zarezerwować oferty (brak znacznika czasu).",
+  "@errorFailedToReserveOfferNoTimestamp": { 
+    "description": "Error message when reserving an offer succeeds but doesn't return a timestamp" 
+  },
+  "errorFailedToReserveOffer": "Nie udało się zarezerwować oferty: {details}",
+  "@errorFailedToReserveOffer": {
+    "description": "Generic error message when reserving an offer fails",
+    "placeholders": { "details": {} }
+  },
+
+  "progressWaitingForTaker": "Oczekiwanie na kupującego: {time}",
+  "@progressWaitingForTaker": {
+    "description": "Text inside the progress bar when an offer is funded and waiting for a taker",
+    "placeholders": { "time": { "type": "String", "example": "09:59" } }
+  },
+  "progressReserved": "Zarezerwowano: pozostało {seconds} s",
+  "@progressReserved": {
+    "description": "Text inside the progress bar when an offer is reserved by a taker",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "progressConfirming": "Potwierdzanie: pozostało {seconds} s",
+  "@progressConfirming": {
+    "description": "Text inside the progress bar when waiting for the maker to confirm payment after BLIK is received",
+    "placeholders": { "seconds": { "type": "int" } }
   }
 }

@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'src/providers/providers.dart';
+import 'src/providers/locale_provider.dart'; // Import locale provider
 import 'src/screens/role_selection_screen.dart';
 import 'src/screens/maker_flow/maker_amount_form.dart';
 import 'src/screens/offer_list_screen.dart';
@@ -105,6 +106,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeProvider); // Watch the locale provider
 
     return MaterialApp.router(
       title: 'BitBlik',
@@ -112,7 +114,7 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // locale: const Locale('pl'),
+      locale: locale, // Set locale from provider
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -212,7 +214,60 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           ),
         ),
         actions: [
-          // // Navigation button to offers
+          // Language Switcher Dropdown
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: DropdownButton<Locale>(
+              // Determine current value: provider state, or system locale if provider is null
+              // Ensure the value exists in the items list. Default to 'en' if system/saved locale isn't supported.
+              value:
+                  AppLocalizations.supportedLocales.contains(
+                        ref.watch(localeProvider),
+                      )
+                      ? ref.watch(localeProvider)
+                      : (AppLocalizations.supportedLocales.contains(
+                            Locale(
+                              WidgetsBinding
+                                  .instance
+                                  .platformDispatcher
+                                  .locale
+                                  .languageCode,
+                            ),
+                          )
+                          ? Locale(
+                            WidgetsBinding
+                                .instance
+                                .platformDispatcher
+                                .locale
+                                .languageCode,
+                          )
+                          : const Locale('en')), // Fallback to 'en'
+              icon: const Icon(Icons.language),
+              underline: const SizedBox.shrink(), // Hide default underline
+              onChanged: (Locale? newLocale) {
+                if (newLocale != null) {
+                  ref.read(localeProvider.notifier).setLocale(newLocale);
+                }
+              },
+              items:
+                  AppLocalizations.supportedLocales
+                      .map<DropdownMenuItem<Locale>>((Locale locale) {
+                        // Simple display name logic
+                        final String displayName =
+                            locale.languageCode == 'en'
+                                ? 'English'
+                                : locale.languageCode == 'pl'
+                                ? 'Polski'
+                                : locale.languageCode.toUpperCase();
+                        return DropdownMenuItem<Locale>(
+                          value: locale,
+                          child: Text(displayName),
+                        );
+                      })
+                      .toList(),
+            ),
+          ),
+          // // Navigation button to offers (commented out)
           // IconButton(
           //   icon: const Icon(Icons.list),
           //   tooltip: 'Offers',
