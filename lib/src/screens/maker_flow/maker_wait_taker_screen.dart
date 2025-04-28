@@ -85,12 +85,14 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         offer?.holdInvoicePaymentHash; // Get hash from active offer
     final makerId = ref.read(publicKeyProvider).value;
 
+    final strings = AppLocalizations.of(context)!; // Get strings early
     if (paymentHash == null || makerId == null || offer == null) {
       print(
         "[MakerWaitTakerScreen] Error: Missing offer, payment hash or public key.",
       );
       if (offer == null && mounted) {
-        _resetToRoleSelection("Error: Active offer details lost.");
+        // Use localized string
+        _resetToRoleSelection(strings.errorActiveOfferDetailsLost);
       }
       return;
     }
@@ -197,22 +199,23 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               "[MakerWaitTakerScreen] Error: API returned no BLIK code despite status ${currentStatus.name}. Resetting.",
             );
             if (mounted) {
-              _resetToRoleSelection("Error: Failed to retrieve BLIK code.");
+              // Use localized string
+              _resetToRoleSelection(strings.errorFailedToRetrieveBlik);
             }
           }
         } catch (e) {
           print("[MakerWaitTakerScreen] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(
-              "Error retrieving BLIK code: ${e.toString()}",
-            );
+            // Use localized string with placeholder
+            _resetToRoleSelection(strings.errorRetrievingBlik(e.toString()));
           }
         }
       } else if (currentStatus == OfferStatus.expired) {
         _statusCheckTimer?.cancel();
         if (mounted) {
+          // Use localized string with placeholder
           _resetToRoleSelection(
-            "Offer is no longer available (Status: ${currentStatus.name}).",
+            strings.offerNoLongerAvailable(currentStatus.name),
           );
         }
       } else {
@@ -222,8 +225,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         );
         _statusCheckTimer?.cancel();
         if (mounted) {
+          // Use localized string with placeholder
           _resetToRoleSelection(
-            "Offer is no longer available (Status: ${currentStatus.name}).",
+            strings.offerNoLongerAvailable(currentStatus.name),
           );
         }
       }
@@ -271,29 +275,22 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     final offer = ref.read(activeOfferProvider);
     final makerId = ref.read(publicKeyProvider).value;
 
+    final strings = AppLocalizations.of(context)!; // Get strings
     if (offer == null || makerId == null) {
       print("[MakerWaitTakerScreen] Cannot cancel: Missing offer or maker ID.");
       if (mounted) {
+        // Use localized string
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.errorCouldNotIdentifyOffer,
-            ),
-          ),
+          SnackBar(content: Text(strings.errorCouldNotIdentifyOffer)),
         );
       }
       return;
     }
     if (offer.status != OfferStatus.funded.name) {
       if (mounted) {
+        // Use localized string with placeholder
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.offerCannotBeCancelled(offer.status),
-            ),
-          ),
+          SnackBar(content: Text(strings.offerCannotBeCancelled(offer.status))),
         );
       }
       return;
@@ -307,14 +304,17 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     try {
       final apiService = ref.read(apiServiceProvider);
       await apiService.cancelOffer(offer.id, makerId);
-      _resetToRoleSelection("Offer cancelled successfully.");
+      // Use localized string
+      _resetToRoleSelection(strings.offerCancelledSuccessfully);
     } catch (e) {
       print("[MakerWaitTakerScreen] Error cancelling offer: $e");
       if (mounted) {
-        ref.read(errorProvider.notifier).state = "Failed to cancel offer: $e";
+        // Use localized string with placeholder
+        final errorMsg = strings.failedToCancelOffer(e.toString());
+        ref.read(errorProvider.notifier).state = errorMsg;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Failed to cancel offer: $e")));
+        ).showSnackBar(SnackBar(content: Text(errorMsg)));
       }
     } finally {
       if (mounted) {
@@ -349,7 +349,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
                 )!.amountSats(offer.amountSats.toString()),
               ),
               Text(
-                AppLocalizations.of(context)!.feeSats(offer.feeSats.toString()),
+                AppLocalizations.of(
+                  context,
+                )!.makerFeeSats(offer.makerFees.toString()), // Use new key
               ),
               Text(
                 AppLocalizations.of(

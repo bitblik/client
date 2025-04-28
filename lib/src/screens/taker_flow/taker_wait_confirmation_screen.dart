@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
   final Offer offer; // Accept the offer directly - REINSTATED
@@ -42,7 +43,9 @@ class _TakerWaitConfirmationScreenState
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _resetToOfferList("Error: Invalid offer state received.");
+          // Use localized string
+          final strings = AppLocalizations.of(context)!;
+          _resetToOfferList(strings.errorInvalidOfferStateReceived);
         }
       });
     } else {
@@ -152,7 +155,9 @@ class _TakerWaitConfirmationScreenState
       print(
         "[TakerWaitConfirmation _checkOfferStatus] Error: Active offer is null. Resetting.",
       );
-      _resetToOfferList("Active offer details lost.");
+      // Use localized string (reusing existing one)
+      final strings = AppLocalizations.of(context)!;
+      _resetToOfferList(strings.errorActiveOfferDetailsLost);
       return;
     }
     final paymentHash = currentOffer.holdInvoicePaymentHash;
@@ -160,7 +165,9 @@ class _TakerWaitConfirmationScreenState
       print(
         "[TakerWaitConfirmation _checkOfferStatus] CRITICAL Error: Payment hash is null in active offer. Resetting.",
       );
-      _resetToOfferList("Internal error: Offer details incomplete.");
+      // Use localized string
+      final strings = AppLocalizations.of(context)!;
+      _resetToOfferList(strings.errorInternalOfferIncomplete);
       return;
     }
 
@@ -171,7 +178,9 @@ class _TakerWaitConfirmationScreenState
       print(
         "[TakerWaitConfirmation _checkOfferStatus] Error: Invalid status '${currentOffer.status}'. Resetting.",
       );
-      _resetToOfferList("Offer has an invalid status.");
+      // Use localized string
+      final strings = AppLocalizations.of(context)!;
+      _resetToOfferList(strings.errorOfferInvalidStatus);
       return;
     }
 
@@ -225,9 +234,9 @@ class _TakerWaitConfirmationScreenState
           );
           _statusCheckTimer?.cancel();
           _confirmationTimer?.cancel();
-          _resetToOfferList(
-            "Received an unexpected offer status from the server.",
-          );
+          // Use localized string
+          final strings = AppLocalizations.of(context)!;
+          _resetToOfferList(strings.errorUnexpectedStatusFromServer);
           return;
         }
 
@@ -250,7 +259,9 @@ class _TakerWaitConfirmationScreenState
           _statusCheckTimer?.cancel();
           _confirmationTimer?.cancel();
           ref.read(activeOfferProvider.notifier).state = null;
-          _resetToOfferList("Offer was cancelled or expired.");
+          // Use localized string
+          final strings = AppLocalizations.of(context)!;
+          _resetToOfferList(strings.offerCancelledOrExpired);
         } else if (fetchedStatus != currentStatusEnum) {
           print(
             "[TakerWaitConfirmation] Offer status updated to $fetchedStatus. Updating provider.",
@@ -279,11 +290,11 @@ class _TakerWaitConfirmationScreenState
     _statusCheckTimer?.cancel();
     _confirmationTimer?.cancel();
     if (mounted) {
+      // Use localized string
+      final strings = AppLocalizations.of(context)!;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Payment Successful! You will receive the funds shortly.',
-          ),
+        SnackBar(
+          content: Text(strings.paymentSuccessfulTaker),
           backgroundColor: Colors.green,
         ),
       );
@@ -351,7 +362,11 @@ class _TakerWaitConfirmationScreenState
         "[TakerWaitConfirmation build] Error: Invalid status '${currentOfferState.status}'. Resetting.",
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _resetToOfferList("Offer has an invalid status.");
+        // Use localized string
+        if (mounted) {
+          final strings = AppLocalizations.of(context)!;
+          _resetToOfferList(strings.errorOfferInvalidStatus);
+        }
       });
       return const Scaffold(
         body: Center(
@@ -369,8 +384,10 @@ class _TakerWaitConfirmationScreenState
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          // Use localized string with placeholder
+          final strings = AppLocalizations.of(context)!;
           _resetToOfferList(
-            "Offer is in an unexpected state ($currentStatusEnum).",
+            strings.errorOfferUnexpectedStateWithStatus(currentStatusEnum.name),
           );
         }
       });
@@ -389,6 +406,8 @@ class _TakerWaitConfirmationScreenState
       });
     }
 
+    final strings = AppLocalizations.of(context)!; // Get strings instance
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(
@@ -404,14 +423,16 @@ class _TakerWaitConfirmationScreenState
               ),
               const SizedBox(height: 10),
             ],
+            // Use localized string with placeholder
             Text(
-              'Offer Status: ${displayOffer.status}',
+              strings.offerStatusLabel(displayOffer.status),
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
+            // Use localized string with placeholder
             Text(
-              'Waiting for Maker confirmation: $_confirmationCountdownSeconds s',
+              strings.waitingMakerConfirmation(_confirmationCountdownSeconds),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -423,9 +444,13 @@ class _TakerWaitConfirmationScreenState
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 15),
+            // Use localized string with placeholders
             Text(
-              'VERY IMPORTANT: Be sure to accept only BLIK confirmation for amount of ${formatDouble(currentOfferState.fiatAmount)} ${currentOfferState.fiatCurrency}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              strings.importantBlikAmountConfirmation(
+                formatDouble(currentOfferState.fiatAmount),
+                currentOfferState.fiatCurrency,
+              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -436,10 +461,8 @@ class _TakerWaitConfirmationScreenState
                 child: Icon(Icons.timer_outlined, size: 40, color: Colors.grey),
               ),
             const SizedBox(height: 20),
-            const Text(
-              'The offer maker has been sent your BLIK code and needs to enter it in the payment terminal. You then will need to accept the BLIK code in your bank app, be sure to only accept the correct amount. You will receive the Lightning payment automatically after confirmation.',
-              textAlign: TextAlign.center,
-            ),
+            // Use localized string
+            Text(strings.blikInstructionsTaker, textAlign: TextAlign.center),
           ],
         ),
       ),
