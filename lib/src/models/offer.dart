@@ -18,8 +18,6 @@ enum OfferStatus {
   takerPaymentFailed, // Settled, but LNURL payment to taker failed
   takerPaid, // Taker successfully paid via LNURL-pay
 }
-
-// Represents an offer listed by the coordinator.
 class Offer {
   final String id;
   final int amountSats;

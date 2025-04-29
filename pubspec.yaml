@@ -49,6 +49,7 @@ dependencies:
 #  clipboard: ^0.1.3 # For copying text to clipboard
   memory_cache: ^1.2.0 # For in-memory caching
   shared_preferences: ^2.5.3 # For storing user preferences
+  audioplayers: ^6.4.0 # For playing sound effects
 
 dev_dependencies:
   flutter_test:
@@ -109,6 +110,7 @@ flutter:
     - assets/simplex.png
     - assets/element.png
     - assets/logo.png
+    - assets/sounds/ # Add sounds directory
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

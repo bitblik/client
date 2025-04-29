@@ -140,8 +140,11 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
       if (currentStatus == OfferStatus.reserved) {
         print(
-          "[MakerWaitTakerScreen] Offer RESERVED. Navigating to wait for BLIK.",
+          "[MakerWaitTakerScreen] Offer RESERVED. Playing sound and navigating to wait for BLIK.",
         );
+        // Play sound effect
+        ref.read(soundServiceProvider).playSound("reserved");
+
         _statusCheckTimer?.cancel(); // Stop timer before navigating
         if (mounted) {
           // Await the result of the push (which completes when the pushed screen is popped)

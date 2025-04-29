@@ -2,11 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
 import '../services/key_service.dart'; // Import KeyService
 import '../models/offer.dart';
+import '../services/sound_service.dart'; // Import SoundService
 // Remove import of main.dart
 
 // Provider for the ApiService instance
 final apiServiceProvider = Provider<ApiService>((ref) {
   return ApiService();
+});
+
+// Provider for the SoundService instance
+final soundServiceProvider = Provider<SoundService>((ref) {
+  final service = SoundService();
+  ref.onDispose(
+    () => service.dispose(),
+  ); // Dispose the player when provider is disposed
+  return service;
 });
 
 // Provider for fetching the list of available offers
