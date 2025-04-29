@@ -578,6 +578,45 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 6), // Add some spacing
+              Center(
+                child: InkWell(
+                  onTap: () async {
+                    final Uri url = Uri.parse(
+                      'https://matrix.to/#/#bitblik-offers:matrix.org',
+                    );
+                    // if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                    // }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align items to the top
+                    children: [
+                      Image.asset('assets/element.png', height: 24, width: 24),
+                      const SizedBox(width: 8),
+                      // Use localized string
+                      Flexible(
+                        // Wrap with Flexible
+                        child: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.getNotifiedWithElement, // Use l10n key
+                          textAlign: TextAlign.center, // Center align text
+                          style: TextStyle(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.primary, // Use theme color
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 16), // Add some spacing
               Expanded(
                 child: offersAsyncValue.when(
