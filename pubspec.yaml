@@ -107,6 +107,7 @@ flutter:
 
   assets:
     - assets/simplex.png
+    - assets/element.png
     - assets/logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
