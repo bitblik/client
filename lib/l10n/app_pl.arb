@@ -170,7 +170,7 @@
   "@getNotifiedSimplex": {
     "description": "SimpleX notification prompt"
   },
-  "getNotifiedWithElement": "Otrzymuj powiadomienia o nowych ofertach przez Element",
+  "getNotifiedWithElement": "Otrzymuj powiadomienia o nowych zamówieniach przez Element",
   "@getNotifiedWithElement": {
     "description": "Tekst linku do dołączenia do kanału powiadomień Element/Matrix"
   },
