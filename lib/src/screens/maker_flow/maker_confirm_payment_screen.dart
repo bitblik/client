@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
+import '../../services/sound_service.dart'; // Import SoundService
 // Import the new success screen
 import 'package:flutter/services.dart'; // Add this import for clipboard
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
@@ -20,6 +21,13 @@ class _MakerConfirmPaymentScreenState
   @override
   void initState() {
     super.initState();
+    // Play sound once after the first frame when BLIK code is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // Check if still mounted
+        ref.read(soundServiceProvider).playSound("blikReceived");
+      }
+    });
     _fetchBlikCode();
   }
 
