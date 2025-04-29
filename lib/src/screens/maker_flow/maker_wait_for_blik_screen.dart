@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
+import '../../services/sound_service.dart'; // Import SoundService
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 import 'maker_confirm_payment_screen.dart'; // Import next screen
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -148,6 +149,8 @@ class _MakerWaitForBlikScreenState
         print(
           "[MakerWaitForBlik] BLIK received/sent. Fetching code via API...",
         );
+        // Removed sound effect from here
+
         _statusCheckTimer?.cancel();
 
         // --- Call API to get BLIK code using offerId and makerId ---

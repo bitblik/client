@@ -4,14 +4,35 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import AppLocalizations
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // To reset state
+import '../../services/sound_service.dart'; // Import SoundService
 
-class MakerSuccessScreen extends ConsumerWidget {
+// Convert to ConsumerStatefulWidget
+class MakerSuccessScreen extends ConsumerStatefulWidget {
   final Offer completedOffer;
 
   const MakerSuccessScreen({required this.completedOffer, super.key});
 
-  void _goHome(BuildContext context, WidgetRef ref) {
-    // Reset relevant state providers before going home
+  @override
+  ConsumerState<MakerSuccessScreen> createState() => _MakerSuccessScreenState();
+}
+
+// Create State class
+class _MakerSuccessScreenState extends ConsumerState<MakerSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Play sound once after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // Check if still mounted
+        ref.read(soundServiceProvider).playSound("success");
+      }
+    });
+  }
+
+  void _goHome(BuildContext context) {
+    // Removed WidgetRef ref from here
+    // Access ref directly within the state class
     ref.read(appRoleProvider.notifier).state = AppRole.none;
     ref.read(activeOfferProvider.notifier).state = null;
     ref.read(holdInvoiceProvider.notifier).state = null;
@@ -26,7 +47,9 @@ class MakerSuccessScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    // Access completedOffer via widget.completedOffer
+    final Offer completedOffer = widget.completedOffer;
     final strings = AppLocalizations.of(context)!; // Get strings
 
     return Scaffold(
@@ -102,7 +125,7 @@ class MakerSuccessScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () => _goHome(context, ref),
+                onPressed: () => _goHome(context), // Pass only context
                 // Use localized string (already exists)
                 child: Text(strings.goHome),
               ),
