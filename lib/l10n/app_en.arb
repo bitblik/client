@@ -170,6 +170,10 @@
   "@getNotifiedSimplex": {
     "description": "SimpleX notification prompt"
   },
+  "getNotifiedWithElement": "Get notified of new orders with Element",
+  "@getNotifiedWithElement": {
+    "description": "Text for the link to join the Element/Matrix notification channel"
+  },
   "noOffersAvailable": "No offers available yet.",
   "@noOffersAvailable": {
     "description": "Displayed when there are no offers"
