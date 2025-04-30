@@ -11,9 +11,20 @@
   "@error": {
     "description": "Generic error title"
   },
+  "errorLoadingOffer": "Error loading offer: {error}",
+  "@errorLoadingOffer": {
+    "description": "Error message when loading offer details fails",
+    "placeholders": {
+      "error": {}
+    }
+  },
   "errorOfferDetailsMissing": "Error: Offer details missing or invalid.",
   "@errorOfferDetailsMissing": {
     "description": "Displayed when offer details are missing or invalid"
+  },
+  "errorOfferNotFound": "Error: Offer not found.",
+  "@errorOfferNotFound": {
+    "description": "Error message when the specific offer cannot be found"
   },
   "waitingForBlik": "Waiting for BLIK",
   "@waitingForBlik": {
@@ -74,6 +85,10 @@
     "placeholders": {
       "fee": {}
     }
+  },
+  "makerConfirmedPayment": "Maker confirmed payment.",
+  "@makerConfirmedPayment": {
+    "description": "Status message indicating the maker has confirmed the fiat payment"
   },
   "takerFeeSats": "Taker Fee: {fee} sats",
   "@takerFeeSats": {
@@ -147,6 +162,10 @@
   "@cancel": {
     "description": "Cancel button"
   },
+  "doneButton": "Done",
+  "@doneButton": {
+    "description": "Button text for completing a process"
+  },
   "save": "Save",
   "@save": {
     "description": "Save button"
@@ -158,6 +177,10 @@
   "lightningAddressUpdated": "Lightning Address updated!",
   "@lightningAddressUpdated": {
     "description": "Snackbar message when Lightning Address is updated"
+  },
+  "loadingOfferDetails": "Loading offer details...",
+  "@loadingOfferDetails": {
+    "description": "Text shown while loading offer details"
   },
   "errorSavingAddress": "Error saving address: {details}",
   "@errorSavingAddress": {
@@ -332,6 +355,10 @@
   "@paymentConfirmedTakerPaid": {
     "description": "Snackbar message after maker confirms payment"
   },
+  "paymentProcessTitle": "Payment Process",
+  "@paymentProcessTitle": {
+    "description": "AppBar title for the payment process screen"
+  },
   "errorConfirmingPayment": "Error confirming payment: {details}",
   "@errorConfirmingPayment": {
     "description": "Error shown when confirming maker payment fails",
@@ -390,9 +417,52 @@
   "@offerCancelledOrExpired": {
     "description": "Message shown when polling reveals the offer was cancelled or expired"
   },
-  "paymentSuccessfulTaker": "Payment Successful! You will receive the funds shortly.",
+  "paymentSuccessfulTaker": "Payment Successful! You should have now received the funds.",
   "@paymentSuccessfulTaker": {
     "description": "Snackbar message shown to the taker upon successful payment"
+  },
+  "paymentReceived": "Payment Received!",
+  "@paymentReceived": {
+    "description": "Status message indicating the Lightning payment has been received by the taker"
+  },
+  "preparingToSendPayment": "Preparing to send payment...",
+  "@preparingToSendPayment": {
+    "description": "Status message shown before attempting to send the Lightning payment"
+  },
+  "sendingPayment": "Sending payment...",
+  "@sendingPayment": {
+    "description": "Status message shown while the Lightning payment is being sent"
+  },
+  "paymentFailed": "Payment Failed",
+  "@paymentFailed": {
+    "description": "Status message indicating the Lightning payment failed"
+  },
+  "errorSendingPayment": "Error sending payment: {details}",
+  "@errorSendingPayment": {
+    "description": "Error message shown when sending the Lightning payment fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "errorOfferNotConfirmed": "Offer not confirmed by maker.",
+  "@errorOfferNotConfirmed": {
+    "description": "Error message when the offer status is not 'Confirmed' when expected"
+  },
+  "errorOfferExpired": "Offer expired.",
+  "@errorOfferExpired": {
+    "description": "Error message when the offer has expired"
+  },
+  "errorOfferCancelled": "Offer cancelled.",
+  "@errorOfferCancelled": {
+    "description": "Error message when the offer has been cancelled"
+  },
+  "errorOfferPaymentFailed": "Offer payment failed.",
+  "@errorOfferPaymentFailed": {
+    "description": "Error message when the offer status indicates payment failure"
+  },
+  "errorOfferUnknown": "Unknown offer error.",
+  "@errorOfferUnknown": {
+    "description": "Generic error message for unknown offer issues"
   },
   "errorOfferUnexpectedStateWithStatus": "Offer is in an unexpected state ({status}).",
   "@errorOfferUnexpectedStateWithStatus": {
@@ -661,17 +731,11 @@
   "@paymentFailedTitle": {
     "description": "Title for the payment failed screen (AppBar and Headline)"
   },
-  "paymentFailedInstructions": "The payment for {amount} sats could not be completed. Please provide a new Lightning invoice for the net amount of {netAmount} sats (original amount minus {fee} sats fee).",
+  "paymentFailedInstructions": "Please provide a new Lightning invoice for the amount of {netAmount} sats.",
   "@paymentFailedInstructions": {
     "description": "Instructions on the payment failed screen explaining the situation and asking for a new invoice",
     "placeholders": {
-      "amount": {
-        "type": "int"
-      },
       "netAmount": {
-        "type": "int"
-      },
-      "fee": {
         "type": "int"
       }
     }
@@ -773,5 +837,73 @@
         "type": "int"
       }
     }
+  },
+  "errorNoPublicKey": "Error: Could not retrieve your public key.",
+  "@errorNoPublicKey": {
+    "description": "Error message when the public key cannot be retrieved"
+  },
+  "waitingForOfferUpdate": "Waiting for offer update...",
+  "@waitingForOfferUpdate": {
+    "description": "Status message when polling for offer updates but no offer is currently found or in expected state"
+  },
+  "loadingPublicKey": "Loading your details...",
+  "@loadingPublicKey": {
+    "description": "Status message while waiting for the public key to load"
+  },
+  "errorLoadingPublicKey": "Error loading your details",
+  "@errorLoadingPublicKey": {
+    "description": "Error message when loading the public key fails"
+  },
+  "errorMissingPaymentHash": "Error: Payment details are missing.",
+  "@errorMissingPaymentHash": {
+    "description": "Error shown when the payment hash is missing for the payment process screen"
+  },
+  "taskMakerConfirmedBlik": "Maker confirmed BLIK payment success",
+  "@taskMakerConfirmedBlik": {
+    "description": "Checklist item: Maker confirmed BLIK payment"
+  },
+  "taskMakerInvoiceSettled": "Maker hold invoice settled",
+  "@taskMakerInvoiceSettled": {
+    "description": "Checklist item: Maker's hold invoice is settled"
+  },
+  "taskPayingTakerInvoice": "Generating & paying your invoice",
+  "@taskPayingTakerInvoice": {
+    "description": "Checklist item: System is paying the taker's invoice"
+  },
+  "taskTakerInvoicePaid": "Your invoice paid successfully",
+  "@taskTakerInvoicePaid": {
+    "description": "Checklist item: Taker's invoice has been paid"
+  },
+  "taskTakerPaymentFailed": "Payment to you failed",
+  "@taskTakerPaymentFailed": {
+    "description": "Checklist item: Payment to the taker failed (used primarily for state mapping)"
+  },
+  "errorTakerPaymentFailed": "Payment to your Lightning Address failed. Please check the details and provide a new invoice if necessary.",
+  "@errorTakerPaymentFailed": {
+    "description": "Error message shown below the failed checklist item"
+  },
+  "goToFailureDetails": "Go to Failure Details",
+  "@goToFailureDetails": {
+    "description": "Button text to navigate to the payment failure screen"
+  },
+  "errorTakerPublicKeyNotFound": "Taker public key not found.",
+  "@errorTakerPublicKeyNotFound": {
+    "description": "Error when the taker's public key is missing during payment retry."
+  },
+  "paymentRetryFailedError": "Payment retry failed. Please check the invoice or try again later.",
+  "@paymentRetryFailedError": {
+    "description": "Error message shown when the payment retry attempt still results in failure."
+  },
+  "paymentSuccessfulTitle": "Payment Successful",
+  "@paymentSuccessfulTitle": {
+    "description": "Title for the screen when the taker payment succeeds after a retry."
+  },
+  "paymentSuccessfulMessage": "Your payment has been processed successfully.",
+  "@paymentSuccessfulMessage": {
+    "description": "Message confirming successful payment after a retry."
+  },
+  "goToHomeButton": "Go to Home",
+  "@goToHomeButton": {
+    "description": "Button text to navigate back to the home screen after successful payment retry."
   }
 }

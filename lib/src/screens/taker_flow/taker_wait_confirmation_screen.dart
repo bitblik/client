@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
   final Offer offer; // Accept the offer directly - REINSTATED
@@ -27,9 +27,9 @@ class _TakerWaitConfirmationScreenState
     extends ConsumerState<TakerWaitConfirmationScreen> {
   Timer? _confirmationTimer;
   int _confirmationCountdownSeconds = 120;
-  Timer? _statusCheckTimer;
-  bool _isCheckingStatus = false;
-  bool _timersInitialized = false;
+  // Timer? _statusCheckTimer; // REMOVED
+  // bool _isCheckingStatus = false; // REMOVED
+  bool _timersInitialized = false; // Keep for countdown timer init
 
   @override
   void initState() {
@@ -48,37 +48,39 @@ class _TakerWaitConfirmationScreenState
           _resetToOfferList(strings.errorInvalidOfferStateReceived);
         }
       });
-    } else {
-      // Start timers when the screen initializes if state is valid
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          // Pass initial offer to start timers
-          _initializeTimers(widget.offer);
-        }
-      });
     }
+    // REMOVED timer initialization from initState
+    // else {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     if (mounted) {
+    //       _initializeOrUpdateCountdownTimer(widget.offer);
+    //     }
+    //   });
+    // }
   }
 
   @override
   void dispose() {
     _confirmationTimer?.cancel();
-    _statusCheckTimer?.cancel();
+    // _statusCheckTimer?.cancel(); // REMOVED
     super.dispose();
   }
 
-  void _initializeTimers(Offer offer) {
-    if (_timersInitialized || !mounted) return;
-    print("[TakerWaitConfirmation] Initializing timers...");
+  // Renamed and simplified: only initializes countdown timer now
+  void _initializeOrUpdateCountdownTimer(Offer offer) {
+    // if (_timersInitialized || !mounted) return; // Allow re-initialization/update
+    print("[TakerWaitConfirmation] Initializing/Updating countdown timer...");
     _startConfirmationTimer(offer); // Pass offer
-    _startStatusCheckTimer(offer); // Pass offer
-    _timersInitialized = true;
+    // _startStatusCheckTimer(offer); // REMOVED
+    _timersInitialized = true; // Set flag after starting countdown
   }
 
   // --- Confirmation Timer (120s) ---
+  // Renamed for clarity
   void _startConfirmationTimer(Offer offer) {
     // Accept offer
-    if (_confirmationTimer?.isActive ?? false) return;
-    _confirmationTimer?.cancel();
+    // if (_confirmationTimer?.isActive ?? false) return; // Allow restart if needed
+    _confirmationTimer?.cancel(); // Cancel previous timer if any
     if (!mounted) return;
 
     final startTime = offer.blikReceivedAt ?? DateTime.now(); // Use offer data
@@ -118,200 +120,28 @@ class _TakerWaitConfirmationScreenState
 
   void _handleConfirmationTimeout() {
     _confirmationTimer?.cancel();
-    _statusCheckTimer?.cancel();
+    // _statusCheckTimer?.cancel(); // REMOVED
     if (mounted) {
       print("[TakerWaitConfirmation] Confirmation timer expired.");
+      // Resetting should be handled by provider state change now
       // ref.read(activeOfferProvider.notifier).state = null;
       // _resetToOfferList('Maker confirmation timed out (120s).');
     }
   }
 
-  // --- Status Check Timer ---
-  void _startStatusCheckTimer(Offer offer) {
-    // Accept offer
-    _statusCheckTimer?.cancel();
-    // Delay first check slightly
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _checkOfferStatus(); // Initial check uses provider state
-    });
-    _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (!_isCheckingStatus) {
-        _checkOfferStatus(); // Subsequent checks use provider state
-      }
-    });
-  }
+  // --- Status Check Timer --- REMOVED ---
+  // void _startStatusCheckTimer(Offer offer) { ... } // REMOVED
+  // Future<void> _checkOfferStatus() async { ... } // REMOVED
 
-  Future<void> _checkOfferStatus() async {
-    // No longer needs offer param here
-    if (_isCheckingStatus || !mounted) return;
+  // _handlePaymentSuccess method removed as navigation is handled directly
 
-    // Read the *latest* offer state from the provider for checking
-    final currentOffer = ref.read(activeOfferProvider);
-    if (currentOffer == null) {
-      print(
-        "[TakerWaitConfirmation _checkOfferStatus] Error: Active offer is null. Resetting.",
-      );
-      // Use localized string (reusing existing one)
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(strings.errorActiveOfferDetailsLost);
-      return;
-    }
-    final paymentHash = currentOffer.holdInvoicePaymentHash;
-    if (paymentHash == null) {
-      print(
-        "[TakerWaitConfirmation _checkOfferStatus] CRITICAL Error: Payment hash is null in active offer. Resetting.",
-      );
-      // Use localized string
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(strings.errorInternalOfferIncomplete);
-      return;
-    }
-
-    OfferStatus currentStatusEnum;
-    try {
-      currentStatusEnum = OfferStatus.values.byName(currentOffer.status);
-    } catch (e) {
-      print(
-        "[TakerWaitConfirmation _checkOfferStatus] Error: Invalid status '${currentOffer.status}'. Resetting.",
-      );
-      // Use localized string
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(strings.errorOfferInvalidStatus);
-      return;
-    }
-
-    if (currentStatusEnum != OfferStatus.blikReceived &&
-        currentStatusEnum != OfferStatus.blikSentToMaker &&
-        currentStatusEnum != OfferStatus.makerConfirmed) {
-      print(
-        "[TakerWaitConfirmation] Offer status ($currentStatusEnum) no longer waiting. Stopping poll.",
-      );
-      _statusCheckTimer?.cancel();
-      if (currentStatusEnum == OfferStatus.settled ||
-          currentStatusEnum == OfferStatus.takerPaid) {
-        _handlePaymentSuccess();
-      } else {
-        if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
-          final destinationScreen = TakerPaymentFailedScreen(
-            offer: currentOffer,
-          );
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => destinationScreen),
-          );
-        }
-        // _resetToOfferList(
-        //   "Offer is no longer awaiting confirmation (Status: $currentStatusEnum).",
-        // );
-      }
-      return;
-    }
-
-    _isCheckingStatus = true;
-    ref.read(isLoadingProvider.notifier).state = true;
-
-    try {
-      final apiService = ref.read(apiServiceProvider);
-      final statusString = await apiService.getOfferStatus(paymentHash);
-      print(
-        "[TakerWaitConfirmation] Poll result for $paymentHash: $statusString",
-      );
-
-      if (!mounted) return;
-
-      if (statusString == null) {
-        print("[TakerWaitConfirmation] Warning: Status check returned null.");
-      } else {
-        OfferStatus fetchedStatus;
-        try {
-          fetchedStatus = OfferStatus.values.byName(statusString);
-        } catch (e) {
-          print(
-            "[TakerWaitConfirmation] Error: Received unknown status '$statusString'. Resetting.",
-          );
-          _statusCheckTimer?.cancel();
-          _confirmationTimer?.cancel();
-          // Use localized string
-          final strings = AppLocalizations.of(context)!;
-          _resetToOfferList(strings.errorUnexpectedStatusFromServer);
-          return;
-        }
-
-        // --- Handle Status Updates ---
-        if (fetchedStatus == OfferStatus.settled ||
-            fetchedStatus == OfferStatus.payingTaker ||
-            fetchedStatus == OfferStatus.takerPaid) {
-          print(
-            "[TakerWaitConfirmation] Offer settled/paid (Status: $fetchedStatus). Payment successful!",
-          );
-          ref.read(activeOfferProvider.notifier).state = currentOffer.copyWith(
-            status: fetchedStatus.name,
-          );
-          _handlePaymentSuccess();
-        } else if (fetchedStatus == OfferStatus.funded ||
-            fetchedStatus == OfferStatus.expired) {
-          print(
-            "[TakerWaitConfirmation] Offer reverted or expired (Status: $fetchedStatus). Resetting.",
-          );
-          _statusCheckTimer?.cancel();
-          _confirmationTimer?.cancel();
-          ref.read(activeOfferProvider.notifier).state = null;
-          // Use localized string
-          final strings = AppLocalizations.of(context)!;
-          _resetToOfferList(strings.offerCancelledOrExpired);
-        } else if (fetchedStatus != currentStatusEnum) {
-          print(
-            "[TakerWaitConfirmation] Offer status updated to $fetchedStatus. Updating provider.",
-          );
-          ref.read(activeOfferProvider.notifier).state = currentOffer.copyWith(
-            status: fetchedStatus.name,
-          );
-        } else {
-          print(
-            "[TakerWaitConfirmation] Still waiting for confirmation (Status: $fetchedStatus).",
-          );
-        }
-        // --- End Handle Status Updates ---
-      }
-    } catch (e) {
-      print('[TakerWaitConfirmation] Error checking offer status: $e');
-    } finally {
-      if (mounted) {
-        _isCheckingStatus = false;
-        ref.read(isLoadingProvider.notifier).state = false;
-      }
-    }
-  }
-
-  void _handlePaymentSuccess() {
-    _statusCheckTimer?.cancel();
-    _confirmationTimer?.cancel();
-    if (mounted) {
-      // Use localized string
-      final strings = AppLocalizations.of(context)!;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(
-          content: Text(strings.paymentSuccessfulTaker),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          // TODO go to payingTaker screen
-          context.go('/');
-        }
-      });
-    }
-  }
-
+  // Keep the _resetToOfferList method for now, might be useful for error handling
   void _resetToOfferList(String message) {
     _confirmationTimer?.cancel();
-    _statusCheckTimer?.cancel();
-    ref.read(activeOfferProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
+    // _statusCheckTimer?.cancel(); // REMOVED
+    ref.read(activeOfferProvider.notifier).state =
+        null; // Keep this to clear state
+    ref.read(errorProvider.notifier).state = null; // Keep this to clear error
     _timersInitialized = false; // Reset flag
 
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
@@ -337,76 +167,204 @@ class _TakerWaitConfirmationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(isLoadingProvider);
-    final errorMessage = ref.watch(errorProvider);
-    // Watch the provider to rebuild when status changes or becomes null
-    final currentOfferState = ref.watch(activeOfferProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final publicKeyAsyncValue = ref.watch(publicKeyProvider);
 
-    // Use the initially passed offer for display if provider is null temporarily during reset
-    final displayOffer = currentOfferState ?? widget.offer;
-
-    // Handle case where offer becomes null (e.g., reset triggered)
-    if (currentOfferState == null) {
-      // Show loading indicator while reset/navigation is happening
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(key: Key("resetting"))),
-      );
-    }
-
-    // Validate status using the latest state from provider
-    OfferStatus currentStatusEnum;
-    try {
-      currentStatusEnum = OfferStatus.values.byName(currentOfferState.status);
-    } catch (e) {
-      print(
-        "[TakerWaitConfirmation build] Error: Invalid status '${currentOfferState.status}'. Resetting.",
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Use localized string
-        if (mounted) {
-          final strings = AppLocalizations.of(context)!;
-          _resetToOfferList(strings.errorOfferInvalidStatus);
-        }
-      });
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(key: Key("invalid_status")),
-        ),
-      );
-    }
-
-    // Check if status is valid for this screen
-    if (currentStatusEnum != OfferStatus.blikReceived &&
-        currentStatusEnum != OfferStatus.blikSentToMaker &&
-        currentStatusEnum != OfferStatus.makerConfirmed) {
-      print(
-        "[TakerWaitConfirmation build] Offer status ($currentStatusEnum) not valid for this screen. Resetting.",
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          // Use localized string with placeholder
-          final strings = AppLocalizations.of(context)!;
-          _resetToOfferList(
-            strings.errorOfferUnexpectedStateWithStatus(currentStatusEnum.name),
+    return Scaffold(
+      // Add AppBar for consistency
+      appBar: AppBar(
+        title: Text(l10n.waitingForBlik), // Reuse existing title
+        automaticallyImplyLeading: false, // Prevent back navigation
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            tooltip: l10n.goHome,
+            onPressed: () {
+              _resetToOfferList('Navigated home.'); // Use reset to clear state
+            },
+          ),
+        ],
+      ),
+      body: publicKeyAsyncValue.when(
+        data: (publicKey) {
+          if (publicKey == null) {
+            return Center(child: Text(l10n.errorNoPublicKey));
+          }
+          // Watch the polling provider
+          final offerAsyncValue = ref.watch(
+            pollingMyActiveOfferProvider(publicKey),
           );
-        }
-      });
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(key: Key("unexpected_status")),
-        ),
-      );
-    }
 
-    // Initialize timers only once when a valid offer is first available in the provider
-    if (!_timersInitialized) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Pass the valid offer from the provider to initialize timers
-        if (mounted) _initializeTimers(currentOfferState);
-      });
-    }
+          return offerAsyncValue.when(
+            data: (offer) {
+              if (offer == null) {
+                // Offer might be null if not found or in a non-active state initially/during poll
+                // This might happen if the offer expires/is cancelled and the provider returns null
+                print(
+                  "[TakerWaitConfirmation build] Polling provider returned null offer. Resetting.",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _resetToOfferList(l10n.offerCancelledOrExpired);
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(key: Key("resetting_null")),
+                );
+              }
 
-    final strings = AppLocalizations.of(context)!; // Get strings instance
+              // --- Handle Navigation based on Status ---
+              final currentStatusEnum = offer.statusEnum;
+
+              if (currentStatusEnum == OfferStatus.makerConfirmed ||
+                  currentStatusEnum == OfferStatus.settled ||
+                  currentStatusEnum == OfferStatus.payingTaker ||
+                  currentStatusEnum == OfferStatus.takerPaid) {
+                print(
+                  "[TakerWaitConfirmation build] Status is $currentStatusEnum. Navigating to process screen.",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    // Set the payment hash before navigating
+                    final paymentHash = offer.holdInvoicePaymentHash;
+                    if (paymentHash != null) {
+                      ref.read(paymentHashProvider.notifier).state =
+                          paymentHash;
+                      _confirmationTimer?.cancel(); // Stop timer
+                      context.go("/paying-taker");
+                    } else {
+                      print(
+                        "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen. Resetting.",
+                      );
+                      _resetToOfferList(l10n.errorInternalOfferIncomplete);
+                    }
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(key: Key("navigating_pay")),
+                ); // Show loading while navigating
+              } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
+                print(
+                  "[TakerWaitConfirmation build] Status is takerPaymentFailed. Navigating to process screen (to show failure).",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _confirmationTimer?.cancel(); // Stop timer
+                    // Set payment hash before navigating to process screen
+                    final paymentHash = offer.holdInvoicePaymentHash;
+                    if (paymentHash != null) {
+                      ref.read(paymentHashProvider.notifier).state =
+                          paymentHash;
+                      context.go('/paying-taker'); // Navigate to process screen
+                    } else {
+                      print(
+                        "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen for failure. Resetting.",
+                      );
+                      _resetToOfferList(l10n.errorInternalOfferIncomplete);
+                    }
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(key: Key("navigating_fail")),
+                ); // Show loading while navigating
+              } else if (currentStatusEnum != OfferStatus.blikReceived &&
+                  currentStatusEnum != OfferStatus.blikSentToMaker) {
+                // If status is something else unexpected (funded, expired, cancelled), reset.
+                print(
+                  "[TakerWaitConfirmation build] Offer status ($currentStatusEnum) invalid for waiting screen. Resetting.",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _resetToOfferList(
+                      l10n.errorOfferUnexpectedStateWithStatus(
+                        currentStatusEnum.name,
+                      ),
+                    );
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(
+                    key: Key("resetting_invalid"),
+                  ),
+                ); // Show loading while resetting
+              }
+              // --- End Navigation Handling ---
+
+              // --- Initialize/Update Countdown Timer ---
+              // Only start/update if the status is correct for this screen
+              // and the timer hasn't been initialized yet OR if the offer data changed
+              // (Checking _timersInitialized prevents restarting timer unnecessarily on every rebuild)
+              // We might need to re-evaluate if the offer object itself changes significantly
+              // while status remains blikReceived/blikSentToMaker.
+              if (!_timersInitialized) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) _initializeOrUpdateCountdownTimer(offer);
+                });
+              }
+              // --- End Timer Handling ---
+
+              // --- Render Waiting UI ---
+              return _buildWaitingContent(context, offer);
+            },
+            loading:
+                () => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(l10n.loadingOfferDetails),
+                    ],
+                  ),
+                ),
+            error:
+                (error, stack) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error, color: Colors.red, size: 50),
+                      const SizedBox(height: 16),
+                      Text(l10n.errorLoadingOffer(error.toString())),
+                      // Optionally add a retry button?
+                    ],
+                  ),
+                ),
+          );
+        },
+        loading:
+            () => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(l10n.loadingPublicKey),
+                ],
+              ),
+            ),
+        error:
+            (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 50),
+                  const SizedBox(height: 16),
+                  Text(l10n.errorLoadingPublicKey),
+                  Text(error.toString()),
+                ],
+              ),
+            ),
+      ),
+    );
+  }
+
+  // Extracted UI building logic
+  Widget _buildWaitingContent(BuildContext context, Offer offer) {
+    final l10n = AppLocalizations.of(context)!;
+    // final isLoading = ref.watch(isLoadingProvider); // isLoadingProvider might not be needed anymore
+    final errorMessage = ref.watch(
+      errorProvider,
+    ); // Keep watching for general errors
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -425,14 +383,14 @@ class _TakerWaitConfirmationScreenState
             ],
             // Use localized string with placeholder
             Text(
-              strings.offerStatusLabel(displayOffer.status),
+              l10n.offerStatusLabel(offer.status), // Use offer from parameter
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             // Use localized string with placeholder
             Text(
-              strings.waitingMakerConfirmation(_confirmationCountdownSeconds),
+              l10n.waitingMakerConfirmation(_confirmationCountdownSeconds),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -446,23 +404,21 @@ class _TakerWaitConfirmationScreenState
             const SizedBox(height: 15),
             // Use localized string with placeholders
             Text(
-              strings.importantBlikAmountConfirmation(
-                formatDouble(currentOfferState.fiatAmount),
-                currentOfferState.fiatCurrency,
+              l10n.importantBlikAmountConfirmation(
+                formatDouble(offer.fiatAmount), // Use offer from parameter
+                offer.fiatCurrency, // Use offer from parameter
               ),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            if (isLoading)
-              const Center(child: CircularProgressIndicator())
-            else
-              const Center(
-                child: Icon(Icons.timer_outlined, size: 40, color: Colors.grey),
-              ),
+            // isLoading check removed
+            const Center(
+              child: Icon(Icons.timer_outlined, size: 40, color: Colors.grey),
+            ),
             const SizedBox(height: 20),
             // Use localized string
-            Text(strings.blikInstructionsTaker, textAlign: TextAlign.center),
+            Text(l10n.blikInstructionsTaker, textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -470,6 +426,7 @@ class _TakerWaitConfirmationScreenState
   }
 }
 
+// Keep formatDouble helper function
 String formatDouble(double value) {
   // Check if the value is effectively a whole number
   if (value == value.roundToDouble()) {

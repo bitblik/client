@@ -57,6 +57,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       context.go("/wait-confirmation", extra: offer);
     } else if (offerStatus == OfferStatus.takerPaymentFailed) {
       // Navigate to the new payment failed screen
+
       context.go('/taker-failed', extra: offer);
     } else {
       print(
@@ -249,23 +250,23 @@ class RoleSelectionScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       Card(
                         child: ListTile(
-                          title: Text(
-                            // Use localized string with placeholder and role names
-                            strings.roleLabel(
-                              activeRole == AppRole.maker
-                                  ? strings.roleMaker
-                                  : strings.roleTaker,
-                            ),
-                          ),
+                          // Removed title showing Role as requested
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                // Use localized string with placeholders
-                                strings.activeOfferSubtitle(
-                                  activeOffer!.status,
-                                  activeOffer.amountSats,
-                                ),
+                                // Display Fiat Amount and Currency
+                                "${formatDouble(activeOffer!.fiatAmount)} ${activeOffer.fiatCurrency}",
+                                style:
+                                    Theme.of(context)
+                                        .textTheme
+                                        .titleMedium, // Make it stand out a bit more
+                              ),
+                              const SizedBox(height: 4), // Add some spacing
+                              Text(
+                                // Keep status info, but maybe smaller
+                                strings.offerStatusLabel(activeOffer.status),
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                               if (activeOffer.status ==
                                       OfferStatus.takerPaymentFailed.name &&
@@ -321,9 +322,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               ),
                                         );
                                         try {
-                                          ref.read(
-                                            apiServiceProvider,
-                                          );
+                                          ref.read(apiServiceProvider);
                                           final makerId =
                                               ref.read(publicKeyProvider).value;
                                           if (makerId == null) {

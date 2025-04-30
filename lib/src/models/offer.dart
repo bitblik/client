@@ -131,6 +131,18 @@ class Offer {
     };
   }
 
+  // Helper to get status as enum
+  OfferStatus get statusEnum {
+    try {
+      return OfferStatus.values.byName(status);
+    } catch (e) {
+      // Handle cases where the string doesn't match any enum value
+      print('Warning: Unknown offer status "$status", defaulting to created.');
+      return OfferStatus
+          .created; // Or throw an error, depending on desired behavior
+    }
+  }
+
   // copyWith method for updating state immutably
   Offer copyWith({
     String? id,
