@@ -661,17 +661,11 @@
   "@paymentFailedTitle": {
     "description": "Title for the payment failed screen (AppBar and Headline)"
   },
-  "paymentFailedInstructions": "Płatność na {amount} satoshi nie mogła zostać zrealizowana. Proszę podać nową fakturę Lightning na kwotę netto {netAmount} satoshi (oryginalna kwota minus {fee} satoshi opłaty).",
+  "paymentFailedInstructions": "Proszę podać nową fakturę Lightning na kwotę {netAmount} satoshi",
   "@paymentFailedInstructions": {
     "description": "Instructions on the payment failed screen explaining the situation and asking for a new invoice",
     "placeholders": {
-      "amount": {
-        "type": "int"
-      },
       "netAmount": {
-        "type": "int"
-      },
-      "fee": {
         "type": "int"
       }
     }
@@ -773,5 +767,143 @@
         "type": "int"
       }
     }
+  },
+  "errorLoadingOffer": "Błąd podczas ładowania oferty: {error}",
+  "@errorLoadingOffer": {
+    "description": "Error message when loading offer details fails",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "errorOfferNotFound": "Błąd: Oferta nie znaleziona.",
+  "@errorOfferNotFound": {
+    "description": "Error message when the specific offer cannot be found"
+  },
+  "makerConfirmedPayment": "Wystawiający potwierdził płatność.",
+  "@makerConfirmedPayment": {
+    "description": "Status message indicating the maker has confirmed the fiat payment"
+  },
+  "loadingOfferDetails": "Ładowanie szczegółów oferty...",
+  "@loadingOfferDetails": {
+    "description": "Text shown while loading offer details"
+  },
+  "doneButton": "Gotowe",
+  "@doneButton": {
+    "description": "Button text for completing a process"
+  },
+  "paymentProcessTitle": "Proces płatności",
+  "@paymentProcessTitle": {
+    "description": "AppBar title for the payment process screen"
+  },
+  "paymentReceived": "Otrzymano płatność!",
+  "@paymentReceived": {
+    "description": "Status message indicating the Lightning payment has been received by the taker"
+  },
+  "preparingToSendPayment": "Przygotowywanie do wysłania płatności...",
+  "@preparingToSendPayment": {
+    "description": "Status message shown before attempting to send the Lightning payment"
+  },
+  "sendingPayment": "Wysyłanie płatności...",
+  "@sendingPayment": {
+    "description": "Status message shown while the Lightning payment is being sent"
+  },
+  "paymentFailed": "Płatność nie powiodła się",
+  "@paymentFailed": {
+    "description": "Status message indicating the Lightning payment failed"
+  },
+  "errorSendingPayment": "Błąd podczas wysyłania płatności: {details}",
+  "@errorSendingPayment": {
+    "description": "Error message shown when sending the Lightning payment fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "errorOfferNotConfirmed": "Oferta niepotwierdzona przez Wystawiającego.",
+  "@errorOfferNotConfirmed": {
+    "description": "Error message when the offer status is not 'Confirmed' when expected"
+  },
+  "errorOfferExpired": "Oferta wygasła.",
+  "@errorOfferExpired": {
+    "description": "Error message when the offer has expired"
+  },
+  "errorOfferCancelled": "Oferta anulowana.",
+  "@errorOfferCancelled": {
+    "description": "Error message when the offer has been cancelled"
+  },
+  "errorOfferPaymentFailed": "Płatność oferty nie powiodła się.",
+  "@errorOfferPaymentFailed": {
+    "description": "Error message when the offer status indicates payment failure"
+  },
+  "errorOfferUnknown": "Nieznany błąd oferty.",
+  "@errorOfferUnknown": {
+    "description": "Generic error message for unknown offer issues"
+  },
+  "errorNoPublicKey": "Błąd: Nie można pobrać Twojego klucza publicznego.",
+  "@errorNoPublicKey": {
+    "description": "Error message when the public key cannot be retrieved"
+  },
+  "waitingForOfferUpdate": "Oczekiwanie na aktualizację oferty...",
+  "@waitingForOfferUpdate": {
+    "description": "Status message when polling for offer updates but no offer is currently found or in expected state"
+  },
+  "loadingPublicKey": "Ładowanie Twoich danych...",
+  "@loadingPublicKey": {
+    "description": "Status message while waiting for the public key to load"
+  },
+  "errorLoadingPublicKey": "Błąd podczas ładowania Twoich danych",
+  "@errorLoadingPublicKey": {
+    "description": "Error message when loading the public key fails"
+  },
+  "errorMissingPaymentHash": "Błąd: Brak szczegółów płatności.",
+  "@errorMissingPaymentHash": {
+    "description": "Error shown when the payment hash is missing for the payment process screen"
+  },
+  "taskMakerConfirmedBlik": "Wystawiający potwierdził płatność BLIK",
+  "@taskMakerConfirmedBlik": {
+    "description": "Checklist item: Maker confirmed BLIK payment"
+  },
+  "taskMakerInvoiceSettled": "Faktura Hold wystawiającego rozliczona",
+  "@taskMakerInvoiceSettled": {
+    "description": "Checklist item: Maker's hold invoice is settled"
+  },
+  "taskPayingTakerInvoice": "Generowanie i opłacanie Twojej faktury",
+  "@taskPayingTakerInvoice": {
+    "description": "Checklist item: System is paying the taker's invoice"
+  },
+  "taskTakerInvoicePaid": "Twoja faktura opłacona pomyślnie",
+  "@taskTakerInvoicePaid": {
+    "description": "Checklist item: Taker's invoice has been paid"
+  },
+  "taskTakerPaymentFailed": "Płatność do Ciebie nie powiodła się",
+  "@taskTakerPaymentFailed": {
+    "description": "Checklist item: Payment to the taker failed (used primarily for state mapping)"
+  },
+  "errorTakerPaymentFailed": "Płatność na Twój adres Lightning nie powiodła się. Sprawdź szczegóły i w razie potrzeby podaj nową fakturę.",
+  "@errorTakerPaymentFailed": {
+    "description": "Error message shown below the failed checklist item"
+  },
+  "goToFailureDetails": "Przejdź do szczegółów błędu",
+  "@goToFailureDetails": {
+    "description": "Button text to navigate to the payment failure screen"
+  },
+  "errorTakerPublicKeyNotFound": "Nie znaleziono klucza publicznego Kupującego.",
+  "@errorTakerPublicKeyNotFound": {
+    "description": "Error when the taker's public key is missing during payment retry."
+  },
+  "paymentRetryFailedError": "Ponowna próba płatności nie powiodła się. Sprawdź fakturę lub spróbuj ponownie później.",
+  "@paymentRetryFailedError": {
+    "description": "Error message shown when the payment retry attempt still results in failure."
+  },
+  "paymentSuccessfulTitle": "Płatność udana",
+  "@paymentSuccessfulTitle": {
+    "description": "Title for the screen when the taker payment succeeds after a retry."
+  },
+  "paymentSuccessfulMessage": "Twoja płatność została przetworzona pomyślnie.",
+  "@paymentSuccessfulMessage": {
+    "description": "Message confirming successful payment after a retry."
+  },
+  "goToHomeButton": "Przejdź do strony głównej",
+  "@goToHomeButton": {
+    "description": "Button text to navigate back to the home screen after successful payment retry."
   }
 }
