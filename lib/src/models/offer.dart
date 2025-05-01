@@ -11,6 +11,7 @@ enum OfferStatus {
 
   invalidBlik, // Maker marked the BLIK code as invalid
   conflict, // Taker reported conflict after Maker marked BLIK as invalid
+  dispute, // Maker opened a dispute after conflict
 
   makerConfirmed, // Maker confirmed BLIK payment success
   settled, // Hold invoice settled by coordinator

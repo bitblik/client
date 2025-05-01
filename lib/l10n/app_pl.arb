@@ -996,5 +996,50 @@
   "makerConflictBackButton": "Wróć do Strony Głównej",
   "@makerConflictBackButton": {
     "description": "Tekst przycisku na ekranie konfliktu Wystawiającego do powrotu na ekran główny"
+  },
+  "makerConflictConfirmPaymentButton": "Mój błąd, potwierdź sukces płatności BLIK",
+  "@makerConflictConfirmPaymentButton": {
+    "description": "Przycisk na ekranie konfliktu Twórcy, aby przyznać się do błędu i potwierdzić płatność"
+  },
+  "makerConflictOpenDisputeButton": "Płatność Blik NIE powiodła się, OTWÓRZ SPÓR",
+  "@makerConflictOpenDisputeButton": {
+    "description": "Przycisk na ekranie konfliktu Twórcy, aby otworzyć spór"
+  },
+  "makerConflictDisputeDialogTitle": "Otworzyć spór?",
+  "@makerConflictDisputeDialogTitle": {
+    "description": "Tytuł okna dialogowego potwierdzenia sporu"
+  },
+  "makerConflictDisputeDialogContent": "Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co może zająć czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura blokująca (hold invoice) zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.",
+  "@makerConflictDisputeDialogContent": {
+    "description": "Treść wyjaśniająca konsekwencje otwarcia sporu"
+  },
+  "makerConflictDisputeDialogConfirm": "Otwórz Spór",
+  "@makerConflictDisputeDialogConfirm": {
+    "description": "Tekst przycisku potwierdzającego w oknie dialogowym sporu"
+  },
+  "makerConflictDisputeDialogCancel": "Anuluj",
+  "@makerConflictDisputeDialogCancel": {
+    "description": "Tekst przycisku anulującego w oknie dialogowym sporu"
+  },
+  "makerConflictDisputeDialogContentDetailed": "Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmie czas i wiąże się z opłatą za spór.\\n\\nFaktura blokująca (hold invoice) zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\\n\\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota w satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.",
+  "@makerConflictDisputeDialogContentDetailed": {
+    "description": "Szczegółowa treść wyjaśniająca konsekwencje otwarcia sporu na ekranie konfliktu Wystawiającego"
+  },
+  "makerConflictSubmitDisputeButton": "Zgłoś Spór",
+  "@makerConflictSubmitDisputeButton": {
+    "description": "Tekst przycisku w oknie dialogowym adresu Lightning podczas zgłaszania sporu"
+  },
+  "errorOpenDispute": "Błąd podczas otwierania sporu: {error}",
+  "@errorOpenDispute": {
+    "description": "Komunikat błędu, gdy otwarcie sporu nie powiodło się",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "successOpenDispute": "Spór został pomyślnie otwarty. Koordynator rozpatrzy sprawę.",
+  "@successOpenDispute": {
+    "description": "Komunikat sukcesu po otwarciu sporu"
   }
 }

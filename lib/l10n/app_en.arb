@@ -996,5 +996,50 @@
   "makerConflictBackButton": "Return to Home",
   "@makerConflictBackButton": {
     "description": "Button text on the Maker conflict screen to go back to the main screen"
+  },
+  "makerConflictConfirmPaymentButton": "My mistake, confirm BLIK payment success",
+  "@makerConflictConfirmPaymentButton": {
+    "description": "Button on Maker conflict screen to admit mistake and confirm payment"
+  },
+  "makerConflictOpenDisputeButton": "Blik payment did NOT succeed, OPEN DISPUTE",
+  "@makerConflictOpenDisputeButton": {
+    "description": "Button on Maker conflict screen to open a dispute"
+  },
+  "makerConflictDisputeDialogTitle": "Open Dispute?",
+  "@makerConflictDisputeDialogTitle": {
+    "description": "Title for the dispute confirmation dialog"
+  },
+  "makerConflictDisputeDialogContent": "Opening a dispute requires manual review by the coordinator, which may take time. A dispute fee will be deducted if the dispute is resolved against you. The hold invoice will be settled to prevent expiry. If resolved in your favor, you will be refunded (minus fees) to your Lightning Address.",
+  "@makerConflictDisputeDialogContent": {
+    "description": "Content explaining the consequences of opening a dispute"
+  },
+  "makerConflictDisputeDialogConfirm": "Open Dispute",
+  "@makerConflictDisputeDialogConfirm": {
+    "description": "Confirm button text for the dispute dialog"
+  },
+  "makerConflictDisputeDialogCancel": "Cancel",
+  "@makerConflictDisputeDialogCancel": {
+    "description": "Cancel button text for the dispute dialog"
+  },
+  "makerConflictDisputeDialogContentDetailed": "Opening a dispute will require manual intervention by the coordinator, which will take time and incur a dispute fee.\n\nThe hold invoice will be settled immediately to prevent expiry before the dispute is resolved.\n\nIf the dispute is resolved in your favor, the sats amount will be refunded to your Lightning Address (minus dispute fees). Please ensure you have a Lightning Address configured.",
+  "@makerConflictDisputeDialogContentDetailed": {
+    "description": "Detailed content explaining the consequences of opening a dispute in the Maker Conflict screen"
+  },
+  "makerConflictSubmitDisputeButton": "Submit Dispute",
+  "@makerConflictSubmitDisputeButton": {
+    "description": "Button text in the Lightning Address dialog when submitting a dispute"
+  },
+  "errorOpenDispute": "Error opening dispute: {error}",
+  "@errorOpenDispute": {
+    "description": "Error message when opening a dispute fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "successOpenDispute": "Dispute opened successfully. The coordinator will review the case.",
+  "@successOpenDispute": {
+    "description": "Success message after opening a dispute"
   }
 }

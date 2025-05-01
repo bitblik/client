@@ -30,7 +30,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       // where the BLIK code is fetched before navigation.
       case OfferStatus.conflict:
         // Navigate to the maker conflict screen
-        context.go("/maker-conflict", extra: offer.id);
+        context.go("/maker-conflict", extra: offer);
         break;
       default:
         print("Cannot resume Maker offer in state: $offerStatus");

@@ -84,17 +84,8 @@ class _MakerWaitForBlikScreenState
           print(
             "[MakerWaitForBlik] Popping self and pushing MakerConfirmPaymentScreen...",
           );
-          // Pop the current screen first
-          Navigator.of(context).pop();
           // Then push the confirmation screen
-          context.go('/confirm-blik');
-          //
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (_) => const MakerConfirmPaymentScreen(),
-          //   ),
-          // );
-          // Navigator.of(context).pop(); // Pop THIS screen only
+          context.go('/wait-taker');
         }
         return; // Don't proceed with API check if locally expired
       }
