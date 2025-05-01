@@ -28,6 +28,10 @@ class RoleSelectionScreen extends ConsumerWidget {
       // Removed blikReceived and blikSentToMaker cases here.
       // They are now handled exclusively within the onTap handler
       // where the BLIK code is fetched before navigation.
+      case OfferStatus.conflict:
+        // Navigate to the maker conflict screen
+        context.go("/maker-conflict", extra: offer.id);
+        break;
       default:
         print("Cannot resume Maker offer in state: $offerStatus");
         // Use localized string with placeholder
@@ -59,6 +63,11 @@ class RoleSelectionScreen extends ConsumerWidget {
       // Navigate to the new payment failed screen
 
       context.go('/taker-failed', extra: offer);
+    } else if (offerStatus == OfferStatus.invalidBlik) {
+      context.go('/taker-invalid-blik', extra: offer);
+    } else if (offerStatus == OfferStatus.conflict) {
+      // Navigate to the taker conflict screen
+      context.go('/taker-conflict', extra: offer.id);
     } else {
       print(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",

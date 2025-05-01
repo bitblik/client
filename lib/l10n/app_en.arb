@@ -905,5 +905,96 @@
   "goToHomeButton": "Go to Home",
   "@goToHomeButton": {
     "description": "Button text to navigate back to the home screen after successful payment retry."
+  },
+  "makerInvalidBlikTitle": "Invalid BLIK Code",
+  "@makerInvalidBlikTitle": {
+    "description": "Title for the screen when the maker marks the BLIK code as invalid"
+  },
+  "makerInvalidBlikInfo": "You marked the BLIK code as invalid. Waiting for the taker to provide a new code or initiate a dispute.",
+  "@makerInvalidBlikInfo": {
+    "description": "Informational text shown to the maker after marking the BLIK code as invalid"
+  },
+  "genericError": "An unexpected error occurred. Please try again.",
+  "@genericError": {
+    "description": "Generic error message"
+  },
+  "makerInvalidBlikButton": "Invalid BLIK Code",
+  "@makerInvalidBlikButton": {
+    "description": "Button text for the maker to mark the received BLIK code as invalid"
+  },
+  "invalidBlikTitle": "Invalid BLIK Code",
+  "@invalidBlikTitle": {
+    "description": "Title for the screen shown to the Taker when the Maker marks the BLIK as invalid"
+  },
+  "invalidBlikMessage": "Maker Rejected BLIK Code",
+  "@invalidBlikMessage": {
+    "description": "Headline message shown to the Taker when the Maker marks the BLIK as invalid"
+  },
+  "invalidBlikExplanation": "The Maker has indicated that the BLIK code you provided was invalid or did not work. What would you like to do?",
+  "@invalidBlikExplanation": {
+    "description": "Explanation shown to the Taker about why they are seeing this screen"
+  },
+  "invalidBlikRetryButton": "I DID NOT PAY, reserve Offer again and submit a new BLIK Code",
+  "@invalidBlikRetryButton": {
+    "description": "Button text for the Taker to try submitting a new BLIK code"
+  },
+  "invalidBlikConflictButton": "I CONFIRMED THE BLIK CODE AND IT GOT CHARGED FROM MY BANK ACCOUNT, Report Conflict, will cause DISPUTE!",
+  "@invalidBlikConflictButton": {
+    "description": "Button text for the Taker to report a conflict if they believe they paid successfully"
+  },
+  "cancelAndReturnHome": "Return Home",
+  "@cancelAndReturnHome": {
+    "description": "Button text to cancel the current flow and return to the home/offer list screen"
+  },
+  "conflictReportedSuccess": "Conflict reported. The coordinator will review the case.",
+  "@conflictReportedSuccess": {
+    "description": "Snackbar message shown to the Taker after successfully reporting a conflict"
+  },
+  "conflictReportError": "Error reporting conflict: {details}",
+  "@conflictReportError": {
+    "description": "Snackbar message shown to the Taker when reporting a conflict fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "takerConflictTitle": "Offer Conflict",
+  "@takerConflictTitle": {
+    "description": "AppBar title for the Taker conflict screen"
+  },
+  "takerConflictHeadline": "Offer Conflict Reported",
+  "@takerConflictHeadline": {
+    "description": "Headline text on the Taker conflict screen"
+  },
+  "takerConflictBody": "The Maker marked the BLIK code as invalid, but you have reported a conflict, indicating you believe the payment was successful.",
+  "@takerConflictBody": {
+    "description": "Main informational text on the Taker conflict screen"
+  },
+  "takerConflictInstructions": "Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.",
+  "@takerConflictInstructions": {
+    "description": "Instructions for the Taker on the conflict screen"
+  },
+  "takerConflictBackButton": "Return to Home",
+  "@takerConflictBackButton": {
+    "description": "Button text on the Taker conflict screen to go back to the main screen"
+  },
+  "makerConflictTitle": "Offer Conflict",
+  "@makerConflictTitle": {
+    "description": "AppBar title for the Maker conflict screen"
+  },
+  "makerConflictHeadline": "Offer Conflict Reported",
+  "@makerConflictHeadline": {
+    "description": "Headline text on the Maker conflict screen"
+  },
+  "makerConflictBody": "You marked the BLIK code as invalid, but the Taker has reported a conflict, indicating they believe the payment was successful.",
+  "@makerConflictBody": {
+    "description": "Main informational text on the Maker conflict screen"
+  },
+  "makerConflictInstructions": "Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.",
+  "@makerConflictInstructions": {
+    "description": "Instructions for the Maker on the conflict screen"
+  },
+  "makerConflictBackButton": "Return to Home",
+  "@makerConflictBackButton": {
+    "description": "Button text on the Maker conflict screen to go back to the main screen"
   }
 }
