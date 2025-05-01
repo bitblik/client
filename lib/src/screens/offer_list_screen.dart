@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 // import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
+import '../utils/ln.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
@@ -50,47 +51,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     _refreshTimer?.cancel();
     _addressFocusNode.dispose();
     super.dispose();
-  }
-
-  // Add LNURL validation function
-  Future<String?> _validateLightningAddress(String address) async {
-    final strings = AppLocalizations.of(context)!; // Get strings instance
-    if (!address.contains('@')) {
-      return strings.lightningAddressInvalid;
-    }
-
-    final parts = address.split('@');
-    final username = parts[0];
-    final domain = parts[1];
-
-    try {
-      final lnurlpUrl = Uri.https(domain, '/.well-known/lnurlp/$username');
-      final response = await http.get(lnurlpUrl);
-
-      // TODO: Add specific localization keys for these LNURL validation errors if needed
-      if (response.statusCode != 200) {
-        return '${strings.lightningAddressInvalid}: Could not fetch LNURL information';
-      }
-
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      if (data['status'] == 'ERROR') {
-        return '${strings.lightningAddressInvalid}: ${data['reason']}';
-      }
-
-      if (data['tag'] != 'payRequest') {
-        return '${strings.lightningAddressInvalid}: Not a valid LNURL-pay endpoint';
-      }
-
-      if (data['callback'] == null ||
-          data['minSendable'] == null ||
-          data['maxSendable'] == null) {
-        return '${strings.lightningAddressInvalid}: Missing required LNURL-pay fields';
-      }
-
-      return null; // Validation passed
-    } catch (e) {
-      return '${strings.lightningAddressInvalid}: Could not verify LNURL endpoint';
-    }
   }
 
   void _startRefreshTimer() {
@@ -152,7 +112,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             setState(() {
               _isValidating = true;
             });
-            _validateLightningAddress(lightningAddress).then((error) {
+            validateLightningAddress(lightningAddress, AppLocalizations.of(context)!).then((error) {
               if (mounted) {
                 setState(() {
                   _validationError = error;
@@ -213,7 +173,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     },
                     onChanged: (value) async {
                       if (value.isNotEmpty && value.contains('@')) {
-                        final error = await _validateLightningAddress(value);
+                        final error = await validateLightningAddress(value,AppLocalizations.of(context)!);
                         if (mounted) {
                           setState(() {
                             _validationError = error;
@@ -409,8 +369,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         if (value.isNotEmpty &&
                                             value.contains('@')) {
                                           final error =
-                                              await _validateLightningAddress(
-                                                value,
+                                              await validateLightningAddress(
+                                                value,AppLocalizations.of(context)!
                                               );
                                           setState(() {
                                             _editValidationError = error;

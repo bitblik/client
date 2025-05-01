@@ -130,7 +130,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/maker-conflict',
         builder:
             (context, state) => AppScaffold(
-              body: MakerConflictScreen(offerId: state.extra as String),
+              body: MakerConflictScreen(offer: state.extra as Offer),
             ),
       ),
     ],

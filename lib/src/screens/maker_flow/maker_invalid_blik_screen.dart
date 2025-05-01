@@ -55,7 +55,7 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
               "[MakerInvalidBlikScreen] Offer status changed to conflict. Navigating...",
             );
             // Navigate to the maker conflict screen
-            context.go('/maker-conflict', extra: offer.id);
+            context.go('/maker-conflict', extra: offer);
           } else if (status == OfferStatus.reserved) {
             // Taker chose to retry, go back to waiting for BLIK
             print(

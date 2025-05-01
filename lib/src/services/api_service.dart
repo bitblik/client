@@ -355,4 +355,24 @@ class ApiService {
       rethrow; // Rethrow to allow UI to handle it
     }
   }
+
+  // POST /offers/{offerId}/dispute - Maker opens dispute
+  Future<void> openDispute(String offerId, String makerLnAddress) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/dispute');
+    print(
+      'Calling POST $url with makerLnAddress: $makerLnAddress',
+    ); // Debug log
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({'maker_lightning_address': makerLnAddress});
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      print('Dispute Response Status: ${response.statusCode}'); // Debug log
+      print('Dispute Response Data: ${response.body}'); // Debug log
+      _handleResponse(response); // Throws on non-2xx status
+    } catch (e) {
+      print('Error opening dispute: $e'); // Debug log
+      rethrow; // Rethrow to allow UI to handle it
+    }
+  }
 }
