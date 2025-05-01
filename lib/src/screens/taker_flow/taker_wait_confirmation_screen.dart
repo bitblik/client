@@ -243,6 +243,45 @@ class _TakerWaitConfirmationScreenState
                 return const Center(
                   child: CircularProgressIndicator(key: Key("navigating_pay")),
                 ); // Show loading while navigating
+              } else if (currentStatusEnum == OfferStatus.invalidBlik) {
+                // --- NEW: Handle Invalid BLIK ---
+                print(
+                  "[TakerWaitConfirmation build] Status is invalidBlik. Navigating to invalid BLIK screen.",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _confirmationTimer?.cancel(); // Stop timer
+                    // Navigate to the new TakerInvalidBlikScreen
+                    context.go('/taker-invalid-blik', extra: offer);
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(
+                    key: Key("navigating_invalid_blik"),
+                  ),
+                ); // Show loading while navigating
+                // --- END NEW ---
+              } else if (currentStatusEnum == OfferStatus.conflict) {
+                // --- NEW: Handle Conflict ---
+                print(
+                  "[TakerWaitConfirmation build] Status is conflict. Navigating to conflict screen.",
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _confirmationTimer?.cancel(); // Stop timer
+                    // Navigate to the TakerConflictScreen
+                    context.go(
+                      '/taker-conflict',
+                      extra: offer.id,
+                    ); // Pass offerId
+                  }
+                });
+                return const Center(
+                  child: CircularProgressIndicator(
+                    key: Key("navigating_conflict"),
+                  ),
+                ); // Show loading while navigating
+                // --- END NEW ---
               } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
                 print(
                   "[TakerWaitConfirmation build] Status is takerPaymentFailed. Navigating to process screen (to show failure).",

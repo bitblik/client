@@ -319,4 +319,40 @@ class ApiService {
       throw Exception(errorMessage);
     }
   }
+
+  // POST /offers/{offerId}/blik-invalid
+  Future<void> markBlikInvalid(String offerId, String makerId) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/blik-invalid');
+    final headers = {
+      'Content-Type': 'application/json',
+      'x-maker-id': makerId, // Assuming authentication via header
+    };
+    final body = jsonEncode({}); // Empty body, just need the POST request
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      _handleResponse(response); // Throws on error (e.g., 404, 403, 409)
+    } catch (e) {
+      print('Error calling markBlikInvalid: $e');
+      rethrow; // Rethrow to allow UI to handle it
+    }
+  }
+
+  // POST /offers/{offerId}/conflict
+  Future<void> markOfferConflict(String offerId, String takerId) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/conflict');
+    final headers = {
+      'Content-Type': 'application/json',
+      'x-user-pubkey': takerId, // Send taker ID for auth
+    };
+    final body = jsonEncode({}); // Empty body
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      _handleResponse(response); // Throws on error (e.g., 404, 403, 409)
+    } catch (e) {
+      print('Error calling markOfferConflict: $e');
+      rethrow; // Rethrow to allow UI to handle it
+    }
+  }
 }

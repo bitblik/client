@@ -904,6 +904,97 @@
   },
   "goToHomeButton": "Przejdź do strony głównej",
   "@goToHomeButton": {
-    "description": "Button text to navigate back to the home screen after successful payment retry."
+    "description": "Tekst przycisku do powrotu na ekran główny po udanej ponownej próbie płatności."
+  },
+  "makerInvalidBlikTitle": "Nieprawidłowy Kod BLIK",
+  "@makerInvalidBlikTitle": {
+    "description": "Tytuł ekranu, gdy maker oznaczy kod BLIK jako nieprawidłowy"
+  },
+  "makerInvalidBlikInfo": "Oznaczyłeś kod BLIK jako nieprawidłowy. Oczekiwanie na podanie nowego kodu przez takera lub rozpoczęcie sporu.",
+  "@makerInvalidBlikInfo": {
+    "description": "Tekst informacyjny wyświetlany makerowi po oznaczeniu kodu BLIK jako nieprawidłowy"
+  },
+  "genericError": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+  "@genericError": {
+    "description": "Ogólna wiadomość o błędzie"
+  },
+  "makerInvalidBlikButton": "Nieprawidłowy Kod BLIK",
+  "@makerInvalidBlikButton": {
+    "description": "Tekst przycisku dla makera do oznaczenia otrzymanego kodu BLIK jako nieprawidłowy"
+  },
+  "invalidBlikTitle": "Nieprawidłowy Kod BLIK",
+  "@invalidBlikTitle": {
+    "description": "Tytuł ekranu wyświetlanego Odbiorcy, gdy Twórca oznaczy kod BLIK jako nieprawidłowy"
+  },
+  "invalidBlikMessage": "Twórca Odrzucił Kod BLIK",
+  "@invalidBlikMessage": {
+    "description": "Główna wiadomość wyświetlana Odbiorcy, gdy Twórca oznaczy kod BLIK jako nieprawidłowy"
+  },
+  "invalidBlikExplanation": "Twórca oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?",
+  "@invalidBlikExplanation": {
+    "description": "Wyjaśnienie wyświetlane Odbiorcy, dlaczego widzi ten ekran"
+  },
+  "invalidBlikRetryButton": "Spróbuj ponownie z nowym kodem BLIK",
+  "@invalidBlikRetryButton": {
+    "description": "Tekst przycisku dla Odbiorcy, aby spróbować wprowadzić nowy kod BLIK"
+  },
+  "invalidBlikConflictButton": "Zgłoś konflikt (Zapłaciłem!)",
+  "@invalidBlikConflictButton": {
+    "description": "Tekst przycisku dla Odbiorcy do zgłoszenia konfliktu, jeśli uważa, że zapłacił pomyślnie"
+  },
+  "cancelAndReturnHome": "Anuluj i wróć do strony głównej",
+  "@cancelAndReturnHome": {
+    "description": "Tekst przycisku do anulowania bieżącego przepływu i powrotu do ekranu głównego/listy ofert"
+  },
+  "conflictReportedSuccess": "Konflikt zgłoszony. Koordynator rozpatrzy sprawę.",
+  "@conflictReportedSuccess": {
+    "description": "Snackbar message shown to the Taker after successfully reporting a conflict"
+  },
+  "conflictReportError": "Błąd zgłaszania konfliktu: {details}",
+  "@conflictReportError": {
+    "description": "Snackbar message shown to the Taker when reporting a conflict fails",
+    "placeholders": {
+      "details": {}
+    }
+  },
+  "takerConflictTitle": "Konflikt Oferty",
+  "@takerConflictTitle": {
+    "description": "Tytuł AppBar dla ekranu konfliktu Kupującego"
+  },
+  "takerConflictHeadline": "Zgłoszono Konflikt Oferty",
+  "@takerConflictHeadline": {
+    "description": "Tekst nagłówka na ekranie konfliktu Kupującego"
+  },
+  "takerConflictBody": "Wystawiający oznaczył kod BLIK jako nieprawidłowy, ale zgłosiłeś/aś konflikt, wskazując, że uważasz płatność za udaną.",
+  "@takerConflictBody": {
+    "description": "Główny tekst informacyjny na ekranie konfliktu Kupującego"
+  },
+  "takerConflictInstructions": "Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.",
+  "@takerConflictInstructions": {
+    "description": "Instrukcje dla Kupującego na ekranie konfliktu"
+  },
+  "takerConflictBackButton": "Wróć do Strony Głównej",
+  "@takerConflictBackButton": {
+    "description": "Tekst przycisku na ekranie konfliktu Kupującego do powrotu na ekran główny"
+  },
+  "makerConflictTitle": "Konflikt Oferty",
+  "@makerConflictTitle": {
+    "description": "Tytuł AppBar dla ekranu konfliktu Wystawiającego"
+  },
+  "makerConflictHeadline": "Zgłoszono Konflikt Oferty",
+  "@makerConflictHeadline": {
+    "description": "Tekst nagłówka na ekranie konfliktu Wystawiającego"
+  },
+  "makerConflictBody": "Oznaczyłeś/aś kod BLIK jako nieprawidłowy, ale Kupujący zgłosił/a konflikt, wskazując, że uważa płatność za udaną.",
+  "@makerConflictBody": {
+    "description": "Główny tekst informacyjny na ekranie konfliktu Wystawiającego"
+  },
+  "makerConflictInstructions": "Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.",
+  "@makerConflictInstructions": {
+    "description": "Instrukcje dla Wystawiającego na ekranie konfliktu"
+  },
+  "makerConflictBackButton": "Wróć do Strony Głównej",
+  "@makerConflictBackButton": {
+    "description": "Tekst przycisku na ekranie konfliktu Wystawiającego do powrotu na ekran główny"
   }
 }

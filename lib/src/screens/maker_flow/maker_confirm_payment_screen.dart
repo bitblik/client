@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
-import '../../models/offer.dart'; // For OfferStatus enum
-// Import the new success screen
+import '../../models/offer.dart'; // For OfferStatus enum and Offer
+import 'maker_invalid_blik_screen.dart'; // Import the new screen
 import 'package:flutter/services.dart'; // Add this import for clipboard
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
@@ -97,6 +97,44 @@ class _MakerConfirmPaymentScreenState
       );
     } finally {
       // Ensure loading state is reset even if widget is disposed during async operation
+      if (ref.context.mounted) {
+        ref.read(isLoadingProvider.notifier).state = false;
+      }
+    }
+  }
+
+  // Function to handle marking BLIK as invalid
+  Future<void> _markBlikInvalid(BuildContext context, WidgetRef ref) async {
+    final strings = AppLocalizations.of(context)!;
+    final offer = ref.read(activeOfferProvider);
+    final makerId = ref.read(publicKeyProvider).value;
+
+    if (offer == null || makerId == null) {
+      ref.read(errorProvider.notifier).state = strings.errorOfferDetailsMissing;
+      return;
+    }
+
+    ref.read(isLoadingProvider.notifier).state = true;
+    ref.read(errorProvider.notifier).state = null;
+
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      print(
+        "[MakerConfirmPaymentScreen] Marking BLIK invalid for offer ${offer.id} by maker $makerId",
+      );
+      // Call the API to mark BLIK as invalid
+      await apiService.markBlikInvalid(offer.id, makerId);
+
+      // Navigate to the invalid BLIK screen
+      if (context.mounted) {
+        // Assuming the API call succeeds, navigate
+        context.go('/maker-invalid-blik', extra: offer);
+      }
+    } catch (e) {
+      // TODO: Add specific localization for this error
+      ref.read(errorProvider.notifier).state =
+          strings.genericError + ': ' + e.toString();
+    } finally {
       if (ref.context.mounted) {
         ref.read(isLoadingProvider.notifier).state = false;
       }
@@ -232,6 +270,37 @@ class _MakerConfirmPaymentScreenState
                       // Use localized string
                       : Text(
                         strings.confirmPaymentSuccessButton,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+            ),
+            const SizedBox(height: 15), // Space between buttons
+            // Add the "Invalid BLIK Code" button
+            ElevatedButton(
+              onPressed:
+                  isLoading || publicKeyAsyncValue.isLoading
+                      ? null
+                      : () => _markBlikInvalid(context, ref),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange, // Warning color
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+              child:
+                  isLoading
+                      ? const SizedBox(
+                        // Show loading indicator if busy
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                      // Use localized string
+                      : Text(
+                        strings.makerInvalidBlikButton, // Use localized string
                         style: const TextStyle(fontSize: 16),
                       ),
             ),

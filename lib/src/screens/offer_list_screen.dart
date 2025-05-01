@@ -758,7 +758,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                       )
                                                       .state = AppRole.taker;
 
-                                                  context.push(
+                                                  context.go(
                                                     "/submit-blik",
                                                     extra: updatedOffer,
                                                   );

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:bitblik/src/screens/maker_flow/maker_confirm_payment_screen.dart';
+import 'package:bitblik/src/screens/maker_flow/maker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_success_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_for_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
+import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,8 @@ import 'src/screens/offer_list_screen.dart';
 import 'src/models/offer.dart'; // Needed for OfferStatus enum
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
+import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
+import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -98,9 +102,36 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/paying-taker',
         builder:
+            (context, state) => AppScaffold(body: TakerPaymentProcessScreen()),
+      ),
+      GoRoute(
+        path: '/taker-invalid-blik',
+        builder:
             (context, state) => AppScaffold(
-          body: TakerPaymentProcessScreen(),
-        ),
+              body: TakerInvalidBlikScreen(offer: state.extra as Offer),
+            ),
+      ),
+
+      GoRoute(
+        path: '/taker-conflict',
+        builder:
+            (context, state) => AppScaffold(
+              body: TakerConflictScreen(offerId: state.extra as String),
+            ),
+      ),
+      GoRoute(
+        path: '/maker-invalid-blik',
+        builder:
+            (context, state) => AppScaffold(
+              body: MakerInvalidBlikScreen(offer: state.extra as Offer),
+            ),
+      ),
+      GoRoute(
+        path: '/maker-conflict',
+        builder:
+            (context, state) => AppScaffold(
+              body: MakerConflictScreen(offerId: state.extra as String),
+            ),
       ),
     ],
   );
@@ -125,7 +156,8 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      locale: locale, // Set locale from provider
+      locale: locale,
+      // Set locale from provider
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -256,9 +288,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                 .locale
                                 .languageCode,
                           )
-                          : const Locale('en')), // Fallback to 'en'
+                          : const Locale('en')),
+              // Fallback to 'en'
               icon: const Icon(Icons.language),
-              underline: const SizedBox.shrink(), // Hide default underline
+              underline: const SizedBox.shrink(),
+              // Hide default underline
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   ref.read(localeProvider.notifier).setLocale(newLocale);
