@@ -9,7 +9,7 @@ class ApiService {
 
   // TODO: Make base URL configurable
   final String _baseUrl =
-      kDebugMode ? 'http://192.168.1.28:8080' : 'https://api.bitblik.app';
+      kDebugMode ? 'http://0.0.0.0:8080' : 'https://api.bitblik.app';
 
   // Helper method for handling HTTP responses
   dynamic _handleResponse(http.Response response) {
