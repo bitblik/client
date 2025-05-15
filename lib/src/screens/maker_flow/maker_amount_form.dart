@@ -2,6 +2,7 @@ import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -275,84 +276,97 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             if (coordinatorInfo != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (coordinatorInfo.icon != null &&
-                        coordinatorInfo.icon!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 6.0),
-                        child:
-                            coordinatorInfo.icon!.startsWith('http')
-                                ? Image.network(
-                                  coordinatorInfo.icon!,
-                                  width: 20,
-                                  height: 20,
-                                  errorBuilder:
-                                      (context, error, stackTrace) =>
-                                          const Icon(
-                                            Icons.account_circle,
-                                            size: 20,
-                                          ),
-                                )
-                                : Image.asset(
-                                  coordinatorInfo.icon!,
-                                  width: 20,
-                                  height: 20,
-                                  errorBuilder:
-                                      (context, error, stackTrace) =>
-                                          const Icon(
-                                            Icons.account_circle,
-                                            size: 20,
-                                          ),
-                                ),
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.only(right: 6.0),
-                        child: Icon(Icons.account_circle, size: 20),
-                      ),
-                    Text(
-                      coordinatorInfo.name,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    if (coordinatorInfo.version != null &&
-                        coordinatorInfo.version!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                        child: Text(
-                          'v${coordinatorInfo.version!}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                child: InkWell(
+                  onTap: () async {
+                    final npub = coordinatorInfo.nostrNpub;
+                    if (npub != null && npub.isNotEmpty) {
+                      final url = 'https://njump.me/$npub';
+                      await launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (coordinatorInfo.icon != null &&
+                          coordinatorInfo.icon!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6.0),
+                          child:
+                              coordinatorInfo.icon!.startsWith('http')
+                                  ? Image.network(
+                                    coordinatorInfo.icon!,
+                                    width: 20,
+                                    height: 20,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.account_circle,
+                                              size: 20,
+                                            ),
+                                  )
+                                  : Image.asset(
+                                    coordinatorInfo.icon!,
+                                    width: 20,
+                                    height: 20,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.account_circle,
+                                              size: 20,
+                                            ),
+                                  ),
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.only(right: 6.0),
+                          child: Icon(Icons.account_circle, size: 20),
                         ),
+                      Text(
+                        coordinatorInfo.name,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    if (_minFiatAmountStr != null && _maxFiatAmountStr != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 6.0),
-                        child: Row(
-                          children: [
-                            Text(
-                              strings.amountRangeHint(
-                                _minFiatAmountStr!,
-                                _maxFiatAmountStr!,
-                                "PLN",
-                              ),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text(
+                      if (coordinatorInfo.version != null &&
+                          coordinatorInfo.version!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: Text(
+                            'v${coordinatorInfo.version!}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                          ),
+                        ),
 
-                                "${coordinatorInfo.makerFee.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '')}% fee",
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.blueGrey),
+                      if (_minFiatAmountStr != null &&
+                          _maxFiatAmountStr != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                strings.amountRangeHint(
+                                  _minFiatAmountStr!,
+                                  _maxFiatAmountStr!,
+                                  "PLN",
+                                ),
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Text(
+                                  "${coordinatorInfo.makerFee.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '')}% fee",
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: Colors.blueGrey),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             if (_rate == null)
