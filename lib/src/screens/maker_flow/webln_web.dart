@@ -14,13 +14,15 @@ Future<bool> get isWeblnSupported async {
 }
 
 Future<void> sendWeblnPayment(String invoice) async {
-  await FlutterWebln.enable().then((bla) async {
-    print("!!!! AFTER ENABLE result $bla");
-    final result = FlutterWebln.sendPayment(invoice: invoice);
-    if (result is Future) {
-      await result;
-    }
-  });
+  print("!!!! BEFORE ENABLE");
+  await FlutterWebln.enable();
+  print("!!!! AFTER ENABLE");
+  print("!!!! before payment invoice $invoice");
+  final result = FlutterWebln.sendPayment(invoice: invoice);
+  print("!!!! send payment result $result");
+  if (result is Future) {
+    print("!!!! send payment result ${ await result}");
+  }
 }
 
 void checkWeblnSupport(Function(bool) callback) async {
