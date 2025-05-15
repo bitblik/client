@@ -91,7 +91,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
             final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
-
             if (fullOfferData == null) {
               // Use localized string
               throw Exception(strings.errorCouldNotFetchActiveOffer);
@@ -126,14 +125,11 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   Future<void> _launchLightningUrl(String invoice) async {
     print("!!!!!!! kIsWeb:$kIsWeb");
     if (kIsWeb) {
-      sendWeblnPayment(invoice)
-          .then((_) {
-      })
-          .catchError((e) {
+      sendWeblnPayment(invoice).then((_) {}).catchError((e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('WebLN payment failed: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('WebLN payment failed: $e')));
         }
       });
       return;
@@ -186,9 +182,11 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     ); // Watch the invoice state
 
     // WebLN auto-pay logic
-    print("!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment");
+    print(
+      "!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment",
+    );
 
-    if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
+    if (isWallet && holdInvoice != null /*&& !_sentWeblnPayment*/ ) {
       sendWeblnPayment(holdInvoice)
           .then((_) {
             _sentWeblnPayment = true;
