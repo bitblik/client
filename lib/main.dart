@@ -8,9 +8,12 @@ import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
+import 'dart:io' show Platform; // Import Platform
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'src/providers/providers.dart';
@@ -353,85 +356,129 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         ],
       ),
       body: _buildBody(appRole, widget.body),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          publicKeyAsync.when(
-            data:
-                (publicKey) =>
-                    publicKey != null
-                        ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SelectableText(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (kIsWeb ||
+                !Platform.isAndroid) // Show on web OR non-Android native
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(
+                          'https://cdn.zapstore.dev/8113536e4d960a5ea029cd8750dd1b8e2efa5383d3fc92a262f4622df230f0c9.apk',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Could not open APK link.')),
+                          );
+                        }
+                      },
+                      child: Icon(
+                        Icons.android,
+                        size: 32, // Adjust size as needed
+                        color: Colors.green, // Optional: for better visibility
+                      ),
+                    ),
+                    const SizedBox(width: 16), // Spacing between icons
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse('zapstore://app.bitblik');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          await launchUrl(
+                            Uri.parse("https://zapstore.dev/download/"),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Could not open Zapstore. Is it installed?',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Image.asset(
+                        'assets/zapstore.png',
+                        width: 100,
+                        height: 31,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            publicKeyAsync.when(
+              data:
+                  (publicKey) =>
+                      publicKey != null
+                          ? SelectableText(
                             'Your PubKey: $publicKey',
                             style: Theme.of(context).textTheme.bodySmall,
                             textAlign: TextAlign.center,
-                          ),
-                        )
-                        : const SizedBox.shrink(),
-            loading:
-                () => const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Center(
+                          )
+                          : const SizedBox.shrink(),
+              loading:
+                  () => const Center(
                     child: SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
-                ),
-            error:
-                (err, stack) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
+              error:
+                  (err, stack) => Text(
                     'Error loading key: $err',
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
-                ),
-          ),
-          Consumer(
-            builder: (context, ref, _) {
-              final lightningAddressAsync = ref.watch(lightningAddressProvider);
-              return lightningAddressAsync.when(
-                data:
-                    (address) =>
-                        address != null && address.isNotEmpty
-                            ? Padding(
-                              padding: const EdgeInsets.only(
-                                left: 8.0,
-                                right: 8.0,
-                                bottom: 8.0,
-                              ),
-                              child: SelectableText(
-                                'Your Lightning Address: $address',
-                                style: Theme.of(context).textTheme.bodySmall,
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                loading: () => const SizedBox.shrink(),
-                error:
-                    (err, stack) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        bottom: 8.0,
+            ),
+            Consumer(
+              builder: (context, ref, _) {
+                final lightningAddressAsync = ref.watch(
+                  lightningAddressProvider,
+                );
+                return lightningAddressAsync.when(
+                  data:
+                      (address) =>
+                          address != null && address.isNotEmpty
+                              ? Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: SelectableText(
+                                  'Your Lightning Address: $address',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                              : const SizedBox.shrink(),
+                  loading: () => const SizedBox.shrink(),
+                  error:
+                      (err, stack) => Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          'Error loading lightning address: $err',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      child: Text(
-                        'Error loading lightning address: $err',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
