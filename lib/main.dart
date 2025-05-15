@@ -392,20 +392,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     InkWell(
                       onTap: () async {
                         final Uri url = Uri.parse('zapstore://app.bitblik');
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url);
-                        } else {
-                          await launchUrl(
-                            Uri.parse("https://zapstore.dev/download/"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Could not open Zapstore. Is it installed?',
-                              ),
-                            ),
-                          );
-                        }
+                        await launchUrl(url);
                       },
                       child: Image.asset(
                         'assets/zapstore.png',
