@@ -1,7 +1,7 @@
 import 'dart:async'; // Import async for Timer
 import 'dart:convert';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 
   // Add LNURL validation function

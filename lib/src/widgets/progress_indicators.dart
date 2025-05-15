@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
+import 'package:bitblik/l10n/app_localizations.dart';
 
 // Widget for 10min Funded Offer Progress Bar
 class FundedOfferProgressIndicator extends ConsumerStatefulWidget {

@@ -8,7 +8,7 @@ import '../../models/coordinator_info.dart'; // Added
 import '../../services/api_service.dart'; // Added
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 import 'maker_confirm_payment_screen.dart'; // Import next screen
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:bitblik/l10n/app_localizations.dart';
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});

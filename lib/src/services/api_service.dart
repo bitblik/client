@@ -43,14 +43,12 @@ class ApiService {
   // POST /initiate-offer (fiat version)
   Future<Map<String, dynamic>> initiateOfferFiat({
     required double fiatAmount,
-    required int feePercentage,
     required String makerId,
   }) async {
     final url = Uri.parse('$_baseUrl/initiate-offer');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'fiat_amount': fiatAmount,
-      'fee_percentage': feePercentage,
       'maker_id': makerId,
     });
 

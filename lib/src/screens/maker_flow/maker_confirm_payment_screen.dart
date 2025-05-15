@@ -1,3 +1,4 @@
+import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +6,6 @@ import '../../providers/providers.dart';
 import '../../models/offer.dart'; // For OfferStatus enum and Offer
 import 'maker_invalid_blik_screen.dart'; // Import the new screen
 import 'package:flutter/services.dart'; // Add this import for clipboard
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
 
 class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
   const MakerConfirmPaymentScreen({super.key});

@@ -201,13 +201,12 @@
       "amount": {}
     }
   },
-  "offerFeeStatusId": "Opłata wystawiającego: {fee} satoshi | Status: {status}\\nID: {id}...",
+  "offerFeeStatusId": "Opłata wystawiającego: {fee} satoshi | Status: {status}",
   "@offerFeeStatusId": {
-    "description": "Offer maker fee, status, and ID",
+    "description": "Offer taker fee, status, and ID",
     "placeholders": {
       "fee": {},
-      "status": {},
-      "id": {}
+      "status": {}
     }
   },
   "finishedOffers": "Zakończone oferty",
