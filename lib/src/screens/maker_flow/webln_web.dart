@@ -2,9 +2,7 @@ import 'package:flutter_webln/flutter_webln.dart';
 
 Future<bool> get isWeblnSupported async {
   try {
-    await FlutterWebln.enable().then((_) {
-
-    });
+    await FlutterWebln.enable();
     final weblnValue = weblnDecode(FlutterWebln.webln);
     return weblnValue.isNotEmpty;
   } catch (e) {
@@ -14,14 +12,15 @@ Future<bool> get isWeblnSupported async {
 }
 
 Future<void> sendWeblnPayment(String invoice) async {
-  print("!!!! BEFORE ENABLE");
-  await FlutterWebln.enable();
-  print("!!!! AFTER ENABLE");
-  print("!!!! before payment invoice $invoice");
+  await FlutterWebln.enable().then((_) {}).catchError((e) {
+    print("error on webln.enable(): $e");
+    return;
+  });
   final result = FlutterWebln.sendPayment(invoice: invoice);
-  print("!!!! send payment result $result");
   if (result is Future) {
-    print("!!!! send payment result ${ await result}");
+    print("!!!! send payment result ${await result}");
+  } else {
+    print("!!!! send payment result $result");
   }
 }
 

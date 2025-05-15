@@ -33,7 +33,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     super.initState();
     checkWeblnSupport((supported) {
       setState(() {
-        print("!!!!!!!!!!!!!!!! isWallet supported: $supported");
         isWallet = supported;
       });
     });
@@ -123,7 +122,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
-    print("!!!!!!! kIsWeb:$kIsWeb");
     if (kIsWeb) {
       await sendWeblnPayment(invoice).then((_) {}).catchError((e) {
         if (mounted) {
@@ -182,10 +180,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     ); // Watch the invoice state
 
     // WebLN auto-pay logic
-    print(
-      "!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment",
-    );
-
     if (isWallet && holdInvoice != null && !_sentWeblnPayment ) {
       sendWeblnPayment(holdInvoice)
           .then((_) {
