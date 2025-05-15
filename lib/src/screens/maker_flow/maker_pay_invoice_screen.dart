@@ -185,7 +185,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     ); // Watch the invoice state
 
     // WebLN auto-pay logic
-    print("!!!!!!!!!!!!!!!! isWallet supported: $isWallet");
+    print("!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment");
 
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
       _sentWeblnPayment = true;
