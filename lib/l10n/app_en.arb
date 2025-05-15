@@ -42,6 +42,14 @@
   "@takerHas20Seconds": {
     "description": "Displayed to indicate taker has 20 seconds"
   },
+  "takerHasXSecondsToProvideBlik": "Taker has {seconds} seconds to provide BLIK code.",
+  "@takerHasXSecondsToProvideBlik": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "goHome": "Go Home",
   "@goHome": {
     "description": "Tooltip for home button"
@@ -1041,5 +1049,52 @@
   "successOpenDispute": "Dispute opened successfully. The coordinator will review the case.",
   "@successOpenDispute": {
     "description": "Success message after opening a dispute"
+  },
+  "errorLoadingTimeoutConfiguration": "Error loading timeout configuration.",
+  "@errorLoadingTimeoutConfiguration": {
+    "description": "Error message when the coordinator's timeout configuration cannot be loaded"
+  },
+  "errorAmountTooLowFiat": "Amount is too low. Minimum is {minAmount} {currency}.",
+  "@errorAmountTooLowFiat": {
+    "description": "Validation error when the entered fiat amount is below the minimum allowed",
+    "placeholders": {
+      "minAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAmountTooHighFiat": "Amount is too high. Maximum is {maxAmount} {currency}.",
+  "@errorAmountTooHighFiat": {
+    "description": "Validation error when the entered fiat amount is above the maximum allowed",
+    "placeholders": {
+      "maxAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "amountRangeHint": "Min: {minAmount} {currency}, Max: {maxAmount} {currency}",
+  "@amountRangeHint": {
+    "description": "Hint text displaying the allowed fiat amount range under an input field",
+    "placeholders": {
+      "minAmount": {
+        "type": "String"
+      },
+      "maxAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingCoordinatorConfig": "Error loading coordinator configuration. Please try again.",
+  "@errorLoadingCoordinatorConfig": {
+    "description": "Error message when fetching coordinator configuration fails"
   }
 }

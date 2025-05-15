@@ -3,9 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
 import '../models/offer.dart'; // Import the client-side Offer model
+import '../models/coordinator_info.dart';
 
 class ApiService {
   static const _btcPlnCacheKey = 'btcPlnRate';
+  static const _coordinatorInfoCacheKey = 'coordinatorInfo';
+  CoordinatorInfo? _cachedCoordinatorInfo;
+  DateTime? _coordinatorInfoLastFetched;
 
   // TODO: Make base URL configurable
   final String _baseUrl =
@@ -373,6 +377,45 @@ class ApiService {
     } catch (e) {
       print('Error opening dispute: $e'); // Debug log
       rethrow; // Rethrow to allow UI to handle it
+    }
+  }
+
+  // GET /info
+  Future<CoordinatorInfo> getCoordinatorInfo() async {
+    final now = DateTime.now();
+    if (_cachedCoordinatorInfo != null &&
+        _coordinatorInfoLastFetched != null &&
+        now.difference(_coordinatorInfoLastFetched!) <
+            const Duration(hours: 1)) {
+      return _cachedCoordinatorInfo!;
+    }
+
+    final url = Uri.parse('$_baseUrl/info');
+    try {
+      final response = await http.get(url);
+      final Map<String, dynamic> json = _handleResponse(response);
+      final info = CoordinatorInfo.fromJson(json);
+      _cachedCoordinatorInfo = info;
+      _coordinatorInfoLastFetched = now;
+      MemoryCache.instance.create(
+        _coordinatorInfoCacheKey,
+        info.toJson(), // Cache the JSON representation
+        expiry: const Duration(hours: 1),
+      );
+      return info;
+    } catch (e) {
+      print('Error calling getCoordinatorInfo: $e');
+      // Attempt to return from memory cache if fetch fails
+      final cached = MemoryCache.instance.read<Map<String, dynamic>>(
+        _coordinatorInfoCacheKey,
+      );
+      if (cached != null) {
+        print('Returning stale CoordinatorInfo from cache due to fetch error.');
+        _cachedCoordinatorInfo = CoordinatorInfo.fromJson(cached);
+        // Consider if _coordinatorInfoLastFetched should be updated or cleared here
+        return _cachedCoordinatorInfo!;
+      }
+      rethrow;
     }
   }
 }

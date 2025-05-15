@@ -10,6 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 // import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
+import '../models/coordinator_info.dart'; // Added
+import '../services/api_service.dart'; // Added
 import '../providers/providers.dart';
 import '../utils/ln.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
@@ -39,11 +41,55 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   final TextEditingController _addressController = TextEditingController();
   final FocusNode _addressFocusNode = FocusNode();
 
+  // For Coordinator Config
+  CoordinatorInfo? _coordinatorInfo;
+  Duration? _reservationDuration;
+  bool _isLoadingCoordinatorConfig = true;
+  String? _coordinatorConfigError;
+
   @override
   void initState() {
     super.initState();
     _hasValidatedInitialAddress = false;
     _isValidating = false;
+    _loadCoordinatorConfig();
+  }
+
+  Future<void> _loadCoordinatorConfig() async {
+    if (!mounted) return;
+    // Ensure context is available for AppLocalizations early if needed for error messages
+    // It might be safer to get strings inside the try/catch or pass it if needed for error messages
+    // For now, assuming AppLocalizations.of(context) will be valid when setState is called.
+    setState(() {
+      _isLoadingCoordinatorConfig = true;
+      _coordinatorConfigError = null;
+    });
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      if (!mounted) return;
+
+      setState(() {
+        _coordinatorInfo = coordinatorInfo;
+        _reservationDuration = Duration(
+          seconds: coordinatorInfo.reservationSeconds,
+        );
+        _isLoadingCoordinatorConfig = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      print(
+        "[OfferListScreen] Error loading coordinator info: ${e.toString()}",
+      );
+      // It's good practice to ensure context is still valid if using AppLocalizations here.
+      // For simplicity, we'll assume it is, or use a generic error string.
+      final strings = AppLocalizations.of(context);
+      setState(() {
+        _isLoadingCoordinatorConfig = false;
+        _coordinatorConfigError =
+            strings?.errorLoadingCoordinatorConfig ?? "Error loading config";
+      });
+    }
   }
 
   @override
@@ -112,7 +158,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             setState(() {
               _isValidating = true;
             });
-            validateLightningAddress(lightningAddress, AppLocalizations.of(context)!).then((error) {
+            validateLightningAddress(
+              lightningAddress,
+              AppLocalizations.of(context)!,
+            ).then((error) {
               if (mounted) {
                 setState(() {
                   _validationError = error;
@@ -173,7 +222,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     },
                     onChanged: (value) async {
                       if (value.isNotEmpty && value.contains('@')) {
-                        final error = await validateLightningAddress(value,AppLocalizations.of(context)!);
+                        final error = await validateLightningAddress(
+                          value,
+                          AppLocalizations.of(context)!,
+                        );
                         if (mounted) {
                           setState(() {
                             _validationError = error;
@@ -370,7 +422,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             value.contains('@')) {
                                           final error =
                                               await validateLightningAddress(
-                                                value,AppLocalizations.of(context)!
+                                                value,
+                                                AppLocalizations.of(context)!,
                                               );
                                           setState(() {
                                             _editValidationError = error;
@@ -939,9 +992,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           offer.reservedAt != null)
                                         ReservationProgressIndicator(
                                           key: ValueKey(
-                                            'progress_res_${offer.id}',
+                                            'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
                                           ),
                                           reservedAt: offer.reservedAt!,
+                                          maxDuration:
+                                              _reservationDuration!, // Pass the dynamic duration
                                         ),
                                       if (isBlikReceived &&
                                           offer.blikReceivedAt != null)

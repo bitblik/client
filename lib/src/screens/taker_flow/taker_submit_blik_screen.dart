@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart';
+import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
+import '../../services/api_service.dart'; // Added
 
 // --- BlikInputProgressIndicator Widget ---
 class BlikInputProgressIndicator extends StatefulWidget {
@@ -148,8 +150,10 @@ class TakerSubmitBlikScreen extends ConsumerStatefulWidget {
 class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   final _blikController = TextEditingController();
   Timer? _blikInputTimer;
-  final Duration _maxBlikInputTime = const Duration(seconds: 20);
+  // Duration _maxBlikInputTime = const Duration(seconds: 20); // Will be set from coordinatorInfo
+  Duration? _maxBlikInputTime; // Will be set from coordinatorInfo
   bool _isLoadingDetails = true; // Flag for initial loading
+  CoordinatorInfo? _coordinatorInfo; // Added
 
   @override
   void initState() {
@@ -169,20 +173,43 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      final strings = AppLocalizations.of(context)!; // Get strings instance
+      final strings = AppLocalizations.of(context)!;
+      final apiService = ref.read(apiServiceProvider);
+
+      // Fetch CoordinatorInfo first
+      try {
+        _coordinatorInfo = await apiService.getCoordinatorInfo();
+        if (_coordinatorInfo != null) {
+          _maxBlikInputTime = Duration(
+            seconds: _coordinatorInfo!.reservationSeconds,
+          );
+        } else {
+          // Fallback if coordinator info is somehow null, though getCoordinatorInfo should throw
+          _maxBlikInputTime = const Duration(seconds: 20); // Default fallback
+          print(
+            "[TakerSubmitBlikScreen] Warning: CoordinatorInfo was null, using default timeout.",
+          );
+        }
+      } catch (e) {
+        print(
+          "[TakerSubmitBlikScreen] Error fetching coordinator info: $e. Using default timeout.",
+        );
+        _maxBlikInputTime = const Duration(
+          seconds: 20,
+        ); // Default fallback on error
+        // Optionally, show a non-fatal error to the user or log more verbosely
+      }
+
       final publicKey = ref.read(publicKeyProvider).value;
       if (publicKey == null) {
-        // Reuse existing key
         throw Exception(strings.errorPublicKeyNotLoaded);
       }
-      final apiService = ref.read(apiServiceProvider);
-      // --- FIX: Use getMyActiveOffer ---
+
       final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
       if (!mounted) return;
 
       if (fullOfferData == null) {
-        // Reuse existing key
         throw Exception(strings.errorCouldNotFetchActiveOffer);
       }
 
@@ -216,6 +243,15 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       ref.read(activeOfferProvider.notifier).state = fullOffer;
       print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
+      // Ensure _maxBlikInputTime is set before starting timer
+      if (_maxBlikInputTime == null) {
+        print(
+          "[TakerSubmitBlikScreen] _maxBlikInputTime is null before _startBlikInputTimer. This should not happen.",
+        );
+        _maxBlikInputTime = Duration(
+          seconds: _coordinatorInfo?.reservationSeconds ?? 20,
+        );
+      }
       _startBlikInputTimer(fullOffer);
       setState(() {
         _isLoadingDetails = false;
@@ -254,11 +290,25 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
 
     final now = DateTime.now();
-    final expiresAt = reservedAt.add(_maxBlikInputTime);
+    // Ensure _maxBlikInputTime is non-null before proceeding
+    if (_maxBlikInputTime == null) {
+      print(
+        "[TakerSubmitBlikScreen] Error: _maxBlikInputTime is null in _startBlikInputTimer. Resetting.",
+      );
+      final strings = AppLocalizations.of(context)!;
+      _resetToOfferList(
+        strings.errorOfferDetailsMissing + " (Timeout config)",
+      ); // Append context
+      return;
+    }
+
+    final expiresAt = reservedAt.add(
+      _maxBlikInputTime!,
+    ); // Use non-null assertion
     final timeUntilExpiry = expiresAt.difference(now);
 
     print(
-      "[TakerSubmitBlikScreen] Starting BLIK input timeout timer. Expires ~ $expiresAt",
+      "[TakerSubmitBlikScreen] Starting BLIK input timeout timer for ${_maxBlikInputTime!.inSeconds}s. Expires ~ $expiresAt",
     );
 
     if (timeUntilExpiry.isNegative) {
@@ -561,12 +611,18 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
             ),
             const SizedBox(height: 20),
             // Use reservedAt from the *active* offer state
-            if (activeOffer.reservedAt != null)
+            if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
               BlikInputProgressIndicator(
                 key: ValueKey('blik_timer_${activeOffer.id}'),
                 reservedAt: activeOffer.reservedAt!,
-                maxDuration: _maxBlikInputTime,
+                maxDuration: _maxBlikInputTime!,
               )
+            else if (activeOffer.reservedAt != null &&
+                _maxBlikInputTime == null)
+              Text(
+                strings.errorLoadingTimeoutConfiguration,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ) // Removed comma that was here
             else
               const SizedBox(
                 height: 20,

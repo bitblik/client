@@ -134,11 +134,16 @@ class _FundedOfferProgressIndicatorState
   }
 }
 
-// Widget for 20s Reservation Progress Bar
+// Widget for Reservation Progress Bar (dynamic duration)
 class ReservationProgressIndicator extends ConsumerStatefulWidget {
   final DateTime reservedAt;
+  final Duration maxDuration; // Added maxDuration
 
-  const ReservationProgressIndicator({super.key, required this.reservedAt});
+  const ReservationProgressIndicator({
+    super.key,
+    required this.reservedAt,
+    required this.maxDuration, // Added maxDuration
+  });
 
   @override
   ConsumerState<ReservationProgressIndicator> createState() =>
@@ -149,14 +154,17 @@ class _ReservationProgressIndicatorState
     extends ConsumerState<ReservationProgressIndicator> {
   Timer? _timer;
   double _progress = 1.0;
-  int _remainingSeconds = 20; // Default to 20
-  final Duration _maxReservationTime = const Duration(
-    seconds: 20,
-  ); // UPDATED to 20s
+  late int _remainingSeconds; // Will be initialized in initState
+
+  // final Duration _maxReservationTime = const Duration( // REMOVED
+  //   seconds: 20,
+  // );
 
   @override
   void initState() {
     super.initState();
+    _remainingSeconds =
+        widget.maxDuration.inSeconds; // Initialize with widget.maxDuration
     _calculateProgress();
     if (_progress <= 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _triggerRefresh());
@@ -168,13 +176,20 @@ class _ReservationProgressIndicatorState
   @override
   void didUpdateWidget(covariant ReservationProgressIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.reservedAt != oldWidget.reservedAt) {
-      print("[ReservationProgress] reservedAt changed. Recalculating.");
+    // Check if either reservedAt or maxDuration changed
+    if (widget.reservedAt != oldWidget.reservedAt ||
+        widget.maxDuration != oldWidget.maxDuration) {
+      print(
+        "[ReservationProgress] reservedAt or maxDuration changed. Recalculating.",
+      );
       _timer?.cancel();
+      _remainingSeconds =
+          widget.maxDuration.inSeconds; // Re-initialize with new maxDuration
       _calculateProgress();
       if (_progress > 0) {
         _startTimer();
       } else {
+        // If progress is already 0 (e.g. new maxDuration is very short or in the past)
         _triggerRefresh();
       }
     }
@@ -188,17 +203,24 @@ class _ReservationProgressIndicatorState
 
   void _calculateProgress() {
     final now = DateTime.now();
-    final expiresAt = widget.reservedAt.add(_maxReservationTime);
-    final totalDuration = _maxReservationTime.inMilliseconds;
+    // Use widget.maxDuration
+    final expiresAt = widget.reservedAt.add(widget.maxDuration);
+    final totalDuration = widget.maxDuration.inMilliseconds;
     final remainingDuration = expiresAt.difference(now).inMilliseconds;
+
     if (!mounted) return;
+
     setState(() {
       if (remainingDuration <= 0) {
         _progress = 0.0;
         _remainingSeconds = 0;
       } else {
         _progress = remainingDuration / totalDuration;
-        _remainingSeconds = (remainingDuration / 1000).ceil();
+        // Ensure remainingSeconds doesn't exceed maxDuration.inSeconds, useful if timer fires slightly late
+        _remainingSeconds = (remainingDuration / 1000).ceil().clamp(
+          0,
+          widget.maxDuration.inSeconds,
+        );
       }
     });
   }

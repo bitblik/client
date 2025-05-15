@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
+import '../../models/coordinator_info.dart'; // Added
+import '../../services/api_service.dart'; // Added
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 import 'maker_confirm_payment_screen.dart'; // Import next screen
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,11 +22,56 @@ class _MakerWaitForBlikScreenState
     extends ConsumerState<MakerWaitForBlikScreen> {
   Timer? _statusCheckTimer;
   bool _isChecking = false;
+  CoordinatorInfo? _coordinatorInfo;
+  Duration? _reservationDuration;
+  bool _isLoadingConfig = true;
+  String? _configError;
 
   @override
   void initState() {
     super.initState();
-    _startStatusCheckTimer();
+    _loadInitialData(); // Correct: Call _loadInitialData here
+  }
+
+  Future<void> _loadInitialData() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoadingConfig = true;
+      _configError = null;
+    });
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      if (!mounted) return;
+
+      setState(() {
+        _coordinatorInfo = coordinatorInfo;
+        _reservationDuration = Duration(
+          seconds: coordinatorInfo.reservationSeconds, // Corrected field access
+        );
+        _isLoadingConfig = false;
+      });
+      // Start polling only after config is loaded successfully
+      _startStatusCheckTimer();
+    } catch (e) {
+      if (!mounted) return;
+      print(
+        "[MakerWaitForBlikScreen] Error loading coordinator info: ${e.toString()}",
+      );
+      setState(() {
+        _isLoadingConfig = false;
+        // Access AppLocalizations only when needed and context is more likely to be ready.
+        if (mounted) {
+          // Directly use AppLocalizations here
+          _configError =
+              AppLocalizations.of(context)!.errorLoadingCoordinatorConfig;
+        } else {
+          // Fallback if not mounted, though the outer if(!mounted) return should prevent this.
+          _configError = "Error loading configuration.";
+        }
+      });
+      // Do not start status check timer if config loading failed
+    }
   }
 
   @override
@@ -34,6 +81,25 @@ class _MakerWaitForBlikScreenState
   }
 
   void _startStatusCheckTimer() {
+    // Ensure this is called only after _reservationDuration is set
+    if (_reservationDuration == null) {
+      print(
+        "[MakerWaitForBlikScreen] _startStatusCheckTimer called before _reservationDuration is set. Aborting timer start.",
+      );
+      // Optionally, set an error state or retry _loadInitialData
+      // Ensure context is available for AppLocalizations
+      if (mounted && _configError == null && !_isLoadingConfig) {
+        // If not already in an error/loading state from _loadInitialData
+        // Access AppLocalizations only when needed and context is more likely to be ready.
+        setState(() {
+          _configError =
+              AppLocalizations.of(
+                context,
+              )!.errorLoadingTimeoutConfiguration; // More specific error
+        });
+      }
+      return;
+    }
     _statusCheckTimer?.cancel();
     _checkOfferStatus(); // Check immediately
     _statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (
@@ -69,11 +135,10 @@ class _MakerWaitForBlikScreenState
       return;
     }
 
-    // Check if reservation time expired locally first (using the progress indicator's logic)
-    if (offer.reservedAt != null) {
-      final expiresAt = offer.reservedAt!.add(
-        const Duration(seconds: 20),
-      ); // Use 20s timeout
+    // Check if reservation time expired locally first
+    // This check should use the _reservationDuration from coordinator config
+    if (offer.reservedAt != null && _reservationDuration != null) {
+      final expiresAt = offer.reservedAt!.add(_reservationDuration!);
       if (DateTime.now().isAfter(expiresAt)) {
         print(
           "[MakerWaitForBlik] Reservation time likely expired locally. Popping back.",
@@ -195,18 +260,7 @@ class _MakerWaitForBlikScreenState
         );
         _statusCheckTimer?.cancel();
         if (mounted) {
-          print(
-            "[MakerWaitForBlik] Popping self and pushing MakerConfirmPaymentScreen...",
-          );
-          // Pop the current screen first
-          Navigator.of(context).pop();
-          // Then push the confirmation screen
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const MakerConfirmPaymentScreen(),
-            ),
-          );
-          Navigator.of(context).pop();
+          context.go('/wait-taker');
         }
       } else if (currentStatus == OfferStatus.reserved) {
         print(
@@ -260,29 +314,67 @@ class _MakerWaitForBlikScreenState
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
     final offer = ref.watch(activeOfferProvider);
 
-    if (offer == null || offer.reservedAt == null) {
-      // Should ideally not happen if navigated correctly, but handle defensively
+    if (_isLoadingConfig) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.error)),
+        appBar: AppBar(title: Text(strings.waitingForBlik)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_configError != null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(strings.error)),
         body: Center(
-          child: Text(AppLocalizations.of(context)!.errorOfferDetailsMissing),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_configError!),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _loadInitialData,
+                child: Text(strings.retry),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (offer == null ||
+        offer.reservedAt == null ||
+        _reservationDuration == null) {
+      // This case should ideally be covered by _isLoadingConfig or _configError,
+      // or if offer details are lost post-config load.
+      return Scaffold(
+        appBar: AppBar(title: Text(strings.error)),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(strings.errorOfferDetailsMissing),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _goHome, // Or _loadInitialData if appropriate
+                child: Text(strings.goHome),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.waitingForBlik),
-        automaticallyImplyLeading:
-            false, // Prevent back button since we handle navigation
+        title: Text(strings.waitingForBlik),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            tooltip: AppLocalizations.of(context)!.goHome,
-            onPressed:
-                _goHome, // Allow going home, but maybe reconsider cancellation here?
+            tooltip: strings.goHome,
+            onPressed: _goHome,
           ),
         ],
       ),
@@ -294,7 +386,7 @@ class _MakerWaitForBlikScreenState
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
-                AppLocalizations.of(context)!.offerReservedByTaker,
+                strings.offerReservedByTaker,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -303,26 +395,28 @@ class _MakerWaitForBlikScreenState
               ),
               const SizedBox(height: 15),
               Text(
-                AppLocalizations.of(context)!.waitingForTakerBlik,
+                strings.waitingForTakerBlik,
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              // Show the 20s reservation progress bar
               ReservationProgressIndicator(
-                key: ValueKey('res_timer_${offer.id}'), // Use offer ID in key
+                key: ValueKey(
+                  'res_timer_${offer.id}_${_reservationDuration!.inSeconds}',
+                ),
                 reservedAt: offer.reservedAt!,
+                maxDuration: _reservationDuration!, // Pass the dynamic duration
               ),
               const SizedBox(height: 30),
-              const CircularProgressIndicator(), // General waiting indicator
+              const CircularProgressIndicator(),
               const SizedBox(height: 20),
               Text(
-                AppLocalizations.of(context)!.takerHas20Seconds,
+                strings.takerHasXSecondsToProvideBlik(
+                  _reservationDuration!.inSeconds,
+                ), // Use new string
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),
-              // Note: Cancellation might be complex here as offer is reserved.
-              // Consider disabling or handling differently. For now, removed.
             ],
           ),
         ),
