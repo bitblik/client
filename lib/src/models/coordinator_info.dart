@@ -10,6 +10,8 @@ class CoordinatorInfo {
   final int maxAmountSats;
   final List<String> currencies;
   final String? nostrNpub; // Made nullable
+  final String? version; // Added version
+  final String? icon; // Added icon
 
   const CoordinatorInfo({
     required this.name,
@@ -20,6 +22,8 @@ class CoordinatorInfo {
     required this.maxAmountSats,
     required this.currencies,
     required this.nostrNpub,
+    this.version, // Added version
+    this.icon, // Added icon
   });
 
   factory CoordinatorInfo.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,8 @@ class CoordinatorInfo {
               .map((e) => e as String)
               .toList(),
       nostrNpub: json['nostr_npub'] as String?, // Ensure this is String?
+      version: json['version'] as String?, // Added version
+      icon: json['icon'] as String?, // Added icon
     );
   }
 
@@ -48,6 +54,8 @@ class CoordinatorInfo {
       'max_amount_sats': maxAmountSats,
       'currencies': currencies,
       'nostr_npub': nostrNpub,
+      if (version != null) 'version': version, // Added version
+      if (icon != null) 'icon': icon, // Added icon
     };
   }
 }

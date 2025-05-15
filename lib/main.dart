@@ -26,6 +26,7 @@ import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
+import 'package:package_info_plus/package_info_plus.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -185,11 +186,22 @@ class AppScaffold extends ConsumerStatefulWidget {
 
 class _AppScaffoldState extends ConsumerState<AppScaffold> {
   Timer? _activeOfferRefreshTimer;
+  String? _clientVersion;
 
   @override
   void initState() {
     super.initState();
     _startActiveOfferRefreshTimer();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _clientVersion = info.version;
+      });
+    }
   }
 
   @override
@@ -252,7 +264,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 const Text('BitBlik'),
                 const SizedBox(width: 4),
                 Text(
-                  'alpha',
+                  _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
                   style: TextStyle(fontSize: 10, color: Colors.black45),
                 ),
               ],

@@ -145,7 +145,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               (_coordinatorInfo!.minAmountSats / 100000000.0) * _rate!;
           final maxAllowedFiat =
               (_coordinatorInfo!.maxAmountSats / 100000000.0) * _rate!;
-          final minFiat= (minAllowedFiat * 100).ceil() / 100;
+          final minFiat = (minAllowedFiat * 100).ceil() / 100;
           final maxFiat = (maxAllowedFiat * 100).floor() / 100;
           if (parsedFiat < minFiat) {
             currentError = strings.errorAmountTooLowFiat(
@@ -337,20 +337,81 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               // No need for onChanged here anymore as listener handles it
             ),
             const SizedBox(height: 10),
-            // Display amount range hint if available
+            // Display coordinator icon, name, version, and amount range in one line if available
             if (_minFiatAmountStr != null &&
                 _maxFiatAmountStr != null &&
+                _coordinatorInfo != null &&
                 _coordinatorInfoError == null)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                child: Text(
-                  strings.amountRangeHint(
-                    _minFiatAmountStr!,
-                    _maxFiatAmountStr!,
-                    "PLN",
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Coordinator icon (network or asset)
+                    if (_coordinatorInfo!.icon != null &&
+                        _coordinatorInfo!.icon!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6.0),
+                        child:
+                            _coordinatorInfo!.icon!.startsWith('http')
+                                ? Image.network(
+                                  _coordinatorInfo!.icon!,
+                                  width: 20,
+                                  height: 20,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(
+                                            Icons.account_circle,
+                                            size: 20,
+                                          ),
+                                )
+                                : Image.asset(
+                                  _coordinatorInfo!.icon!,
+                                  width: 20,
+                                  height: 20,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(
+                                            Icons.account_circle,
+                                            size: 20,
+                                          ),
+                                ),
+                      )
+                    else
+                      const Padding(
+                        padding: EdgeInsets.only(right: 6.0),
+                        child: Icon(Icons.account_circle, size: 20),
+                      ),
+                    // Coordinator name
+                    Text(
+                      _coordinatorInfo!.name,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    // Version (if available)
+                    if (_coordinatorInfo!.version != null &&
+                        _coordinatorInfo!.version!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: Text(
+                          'v${_coordinatorInfo!.version!}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                        ),
+                      ),
+                    // Min/max amount
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: Text(
+                        strings.amountRangeHint(
+                          _minFiatAmountStr!,
+                          _maxFiatAmountStr!,
+                          "PLN",
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             // Keep fee input simple for now
