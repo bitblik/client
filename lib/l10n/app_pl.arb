@@ -31,6 +31,14 @@
   "@takerHas20Seconds": {
     "description": "Displayed to indicate taker has 20 seconds"
   },
+  "takerHasXSecondsToProvideBlik": "Przyjmujący ma {seconds} sekund na podanie kodu BLIK.",
+  "@takerHasXSecondsToProvideBlik": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "goHome": "Strona główna",
   "@goHome": {
     "description": "Tooltip for home button"
@@ -1041,5 +1049,52 @@
   "successOpenDispute": "Spór został pomyślnie otwarty. Koordynator rozpatrzy sprawę.",
   "@successOpenDispute": {
     "description": "Komunikat sukcesu po otwarciu sporu"
+  },
+  "errorLoadingTimeoutConfiguration": "Błąd ładowania konfiguracji limitu czasu.",
+  "@errorLoadingTimeoutConfiguration": {
+    "description": "Komunikat błędu, gdy nie można załadować konfiguracji limitu czasu koordynatora"
+  },
+  "errorAmountTooLowFiat": "Kwota jest za niska. Minimum to {minAmount} {currency}.",
+  "@errorAmountTooLowFiat": {
+    "description": "Błąd walidacji, gdy wprowadzona kwota fiat jest poniżej dozwolonego minimum",
+    "placeholders": {
+      "minAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAmountTooHighFiat": "Kwota jest za wysoka. Maksimum to {maxAmount} {currency}.",
+  "@errorAmountTooHighFiat": {
+    "description": "Błąd walidacji, gdy wprowadzona kwota fiat jest powyżej dozwolonego maksimum",
+    "placeholders": {
+      "maxAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "amountRangeHint": "Min: {minAmount} {currency}, Max: {maxAmount} {currency}",
+  "@amountRangeHint": {
+    "description": "Tekst podpowiedzi wyświetlający dozwolony zakres kwot fiat pod polem wprowadzania",
+    "placeholders": {
+      "minAmount": {
+        "type": "String"
+      },
+      "maxAmount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingCoordinatorConfig": "Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.",
+  "@errorLoadingCoordinatorConfig": {
+    "description": "Komunikat błędu, gdy pobieranie konfiguracji koordynatora nie powiodło się"
   }
 }
