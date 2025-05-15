@@ -124,6 +124,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
+    print("!!!!!!! kIsWeb:$kIsWeb");
     if (kIsWeb) {
       sendWeblnPayment(invoice)
           .then((_) {
@@ -188,9 +189,9 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     print("!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment");
 
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
-      _sentWeblnPayment = true;
       sendWeblnPayment(holdInvoice)
           .then((_) {
+            _sentWeblnPayment = true;
           })
           .catchError((e) {
             if (mounted) {
