@@ -76,32 +76,56 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/maker-success',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: MakerSuccessScreen(completedOffer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
 
       GoRoute(
         path: '/submit-blik',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
       GoRoute(
         path: '/wait-confirmation',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
       GoRoute(
         path: '/taker-failed',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: TakerPaymentFailedScreen(offer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
       GoRoute(
         path: '/paying-taker',
@@ -110,10 +134,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/taker-invalid-blik',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: TakerInvalidBlikScreen(offer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
 
       GoRoute(
@@ -125,17 +155,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/maker-invalid-blik',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: MakerInvalidBlikScreen(offer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
       GoRoute(
         path: '/maker-conflict',
-        builder:
-            (context, state) => AppScaffold(
+        builder: (context, state) {
+          if (state.extra == null) {
+            context.go("/");
+            return Container();
+          } else {
+            return AppScaffold(
               body: MakerConflictScreen(offer: state.extra as Offer),
-            ),
+            );
+          }
+        },
       ),
     ],
   );
