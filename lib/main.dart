@@ -384,7 +384,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     InkWell(
                       onTap: () async {
                         final Uri url = Uri.parse(
-                          'https://cdn.zapstore.dev/346e1d56a6e896489833a92ed5eef88604c3eab5b06ffcb599600067c788ae1d.apk',
+                          'https://github.com/bitblik/client/releases',
                         );
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
