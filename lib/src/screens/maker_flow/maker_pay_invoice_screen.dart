@@ -186,7 +186,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       "!!!!!!!!!!!!!!!! isWallet: $isWallet, holdInvoice: $holdInvoice, sent:$_sentWeblnPayment",
     );
 
-    if (isWallet && holdInvoice != null /*&& !_sentWeblnPayment*/ ) {
+    if (isWallet && holdInvoice != null && !_sentWeblnPayment ) {
       sendWeblnPayment(holdInvoice)
           .then((_) {
             _sentWeblnPayment = true;
