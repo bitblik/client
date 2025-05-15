@@ -13,6 +13,7 @@ import '../../models/offer.dart'; // Import Offer model for status enum comparis
 // Import ApiService
 import 'package:go_router/go_router.dart';
 import 'package:bitblik/l10n/app_localizations.dart';
+import 'webln_stub.dart' if (dart.library.js) 'webln_web.dart';
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
   const MakerPayInvoiceScreen({super.key});
@@ -24,10 +25,17 @@ class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
 
 class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   Timer? _statusPollTimer;
+  bool isWallet = false;
+  bool _sentWeblnPayment = false;
 
   @override
   void initState() {
     super.initState();
+    checkWeblnSupport((supported) {
+      setState(() {
+        isWallet = supported;
+      });
+    });
     // Start polling immediately when this screen is shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -64,7 +72,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       final apiService = ref.read(apiServiceProvider); // Use read inside timer
       try {
         final status = await apiService.getOfferStatus(paymentHash);
-        print('[MakerPayInvoiceScreen] Poll result for $paymentHash: $status');
+        // print('[MakerPayInvoiceScreen] Poll result for $paymentHash: $status');
         if (status != null && status != 'pending_creation') {
           final offerStatus = OfferStatus.values.byName(status);
           if (offerStatus.index >= OfferStatus.funded.index) {
@@ -160,6 +168,21 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     final holdInvoice = ref.watch(
       holdInvoiceProvider,
     ); // Watch the invoice state
+
+    // WebLN auto-pay logic
+    if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
+      _sentWeblnPayment = true;
+      sendWeblnPayment(holdInvoice)
+          .then((_) {
+          })
+          .catchError((e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('WebLN payment failed: $e')),
+              );
+            }
+          });
+    }
 
     // Add Scaffold wrapper
     return Builder(
