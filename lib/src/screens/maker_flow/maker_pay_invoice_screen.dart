@@ -1,6 +1,6 @@
 import 'dart:async'; // For Timer
 import 'dart:io'; // For Platform check
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +33,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     super.initState();
     checkWeblnSupport((supported) {
       setState(() {
+        print("!!!!!!!!!!!!!!!! isWallet supported: $supported");
         isWallet = supported;
       });
     });
@@ -123,6 +124,20 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
+    if (kIsWeb) {
+      sendWeblnPayment(invoice)
+          .then((_) {
+      })
+          .catchError((e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('WebLN payment failed: $e')),
+          );
+        }
+      });
+      return;
+    }
+
     final strings = AppLocalizations.of(context)!; // Get strings instance
     final link = 'lightning:$invoice';
     try {
@@ -170,6 +185,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     ); // Watch the invoice state
 
     // WebLN auto-pay logic
+    print("!!!!!!!!!!!!!!!! isWallet supported: $isWallet");
+
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
       _sentWeblnPayment = true;
       sendWeblnPayment(holdInvoice)
