@@ -253,6 +253,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_webln:
+    dependency: "direct main"
+    description:
+      name: flutter_webln
+      sha256: "8340c5993010763131c228c5f6b61be25dbb27b2330d09b8f4390775d38337fd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   go_router:
     dependency: "direct main"
     description:
