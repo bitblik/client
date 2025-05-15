@@ -125,7 +125,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   Future<void> _launchLightningUrl(String invoice) async {
     print("!!!!!!! kIsWeb:$kIsWeb");
     if (kIsWeb) {
-      sendWeblnPayment(invoice).then((_) {}).catchError((e) {
+      await sendWeblnPayment(invoice).then((_) {}).catchError((e) {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
