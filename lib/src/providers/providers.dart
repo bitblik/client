@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore_for_file: depend_on_referenced_packages
 import '../services/api_service.dart';
 import 'dart:async'; // For Stream.periodic
+import '../models/coordinator_info.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
@@ -11,6 +13,12 @@ import '../models/offer.dart'; // OfferStatus is in here
 // Provider for the ApiService instance
 final apiServiceProvider = Provider<ApiService>((ref) {
   return ApiService();
+});
+
+/// Global provider for coordinator info
+final coordinatorInfoProvider = FutureProvider<CoordinatorInfo>((ref) async {
+  final apiService = ref.watch(apiServiceProvider);
+  return apiService.getCoordinatorInfo();
 });
 
 // Provider for fetching the list of available offers

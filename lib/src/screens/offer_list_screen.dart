@@ -1,17 +1,14 @@
 import 'dart:async'; // Import async for Timer
-import 'dart:convert';
 
+import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/coordinator_info.dart'; // Added
 // import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
-import '../models/coordinator_info.dart'; // Added
-import '../services/api_service.dart'; // Added
 import '../providers/providers.dart';
 import '../utils/ln.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
@@ -733,9 +730,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     id: offer.id,
                                                     amountSats:
                                                         offer.amountSats,
-                                                    makerFees:
-                                                        offer
-                                                            .makerFees, // Renamed
+                                                    takerFees: offer.takerFees,
+                                                    makerFees: offer.makerFees,
+                                                    // Renamed
                                                     fiatCurrency:
                                                         offer.fiatCurrency,
                                                     fiatAmount:
@@ -975,7 +972,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           ),
                                           subtitle: Text(
                                             // Combine amount, fee, status, and ID using localized strings
-                                            '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.makerFees.toString(), offer.status, offer.id.substring(0, 8))}',
+                                            '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.takerFees?.toString() ?? "0", offer.status)}',
                                           ),
                                           isThreeLine: true,
                                           trailing: trailingWidget,
@@ -1056,9 +1053,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                               AppLocalizations.of(
                                                 context,
                                               )!.offerFeeStatusId(
-                                                offer.makerFees.toString(),
+                                                offer.takerFees?.toString() ??
+                                                    "0",
                                                 offer.status,
-                                                offer.id.substring(0, 8),
                                               ),
                                             ),
                                             isThreeLine: true,

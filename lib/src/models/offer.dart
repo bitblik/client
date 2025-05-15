@@ -45,12 +45,12 @@ class Offer {
   final DateTime? makerConfirmedAt;
   final DateTime? settledAt;
   final DateTime? takerPaidAt;
-  final int? takerFees; // Renamed from takerFeesSats
+  final int? takerFees;
 
   Offer({
     required this.id,
     required this.amountSats,
-    required this.makerFees, // Renamed from feeSats
+    required this.makerFees,
     required this.status,
     required this.fiatAmount,
     required this.fiatCurrency,
@@ -68,7 +68,7 @@ class Offer {
     this.makerConfirmedAt,
     this.settledAt,
     this.takerPaidAt,
-    this.takerFees, // Renamed from takerFeesSats
+    this.takerFees,
   });
 
   // Factory constructor to create an Offer from JSON data (Map).

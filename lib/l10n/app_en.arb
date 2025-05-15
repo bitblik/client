@@ -224,13 +224,12 @@
       "amount": {}
     }
   },
-  "offerFeeStatusId": "Maker Fee: {fee} sats | Status: {status}\\nID: {id}...",
+  "offerFeeStatusId": "Taker Fee: {fee} sats | Status: {status}",
   "@offerFeeStatusId": {
-    "description": "Offer maker fee, status, and ID",
+    "description": "Offer Taker fee, status, and ID",
     "placeholders": {
       "fee": {},
-      "status": {},
-      "id": {}
+      "status": {}
     }
   },
   "finishedOffers": "Finished Offers",

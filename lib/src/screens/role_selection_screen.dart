@@ -1,6 +1,6 @@
 // RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
+import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

@@ -12,7 +12,7 @@ import '../../providers/providers.dart'; // Import providers
 import '../../models/offer.dart'; // Import Offer model for status enum comparison
 // Import ApiService
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Import localization
+import 'package:bitblik/l10n/app_localizations.dart';
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
   const MakerPayInvoiceScreen({super.key});
@@ -82,6 +82,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
             final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
+
             if (fullOfferData == null) {
               // Use localized string
               throw Exception(strings.errorCouldNotFetchActiveOffer);
@@ -96,14 +97,12 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             }
           } else {
             if (mounted) {
-              setState(() {
-              });
+              setState(() {});
             }
           }
         } else {
           if (mounted) {
-            setState(() {
-            });
+            setState(() {});
           }
         }
       } catch (e) {
@@ -186,6 +185,55 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 15),
+                // Amount info: sats, fiat, fee
+                Builder(
+                  builder: (context) {
+                    final offer = ref.watch(activeOfferProvider);
+                    if (offer == null) return const SizedBox.shrink();
+                    final sats = offer.amountSats;
+                    final fiat = offer.fiatAmount ?? 0.0;
+                    final coordinatorInfoAsync = ref.watch(
+                      coordinatorInfoProvider,
+                    );
+                    String formatFiat(double value) => value.toStringAsFixed(
+                      value.truncateToDouble() == value ? 0 : 2,
+                    );
+                    return coordinatorInfoAsync.when(
+                      loading: () => const SizedBox.shrink(),
+                      error: (e, st) => const SizedBox.shrink(),
+                      data: (coordinatorInfo) {
+                        final feePct = coordinatorInfo.makerFee;
+                        final feeFiat = fiat * feePct / 100;
+                        final totalFiat = fiat + feeFiat;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "$sats sats",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[700],
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 15),
                 // Display QR Code (tappable)
                 Center(
                   child: GestureDetector(
@@ -223,6 +271,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     );
                   },
                 ),
+                SizedBox(height: 25),
                 const SizedBox(height: 25),
                 // Polling status indicator
                 Row(
