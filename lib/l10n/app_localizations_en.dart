@@ -23,7 +23,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get errorOfferDetailsMissing => 'Error: Offer details missing or invalid.';
+  String get errorOfferDetailsMissing =>
+      'Error: Offer details missing or invalid.';
 
   @override
   String get errorOfferNotFound => 'Error: Offer not found.';
@@ -35,7 +36,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerReservedByTaker => 'Offer Reserved by Taker!';
 
   @override
-  String get waitingForTakerBlik => 'Waiting for Taker to submit their BLIK code.';
+  String get waitingForTakerBlik =>
+      'Waiting for Taker to submit their BLIK code.';
 
   @override
   String get takerHas20Seconds => 'Taker has 20 seconds to provide the code.';
@@ -52,7 +54,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorActiveOfferDetailsLost => 'Error: Active offer details lost.';
 
   @override
-  String get errorFailedToRetrieveBlik => 'Error: Failed to retrieve BLIK code.';
+  String get errorFailedToRetrieveBlik =>
+      'Error: Failed to retrieve BLIK code.';
 
   @override
   String errorRetrievingBlik(Object details) {
@@ -97,7 +100,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelOffer => 'Cancel Offer';
 
   @override
-  String get errorCouldNotIdentifyOffer => 'Error: Could not identify offer to cancel.';
+  String get errorCouldNotIdentifyOffer =>
+      'Error: Could not identify offer to cancel.';
 
   @override
   String offerCannotBeCancelled(Object status) {
@@ -113,7 +117,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get enterLightningAddress => 'Enter your Lightning Address to continue';
+  String get enterLightningAddress =>
+      'Enter your Lightning Address to continue';
 
   @override
   String get lightningAddressHint => 'user@domain.com';
@@ -122,7 +127,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lightningAddressLabel => 'Lightning Address';
 
   @override
-  String get lightningAddressInvalid => 'Please enter a valid Lightning Address';
+  String get lightningAddressInvalid =>
+      'Please enter a valid Lightning Address';
 
   @override
   String get saveAndContinue => 'Save & Continue';
@@ -157,7 +163,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get getNotifiedSimplex => 'Get notified of new orders with SimpleX';
 
   @override
-  String get getNotifiedWithElement => 'Get notified of new orders with Element';
+  String get getNotifiedWithElement =>
+      'Get notified of new orders with Element';
 
   @override
   String get noOffersAvailable => 'No offers available yet.';
@@ -190,7 +197,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Retry';
 
   @override
-  String get errorOfferUnexpectedState => 'Error: Offer is in an unexpected state.';
+  String get errorOfferUnexpectedState =>
+      'Error: Offer is in an unexpected state.';
 
   @override
   String get errorPublicKeyNotLoaded => 'Error: Public key not loaded yet.';
@@ -238,7 +246,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payHoldInvoiceTitle => 'Pay this Hold Invoice:';
 
   @override
-  String get errorCouldNotOpenLightningApp => 'Could not open Lightning app for invoice.';
+  String get errorCouldNotOpenLightningApp =>
+      'Could not open Lightning app for invoice.';
 
   @override
   String errorOpeningLightningApp(Object details) {
@@ -252,16 +261,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoiceCopied => 'Invoice copied to clipboard!';
 
   @override
-  String get waitingForPaymentConfirmation => 'Waiting for payment confirmation...';
+  String get waitingForPaymentConfirmation =>
+      'Waiting for payment confirmation...';
 
   @override
   String get errorPublicKeyNotAvailable => 'Public key not available.';
 
   @override
-  String get errorCouldNotFetchActiveOffer => 'Could not fetch active offer details. It might have expired.';
+  String get errorCouldNotFetchActiveOffer =>
+      'Could not fetch active offer details. It might have expired.';
 
   @override
-  String get errorMissingPaymentHashOrKey => 'Error: Missing payment hash or public key.';
+  String get errorMissingPaymentHashOrKey =>
+      'Error: Missing payment hash or public key.';
 
   @override
   String errorOfferIncorrectStateConfirmation(Object status) {
@@ -269,7 +281,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paymentConfirmedTakerPaid => 'Payment Confirmed! Taker will be paid.';
+  String get paymentConfirmedTakerPaid =>
+      'Payment Confirmed! Taker will be paid.';
 
   @override
   String get paymentProcessTitle => 'Payment Process';
@@ -292,16 +305,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyToClipboardTooltip => 'Copy to clipboard';
 
   @override
-  String get blikInstructionsMaker => 'Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.';
+  String get blikInstructionsMaker =>
+      'Enter this code into the payment terminal. Once the Taker confirms in their bank app and the payment succeeds, press Confirm below.';
 
   @override
   String get confirmPaymentSuccessButton => 'Confirm Payment Success';
 
   @override
-  String get errorInvalidOfferStateReceived => 'Error: Invalid offer state received.';
+  String get errorInvalidOfferStateReceived =>
+      'Error: Invalid offer state received.';
 
   @override
-  String get errorInternalOfferIncomplete => 'Internal error: Offer details incomplete.';
+  String get errorInternalOfferIncomplete =>
+      'Internal error: Offer details incomplete.';
 
   @override
   String get errorOfferInvalidStatus => 'Offer has an invalid status.';
@@ -312,13 +328,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get errorUnexpectedStatusFromServer => 'Received an unexpected offer status from the server.';
+  String get errorUnexpectedStatusFromServer =>
+      'Received an unexpected offer status from the server.';
 
   @override
   String get offerCancelledOrExpired => 'Offer was cancelled or expired.';
 
   @override
-  String get paymentSuccessfulTaker => 'Payment Successful! You should have now received the funds.';
+  String get paymentSuccessfulTaker =>
+      'Payment Successful! You should have now received the funds.';
 
   @override
   String get paymentReceived => 'Payment Received!';
@@ -373,7 +391,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get blikInstructionsTaker => 'The offer maker has been sent your BLIK code and needs to enter it in the payment terminal. You then will need to accept the BLIK code in your bank app, be sure to only accept the correct amount. You will receive the Lightning payment automatically after confirmation.';
+  String get blikInstructionsTaker =>
+      'The offer maker has been sent your BLIK code and needs to enter it in the payment terminal. You then will need to accept the BLIK code in your bank app, be sure to only accept the correct amount. You will receive the Lightning payment automatically after confirmation.';
 
   @override
   String submitBlikWithinSeconds(int seconds) {
@@ -391,10 +410,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get errorOfferReservationTimestampMissing => 'Offer reservation timestamp is missing.';
+  String get errorOfferReservationTimestampMissing =>
+      'Offer reservation timestamp is missing.';
 
   @override
-  String get errorOfferPaymentHashMissing => 'Offer payment hash is missing after fetch.';
+  String get errorOfferPaymentHashMissing =>
+      'Offer payment hash is missing after fetch.';
 
   @override
   String errorLoadingOfferDetails(Object details) {
@@ -408,10 +429,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorOfferStateChanged => 'Error: Offer state changed.';
 
   @override
-  String get errorOfferStateNotValid => 'Error: Offer state is no longer valid.';
+  String get errorOfferStateNotValid =>
+      'Error: Offer state is no longer valid.';
 
   @override
-  String get errorInvalidBlikFormat => 'Please enter a valid 6-digit BLIK code.';
+  String get errorInvalidBlikFormat =>
+      'Please enter a valid 6-digit BLIK code.';
 
   @override
   String get errorLightningAddressRequired => 'Lightning Address is required.';
@@ -425,7 +448,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get blikPasted => 'Pasted BLIK code.';
 
   @override
-  String get errorClipboardInvalidBlik => 'Clipboard does not contain a valid 6-digit BLIK code.';
+  String get errorClipboardInvalidBlik =>
+      'Clipboard does not contain a valid 6-digit BLIK code.';
 
   @override
   String get errorOfferDetailsNotLoaded => 'Offer details could not be loaded.';
@@ -567,7 +591,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validLightningAddressTooltip => 'Valid Lightning Address';
 
   @override
-  String get errorFailedToReserveOfferNoTimestamp => 'Failed to reserve offer (no timestamp returned).';
+  String get errorFailedToReserveOfferNoTimestamp =>
+      'Failed to reserve offer (no timestamp returned).';
 
   @override
   String errorFailedToReserveOffer(Object details) {
@@ -620,7 +645,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskTakerPaymentFailed => 'Payment to you failed';
 
   @override
-  String get errorTakerPaymentFailed => 'Payment to your Lightning Address failed. Please check the details and provide a new invoice if necessary.';
+  String get errorTakerPaymentFailed =>
+      'Payment to your Lightning Address failed. Please check the details and provide a new invoice if necessary.';
 
   @override
   String get goToFailureDetails => 'Go to Failure Details';
@@ -629,13 +655,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorTakerPublicKeyNotFound => 'Taker public key not found.';
 
   @override
-  String get paymentRetryFailedError => 'Payment retry failed. Please check the invoice or try again later.';
+  String get paymentRetryFailedError =>
+      'Payment retry failed. Please check the invoice or try again later.';
 
   @override
   String get paymentSuccessfulTitle => 'Payment Successful';
 
   @override
-  String get paymentSuccessfulMessage => 'Your payment has been processed successfully.';
+  String get paymentSuccessfulMessage =>
+      'Your payment has been processed successfully.';
 
   @override
   String get goToHomeButton => 'Go to Home';
@@ -644,7 +672,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get makerInvalidBlikTitle => 'Invalid BLIK Code';
 
   @override
-  String get makerInvalidBlikInfo => 'You marked the BLIK code as invalid. Waiting for the taker to provide a new code or initiate a dispute.';
+  String get makerInvalidBlikInfo =>
+      'You marked the BLIK code as invalid. Waiting for the taker to provide a new code or initiate a dispute.';
 
   @override
   String get genericError => 'An unexpected error occurred. Please try again.';
@@ -659,19 +688,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidBlikMessage => 'Maker Rejected BLIK Code';
 
   @override
-  String get invalidBlikExplanation => 'The Maker has indicated that the BLIK code you provided was invalid or did not work. What would you like to do?';
+  String get invalidBlikExplanation =>
+      'The Maker has indicated that the BLIK code you provided was invalid or did not work. What would you like to do?';
 
   @override
-  String get invalidBlikRetryButton => 'I DID NOT PAY, reserve Offer again and submit a new BLIK Code';
+  String get invalidBlikRetryButton =>
+      'I DID NOT PAY, reserve Offer again and submit a new BLIK Code';
 
   @override
-  String get invalidBlikConflictButton => 'I CONFIRMED THE BLIK CODE AND IT GOT CHARGED FROM MY BANK ACCOUNT, Report Conflict, will cause DISPUTE!';
+  String get invalidBlikConflictButton =>
+      'I CONFIRMED THE BLIK CODE AND IT GOT CHARGED FROM MY BANK ACCOUNT, Report Conflict, will cause DISPUTE!';
 
   @override
   String get cancelAndReturnHome => 'Return Home';
 
   @override
-  String get conflictReportedSuccess => 'Conflict reported. The coordinator will review the case.';
+  String get conflictReportedSuccess =>
+      'Conflict reported. The coordinator will review the case.';
 
   @override
   String conflictReportError(Object details) {
@@ -685,10 +718,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get takerConflictHeadline => 'Offer Conflict Reported';
 
   @override
-  String get takerConflictBody => 'The Maker marked the BLIK code as invalid, but you have reported a conflict, indicating you believe the payment was successful.';
+  String get takerConflictBody =>
+      'The Maker marked the BLIK code as invalid, but you have reported a conflict, indicating you believe the payment was successful.';
 
   @override
-  String get takerConflictInstructions => 'Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.';
+  String get takerConflictInstructions =>
+      'Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.';
 
   @override
   String get takerConflictBackButton => 'Return to Home';
@@ -700,25 +735,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get makerConflictHeadline => 'Offer Conflict Reported';
 
   @override
-  String get makerConflictBody => 'You marked the BLIK code as invalid, but the Taker has reported a conflict, indicating they believe the payment was successful.';
+  String get makerConflictBody =>
+      'You marked the BLIK code as invalid, but the Taker has reported a conflict, indicating they believe the payment was successful.';
 
   @override
-  String get makerConflictInstructions => 'Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.';
+  String get makerConflictInstructions =>
+      'Please wait for the coordinator to review the situation. You may be contacted for more details. Check back later or contact support if needed.';
 
   @override
   String get makerConflictBackButton => 'Return to Home';
 
   @override
-  String get makerConflictConfirmPaymentButton => 'My mistake, confirm BLIK payment success';
+  String get makerConflictConfirmPaymentButton =>
+      'My mistake, confirm BLIK payment success';
 
   @override
-  String get makerConflictOpenDisputeButton => 'Blik payment did NOT succeed, OPEN DISPUTE';
+  String get makerConflictOpenDisputeButton =>
+      'Blik payment did NOT succeed, OPEN DISPUTE';
 
   @override
   String get makerConflictDisputeDialogTitle => 'Open Dispute?';
 
   @override
-  String get makerConflictDisputeDialogContent => 'Opening a dispute requires manual review by the coordinator, which may take time. A dispute fee will be deducted if the dispute is resolved against you. The hold invoice will be settled to prevent expiry. If resolved in your favor, you will be refunded (minus fees) to your Lightning Address.';
+  String get makerConflictDisputeDialogContent =>
+      'Opening a dispute requires manual review by the coordinator, which may take time. A dispute fee will be deducted if the dispute is resolved against you. The hold invoice will be settled to prevent expiry. If resolved in your favor, you will be refunded (minus fees) to your Lightning Address.';
 
   @override
   String get makerConflictDisputeDialogConfirm => 'Open Dispute';
@@ -727,7 +767,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get makerConflictDisputeDialogCancel => 'Cancel';
 
   @override
-  String get makerConflictDisputeDialogContentDetailed => 'Opening a dispute will require manual intervention by the coordinator, which will take time and incur a dispute fee.\n\nThe hold invoice will be settled immediately to prevent expiry before the dispute is resolved.\n\nIf the dispute is resolved in your favor, the sats amount will be refunded to your Lightning Address (minus dispute fees). Please ensure you have a Lightning Address configured.';
+  String get makerConflictDisputeDialogContentDetailed =>
+      'Opening a dispute will require manual intervention by the coordinator, which will take time and incur a dispute fee.\n\nThe hold invoice will be settled immediately to prevent expiry before the dispute is resolved.\n\nIf the dispute is resolved in your favor, the sats amount will be refunded to your Lightning Address (minus dispute fees). Please ensure you have a Lightning Address configured.';
 
   @override
   String get makerConflictSubmitDisputeButton => 'Submit Dispute';
@@ -738,10 +779,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get successOpenDispute => 'Dispute opened successfully. The coordinator will review the case.';
+  String get successOpenDispute =>
+      'Dispute opened successfully. The coordinator will review the case.';
 
   @override
-  String get errorLoadingTimeoutConfiguration => 'Error loading timeout configuration.';
+  String get errorLoadingTimeoutConfiguration =>
+      'Error loading timeout configuration.';
 
   @override
   String errorAmountTooLowFiat(String minAmount, String currency) {
@@ -759,7 +802,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get errorLoadingCoordinatorConfig => 'Error loading coordinator configuration. Please try again.';
+  String get errorLoadingCoordinatorConfig =>
+      'Error loading coordinator configuration. Please try again.';
 
   @override
   String get successfulTradeStatistics => 'Finished recent trades';
@@ -793,12 +837,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
+  String statsLifetimeCompact(
+    String count,
+    String avgBlikTime,
+    String avgPaidTime,
+  ) {
     return 'All: $count trades\nWaited in avg $avgBlikTime to receive BLIK code\nFull transaction avg time $avgPaidTime';
   }
 
   @override
-  String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime) {
+  String statsLast7DaysCompact(
+    String count,
+    String avgBlikTime,
+    String avgPaidTime,
+  ) {
     return 'Last 7d: $count  trades\nWaited in avg $avgBlikTime to receive BLIK code\nFull transaction avg time $avgPaidTime';
   }
 }

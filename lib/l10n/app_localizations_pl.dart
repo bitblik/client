@@ -23,7 +23,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorOfferDetailsMissing => 'Błąd: Brak szczegółów oferty lub są nieprawidłowe.';
+  String get errorOfferDetailsMissing =>
+      'Błąd: Brak szczegółów oferty lub są nieprawidłowe.';
 
   @override
   String get errorOfferNotFound => 'Błąd: Oferta nie znaleziona.';
@@ -35,7 +36,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get offerReservedByTaker => 'Oferta zarezerwowana przez Kupującego!';
 
   @override
-  String get waitingForTakerBlik => 'Oczekiwanie na wprowadzenie kodu BLIK przez Kupującego.';
+  String get waitingForTakerBlik =>
+      'Oczekiwanie na wprowadzenie kodu BLIK przez Kupującego.';
 
   @override
   String get takerHas20Seconds => 'Kupujący ma 20 sekund na podanie kodu.';
@@ -49,10 +51,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get goHome => 'Strona główna';
 
   @override
-  String get errorActiveOfferDetailsLost => 'Błąd: Utracono szczegóły aktywnej oferty.';
+  String get errorActiveOfferDetailsLost =>
+      'Błąd: Utracono szczegóły aktywnej oferty.';
 
   @override
-  String get errorFailedToRetrieveBlik => 'Błąd: Nie udało się pobrać kodu BLIK.';
+  String get errorFailedToRetrieveBlik =>
+      'Błąd: Nie udało się pobrać kodu BLIK.';
 
   @override
   String errorRetrievingBlik(Object details) {
@@ -91,13 +95,15 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get waitingForTaker => 'Oczekiwanie na Kupującego, który zarezerwuje Twoją ofertę...';
+  String get waitingForTaker =>
+      'Oczekiwanie na Kupującego, który zarezerwuje Twoją ofertę...';
 
   @override
   String get cancelOffer => 'Anuluj ofertę';
 
   @override
-  String get errorCouldNotIdentifyOffer => 'Błąd: Nie można zidentyfikować oferty do anulowania.';
+  String get errorCouldNotIdentifyOffer =>
+      'Błąd: Nie można zidentyfikować oferty do anulowania.';
 
   @override
   String offerCannotBeCancelled(Object status) {
@@ -113,7 +119,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get enterLightningAddress => 'Wprowadź swój adres Lightning, aby kontynuować';
+  String get enterLightningAddress =>
+      'Wprowadź swój adres Lightning, aby kontynuować';
 
   @override
   String get lightningAddressHint => 'użytkownik@domena.com';
@@ -154,10 +161,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get getNotifiedSimplex => 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
+  String get getNotifiedSimplex =>
+      'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
 
   @override
-  String get getNotifiedWithElement => 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
+  String get getNotifiedWithElement =>
+      'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
 
   @override
   String get noOffersAvailable => 'Brak dostępnych ofert.';
@@ -190,10 +199,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get retry => 'Ponów';
 
   @override
-  String get errorOfferUnexpectedState => 'Błąd: Oferta jest w nieoczekiwanym stanie.';
+  String get errorOfferUnexpectedState =>
+      'Błąd: Oferta jest w nieoczekiwanym stanie.';
 
   @override
-  String get errorPublicKeyNotLoaded => 'Błąd: Klucz publiczny nie został jeszcze załadowany.';
+  String get errorPublicKeyNotLoaded =>
+      'Błąd: Klucz publiczny nie został jeszcze załadowany.';
 
   @override
   String get errorInvalidNumberFormat => 'Nieprawidłowy format liczby';
@@ -238,7 +249,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get payHoldInvoiceTitle => 'Zapłać tę fakturę Hold:';
 
   @override
-  String get errorCouldNotOpenLightningApp => 'Nie można otworzyć aplikacji Lightning dla faktury.';
+  String get errorCouldNotOpenLightningApp =>
+      'Nie można otworzyć aplikacji Lightning dla faktury.';
 
   @override
   String errorOpeningLightningApp(Object details) {
@@ -252,16 +264,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoiceCopied => 'Faktura skopiowana do schowka!';
 
   @override
-  String get waitingForPaymentConfirmation => 'Oczekiwanie na potwierdzenie płatności...';
+  String get waitingForPaymentConfirmation =>
+      'Oczekiwanie na potwierdzenie płatności...';
 
   @override
   String get errorPublicKeyNotAvailable => 'Klucz publiczny nie jest dostępny.';
 
   @override
-  String get errorCouldNotFetchActiveOffer => 'Nie można pobrać szczegółów aktywnej oferty. Mogła wygasnąć.';
+  String get errorCouldNotFetchActiveOffer =>
+      'Nie można pobrać szczegółów aktywnej oferty. Mogła wygasnąć.';
 
   @override
-  String get errorMissingPaymentHashOrKey => 'Błąd: Brak hasha płatności lub klucza publicznego.';
+  String get errorMissingPaymentHashOrKey =>
+      'Błąd: Brak hasha płatności lub klucza publicznego.';
 
   @override
   String errorOfferIncorrectStateConfirmation(Object status) {
@@ -269,7 +284,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get paymentConfirmedTakerPaid => 'Płatność potwierdzona! Kupujący otrzyma środki.';
+  String get paymentConfirmedTakerPaid =>
+      'Płatność potwierdzona! Kupujący otrzyma środki.';
 
   @override
   String get paymentProcessTitle => 'Proces płatności';
@@ -292,16 +308,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get copyToClipboardTooltip => 'Kopiuj do schowka';
 
   @override
-  String get blikInstructionsMaker => 'Wprowadź ten kod w terminalu płatniczym. Gdy Kupujący potwierdzi w swojej aplikacji bankowej i płatność zostanie zrealizowana, naciśnij Potwierdź poniżej.';
+  String get blikInstructionsMaker =>
+      'Wprowadź ten kod w terminalu płatniczym. Gdy Kupujący potwierdzi w swojej aplikacji bankowej i płatność zostanie zrealizowana, naciśnij Potwierdź poniżej.';
 
   @override
   String get confirmPaymentSuccessButton => 'Potwierdź udaną płatność';
 
   @override
-  String get errorInvalidOfferStateReceived => 'Błąd: Otrzymano nieprawidłowy stan oferty.';
+  String get errorInvalidOfferStateReceived =>
+      'Błąd: Otrzymano nieprawidłowy stan oferty.';
 
   @override
-  String get errorInternalOfferIncomplete => 'Błąd wewnętrzny: Niekompletne szczegóły oferty.';
+  String get errorInternalOfferIncomplete =>
+      'Błąd wewnętrzny: Niekompletne szczegóły oferty.';
 
   @override
   String get errorOfferInvalidStatus => 'Oferta ma nieprawidłowy status.';
@@ -312,19 +331,22 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorUnexpectedStatusFromServer => 'Otrzymano nieoczekiwany status oferty z serwera.';
+  String get errorUnexpectedStatusFromServer =>
+      'Otrzymano nieoczekiwany status oferty z serwera.';
 
   @override
   String get offerCancelledOrExpired => 'Oferta została anulowana lub wygasła.';
 
   @override
-  String get paymentSuccessfulTaker => 'Płatność udana! Wkrótce otrzymasz środki.';
+  String get paymentSuccessfulTaker =>
+      'Płatność udana! Wkrótce otrzymasz środki.';
 
   @override
   String get paymentReceived => 'Otrzymano płatność!';
 
   @override
-  String get preparingToSendPayment => 'Przygotowywanie do wysłania płatności...';
+  String get preparingToSendPayment =>
+      'Przygotowywanie do wysłania płatności...';
 
   @override
   String get sendingPayment => 'Wysyłanie płatności...';
@@ -338,7 +360,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorOfferNotConfirmed => 'Oferta niepotwierdzona przez Wystawiającego.';
+  String get errorOfferNotConfirmed =>
+      'Oferta niepotwierdzona przez Wystawiającego.';
 
   @override
   String get errorOfferExpired => 'Oferta wygasła.';
@@ -373,7 +396,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get blikInstructionsTaker => 'Wystawiający ofertę otrzymał Twój kod BLIK i musi wprowadzić go w terminalu płatniczym. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz tylko właściwą kwotę. Otrzymasz płatność Lightning automatycznie po potwierdzeniu.';
+  String get blikInstructionsTaker =>
+      'Wystawiający ofertę otrzymał Twój kod BLIK i musi wprowadzić go w terminalu płatniczym. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz tylko właściwą kwotę. Otrzymasz płatność Lightning automatycznie po potwierdzeniu.';
 
   @override
   String submitBlikWithinSeconds(int seconds) {
@@ -391,10 +415,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorOfferReservationTimestampMissing => 'Brak znacznika czasu rezerwacji oferty.';
+  String get errorOfferReservationTimestampMissing =>
+      'Brak znacznika czasu rezerwacji oferty.';
 
   @override
-  String get errorOfferPaymentHashMissing => 'Brak hasha płatności oferty po pobraniu.';
+  String get errorOfferPaymentHashMissing =>
+      'Brak hasha płatności oferty po pobraniu.';
 
   @override
   String errorLoadingOfferDetails(Object details) {
@@ -408,10 +434,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get errorOfferStateChanged => 'Błąd: Stan oferty uległ zmianie.';
 
   @override
-  String get errorOfferStateNotValid => 'Błąd: Stan oferty nie jest już prawidłowy.';
+  String get errorOfferStateNotValid =>
+      'Błąd: Stan oferty nie jest już prawidłowy.';
 
   @override
-  String get errorInvalidBlikFormat => 'Wprowadź prawidłowy 6-cyfrowy kod BLIK.';
+  String get errorInvalidBlikFormat =>
+      'Wprowadź prawidłowy 6-cyfrowy kod BLIK.';
 
   @override
   String get errorLightningAddressRequired => 'Adres Lightning jest wymagany.';
@@ -425,10 +453,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get blikPasted => 'Wklejony kod BLIK.';
 
   @override
-  String get errorClipboardInvalidBlik => 'Schowek nie zawiera prawidłowego 6-cyfrowego kodu BLIK.';
+  String get errorClipboardInvalidBlik =>
+      'Schowek nie zawiera prawidłowego 6-cyfrowego kodu BLIK.';
 
   @override
-  String get errorOfferDetailsNotLoaded => 'Nie można załadować szczegółów oferty.';
+  String get errorOfferDetailsNotLoaded =>
+      'Nie można załadować szczegółów oferty.';
 
   @override
   String get selectedOfferLabel => 'Wybrana oferta:';
@@ -486,7 +516,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorMakerPublicKeyNotFound => 'Nie znaleziono klucza publicznego Wystawiającego';
+  String get errorMakerPublicKeyNotFound =>
+      'Nie znaleziono klucza publicznego Wystawiającego';
 
   @override
   String errorResumingOffer(Object details) {
@@ -567,7 +598,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get validLightningAddressTooltip => 'Prawidłowy adres Lightning';
 
   @override
-  String get errorFailedToReserveOfferNoTimestamp => 'Nie udało się zarezerwować oferty (brak znacznika czasu).';
+  String get errorFailedToReserveOfferNoTimestamp =>
+      'Nie udało się zarezerwować oferty (brak znacznika czasu).';
 
   @override
   String errorFailedToReserveOffer(Object details) {
@@ -590,7 +622,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorNoPublicKey => 'Błąd: Nie można pobrać Twojego klucza publicznego.';
+  String get errorNoPublicKey =>
+      'Błąd: Nie można pobrać Twojego klucza publicznego.';
 
   @override
   String get waitingForOfferUpdate => 'Oczekiwanie na aktualizację oferty...';
@@ -608,7 +641,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskMakerConfirmedBlik => 'Wystawiający potwierdził płatność BLIK';
 
   @override
-  String get taskMakerInvoiceSettled => 'Faktura Hold wystawiającego rozliczona';
+  String get taskMakerInvoiceSettled =>
+      'Faktura Hold wystawiającego rozliczona';
 
   @override
   String get taskPayingTakerInvoice => 'Generowanie i opłacanie Twojej faktury';
@@ -620,22 +654,26 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskTakerPaymentFailed => 'Płatność do Ciebie nie powiodła się';
 
   @override
-  String get errorTakerPaymentFailed => 'Płatność na Twój adres Lightning nie powiodła się. Sprawdź szczegóły i w razie potrzeby podaj nową fakturę.';
+  String get errorTakerPaymentFailed =>
+      'Płatność na Twój adres Lightning nie powiodła się. Sprawdź szczegóły i w razie potrzeby podaj nową fakturę.';
 
   @override
   String get goToFailureDetails => 'Przejdź do szczegółów błędu';
 
   @override
-  String get errorTakerPublicKeyNotFound => 'Nie znaleziono klucza publicznego Kupującego.';
+  String get errorTakerPublicKeyNotFound =>
+      'Nie znaleziono klucza publicznego Kupującego.';
 
   @override
-  String get paymentRetryFailedError => 'Ponowna próba płatności nie powiodła się. Sprawdź fakturę lub spróbuj ponownie później.';
+  String get paymentRetryFailedError =>
+      'Ponowna próba płatności nie powiodła się. Sprawdź fakturę lub spróbuj ponownie później.';
 
   @override
   String get paymentSuccessfulTitle => 'Płatność udana';
 
   @override
-  String get paymentSuccessfulMessage => 'Twoja płatność została przetworzona pomyślnie.';
+  String get paymentSuccessfulMessage =>
+      'Twoja płatność została przetworzona pomyślnie.';
 
   @override
   String get goToHomeButton => 'Przejdź do strony głównej';
@@ -644,7 +682,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get makerInvalidBlikTitle => 'Nieprawidłowy Kod BLIK';
 
   @override
-  String get makerInvalidBlikInfo => 'Oznaczyłeś kod BLIK jako nieprawidłowy. Oczekiwanie na podanie nowego kodu przez takera lub rozpoczęcie sporu.';
+  String get makerInvalidBlikInfo =>
+      'Oznaczyłeś kod BLIK jako nieprawidłowy. Oczekiwanie na podanie nowego kodu przez takera lub rozpoczęcie sporu.';
 
   @override
   String get genericError => 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
@@ -659,7 +698,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invalidBlikMessage => 'Twórca Odrzucił Kod BLIK';
 
   @override
-  String get invalidBlikExplanation => 'Twórca oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?';
+  String get invalidBlikExplanation =>
+      'Twórca oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?';
 
   @override
   String get invalidBlikRetryButton => 'Spróbuj ponownie z nowym kodem BLIK';
@@ -671,7 +711,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get cancelAndReturnHome => 'Anuluj i wróć do strony głównej';
 
   @override
-  String get conflictReportedSuccess => 'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';
+  String get conflictReportedSuccess =>
+      'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';
 
   @override
   String conflictReportError(Object details) {
@@ -685,10 +726,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get takerConflictHeadline => 'Zgłoszono Konflikt Oferty';
 
   @override
-  String get takerConflictBody => 'Wystawiający oznaczył kod BLIK jako nieprawidłowy, ale zgłosiłeś/aś konflikt, wskazując, że uważasz płatność za udaną.';
+  String get takerConflictBody =>
+      'Wystawiający oznaczył kod BLIK jako nieprawidłowy, ale zgłosiłeś/aś konflikt, wskazując, że uważasz płatność za udaną.';
 
   @override
-  String get takerConflictInstructions => 'Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.';
+  String get takerConflictInstructions =>
+      'Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.';
 
   @override
   String get takerConflictBackButton => 'Wróć do Strony Głównej';
@@ -700,25 +743,30 @@ class AppLocalizationsPl extends AppLocalizations {
   String get makerConflictHeadline => 'Zgłoszono Konflikt Oferty';
 
   @override
-  String get makerConflictBody => 'Oznaczyłeś/aś kod BLIK jako nieprawidłowy, ale Kupujący zgłosił/a konflikt, wskazując, że uważa płatność za udaną.';
+  String get makerConflictBody =>
+      'Oznaczyłeś/aś kod BLIK jako nieprawidłowy, ale Kupujący zgłosił/a konflikt, wskazując, że uważa płatność za udaną.';
 
   @override
-  String get makerConflictInstructions => 'Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.';
+  String get makerConflictInstructions =>
+      'Poczekaj, aż koordynator rozpatrzy sytuację. Możesz zostać poproszony/a o więcej szczegółów. Sprawdź ponownie później lub skontaktuj się z pomocą techniczną w razie potrzeby.';
 
   @override
   String get makerConflictBackButton => 'Wróć do Strony Głównej';
 
   @override
-  String get makerConflictConfirmPaymentButton => 'Mój błąd, potwierdź sukces płatności BLIK';
+  String get makerConflictConfirmPaymentButton =>
+      'Mój błąd, potwierdź sukces płatności BLIK';
 
   @override
-  String get makerConflictOpenDisputeButton => 'Płatność Blik NIE powiodła się, OTWÓRZ SPÓR';
+  String get makerConflictOpenDisputeButton =>
+      'Płatność Blik NIE powiodła się, OTWÓRZ SPÓR';
 
   @override
   String get makerConflictDisputeDialogTitle => 'Otworzyć spór?';
 
   @override
-  String get makerConflictDisputeDialogContent => 'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co może zająć czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura blokująca (hold invoice) zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
+  String get makerConflictDisputeDialogContent =>
+      'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co może zająć czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura blokująca (hold invoice) zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
 
   @override
   String get makerConflictDisputeDialogConfirm => 'Otwórz Spór';
@@ -727,7 +775,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get makerConflictDisputeDialogCancel => 'Anuluj';
 
   @override
-  String get makerConflictDisputeDialogContentDetailed => 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmie czas i wiąże się z opłatą za spór.\\n\\nFaktura blokująca (hold invoice) zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\\n\\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota w satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
+  String get makerConflictDisputeDialogContentDetailed =>
+      'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmie czas i wiąże się z opłatą za spór.\\n\\nFaktura blokująca (hold invoice) zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\\n\\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota w satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
 
   @override
   String get makerConflictSubmitDisputeButton => 'Zgłoś Spór';
@@ -738,10 +787,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get successOpenDispute => 'Spór został pomyślnie otwarty. Koordynator rozpatrzy sprawę.';
+  String get successOpenDispute =>
+      'Spór został pomyślnie otwarty. Koordynator rozpatrzy sprawę.';
 
   @override
-  String get errorLoadingTimeoutConfiguration => 'Błąd ładowania konfiguracji limitu czasu.';
+  String get errorLoadingTimeoutConfiguration =>
+      'Błąd ładowania konfiguracji limitu czasu.';
 
   @override
   String errorAmountTooLowFiat(String minAmount, String currency) {
@@ -759,7 +810,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get errorLoadingCoordinatorConfig => 'Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.';
+  String get errorLoadingCoordinatorConfig =>
+      'Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.';
 
   @override
   String get successfulTradeStatistics => 'Ostatnie transakcje';
@@ -793,12 +845,20 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
+  String statsLifetimeCompact(
+    String count,
+    String avgBlikTime,
+    String avgPaidTime,
+  ) {
     return 'Wszystkie: $count transakcji\nŚr. czas oczekiwania na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 
   @override
-  String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime) {
+  String statsLast7DaysCompact(
+    String count,
+    String avgBlikTime,
+    String avgPaidTime,
+  ) {
     return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 }
