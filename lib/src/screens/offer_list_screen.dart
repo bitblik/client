@@ -4,6 +4,7 @@ import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/coordinator_info.dart'; // Added
@@ -183,58 +184,95 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
               });
             }
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.enterLightningAddress,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Form(
-                  key: _addressFormKey,
-                  child: TextFormField(
-                    controller: _addressController,
-                    focusNode: _addressFocusNode,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      hintText:
-                          AppLocalizations.of(context)!.lightningAddressHint,
-                      labelText:
-                          AppLocalizations.of(context)!.lightningAddressLabel,
-                      border: const OutlineInputBorder(),
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.enterLightningAddress,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          !value.contains('@')) {
-                        return AppLocalizations.of(
-                          context,
-                        )!.lightningAddressInvalid;
-                      }
-                      return _validationError;
-                    },
-                    onChanged: (value) async {
-                      if (value.isNotEmpty && value.contains('@')) {
-                        final error = await validateLightningAddress(
-                          value,
-                          AppLocalizations.of(context)!,
-                        );
-                        if (mounted) {
+                  ),
+                  const SizedBox(height: 16),
+                  Form(
+                    key: _addressFormKey,
+                    child: TextFormField(
+                      controller: _addressController,
+                      focusNode: _addressFocusNode,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hintText:
+                            AppLocalizations.of(context)!.lightningAddressHint,
+                        labelText:
+                            AppLocalizations.of(context)!.lightningAddressLabel,
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            !value.contains('@')) {
+                          return AppLocalizations.of(
+                            context,
+                          )!.lightningAddressInvalid;
+                        }
+                        return _validationError;
+                      },
+                      onChanged: (value) async {
+                        if (value.isNotEmpty && value.contains('@')) {
+                          final error = await validateLightningAddress(
+                            value,
+                            AppLocalizations.of(context)!,
+                          );
+                          if (mounted) {
+                            setState(() {
+                              _validationError = error;
+                            });
+                          }
+                        } else {
                           setState(() {
-                            _validationError = error;
+                            _validationError = null;
                           });
                         }
-                      } else {
-                        setState(() {
-                          _validationError = null;
-                        });
-                      }
-                    },
-                    onFieldSubmitted: (value) async {
+                      },
+                      onFieldSubmitted: (value) async {
+                        if (_addressFormKey.currentState!.validate() &&
+                            _validationError == null) {
+                          try {
+                            await keyService.saveLightningAddress(
+                              _addressController.text,
+                            );
+                            ref.invalidate(lightningAddressProvider);
+                            // Use localized string
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.lightningAddressSaved,
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            // Use localized string with placeholder
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.errorSavingAddress(e.toString()),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
                       if (_addressFormKey.currentState!.validate() &&
                           _validationError == null) {
                         try {
@@ -266,45 +304,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         }
                       }
                     },
+                    child: Text(AppLocalizations.of(context)!.saveAndContinue),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_addressFormKey.currentState!.validate() &&
-                        _validationError == null) {
-                      try {
-                        await keyService.saveLightningAddress(
-                          _addressController.text,
-                        );
-                        ref.invalidate(lightningAddressProvider);
-                        // Use localized string
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.lightningAddressSaved,
-                            ),
-                          ),
-                        );
-                      } catch (e) {
-                        // Use localized string with placeholder
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.errorSavingAddress(e.toString()),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: Text(AppLocalizations.of(context)!.saveAndContinue),
-                ),
-              ],
+                ],
+              ),
             );
           }
 
@@ -588,7 +591,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 6), // Add some spacing
+              const SizedBox(height: 6),
+              // Add some spacing
               Center(
                 child: InkWell(
                   onTap: () async {
@@ -627,7 +631,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16), // Add some spacing
+              const SizedBox(height: 16),
+              // Add some spacing
+              // const SizedBox(
+              //   height: 16,
+              // ), // Add some spacing before active offers // Removed, Divider provides spacing
               Expanded(
                 child: offersAsyncValue.when(
                   data: (offers) {
@@ -661,11 +669,17 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             )
                             .toList();
 
+                    // If there are no active offers but there are finished offers,
+                    // we might not want to expand the ListView for active offers.
+                    // The main column will handle scrolling if stats + finished offers exceed screen height.
+                    final bool showActiveOffersList = activeOffers.isNotEmpty;
+
                     return Column(
                       children: [
-                        // Active offers (as before)
-                        if (activeOffers.isNotEmpty)
+                        // Active offers
+                        if (showActiveOffersList)
                           Expanded(
+                            // Only expand if there are active offers to show
                             child: RefreshIndicator(
                               onRefresh: () async {
                                 print(
@@ -1009,10 +1023,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               ),
                             ),
                           ),
-                        // Finished offers section
+                        // Finished offers section - this might need adjustment if active offers list is not expanded
                         if (finishedOffers.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(top: 16.0),
+                            padding: EdgeInsets.only(
+                              top: showActiveOffersList ? 16.0 : 0,
+                            ), // Adjust padding based on active offers
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1027,8 +1043,15 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                 const SizedBox(height: 8),
                                 SizedBox(
                                   height: 200,
+                                  // Consider making this flexible or removing fixed height
                                   child: Scrollbar(
                                     child: ListView.builder(
+                                      shrinkWrap: !showActiveOffersList,
+                                      // Shrink wrap if it's the only list
+                                      physics:
+                                          !showActiveOffersList
+                                              ? const NeverScrollableScrollPhysics()
+                                              : null,
                                       itemCount: finishedOffers.length,
                                       itemBuilder: (context, index) {
                                         final offer = finishedOffers[index];
@@ -1039,24 +1062,13 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           child: ListTile(
                                             // Use localized string with placeholder
                                             title: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.offerAmountSats(
-                                                offer.amountSats.toString(),
-                                              ),
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              // Use the existing fiat amount display logic
+                                              '${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}',
                                             ),
                                             // Use localized string with placeholders
                                             subtitle: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.offerFeeStatusId(
-                                                offer.takerFees?.toString() ??
-                                                    "0",
-                                                offer.status,
-                                              ),
+                                              // Combine amount, fee, status, and ID using localized strings
+                                              '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.takerFees?.toString() ?? "0", offer.status)}',
                                             ),
                                             isThreeLine: true,
                                           ),
@@ -1096,6 +1108,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       ),
                 ),
               ),
+              const Divider(height: 32, thickness: 1),
+              // Separator
+              // Add the Stats Section here
+              _buildStatsSection(
+                context,
+                strings,
+                ref.watch(successfulOffersStatsProvider),
+              ),
             ],
           );
         },
@@ -1121,4 +1141,183 @@ String formatDouble(double value) {
     }
     return asString;
   }
+}
+
+String _formatDurationFromSeconds(int? totalSeconds) {
+  if (totalSeconds == null || totalSeconds < 0) {
+    return '-';
+  }
+  if (totalSeconds == 0) {
+    return '0s';
+  }
+  final duration = Duration(seconds: totalSeconds);
+  final minutes = duration.inMinutes;
+  final seconds = totalSeconds % 60;
+
+  String result = '';
+  if (minutes > 0) {
+    result += '${minutes}m ';
+  }
+  if (seconds > 0 || minutes == 0) {
+    // Show seconds if non-zero, or if minutes is zero (e.g. "0s")
+    result += '${seconds}s';
+  }
+  return result.trim();
+}
+
+Widget _buildStatsSection(
+  BuildContext context,
+  AppLocalizations strings,
+  AsyncValue<Map<String, dynamic>> statsAsyncValue,
+) {
+  return statsAsyncValue.when(
+    data: (data) {
+      // Changed 'stats' to 'data' to match provider's direct output
+      // Accessing nested stats structure
+      final statsMap = data['stats'] as Map<String, dynamic>? ?? {};
+      final lifetime = statsMap['lifetime'] as Map<String, dynamic>? ?? {};
+      final last7Days = statsMap['last_7_days'] as Map<String, dynamic>? ?? {};
+
+      // Accessing offers list directly from data
+      final recentOffersData = data['offers'] as List<dynamic>? ?? [];
+      // Ensure Offer.fromJson is robust or data matches client Offer model exactly
+      // The ApiService already maps this to List<Offer>
+      final recentOffers = recentOffersData.cast<Offer>();
+
+      final numberFormat = NumberFormat("#,##0", strings.localeName);
+      final dateFormat = DateFormat.yMd(strings.localeName).add_Hm();
+
+      // Helper for succinct stat line
+      String formatStatLine(
+        String title,
+        int? count,
+        num? avgBlik,
+        num? avgPaid,
+      ) {
+        final countStr = numberFormat.format(count ?? 0);
+        final blikStr = avgBlik?.round().toString() ?? '-';
+        final paidStr = avgPaid?.round().toString() ?? '-';
+        // Using existing localization keys for "trades", "BLIK", "Paid" for now.
+        // Ideally, create a new very compact key like "statsCompactLine": "{title}: {count} trades, BLIK {blikTime}s, Paid {paidTime}s"
+        return '$title: $countStr trades, BLIK: ${blikStr}s, Paid: ${paidStr}s';
+      }
+
+      final lifetimeBlikTime =
+          lifetime['avg_time_blik_received_to_created_seconds'] as num?;
+      final lifetimePaidTime =
+          lifetime['avg_time_taker_paid_to_created_seconds'] as num?;
+      final last7DaysBlikTime =
+          last7Days['avg_time_blik_received_to_created_seconds'] as num?;
+      final last7DaysPaidTime =
+          last7Days['avg_time_taker_paid_to_created_seconds'] as num?;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            strings.successfulTradeStatistics, // Existing title
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Text(
+                //   // Using a placeholder for a new compact localization string
+                //   strings.statsLifetimeCompact(
+                //     numberFormat.format(lifetime['count'] ?? 0),
+                //     lifetimeBlikTime?.round().toString() ?? '-',
+                //     lifetimePaidTime?.round().toString() ?? '-',
+                //   ),
+                //   style: const TextStyle(fontSize: 13),
+                // ),
+                Text(
+                  // Using a placeholder for a new compact localization string
+                  strings.statsLast7DaysCompact(
+                    numberFormat.format(last7Days['count'] ?? 0),
+                    _formatDurationFromSeconds(last7DaysBlikTime!.toInt()),
+                    _formatDurationFromSeconds(last7DaysPaidTime!.toInt()),
+                  ),
+                  style: const TextStyle(fontSize: 13),
+                ),
+                const SizedBox(height: 8),
+                if (recentOffers.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(strings.noSuccessfulTradesYet),
+                  )
+                else
+                  SizedBox(
+                    height: 150, // Fixed height for scrollable list
+                    child: Scrollbar(
+                      // Added Scrollbar
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        // Important for ListView inside SizedBox
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        // Ensure it's scrollable
+                        itemCount: recentOffers.length,
+                        itemBuilder: (context, index) {
+                          final offer = recentOffers[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    strings.offerFiatAmount(
+                                      formatDouble(offer.fiatAmount),
+                                      offer.fiatCurrency,
+                                    ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    strings.offerCreatedAt(
+                                      dateFormat.format(
+                                        offer.createdAt.toLocal(),
+                                      ), // Named arg
+                                    ),
+                                  ),
+                                  if (offer.timeToReserveSeconds != null)
+                                    Text(
+                                      strings.offerTakenAfter(
+                                        _formatDurationFromSeconds(
+                                          offer.timeToReserveSeconds,
+                                        ), // Named arg
+                                      ),
+                                    ),
+                                  if (offer.totalCompletionTimeTakerSeconds != null)
+                                    Text(
+                                      strings.offerPaidAfter(
+                                        _formatDurationFromSeconds(
+                                          offer.totalCompletionTimeTakerSeconds,
+                                        ), // Named arg
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ), // End of ListView.builder
+                  ), // End of Scrollbar
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error:
+        (error, stackTrace) =>
+            Center(child: Text(strings.errorLoadingStats(error.toString()))),
+  );
 }

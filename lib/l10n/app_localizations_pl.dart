@@ -755,9 +755,50 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String amountRangeHint(String minAmount, String maxAmount, String currency) {
-    return 'Min: $minAmount $currency, Max: $maxAmount $currency';
+    return 'Min/Max: $minAmount-$maxAmount $currency';
   }
 
   @override
   String get errorLoadingCoordinatorConfig => 'Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.';
+
+  @override
+  String get successfulTradeStatistics => 'Zakończone ostatnie transakcje';
+
+  @override
+  String offerCreatedAt(Object dateTime) {
+    return 'Utworzono: $dateTime';
+  }
+
+  @override
+  String offerTakenAfter(Object duration) {
+    return 'Przyjęto po: $duration';
+  }
+
+  @override
+  String offerPaidAfter(Object duration) {
+    return 'Wypłacono po: $duration';
+  }
+
+  @override
+  String offerFiatAmount(Object amount, Object currency) {
+    return '$amount $currency';
+  }
+
+  @override
+  String get noSuccessfulTradesYet => 'Brak udanych transakcji.';
+
+  @override
+  String errorLoadingStats(Object error) {
+    return 'Błąd ładowania statystyk: $error';
+  }
+
+  @override
+  String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
+    return 'Wszystkie: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia $avgPaidTime';
+  }
+
+  @override
+  String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime) {
+    return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia $avgPaidTime';
+  }
 }

@@ -755,9 +755,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String amountRangeHint(String minAmount, String maxAmount, String currency) {
-    return 'Min: $minAmount $currency, Max: $maxAmount $currency';
+    return 'Min/Max: $minAmount-$maxAmount $currency';
   }
 
   @override
   String get errorLoadingCoordinatorConfig => 'Error loading coordinator configuration. Please try again.';
+
+  @override
+  String get successfulTradeStatistics => 'Finished recent trades';
+
+  @override
+  String offerCreatedAt(Object dateTime) {
+    return 'Created: $dateTime';
+  }
+
+  @override
+  String offerTakenAfter(Object duration) {
+    return 'Taken after: $duration';
+  }
+
+  @override
+  String offerPaidAfter(Object duration) {
+    return 'Paid after: $duration';
+  }
+
+  @override
+  String offerFiatAmount(Object amount, Object currency) {
+    return '$amount $currency';
+  }
+
+  @override
+  String get noSuccessfulTradesYet => 'No successful trades yet.';
+
+  @override
+  String errorLoadingStats(Object error) {
+    return 'Error loading statistics: $error';
+  }
+
+  @override
+  String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
+    return 'All: $count trades\nWaited in avg $avgBlikTime to receive BLIK code\nFull transaction avg time $avgPaidTime';
+  }
+
+  @override
+  String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime) {
+    return 'Last 7d: $count  trades\nWaited in avg $avgBlikTime to receive BLIK code\nFull transaction avg time $avgPaidTime';
+  }
 }

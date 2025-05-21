@@ -286,3 +286,11 @@ final pollingOfferStatusProvider = StreamProvider.autoDispose.family<
 });
 
 // offerDetailsProvider REMOVED as per user feedback
+
+// Provider for fetching successful offers statistics
+final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
+  final apiService = ref.watch(apiServiceProvider);
+  return apiService.getSuccessfulOffersStats();
+});

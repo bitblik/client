@@ -47,6 +47,54 @@ class Offer {
   final DateTime? takerPaidAt;
   final int? takerFees;
 
+  // Calculated getters for processing times
+  int? get timeToReserveSeconds {
+    if (reservedAt != null) {
+      // createdAt is non-nullable
+      return reservedAt!.difference(createdAt).inSeconds;
+    }
+    return null;
+  }
+
+  int? get timeToBlikSeconds {
+    if (reservedAt != null && blikReceivedAt != null) {
+      return blikReceivedAt!.difference(reservedAt!).inSeconds;
+    }
+    return null;
+  }
+
+  int? get timeToConfirmSeconds {
+    if (blikReceivedAt != null && makerConfirmedAt != null) {
+      return makerConfirmedAt!.difference(blikReceivedAt!).inSeconds;
+    }
+    return null;
+  }
+
+  int? get timeToPaySeconds {
+    // This is the time from maker confirmation to taker payment
+    if (makerConfirmedAt != null && takerPaidAt != null) {
+      return takerPaidAt!.difference(makerConfirmedAt!).inSeconds;
+    }
+    return null;
+  }
+
+  int? get totalCompletionTimeTakerSeconds {
+    if (settledAt != null) {
+      return settledAt!.difference(createdAt).inSeconds;
+    }
+    return null;
+  }
+
+  int? get totalCompletionTimeMakerSeconds {
+    // Total time from creation to taker payment for successful Maker flow
+    // (useful for overall stats if offer was taken)
+    if (takerPaidAt != null) {
+      // createdAt is non-nullable
+      return takerPaidAt!.difference(createdAt).inSeconds;
+    }
+    return null;
+  }
+
   Offer({
     required this.id,
     required this.amountSats,
@@ -77,16 +125,75 @@ class Offer {
       return dateString != null ? DateTime.parse(dateString) : null;
     }
 
+    // Helper to safely parse string providing a default
+    String safeString(dynamic value, String defaultValue) {
+      return value is String ? value : defaultValue;
+    }
+
+    // Helper to safely parse int providing a default
+    int safeInt(dynamic value, int defaultValue) {
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    }
+
+    // Helper to safely parse double providing a default
+    double safeDouble(dynamic value, double defaultValue) {
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    }
+
+    // createdAt is essential and sent by coordinator. If it's null/missing, it's a bigger issue.
+    // For stats, offers without createdAt would be problematic.
+    final createdAtString = json['created_at'] as String?;
+    if (createdAtString == null) {
+      // This case should ideally not happen for offers in stats.
+      // Throwing an error or using a very old default date.
+      // For now, let's use epoch if it's absolutely missing, though this offer will be unusable.
+      print(
+        "Warning: Offer.fromJson received null or missing 'created_at'. Offer might be invalid for stats.",
+      );
+      // Fallback to a very old date or throw, depending on how critical it is.
+      // For stats display, an offer without created_at is problematic.
+      // Let's assume for now that `created_at` will always be present for successful offers.
+      // If not, the `DateTime.parse` will throw, which is acceptable to highlight data issue.
+    }
+
     return Offer(
-      id: json['id'] as String,
-      amountSats: json['amount_sats'] as int,
-      makerFees: json['maker_fees'] as int, // Renamed key and field
-      fiatAmount: json['fiat_amount'] ?? 0,
-      fiatCurrency: json['fiat_currency'] ?? '',
-      status: json['status'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      makerPubkey: json['maker_pubkey'] as String? ?? '',
-      takerPubkey: json['taker_pubkey'] as String?,
+      id: safeString(
+        json['id'],
+        'unknown_id',
+      ), // Default if 'id' is null or not a string
+      amountSats: safeInt(
+        json['amount_sats'],
+        0,
+      ), // Default if 'amount_sats' is null or not an int
+      makerFees: safeInt(
+        json['maker_fees'],
+        0,
+      ), // Default if 'maker_fees' is null or not an int
+      fiatAmount: safeDouble(
+        json['fiat_amount'],
+        0.0,
+      ), // Already handles null with ?? 0
+      fiatCurrency: safeString(
+        json['fiat_currency'],
+        'UNK',
+      ), // Default if 'fiat_currency' is null or not a string
+      status: safeString(
+        json['status'],
+        OfferStatus.takerPaid.name,
+      ), // Default to takerPaid for stats if missing
+      createdAt: DateTime.parse(
+        json['created_at'] as String,
+      ), // Assumed to be present and valid
+      makerPubkey: safeString(
+        json['maker_pubkey'],
+        'unknown_maker',
+      ), // Default if 'maker_pubkey' is null or not a string
+      takerPubkey: json['taker_pubkey'] as String?, // Already nullable
       reservedAt: parseOptionalDateTime(json['reserved_at'] as String?),
       blikReceivedAt: parseOptionalDateTime(
         json['blik_received_at'] as String?,
@@ -191,6 +298,7 @@ class Offer {
       settledAt: settledAt ?? this.settledAt,
       takerPaidAt: takerPaidAt ?? this.takerPaidAt,
       takerFees: takerFees ?? this.takerFees, // Renamed parameter and field
+      // No copyWith for getters
     );
   }
 
