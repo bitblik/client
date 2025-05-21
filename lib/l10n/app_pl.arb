@@ -1077,7 +1077,7 @@
       }
     }
   },
-  "amountRangeHint": "Min: {minAmount} {currency}, Max: {maxAmount} {currency}",
+  "amountRangeHint": "Min/Max: {minAmount}-{maxAmount} {currency}",
   "@amountRangeHint": {
     "description": "Tekst podpowiedzi wyświetlający dozwolony zakres kwot fiat pod polem wprowadzania",
     "placeholders": {
@@ -1094,6 +1094,43 @@
   },
   "errorLoadingCoordinatorConfig": "Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.",
   "@errorLoadingCoordinatorConfig": {
-    "description": "Komunikat błędu, gdy pobieranie konfiguracji koordynatora nie powiodło się"
+    "description": "Komunikat błędu podczas pobierania konfiguracji koordynatora"
+  },
+  "successfulTradeStatistics": "Zakończone ostatnie transakcje",
+  "offerCreatedAt": "Utworzono: {dateTime}",
+  "offerTakenAfter": "Przyjęto po: {duration}",
+  "offerPaidAfter": "Wypłacono po: {duration}",
+  "offerFiatAmount": "{amount} {currency}",
+  "noSuccessfulTradesYet": "Brak udanych transakcji.",
+  "errorLoadingStats": "Błąd ładowania statystyk: {error}",
+  "statsLifetimeCompact": "Wszystkie: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia {avgPaidTime}",
+  "@statsLifetimeCompact": {
+    "description": "Skrócona linia statystyk całościowych",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "avgBlikTime": {
+        "type": "String"
+      },
+      "avgPaidTime": {
+        "type": "String"
+      }
+    }
+  },
+  "statsLast7DaysCompact": "Ost. 7d: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia {avgPaidTime}",
+  "@statsLast7DaysCompact": {
+    "description": "Skrócona linia statystyk z ostatnich 7 dni",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "avgBlikTime": {
+        "type": "String"
+      },
+      "avgPaidTime": {
+        "type": "String"
+      }
+    }
   }
 }

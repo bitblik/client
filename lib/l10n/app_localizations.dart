@@ -1376,7 +1376,7 @@ abstract class AppLocalizations {
   /// Hint text displaying the allowed fiat amount range under an input field
   ///
   /// In en, this message translates to:
-  /// **'Min: {minAmount} {currency}, Max: {maxAmount} {currency}'**
+  /// **'Min/Max: {minAmount}-{maxAmount} {currency}'**
   String amountRangeHint(String minAmount, String maxAmount, String currency);
 
   /// Error message when fetching coordinator configuration fails
@@ -1384,6 +1384,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading coordinator configuration. Please try again.'**
   String get errorLoadingCoordinatorConfig;
+
+  /// No description provided for @successfulTradeStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished recent trades'**
+  String get successfulTradeStatistics;
+
+  /// No description provided for @offerCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created: {dateTime}'**
+  String offerCreatedAt(Object dateTime);
+
+  /// No description provided for @offerTakenAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken after: {duration}'**
+  String offerTakenAfter(Object duration);
+
+  /// No description provided for @offerPaidAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid after: {duration}'**
+  String offerPaidAfter(Object duration);
+
+  /// No description provided for @offerFiatAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} {currency}'**
+  String offerFiatAmount(Object amount, Object currency);
+
+  /// No description provided for @noSuccessfulTradesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No successful trades yet.'**
+  String get noSuccessfulTradesYet;
+
+  /// No description provided for @errorLoadingStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading statistics: {error}'**
+  String errorLoadingStats(Object error);
+
+  /// Compact lifetime statistics line
+  ///
+  /// In en, this message translates to:
+  /// **'All: {count} trades\nWaited in avg {avgBlikTime} to receive BLIK code\nFull transaction avg time {avgPaidTime}'**
+  String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime);
+
+  /// Compact 7-day statistics line
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7d: {count}  trades\nWaited in avg {avgBlikTime} to receive BLIK code\nFull transaction avg time {avgPaidTime}'**
+  String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

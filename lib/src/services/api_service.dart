@@ -47,10 +47,7 @@ class ApiService {
   }) async {
     final url = Uri.parse('$_baseUrl/initiate-offer');
     final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'fiat_amount': fiatAmount,
-      'maker_id': makerId,
-    });
+    final body = jsonEncode({'fiat_amount': fiatAmount, 'maker_id': makerId});
 
     try {
       final response = await http.post(url, headers: headers, body: body);
@@ -413,6 +410,25 @@ class ApiService {
         // Consider if _coordinatorInfoLastFetched should be updated or cleared here
         return _cachedCoordinatorInfo!;
       }
+      rethrow;
+    }
+  }
+
+  // GET /stats/successful-offers
+  Future<Map<String, dynamic>> getSuccessfulOffersStats() async {
+    final url = Uri.parse('$_baseUrl/stats/successful-offers');
+    try {
+      final response = await http.get(url);
+      final Map<String, dynamic> result = _handleResponse(response);
+      // The 'offers' part of the response needs to be parsed into List<Offer>
+      if (result.containsKey('offers') && result['offers'] is List) {
+        final List<dynamic> offersJson = result['offers'];
+        result['offers'] =
+            offersJson.map((json) => Offer.fromJson(json)).toList();
+      }
+      return result;
+    } catch (e) {
+      print('Error calling getSuccessfulOffersStats: $e');
       rethrow;
     }
   }

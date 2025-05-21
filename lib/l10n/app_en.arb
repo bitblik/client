@@ -1077,7 +1077,7 @@
       }
     }
   },
-  "amountRangeHint": "Min: {minAmount} {currency}, Max: {maxAmount} {currency}",
+  "amountRangeHint": "Min/Max: {minAmount}-{maxAmount} {currency}",
   "@amountRangeHint": {
     "description": "Hint text displaying the allowed fiat amount range under an input field",
     "placeholders": {
@@ -1095,5 +1095,42 @@
   "errorLoadingCoordinatorConfig": "Error loading coordinator configuration. Please try again.",
   "@errorLoadingCoordinatorConfig": {
     "description": "Error message when fetching coordinator configuration fails"
+  },
+  "successfulTradeStatistics": "Finished recent trades",
+  "offerCreatedAt": "Created: {dateTime}",
+  "offerTakenAfter": "Taken after: {duration}",
+  "offerPaidAfter": "Paid after: {duration}",
+  "offerFiatAmount": "{amount} {currency}",
+  "noSuccessfulTradesYet": "No successful trades yet.",
+  "errorLoadingStats": "Error loading statistics: {error}",
+  "statsLifetimeCompact": "All: {count} trades\nWaited in avg {avgBlikTime} to receive BLIK code\nFull transaction avg time {avgPaidTime}",
+  "@statsLifetimeCompact": {
+    "description": "Compact lifetime statistics line",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "avgBlikTime": {
+        "type": "String"
+      },
+      "avgPaidTime": {
+        "type": "String"
+      }
+    }
+  },
+  "statsLast7DaysCompact": "Last 7d: {count}  trades\nWaited in avg {avgBlikTime} to receive BLIK code\nFull transaction avg time {avgPaidTime}",
+  "@statsLast7DaysCompact": {
+    "description": "Compact 7-day statistics line",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "avgBlikTime": {
+        "type": "String"
+      },
+      "avgPaidTime": {
+        "type": "String"
+      }
+    }
   }
 }
