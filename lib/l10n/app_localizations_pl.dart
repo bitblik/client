@@ -762,7 +762,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get errorLoadingCoordinatorConfig => 'Błąd ładowania konfiguracji koordynatora. Spróbuj ponownie.';
 
   @override
-  String get successfulTradeStatistics => 'Zakończone ostatnie transakcje';
+  String get successfulTradeStatistics => 'Ostatnie transakcje';
 
   @override
   String offerCreatedAt(Object dateTime) {
@@ -794,7 +794,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
-    return 'Wszystkie: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
+    return 'Wszystkie: $count transakcji\nŚr. czas oczekiwania na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 
   @override
