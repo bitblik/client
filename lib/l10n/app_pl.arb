@@ -1096,14 +1096,14 @@
   "@errorLoadingCoordinatorConfig": {
     "description": "Komunikat błędu podczas pobierania konfiguracji koordynatora"
   },
-  "successfulTradeStatistics": "Zakończone ostatnie transakcje",
+  "successfulTradeStatistics": "Ostatnie transakcje",
   "offerCreatedAt": "Utworzono: {dateTime}",
   "offerTakenAfter": "Przyjęto po: {duration}",
   "offerPaidAfter": "Wypłacono po: {duration}",
   "offerFiatAmount": "{amount} {currency}",
   "noSuccessfulTradesYet": "Brak udanych transakcji.",
   "errorLoadingStats": "Błąd ładowania statystyk: {error}",
-  "statsLifetimeCompact": "Wszystkie: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia: {avgPaidTime}",
+  "statsLifetimeCompact": "Wszystkie: {count} transakcji\nŚr. czas oczekiwania na BLIK: {avgBlikTime}\nŚr. czas zakończenia: {avgPaidTime}",
   "@statsLifetimeCompact": {
     "description": "Skrócona linia statystyk całościowych",
     "placeholders": {
