@@ -1103,7 +1103,7 @@
   "offerFiatAmount": "{amount} {currency}",
   "noSuccessfulTradesYet": "Brak udanych transakcji.",
   "errorLoadingStats": "Błąd ładowania statystyk: {error}",
-  "statsLifetimeCompact": "Wszystkie: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia {avgPaidTime}",
+  "statsLifetimeCompact": "Wszystkie: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia: {avgPaidTime}",
   "@statsLifetimeCompact": {
     "description": "Skrócona linia statystyk całościowych",
     "placeholders": {
@@ -1118,7 +1118,7 @@
       }
     }
   },
-  "statsLast7DaysCompact": "Ost. 7d: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia {avgPaidTime}",
+  "statsLast7DaysCompact": "Ost. 7d: {count} transakcji\nŚr. czas oczekiwanie na BLIK: {avgBlikTime}\nŚr. czas zakończenia: {avgPaidTime}",
   "@statsLast7DaysCompact": {
     "description": "Skrócona linia statystyk z ostatnich 7 dni",
     "placeholders": {

@@ -794,11 +794,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String statsLifetimeCompact(String count, String avgBlikTime, String avgPaidTime) {
-    return 'Wszystkie: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia $avgPaidTime';
+    return 'Wszystkie: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 
   @override
   String statsLast7DaysCompact(String count, String avgBlikTime, String avgPaidTime) {
-    return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia $avgPaidTime';
+    return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 }
