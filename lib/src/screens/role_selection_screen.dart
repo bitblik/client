@@ -32,6 +32,9 @@ class RoleSelectionScreen extends ConsumerWidget {
         // Navigate to the maker conflict screen
         context.go("/maker-conflict", extra: offer);
         break;
+      case OfferStatus.invalidBlik:
+        context.go("/maker-invalid-blik", extra: offer);
+        break;
       default:
         print("Cannot resume Maker offer in state: $offerStatus");
         // Use localized string with placeholder
