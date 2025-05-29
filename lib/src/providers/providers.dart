@@ -1,13 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-// ignore_for_file: depend_on_referenced_packages
-import '../services/api_service.dart';
 import 'dart:async'; // For Stream.periodic
-import '../models/coordinator_info.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../models/coordinator_info.dart';
+import '../models/offer.dart'; // OfferStatus is in here
+// ignore_for_file: depend_on_referenced_packages
 import '../services/api_service.dart';
 import '../services/key_service.dart'; // Import KeyService
-import '../models/offer.dart'; // OfferStatus is in here
 // Remove import of main.dart
 
 // Provider for the ApiService instance
