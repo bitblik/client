@@ -1,4 +1,7 @@
 {
+  "cancelReservationButton": "Cancel Reservation",
+  "reservationCancelled": "Reservation cancelled.",
+  "errorCancellingReservation": "Failed to cancel reservation: {error}",
   "appTitle": "BitBlik",
   "greeting": "Hello!",
   "@appTitle": {

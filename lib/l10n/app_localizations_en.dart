@@ -9,6 +9,17 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get cancelReservationButton => 'Cancel Reservation';
+
+  @override
+  String get reservationCancelled => 'Reservation cancelled.';
+
+  @override
+  String errorCancellingReservation(Object error) {
+    return 'Failed to cancel reservation: $error';
+  }
+
+  @override
   String get appTitle => 'BitBlik';
 
   @override
