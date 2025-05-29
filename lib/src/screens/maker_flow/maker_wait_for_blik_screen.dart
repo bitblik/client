@@ -8,7 +8,7 @@ import '../../models/coordinator_info.dart'; // Added
 // Added
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 // Import next screen
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../gen/strings.g.dart'; // Import Slang
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});
@@ -60,15 +60,7 @@ class _MakerWaitForBlikScreenState
       );
       setState(() {
         _isLoadingConfig = false;
-        // Access AppLocalizations only when needed and context is more likely to be ready.
-        if (mounted) {
-          // Directly use AppLocalizations here
-          _configError =
-              AppLocalizations.of(context)!.errorLoadingCoordinatorConfig;
-        } else {
-          // Fallback if not mounted, though the outer if(!mounted) return should prevent this.
-          _configError = "Error loading configuration.";
-        }
+        _configError = t.system.errors.loadingCoordinatorConfig;
       });
       // Do not start status check timer if config loading failed
     }
@@ -86,16 +78,9 @@ class _MakerWaitForBlikScreenState
       print(
         "[MakerWaitForBlikScreen] _startStatusCheckTimer called before _reservationDuration is set. Aborting timer start.",
       );
-      // Optionally, set an error state or retry _loadInitialData
-      // Ensure context is available for AppLocalizations
       if (mounted && _configError == null && !_isLoadingConfig) {
-        // If not already in an error/loading state from _loadInitialData
-        // Access AppLocalizations only when needed and context is more likely to be ready.
         setState(() {
-          _configError =
-              AppLocalizations.of(
-                context,
-              )!.errorLoadingTimeoutConfiguration; // More specific error
+          _configError = t.system.errors.loadingTimeoutConfig;
         });
       }
       return;
@@ -129,14 +114,13 @@ class _MakerWaitForBlikScreenState
       );
       if (offer == null && mounted) {
         _resetToRoleSelection(
-          AppLocalizations.of(context)!.errorOfferDetailsMissing,
+          t.offers.errors.detailsMissing,
         );
       }
       return;
     }
 
     // Check if reservation time expired locally first
-    // This check should use the _reservationDuration from coordinator config
     if (offer.reservedAt != null && _reservationDuration != null) {
       final expiresAt = offer.reservedAt!.add(_reservationDuration!);
       if (DateTime.now().isAfter(expiresAt)) {
@@ -144,12 +128,10 @@ class _MakerWaitForBlikScreenState
           "[MakerWaitForBlik] Reservation time likely expired locally. Popping back.",
         );
         _statusCheckTimer?.cancel(); // Stop polling
-        // No need to invalidate providers here, let the previous screen handle it if necessary
         if (mounted) {
           print(
             "[MakerWaitForBlik] Popping self and pushing MakerConfirmPaymentScreen...",
           );
-          // Then push the confirmation screen
           context.go('/wait-taker');
         }
         return; // Don't proceed with API check if locally expired
@@ -170,34 +152,28 @@ class _MakerWaitForBlikScreenState
 
       var currentStatus = OfferStatus.values.byName(
         statusString,
-      ); // Changed to var
+      ); 
 
-      // Update provider if status changed on backend
-      // Important: Read the offer *again* from the provider *after* potential update
-      Offer offerToCheck = offer; // Start with the offer read at the beginning
+      Offer offerToCheck = offer; 
       if (offer.status != currentStatus.name) {
         final updatedOfferData = await apiService.getMyActiveOffer(makerId);
         if (updatedOfferData != null) {
           final updatedOffer = Offer.fromJson(updatedOfferData);
           ref.read(activeOfferProvider.notifier).state = updatedOffer;
           offerToCheck =
-              updatedOffer; // Use the updated offer for subsequent checks
+              updatedOffer; 
           print(
             "[MakerWaitForBlik] Updated activeOfferProvider with status: ${offerToCheck.status}",
           );
-          // Re-check status from updated offer
           currentStatus = OfferStatus.values.byName(offerToCheck.status);
         } else {
           print(
             "[MakerWaitForBlik] Warning: Failed to fetch updated offer details after status change.",
           );
-          // Keep polling with old status assumption, offerToCheck remains the initial offer
         }
       }
 
-      // Now use offerToCheck for ID and makerId if needed
       final String offerId = offerToCheck.id;
-      // makerId was already fetched
 
       if (currentStatus == OfferStatus.blikReceived ||
           currentStatus == OfferStatus.blikSentToMaker) {
@@ -206,7 +182,6 @@ class _MakerWaitForBlikScreenState
         );
         _statusCheckTimer?.cancel();
 
-        // --- Call API to get BLIK code using offerId and makerId ---
         try {
           print(
             "[MakerWaitForBlik] Calling getBlikCodeForMaker with offerId: $offerId, makerId: $makerId",
@@ -217,7 +192,7 @@ class _MakerWaitForBlikScreenState
           );
           print(
             "[MakerWaitForBlik] API returned blikCode: $blikCode",
-          ); // Log the raw result
+          ); 
 
           if (blikCode != null && blikCode.isNotEmpty) {
             print(
@@ -231,27 +206,19 @@ class _MakerWaitForBlikScreenState
                 "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
               );
               context.go('/confirm-blik');
-              //
-              // Navigator.of(context).pushReplacement(
-              //   // Use pushReplacement
-              //   MaterialPageRoute(
-              //     builder: (_) => const MakerConfirmPaymentScreen(),
-              //   ),
-              // );
             }
           } else {
-            // BLIK code is missing even though status is correct - backend issue?
             print(
               "[MakerWaitForBlik] Error: Status is ${currentStatus.name} but API returned no BLIK code. Resetting.",
             );
             if (mounted) {
-              _resetToRoleSelection(AppLocalizations.of(context)!.error);
+              _resetToRoleSelection(t.system.errors.generic); // Generic error
             }
           }
         } catch (e) {
           print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(AppLocalizations.of(context)!.error);
+            _resetToRoleSelection(t.system.errors.generic); // Generic error
           }
         }
       } else if (currentStatus == OfferStatus.funded) {
@@ -266,16 +233,14 @@ class _MakerWaitForBlikScreenState
         print(
           "[MakerWaitForBlik] Still waiting for BLIK (Status: $currentStatus).",
         );
-        // Stay on this screen
       }
-      // Handle unexpected states
       else {
         print(
           "[MakerWaitForBlik] Offer in unexpected state ($currentStatus). Resetting.",
         );
         _statusCheckTimer?.cancel();
         if (mounted) {
-          _resetToRoleSelection(AppLocalizations.of(context)!.error);
+          _resetToRoleSelection(t.system.errors.generic); // Generic error
         }
       }
     } catch (e) {
@@ -314,19 +279,18 @@ class _MakerWaitForBlikScreenState
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
     final offer = ref.watch(activeOfferProvider);
 
     if (_isLoadingConfig) {
       return Scaffold(
-        appBar: AppBar(title: Text(strings.waitingForBlik)),
+        appBar: AppBar(title: Text(t.maker.waitForBlik.title)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_configError != null) {
       return Scaffold(
-        appBar: AppBar(title: Text(strings.error)),
+        appBar: AppBar(title: Text(t.common.error)),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -335,7 +299,7 @@ class _MakerWaitForBlikScreenState
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadInitialData,
-                child: Text(strings.retry),
+                child: Text(t.common.actions.retry),
               ),
             ],
           ),
@@ -346,19 +310,17 @@ class _MakerWaitForBlikScreenState
     if (offer == null ||
         offer.reservedAt == null ||
         _reservationDuration == null) {
-      // This case should ideally be covered by _isLoadingConfig or _configError,
-      // or if offer details are lost post-config load.
       return Scaffold(
-        appBar: AppBar(title: Text(strings.error)),
+        appBar: AppBar(title: Text(t.common.error)),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(strings.errorOfferDetailsMissing),
+              Text(t.offers.errors.detailsMissing),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _goHome, // Or _loadInitialData if appropriate
-                child: Text(strings.goHome),
+                onPressed: _goHome, 
+                child: Text(t.common.buttons.goHome),
               ),
             ],
           ),
@@ -368,12 +330,12 @@ class _MakerWaitForBlikScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(strings.waitingForBlik),
+        title: Text(t.maker.waitForBlik.title),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            tooltip: strings.goHome,
+            tooltip: t.common.buttons.goHome,
             onPressed: _goHome,
           ),
         ],
@@ -386,7 +348,7 @@ class _MakerWaitForBlikScreenState
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
-                strings.offerReservedByTaker,
+                t.maker.waitForBlik.offerReserved,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -395,7 +357,7 @@ class _MakerWaitForBlikScreenState
               ),
               const SizedBox(height: 15),
               Text(
-                strings.waitingForTakerBlik,
+                t.maker.waitForBlik.waitingForTakerBlik,
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -405,15 +367,13 @@ class _MakerWaitForBlikScreenState
                   'res_timer_${offer.id}_${_reservationDuration!.inSeconds}',
                 ),
                 reservedAt: offer.reservedAt!,
-                maxDuration: _reservationDuration!, // Pass the dynamic duration
+                maxDuration: _reservationDuration!, 
               ),
               const SizedBox(height: 30),
               const CircularProgressIndicator(),
               const SizedBox(height: 20),
               Text(
-                strings.takerHasXSecondsToProvideBlik(
-                  _reservationDuration!.inSeconds,
-                ), // Use new string
+                t.maker.waitForBlik.takerHasSecondsToProvideBlik(seconds: _reservationDuration!.inSeconds),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),

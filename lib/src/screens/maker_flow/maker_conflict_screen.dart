@@ -1,10 +1,10 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart';
-import '../../providers/providers.dart'; // Assuming userPublicKeyProvider is here
+import '../../providers/providers.dart'; 
 
 class MakerConflictScreen extends ConsumerStatefulWidget {
   final Offer offer;
@@ -18,25 +18,23 @@ class MakerConflictScreen extends ConsumerStatefulWidget {
 
 class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
   bool _isDisputeOpened = false;
-  final _formKey = GlobalKey<FormState>();
-  final _lnAddressController = TextEditingController();
+  // final _formKey = GlobalKey<FormState>(); // Not used currently
+  // final _lnAddressController = TextEditingController(); // Not used currently
 
-  @override
-  void dispose() {
-    _lnAddressController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _lnAddressController.dispose(); // Not used currently
+  //   super.dispose();
+  // }
 
   Future<void> _confirmPayment(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context)!;
     final apiService = ref.read(apiServiceProvider);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    // Read the future value of the public key provider
     final makerId = await ref.read(publicKeyProvider.future);
 
     if (makerId == null) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(l10n.errorPublicKeyNotLoaded)),
+        SnackBar(content: Text(t.system.errors.publicKeyNotLoaded)),
       );
       return;
     }
@@ -45,92 +43,50 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      // Confirm payment using offerId and makerId
       await apiService.confirmMakerPayment(widget.offer.id, makerId);
 
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(l10n.paymentConfirmedTakerPaid)),
+        SnackBar(content: Text(t.maker.conflict.feedback.paymentConfirmedTakerPaid)),
       );
-      // Navigate to success screen, passing the updated offer
       context.go('/maker-success', extra: widget.offer);
     } catch (e) {
-      final errorMsg = l10n.errorConfirmingPayment(e.toString());
+      final errorMsg = t.maker.conflict.errors.confirmingPayment(details: e.toString());
       ref.read(errorProvider.notifier).state = errorMsg;
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
     } finally {
       ref.read(isLoadingProvider.notifier).state = false;
     }
   }
-  /*
-    offerAsync.when(
-      data: (offer) async {
-        if (offer == null) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text(l10n.errorOfferNotFound)),
-          );
-          return;
-        }
-        final paymentHash = offer.holdInvoicePaymentHash;
-        if (paymentHash == null) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text(l10n.errorMissingPaymentHash)),
-          );
-          return;
-        }
-
-        ref.read(isLoadingProvider.notifier).state = true;
-        ref.read(errorProvider.notifier).state = null;
-
-        try {
-          await apiService.confirmMakerPayment(paymentHash);
-          ref.read(activeOfferProvider.notifier).state = offer.copyWith(
-            status: OfferStatus.makerConfirmed.name,
-          ); // Update local state
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text(l10n.paymentConfirmedTakerPaid)),
-          );
-          // Navigate to success screen, passing the updated offer
-          context.go('/maker-success', extra: offer);
-        } catch (e) {
-          final errorMsg = l10n.errorConfirmingPayment(e.toString());
-          ref.read(errorProvider.notifier).state = errorMsg;
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
-        } finally {
-          ref.read(isLoadingProvider.notifier).state = false;
-        }
-      },
-      loading: () => ref.read(isLoadingProvider.notifier).state = true,
-      error: (err, stack) {
-        final errorMsg = l10n.errorLoadingOffer(err.toString());
-        ref.read(errorProvider.notifier).state = errorMsg;
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
-        ref.read(isLoadingProvider.notifier).state = false;
-      },
-    );
-  }*/
 
   Future<void> _openDispute(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context)!;
     final apiService = ref.read(apiServiceProvider);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context); // For managing dialogs
+    final navigator = Navigator.of(context); 
+    final makerId = await ref.read(publicKeyProvider.future);
 
-    // 1. Show Confirmation Dialog
+
+    if (makerId == null) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(t.system.errors.publicKeyNotLoaded)),
+      );
+      return;
+    }
+
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      barrierDismissible: false, // User must explicitly choose
+      barrierDismissible: false, 
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text(l10n.makerConflictDisputeDialogTitle),
-          content: Text(l10n.makerConflictDisputeDialogContentDetailed),
+          title: Text(t.maker.conflict.disputeDialog.title),
+          content: Text(t.maker.conflict.disputeDialog.contentDetailed),
           actions: <Widget>[
             TextButton(
-              child: Text(l10n.makerConflictDisputeDialogCancel),
-              onPressed: () => navigator.pop(false), // Dismiss with false
+              child: Text(t.common.buttons.cancel),
+              onPressed: () => navigator.pop(false), 
             ),
             ElevatedButton(
-              child: Text(l10n.makerConflictDisputeDialogConfirm),
-              onPressed: () => navigator.pop(true), // Dismiss with true
+              child: Text(t.maker.conflict.disputeDialog.actions.confirm),
+              onPressed: () => navigator.pop(true), 
             ),
           ],
         );
@@ -138,28 +94,24 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
     );
 
     if (confirmed != true) {
-      return; // User cancelled
+      return; 
     }
 
-    // 3. Call API to Open Dispute
     ref.read(isLoadingProvider.notifier).state = true;
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      // TODO: Define and implement apiService.openDispute in ApiService
-      // For now, assume it exists and takes offerId and address
-      // await apiService.openDispute(widget.offerId, lightningAddress);
+      // Assuming openDispute is now markOfferConflict
+      await apiService.markOfferConflict(widget.offer.id, makerId);
 
       setState(() {
-        _isDisputeOpened = true; // Update UI state
+        _isDisputeOpened = true; 
       });
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(l10n.successOpenDispute)),
+        SnackBar(content: Text(t.maker.conflict.feedback.disputeOpenedSuccess)),
       );
-      // Optionally update local offer state if needed, though the screen changes anyway
-      // ref.read(activeOfferProvider.notifier).update((state) => state?.copyWith(status: OfferStatus.dispute.name));
     } catch (e) {
-      final errorMsg = l10n.errorOpenDispute(e.toString());
+      final errorMsg = t.maker.conflict.errors.openingDispute(details: e.toString());
       ref.read(errorProvider.notifier).state = errorMsg;
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
     } finally {
@@ -169,12 +121,11 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.makerConflictTitle),
+        title: Text(t.maker.conflict.title),
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -191,33 +142,24 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                l10n.makerConflictHeadline,
+                t.maker.conflict.headline,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
                 _isDisputeOpened
-                    ? l10n
-                        .successOpenDispute // Show success message if dispute opened
-                    : l10n.makerConflictBody,
+                    ? t.maker.conflict.feedback.disputeOpenedSuccess 
+                    : t.maker.conflict.body,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              // if (!_isDisputeOpened)
-              //   Text(
-              //     // Show instructions only before dispute is opened
-              //     l10n.makerConflictInstructions,
-              //     textAlign: TextAlign.center,
-              //     style: const TextStyle(fontWeight: FontWeight.bold),
-              //   ),
               const SizedBox(height: 32),
               if (isLoading)
                 const CircularProgressIndicator()
               else if (_isDisputeOpened)
                 ElevatedButton(
                   onPressed: () => context.go('/'),
-                  child: Text(l10n.goHome), // Go home after dispute
+                  child: Text(t.common.buttons.goHome), 
                 )
               else
                 Column(
@@ -228,22 +170,21 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
                         foregroundColor:  Colors.white,
                       ),
                       onPressed: () => _confirmPayment(context, ref),
-                      child: Text(l10n.makerConflictConfirmPaymentButton),
+                      child: Text(t.maker.conflict.actions.confirmPayment),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red, // Make it stand out
+                        backgroundColor: Theme.of(context).colorScheme.error, 
                         foregroundColor:  Colors.white,
                       ),
                       onPressed: () => _openDispute(context, ref),
-                      child: Text(l10n.makerConflictOpenDisputeButton),
+                      child: Text(t.maker.conflict.actions.openDispute),
                     ),
                     const SizedBox(height: 16),
                     TextButton(
-                      // Add a way back if they don't want to act now
                       onPressed: () => context.go('/'),
-                      child: Text(l10n.cancelAndReturnHome),
+                      child: Text(t.common.actions.cancelAndReturnHome),
                     ),
                   ],
                 ),

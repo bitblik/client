@@ -1,13 +1,13 @@
 import 'dart:async'; // Import async for Timer
 import 'dart:convert';
 
-import 'package:bitblik/l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
+import '../../i18n/gen/strings.g.dart'; // Import Slang's generated file
 
-  // Add LNURL validation function
-Future<String?> validateLightningAddress(String address, AppLocalizations strings) async {
+// Add LNURL validation function
+Future<String?> validateLightningAddress(String address, Translations strings) async {
   if (!address.contains('@')) {
-    return strings.lightningAddressInvalid;
+    return strings.lightningAddress.prompts.invalid;
   }
 
   final parts = address.split('@');
@@ -18,28 +18,27 @@ Future<String?> validateLightningAddress(String address, AppLocalizations string
     final lnurlpUrl = Uri.https(domain, '/.well-known/lnurlp/$username');
     final response = await http.get(lnurlpUrl);
 
-    // TODO: Add specific localization keys for these LNURL validation errors if needed
     if (response.statusCode != 200) {
-      return '${strings.lightningAddressInvalid}: Could not fetch LNURL information';
+      return strings.lightningAddress.prompts.invalid;
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (data['status'] == 'ERROR') {
-      return '${strings.lightningAddressInvalid}: ${data['reason']}';
+      return strings.lightningAddress.prompts.invalid;
     }
 
     if (data['tag'] != 'payRequest') {
-      return '${strings.lightningAddressInvalid}: Not a valid LNURL-pay endpoint';
+      return strings.lightningAddress.prompts.invalid;
     }
 
     if (data['callback'] == null ||
         data['minSendable'] == null ||
         data['maxSendable'] == null) {
-      return '${strings.lightningAddressInvalid}: Missing required LNURL-pay fields';
+      return strings.lightningAddress.prompts.invalid;
     }
 
     return null; // Validation passed
   } catch (e) {
-    return '${strings.lightningAddressInvalid}: Could not verify LNURL endpoint';
+    return strings.lightningAddress.prompts.invalid;
   }
 }
