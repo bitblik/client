@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bitblik/l10n/app_localizations.dart';
-import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';

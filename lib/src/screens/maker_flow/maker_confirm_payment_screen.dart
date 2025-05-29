@@ -133,7 +133,7 @@ class _MakerConfirmPaymentScreenState
     } catch (e) {
       // TODO: Add specific localization for this error
       ref.read(errorProvider.notifier).state =
-          strings.genericError + ': ' + e.toString();
+          '${strings.genericError}: $e';
     } finally {
       if (ref.context.mounted) {
         ref.read(isLoadingProvider.notifier).state = false;

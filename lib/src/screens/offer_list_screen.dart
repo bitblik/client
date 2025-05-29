@@ -366,19 +366,19 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       tooltip:
                           AppLocalizations.of(context)!.editLightningAddress,
                       onPressed: () async {
-                        final _editController = TextEditingController(
+                        final editController = TextEditingController(
                           text: lightningAddress,
                         );
-                        final _editFormKey = GlobalKey<FormState>();
-                        final _editFocusNode = FocusNode();
-                        String? _editValidationError;
+                        final editFormKey = GlobalKey<FormState>();
+                        final editFocusNode = FocusNode();
+                        String? editValidationError;
 
                         final result = await showDialog<String>(
                           context: context,
                           builder: (context) {
                             // Request focus when the dialog is shown
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _editFocusNode.requestFocus();
+                              editFocusNode.requestFocus();
                             });
                             return StatefulBuilder(
                               builder: (context, setState) {
@@ -390,10 +390,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     )!.editLightningAddress,
                                   ),
                                   content: Form(
-                                    key: _editFormKey,
+                                    key: editFormKey,
                                     child: TextFormField(
-                                      controller: _editController,
-                                      focusNode: _editFocusNode,
+                                      controller: editController,
+                                      focusNode: editFocusNode,
                                       keyboardType: TextInputType.emailAddress,
                                       // Use localized strings
                                       decoration: InputDecoration(
@@ -415,7 +415,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             context,
                                           )!.lightningAddressInvalid;
                                         }
-                                        return _editValidationError;
+                                        return editValidationError;
                                       },
                                       onChanged: (value) async {
                                         if (value.isNotEmpty &&
@@ -426,29 +426,29 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 AppLocalizations.of(context)!,
                                               );
                                           setState(() {
-                                            _editValidationError = error;
+                                            editValidationError = error;
                                           });
                                         } else {
                                           setState(() {
-                                            _editValidationError = null;
+                                            editValidationError = null;
                                           });
                                         }
                                       },
                                       onFieldSubmitted: (value) async {
-                                        if (_editFormKey.currentState!
+                                        if (editFormKey.currentState!
                                                 .validate() &&
-                                            _editValidationError == null) {
+                                            editValidationError == null) {
                                           try {
                                             await keyService
                                                 .saveLightningAddress(
-                                                  _editController.text,
+                                                  editController.text,
                                                 );
                                             ref.invalidate(
                                               lightningAddressProvider,
                                             );
                                             Navigator.of(
                                               context,
-                                            ).pop(_editController.text);
+                                            ).pop(editController.text);
                                             // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
@@ -492,20 +492,20 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     ),
                                     TextButton(
                                       onPressed: () async {
-                                        if (_editFormKey.currentState!
+                                        if (editFormKey.currentState!
                                                 .validate() &&
-                                            _editValidationError == null) {
+                                            editValidationError == null) {
                                           try {
                                             await keyService
                                                 .saveLightningAddress(
-                                                  _editController.text,
+                                                  editController.text,
                                                 );
                                             ref.invalidate(
                                               lightningAddressProvider,
                                             );
                                             Navigator.of(
                                               context,
-                                            ).pop(_editController.text);
+                                            ).pop(editController.text);
                                             // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
@@ -816,8 +816,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                               } catch (e) {
                                                 if (Navigator.of(
                                                   context,
-                                                ).canPop())
+                                                ).canPop()) {
                                                   Navigator.of(context).pop();
+                                                }
                                                 // Use localized string with placeholder
                                                 final errorMsg = strings
                                                     .errorFailedToReserveOffer(
