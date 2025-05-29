@@ -14,8 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/app_localizations.dart';
+import 'i18n/gen/strings.g.dart';
 import 'src/providers/providers.dart';
 import 'src/providers/locale_provider.dart'; // Import locale provider
 import 'src/screens/role_selection_screen.dart';
@@ -185,7 +184,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: SafeArea(child: MyApp())));
+  LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
+  runApp(
+    TranslationProvider(
+      child: const ProviderScope(child: SafeArea(child: MyApp())),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
@@ -196,21 +200,21 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider); // Watch the locale provider
 
+    // Update Slang locale when provider changes
+    if (locale != null) {
+      final appLocale =
+          locale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
+      LocaleSettings.setLocale(appLocale);
+    }
+
     return MaterialApp.router(
-      title: 'BitBlik',
+      title: t.app.title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       locale: locale,
-      // Set locale from provider
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en'), Locale('pl')],
+      supportedLocales: AppLocaleUtils.supportedLocales,
       routerConfig: router,
     );
   }
@@ -303,7 +307,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('BitBlik'),
+                Text(t.app.title),
                 const SizedBox(width: 4),
                 Text(
                   _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
@@ -325,11 +329,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               // Determine current value: provider state, or system locale if provider is null
               // Ensure the value exists in the items list. Default to 'en' if system/saved locale isn't supported.
               value:
-                  AppLocalizations.supportedLocales.contains(
+                  AppLocaleUtils.supportedLocales.contains(
                         ref.watch(localeProvider),
                       )
                       ? ref.watch(localeProvider)
-                      : (AppLocalizations.supportedLocales.contains(
+                      : (AppLocaleUtils.supportedLocales.contains(
                             Locale(
                               WidgetsBinding
                                   .instance
@@ -353,31 +357,37 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   ref.read(localeProvider.notifier).setLocale(newLocale);
+                  // Update Slang locale
+                  final appLocale =
+                      newLocale.languageCode == 'pl'
+                          ? AppLocale.pl
+                          : AppLocale.en;
+                  LocaleSettings.setLocale(appLocale);
                 }
               },
               items:
-                  AppLocalizations.supportedLocales
-                      .map<DropdownMenuItem<Locale>>((Locale locale) {
-                        // Simple display name logic
-                        // Add flag emoji based on language code
-                        final String flagEmoji =
-                            locale.languageCode == 'en'
-                                ? '🇬🇧 '
-                                : locale.languageCode == 'pl'
-                                ? '🇵🇱 '
-                                : ''; // No emoji for other languages
-                        final String displayName =
-                            locale.languageCode == 'en'
-                                ? 'English'
-                                : locale.languageCode == 'pl'
-                                ? 'Polski'
-                                : locale.languageCode.toUpperCase();
-                        return DropdownMenuItem<Locale>(
-                          value: locale,
-                          child: Text(flagEmoji + displayName), // Prepend emoji
-                        );
-                      })
-                      .toList(),
+                  AppLocaleUtils.supportedLocales.map<DropdownMenuItem<Locale>>(
+                    (Locale locale) {
+                      // Simple display name logic
+                      // Add flag emoji based on language code
+                      final String flagEmoji =
+                          locale.languageCode == 'en'
+                              ? '🇬🇧 '
+                              : locale.languageCode == 'pl'
+                              ? '🇵🇱 '
+                              : ''; // No emoji for other languages
+                      final String displayName =
+                          locale.languageCode == 'en'
+                              ? 'English'
+                              : locale.languageCode == 'pl'
+                              ? 'Polski'
+                              : locale.languageCode.toUpperCase();
+                      return DropdownMenuItem<Locale>(
+                        value: locale,
+                        child: Text(flagEmoji + displayName), // Prepend emoji
+                      );
+                    },
+                  ).toList(),
             ),
           ),
           // // Navigation button to offers (commented out)

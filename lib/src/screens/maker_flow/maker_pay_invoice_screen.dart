@@ -12,7 +12,7 @@ import '../../providers/providers.dart'; // Import providers
 import '../../models/offer.dart'; // Import Offer model for status enum comparison
 // Import ApiService
 import 'package:go_router/go_router.dart';
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart';
 import 'webln_stub.dart' if (dart.library.js) 'webln_web.dart';
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
@@ -80,19 +80,17 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
               '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
             );
             _statusPollTimer?.cancel(); // Stop polling
-            final strings =
-                AppLocalizations.of(context)!; // Get strings instance
             final publicKey = ref.read(publicKeyProvider).value;
             if (publicKey == null) {
               // Use localized string
-              throw Exception(strings.errorPublicKeyNotAvailable);
+              throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
             }
 
             final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
             if (fullOfferData == null) {
               // Use localized string
-              throw Exception(strings.errorCouldNotFetchActiveOffer);
+              throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
             }
 
             final fullOffer = Offer.fromJson(fullOfferData);
@@ -133,7 +131,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       return;
     }
 
-    final strings = AppLocalizations.of(context)!; // Get strings instance
     final link = 'lightning:$invoice';
     try {
       if (Platform.isAndroid) {
@@ -154,7 +151,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
           if (mounted) {
             // Use localized string
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(strings.errorCouldNotOpenLightningApp)),
+              SnackBar(content: Text(t.maker.payInvoice.errors.couldNotOpenApp)),
             );
           }
         }

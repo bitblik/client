@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -118,11 +118,8 @@ class _BlikInputProgressIndicatorState
             ),
             minHeight: 20,
           ),
-          // Use localized string with placeholder
           Text(
-            AppLocalizations.of(
-              context,
-            )!.submitBlikWithinSeconds(_remainingSeconds),
+            t.taker.submitBlik.timeLimit(seconds: _remainingSeconds),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -150,7 +147,6 @@ class TakerSubmitBlikScreen extends ConsumerStatefulWidget {
 class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   final _blikController = TextEditingController();
   Timer? _blikInputTimer;
-  // Duration _maxBlikInputTime = const Duration(seconds: 20); // Will be set from coordinatorInfo
   Duration? _maxBlikInputTime; // Will be set from coordinatorInfo
   bool _isLoadingDetails = true; // Flag for initial loading
   CoordinatorInfo? _coordinatorInfo; // Added
@@ -173,7 +169,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      final strings = AppLocalizations.of(context)!;
       final apiService = ref.read(apiServiceProvider);
 
       // Fetch CoordinatorInfo first
@@ -202,7 +197,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       final publicKey = ref.read(publicKeyProvider).value;
       if (publicKey == null) {
-        throw Exception(strings.errorPublicKeyNotLoaded);
+        throw Exception(t.taker.paymentProcess.errors.noPublicKey);
       }
 
       final fullOfferData = await apiService.getMyActiveOffer(publicKey);
@@ -210,33 +205,29 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       if (!mounted) return;
 
       if (fullOfferData == null) {
-        throw Exception(strings.errorCouldNotFetchActiveOffer);
+        throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
       }
 
       final fullOffer = Offer.fromJson(fullOfferData);
 
       // Verify the fetched offer ID matches the initial one
       if (fullOffer.id != widget.initialOffer.id) {
-        // Use localized string with placeholders
         throw Exception(
-          strings.errorFetchedOfferIdMismatch(
-            fullOffer.id,
-            widget.initialOffer.id,
+          t.taker.submitBlik.errors.fetchedIdMismatch(
+            fetchedId: fullOffer.id,
+            initialId: widget.initialOffer.id,
           ),
         );
       }
       // --- Validation ---
       if (fullOffer.status != OfferStatus.reserved.name) {
-        // Use localized string with placeholder
-        throw Exception(strings.errorOfferNotReserved(fullOffer.status));
+        throw Exception(t.reservations.errors.notReserved(status: fullOffer.status));
       }
       if (fullOffer.reservedAt == null) {
-        // Use localized string
-        throw Exception(strings.errorOfferReservationTimestampMissing);
+        throw Exception(t.reservations.errors.timestampMissing);
       }
       if (fullOffer.holdInvoicePaymentHash == null) {
-        // Use localized string
-        throw Exception(strings.errorOfferPaymentHashMissing);
+        throw Exception(t.taker.submitBlik.errors.paymentHashMissing);
       }
       // --- End Validation ---
 
@@ -259,9 +250,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     } catch (e) {
       print("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
       if (mounted) {
-        // Use localized string with placeholder
-        final strings = AppLocalizations.of(context)!;
-        _resetToOfferList(strings.errorLoadingOfferDetails(e.toString()));
+        _resetToOfferList(t.offers.errors.loadingDetails(details: e.toString()));
       }
     }
   }
@@ -283,9 +272,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       print(
         "[TakerSubmitBlikScreen] Error: reservedAt is null when starting timer. Resetting.",
       );
-      // Reuse existing key
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(strings.errorOfferDetailsMissing);
+      _resetToOfferList(t.offers.errors.detailsMissing);
       return;
     }
 
@@ -295,10 +282,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       print(
         "[TakerSubmitBlikScreen] Error: _maxBlikInputTime is null in _startBlikInputTimer. Resetting.",
       );
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(
-        "${strings.errorOfferDetailsMissing} (Timeout config)",
-      ); // Append context
+      _resetToOfferList("${t.offers.errors.detailsMissing} (Timeout config)");
       return;
     }
 
@@ -323,9 +307,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     if (mounted) {
       print("[TakerSubmitBlikScreen] BLIK input timer expired.");
       ref.read(activeOfferProvider.notifier).state = null;
-      // Use localized string
-      final strings = AppLocalizations.of(context)!;
-      _resetToOfferList(strings.blikInputTimeExpired);
+      _resetToOfferList(t.taker.submitBlik.timeExpired);
     }
   }
 
@@ -356,25 +338,20 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        final strings = AppLocalizations.of(context)!; // Get strings
         return AlertDialog(
-          // Reuse existing key (or editLightningAddress)
-          title: Text(strings.enterLightningAddress),
+          title: Text(t.lightningAddress.prompts.enter),
           content: Form(
             key: formKey,
             child: TextFormField(
               controller: controller,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                // Reuse existing key
-                hintText: strings.lightningAddressHint,
-                // Reuse existing key
-                labelText: strings.lightningAddressLabel,
+                hintText: t.lightningAddress.labels.hint,
+                labelText: t.lightningAddress.labels.address,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty || !value.contains('@')) {
-                  // Reuse existing key
-                  return strings.lightningAddressInvalid;
+                  return t.lightningAddress.prompts.invalid;
                 }
                 return null;
               },
@@ -382,15 +359,13 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              // Reuse existing key
-              child: Text(strings.cancel),
+              child: Text(t.common.buttons.cancel),
               onPressed: () {
                 Navigator.of(dialogContext).pop(null);
               },
             ),
             TextButton(
-              // Reuse existing key
-              child: Text(strings.saveAndContinue),
+              child: Text(t.common.buttons.saveAndContinue),
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   final address = controller.text;
@@ -407,10 +382,9 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                     Navigator.of(dialogContext).pop(address); // Return saved
                   } catch (e) {
                     Navigator.of(dialogContext).pop(); // Pop loading
-                    // Reuse existing key with placeholder
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                       SnackBar(
-                        content: Text(strings.errorSavingAddress(e.toString())),
+                        content: Text(t.lightningAddress.errors.saving(details: e.toString())),
                       ),
                     );
                   }
@@ -431,29 +405,24 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final takerId = ref.read(publicKeyProvider).value;
     final keyService = ref.read(keyServiceProvider);
     String? lnAddress = ref.read(lightningAddressProvider).value;
-    final strings = AppLocalizations.of(context)!; // Get strings
 
     // --- Validations ---
     if (takerId == null) {
-      // Reuse existing key
-      ref.read(errorProvider.notifier).state = strings.errorPublicKeyNotLoaded;
+      ref.read(errorProvider.notifier).state = t.taker.paymentProcess.errors.noPublicKey;
       if (offer != null) _startBlikInputTimer(offer);
       return;
     }
     if (offer == null ||
         offer.status != OfferStatus.reserved.name ||
         offer.reservedAt == null) {
-      // Use localized string
-      ref.read(errorProvider.notifier).state = strings.errorOfferStateChanged;
-      // Use localized string
-      _resetToOfferList(strings.errorOfferStateNotValid);
+      ref.read(errorProvider.notifier).state = t.taker.submitBlik.errors.stateChanged;
+      _resetToOfferList(t.taker.submitBlik.errors.stateNotValid);
       return;
     }
     if (blikCode.isEmpty ||
         blikCode.length != 6 ||
         int.tryParse(blikCode) == null) {
-      // Use localized string
-      ref.read(errorProvider.notifier).state = strings.errorInvalidBlikFormat;
+      ref.read(errorProvider.notifier).state = t.taker.submitBlik.validation.invalidFormat;
       _startBlikInputTimer(offer);
       return;
     }
@@ -462,9 +431,8 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       lnAddress = await _promptForLightningAddress(context, keyService);
       if (lnAddress == null) {
         print("[TakerSubmitBlikScreen] User cancelled LN Address prompt.");
-        // Use localized string
         ref.read(errorProvider.notifier).state =
-            strings.errorLightningAddressRequired;
+            t.lightningAddress.prompts.required;
         _startBlikInputTimer(offer);
         return;
       }
@@ -498,9 +466,8 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         context.go('/wait-confirmation', extra: updatedOffer);
       }
     } catch (e) {
-      // Use localized string with placeholder
-      ref.read(errorProvider.notifier).state = strings.errorSubmittingBlik(
-        e.toString(),
+      ref.read(errorProvider.notifier).state = t.taker.submitBlik.errors.submitting(
+        details: e.toString(),
       );
       if (mounted) {
         _startBlikInputTimer(offer);
@@ -514,7 +481,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
   Future<void> _pasteFromClipboard() async {
     final textData = await Clipboard.getData(Clipboard.kTextPlain);
-    // FlutterClipboard.paste().then((value) {
     setState(() {
       if (textData != null &&
           textData.text != null &&
@@ -527,19 +493,15 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
           _blikController.selection = TextSelection.fromPosition(
             TextPosition(offset: _blikController.text.length),
           );
-          // Use localized string
-          final strings = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(strings.blikPasted),
+              content: Text(t.taker.submitBlik.feedback.pasted),
               duration: const Duration(seconds: 1),
             ),
           );
         } else {
-          // Use localized string
-          final strings = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(strings.errorClipboardInvalidBlik)),
+            SnackBar(content: Text(t.taker.submitBlik.errors.clipboardInvalid)),
           );
         }
       }
@@ -554,7 +516,6 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final activeOffer = ref.watch(activeOfferProvider);
     // Use initialOffer only as a fallback while loading details
     final displayOffer = activeOffer ?? widget.initialOffer;
-    final strings = AppLocalizations.of(context)!; // Get strings
 
     if (isLoadingDetails) {
       return const Scaffold(
@@ -567,8 +528,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     // If activeOffer is null after loading, it means fetch failed/reset was called
     if (activeOffer == null) {
       return Scaffold(
-        // Use localized string
-        body: Center(child: Text(strings.errorOfferDetailsNotLoaded)),
+        body: Center(child: Text(t.offers.errors.detailsNotLoaded)),
       );
     }
 
@@ -588,9 +548,8 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
               ),
               const SizedBox(height: 10),
             ],
-            // Use localized string
             Text(
-              strings.selectedOfferLabel,
+              t.offers.display.selectedOffer,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Card(
@@ -598,12 +557,10 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                 title: Text(
                   "${formatDouble(displayOffer.fiatAmount)} ${displayOffer.fiatCurrency}",
                 ),
-                // Use localized string with placeholders
                 subtitle: Text(
-                  strings.offerDetailsSubtitle(
-                    displayOffer.amountSats,
-                    displayOffer.takerFees ?? 0,
-                    displayOffer.status,
+                  t.offers.details.takerFeeWithStatus(
+                    fee: displayOffer.takerFees ?? 0,
+                    status: displayOffer.status,
                   ),
                 ),
                 isThreeLine: true,
@@ -620,17 +577,16 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
             else if (activeOffer.reservedAt != null &&
                 _maxBlikInputTime == null)
               Text(
-                strings.errorLoadingTimeoutConfiguration,
+                t.system.errors.loadingTimeoutConfig,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ) // Removed comma that was here
+              )
             else
               const SizedBox(
                 height: 20,
               ), // Should not happen if validation passed
             const SizedBox(height: 15),
-            // Use localized string
             Text(
-              strings.enterBlikCodeLabel,
+              t.taker.submitBlik.title,
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -644,8 +600,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                     maxLength: 6,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      // Use localized string
-                      labelText: strings.blikCodeLabel,
+                      labelText: t.taker.submitBlik.label,
                       counterText: "",
                     ),
                   ),
@@ -653,8 +608,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.content_paste),
-                  // Use localized string
-                  tooltip: strings.pasteFromClipboardTooltip,
+                  tooltip: t.common.clipboard.pasteFromClipboard,
                   onPressed: _pasteFromClipboard,
                 ),
               ],
@@ -669,7 +623,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                         width: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                      : Text(strings.submitBlikButton),
+                      : Text(t.taker.submitBlik.actions.submit),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
@@ -690,11 +644,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                           final apiService = ref.read(apiServiceProvider);
                           await apiService.cancelReservation(offer.id, takerId);
                           if (mounted) {
-                            _resetToOfferList(strings.reservationCancelled);
+                            _resetToOfferList(t.reservations.feedback.cancelled);
                           }
                         } catch (e) {
-                          ref.read(errorProvider.notifier).state = strings
-                              .errorCancellingReservation(e.toString());
+                          ref.read(errorProvider.notifier).state = t.reservations.errors
+                              .cancelling(error: e.toString());
                           if (mounted) {
                             _startBlikInputTimer(offer);
                           }
@@ -704,7 +658,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                           }
                         }
                       },
-              child: Text(strings.cancelReservationButton),
+              child: Text(t.reservations.actions.cancel),
             ),
           ],
         ),

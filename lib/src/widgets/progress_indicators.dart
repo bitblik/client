@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../i18n/gen/strings.g.dart';
 
 // Widget for 10min Funded Offer Progress Bar
 class FundedOfferProgressIndicator extends ConsumerStatefulWidget {
@@ -101,7 +101,6 @@ class _FundedOfferProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -119,9 +118,8 @@ class _FundedOfferProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             minHeight: 20,
           ),
-          // Use localized string with placeholder
           Text(
-            strings.progressWaitingForTaker(_formatMMSS(_remainingSeconds)),
+            t.offers.progress.waitingForTaker(time: _formatMMSS(_remainingSeconds)),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -155,10 +153,6 @@ class _ReservationProgressIndicatorState
   Timer? _timer;
   double _progress = 1.0;
   late int _remainingSeconds; // Will be initialized in initState
-
-  // final Duration _maxReservationTime = const Duration( // REMOVED
-  //   seconds: 20,
-  // );
 
   @override
   void initState() {
@@ -253,7 +247,6 @@ class _ReservationProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -271,9 +264,8 @@ class _ReservationProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
             minHeight: 20,
           ),
-          // Use localized string with placeholder
           Text(
-            strings.progressReserved(_remainingSeconds),
+            t.offers.progress.reserved(seconds: _remainingSeconds),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -389,7 +381,6 @@ class _BlikConfirmationProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!; // Get strings instance
     if (_progress <= 0) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(
@@ -407,9 +398,8 @@ class _BlikConfirmationProgressIndicatorState
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
             minHeight: 20,
           ),
-          // Use localized string with placeholder
           Text(
-            strings.progressConfirming(_remainingSeconds),
+            t.offers.progress.confirming(seconds: _remainingSeconds),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,

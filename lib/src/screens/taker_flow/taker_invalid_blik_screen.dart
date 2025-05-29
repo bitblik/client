@@ -1,4 +1,4 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,12 +22,11 @@ class _TakerInvalidBlikScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final offer = widget.offer;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.invalidBlikTitle), // TODO: Add localization
+        title: Text(t.taker.invalidBlik.title), 
         automaticallyImplyLeading: false, // Prevent back navigation
       ),
       body: Padding(
@@ -44,26 +43,25 @@ class _TakerInvalidBlikScreenState
               ),
               const SizedBox(height: 20),
               Text(
-                l10n.invalidBlikMessage, // TODO: Add localization
+                t.taker.invalidBlik.message, 
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
               Text(
-                l10n.invalidBlikExplanation, // TODO: Add localization
+                t.taker.invalidBlik.explanation, 
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  // Option 1: Retry - Navigate back to submit BLIK screen
                   print(
                     "[TakerInvalidBlikScreen] Retry selected for offer ${offer.id}",
                   );
 
                   final userPublicKey = await ref.read(
                     publicKeyProvider.future,
-                  ); // Corrected provider and await
+                  ); 
 
                   final takerId = userPublicKey;
                   final apiService = ref.read(apiServiceProvider);
@@ -75,7 +73,6 @@ class _TakerInvalidBlikScreenState
                       id: offer.id,
                       amountSats: offer.amountSats,
                       makerFees: offer.makerFees,
-                      // Renamed
                       fiatCurrency: offer.fiatCurrency,
                       fiatAmount: offer.fiatAmount,
                       status: OfferStatus.reserved.name,
@@ -92,23 +89,27 @@ class _TakerInvalidBlikScreenState
                     ref.read(appRoleProvider.notifier).state = AppRole.taker;
 
                     context.go("/submit-blik", extra: updatedOffer);
+                  } else {
+                    // Handle reservation failure
+                     ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t.taker.invalidBlik.errors.reservationFailed),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                    );
                   }
-
-                  // Pass the same offer back to the submit screen
-                  context.go('/submit-blik', extra: offer);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
-                // TODO: Add localization
-                child: Text(l10n.invalidBlikRetryButton),
+                child: Text(t.taker.invalidBlik.actions.retry),
               ),
               const SizedBox(height: 15),
               ElevatedButton(
                 onPressed:
                     _isLoading
-                        ? null // Disable button while loading
+                        ? null 
                         : () async {
                           setState(() {
                             _isLoading = true;
@@ -116,13 +117,13 @@ class _TakerInvalidBlikScreenState
                           final apiService = ref.read(apiServiceProvider);
                           final userPublicKey = await ref.read(
                             publicKeyProvider.future,
-                          ); // Corrected provider and await
+                          ); 
 
                           if (userPublicKey == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(l10n.errorPublicKeyNotLoaded),
-                                backgroundColor: Colors.red,
+                                content: Text(t.system.errors.publicKeyNotLoaded),
+                                backgroundColor: Theme.of(context).colorScheme.error,
                               ),
                             );
                             setState(() {
@@ -140,21 +141,16 @@ class _TakerInvalidBlikScreenState
                               userPublicKey,
                             );
 
-                            // Show success message
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                // Removed const
                                 content: Text(
-                                  l10n.conflictReportedSuccess,
-                                ), // Use localization
+                                  t.taker.invalidBlik.feedback.conflictReportedSuccess,
+                                ), 
                                 backgroundColor: Colors.green,
                               ),
                             );
 
-                            // Don't clear active offer, just navigate to conflict screen
-                            // ref.read(activeOfferProvider.notifier).state = null;
                             if (mounted) {
-                              // Navigate to conflict screen, passing the offer ID
                               context.go('/taker-conflict', extra: offer.id);
                             }
                           } catch (e) {
@@ -164,11 +160,9 @@ class _TakerInvalidBlikScreenState
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  l10n.conflictReportError(
-                                    e.toString(),
-                                  ), // Use positional argument
-                                ), // Use localization
-                                backgroundColor: Colors.red,
+                                  t.taker.invalidBlik.errors.conflictReport(details: e.toString()),
+                                ), 
+                                backgroundColor: Theme.of(context).colorScheme.error,
                               ),
                             );
                           } finally {
@@ -180,7 +174,7 @@ class _TakerInvalidBlikScreenState
                           }
                         },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                   foregroundColor: Colors.white,
                 ),
                 child:
@@ -195,17 +189,15 @@ class _TakerInvalidBlikScreenState
                             ),
                           ),
                         )
-                        : Text(l10n.invalidBlikConflictButton),
+                        : Text(t.taker.invalidBlik.actions.reportConflict),
               ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Go back to offer list
                   ref.read(activeOfferProvider.notifier).state = null;
                   context.go('/offers');
                 },
-                // TODO: Add localization
-                child: Text(l10n.cancelAndReturnHome),
+                child: Text(t.common.actions.cancelAndReturnToOffers),
               ),
             ],
           ),
