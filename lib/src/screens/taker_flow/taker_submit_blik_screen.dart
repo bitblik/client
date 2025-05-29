@@ -297,7 +297,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       );
       final strings = AppLocalizations.of(context)!;
       _resetToOfferList(
-        strings.errorOfferDetailsMissing + " (Timeout config)",
+        "${strings.errorOfferDetailsMissing} (Timeout config)",
       ); // Append context
       return;
     }

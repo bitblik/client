@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
 import '../../models/coordinator_info.dart'; // Added
-import '../../services/api_service.dart'; // Added
+// Added
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
-import 'maker_confirm_payment_screen.dart'; // Import next screen
+// Import next screen
 import 'package:bitblik/l10n/app_localizations.dart';
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {

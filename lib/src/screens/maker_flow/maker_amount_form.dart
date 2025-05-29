@@ -61,7 +61,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       // Try to get coordinator info and set min/max fiat immediately if possible
       final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
       final coordinatorInfo = coordinatorInfoAsync.asData?.value;
-      if (coordinatorInfo != null && rate != null) {
+      if (coordinatorInfo != null) {
         final minAllowedFiat =
             (coordinatorInfo.minAmountSats / 100000000.0) * rate;
         final maxAllowedFiat =

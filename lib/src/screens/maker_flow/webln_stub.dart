@@ -1,4 +1,5 @@
 /// Stub for WebLN integration on non-web platforms.
+library;
 
 bool get isWeblnSupported => false;
 
