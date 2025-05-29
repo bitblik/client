@@ -272,6 +272,20 @@ class ApiService {
     }
   }
 
+  // DELETE /offers/{offerId}/reservation (taker cancels reservation)
+  Future<void> cancelReservation(String offerId, String takerPubkey) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/reservation');
+    final headers = {'x-user-pubkey': takerPubkey};
+
+    try {
+      final response = await http.delete(url, headers: headers);
+      _handleResponse(response); // Throws on error (e.g., 404, 403, 409)
+    } catch (e) {
+      print('Error calling cancelReservation: $e');
+      rethrow; // Rethrow to allow UI to handle it
+    }
+  }
+
   Future<void> updateTakerInvoice({
     required String offerId,
     required String newBolt11,

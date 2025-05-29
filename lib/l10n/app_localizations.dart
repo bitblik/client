@@ -98,6 +98,24 @@ abstract class AppLocalizations {
     Locale('pl'),
   ];
 
+  /// No description provided for @cancelReservationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Reservation'**
+  String get cancelReservationButton;
+
+  /// No description provided for @reservationCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation cancelled.'**
+  String get reservationCancelled;
+
+  /// No description provided for @errorCancellingReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to cancel reservation: {error}'**
+  String errorCancellingReservation(Object error);
+
   /// The title of the application
   ///
   /// In en, this message translates to:

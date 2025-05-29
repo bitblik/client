@@ -9,6 +9,17 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
+  String get cancelReservationButton => 'Anuluj rezerwację';
+
+  @override
+  String get reservationCancelled => 'Rezerwacja została anulowana.';
+
+  @override
+  String errorCancellingReservation(Object error) {
+    return 'Nie udało się anulować rezerwacji: $error';
+  }
+
+  @override
   String get appTitle => 'BitBlik';
 
   @override
@@ -859,6 +870,6 @@ class AppLocalizationsPl extends AppLocalizations {
     String avgBlikTime,
     String avgPaidTime,
   ) {
-    return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwanie na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
+    return 'Ost. 7d: $count transakcji\nŚr. czas oczekiwania na BLIK: $avgBlikTime\nŚr. czas zakończenia: $avgPaidTime';
   }
 }

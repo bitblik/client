@@ -602,7 +602,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                 subtitle: Text(
                   strings.offerDetailsSubtitle(
                     displayOffer.amountSats,
-                    displayOffer.takerFees??0,
+                    displayOffer.takerFees ?? 0,
                     displayOffer.status,
                   ),
                 ),
@@ -669,8 +669,42 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                         width: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                      // Use localized string
                       : Text(strings.submitBlikButton),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+              ),
+              onPressed:
+                  isLoading
+                      ? null
+                      : () async {
+                        final offer = ref.read(activeOfferProvider);
+                        final takerId = ref.read(publicKeyProvider).value;
+                        if (offer == null || takerId == null) return;
+                        ref.read(isLoadingProvider.notifier).state = true;
+                        ref.read(errorProvider.notifier).state = null;
+                        try {
+                          final apiService = ref.read(apiServiceProvider);
+                          await apiService.cancelReservation(offer.id, takerId);
+                          if (mounted) {
+                            _resetToOfferList(strings.reservationCancelled);
+                          }
+                        } catch (e) {
+                          ref.read(errorProvider.notifier).state = strings
+                              .errorCancellingReservation(e.toString());
+                          if (mounted) {
+                            _startBlikInputTimer(offer);
+                          }
+                        } finally {
+                          if (mounted) {
+                            ref.read(isLoadingProvider.notifier).state = false;
+                          }
+                        }
+                      },
+              child: Text(strings.cancelReservationButton),
             ),
           ],
         ),
