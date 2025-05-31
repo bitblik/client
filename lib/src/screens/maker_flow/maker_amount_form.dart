@@ -1,4 +1,4 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
+import '../../services/api_service.dart'; // Added direct import for ApiService
 
 class MakerAmountForm extends ConsumerStatefulWidget {
   const MakerAmountForm({super.key});
@@ -76,12 +77,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        final strings = AppLocalizations.of(context);
-        if (strings != null) {
-          _coordinatorInfoError = strings.errorLoadingCoordinatorConfig;
-        } else {
-          _coordinatorInfoError = "Error loading configuration.";
-        }
+        _coordinatorInfoError = t.system.errors.loadingCoordinatorConfig;
       });
     } finally {
       if (!mounted) return;
@@ -92,9 +88,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   }
 
   void _validateAndRecalculate() {
-    final strings = AppLocalizations.of(context);
-    if (strings == null) return;
-
     final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
     final coordinatorInfo = coordinatorInfoAsync.asData?.value;
     final text = _fiatController.text;
@@ -109,9 +102,9 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       parsedFiat = double.tryParse(fiatString);
 
       if (parsedFiat == null) {
-        currentError = strings.errorInvalidNumberFormat;
+        currentError = t.exchange.errors.invalidFormat;
       } else if (parsedFiat <= 0) {
-        currentError = strings.errorAmountMustBePositive;
+        currentError = t.exchange.errors.mustBePositive;
       } else {
         if (coordinatorInfo != null && _rate != null) {
           final minAllowedFiat =
@@ -121,14 +114,14 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
           final minFiat = (minAllowedFiat * 100).ceil() / 100;
           final maxFiat = (maxAllowedFiat * 100).floor() / 100;
           if (parsedFiat < minFiat) {
-            currentError = strings.errorAmountTooLowFiat(
-              minFiat.toStringAsFixed(2),
-              "PLN",
+            currentError = t.exchange.errors.tooLowFiat(
+              minAmount: minFiat.toStringAsFixed(2),
+              currency: "PLN",
             );
           } else if (parsedFiat > maxFiat) {
-            currentError = strings.errorAmountTooHighFiat(
-              maxFiat.toStringAsFixed(2),
-              "PLN",
+            currentError = t.exchange.errors.tooHighFiat(
+              maxAmount: maxFiat.toStringAsFixed(2),
+              currency: "PLN",
             );
           } else {
             currentError = null;
@@ -154,13 +147,12 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   }
 
   Future<void> _initiateOffer() async {
-    final strings = AppLocalizations.of(context)!;
     final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
     final coordinatorInfo = coordinatorInfoAsync.asData?.value;
 
     if (coordinatorInfo == null || _rate == null) {
       ref.read(errorProvider.notifier).state =
-          strings.errorLoadingCoordinatorConfig;
+          t.system.errors.loadingCoordinatorConfig;
       print("Attempted to initiate offer without coordinator info or rate.");
       return;
     }
@@ -170,7 +162,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     final publicKeyAsyncValue = ref.read(publicKeyProvider);
     final makerId = publicKeyAsyncValue.value;
     if (makerId == null) {
-      ref.read(errorProvider.notifier).state = strings.errorPublicKeyNotLoaded;
+      ref.read(errorProvider.notifier).state = t.maker.amountForm.errors.publicKeyNotLoaded;
       return;
     }
 
@@ -202,8 +194,8 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
         context.go("/pay");
       }
     } catch (e) {
-      ref.read(errorProvider.notifier).state = strings.errorInitiatingOffer(
-        e.toString(),
+      ref.read(errorProvider.notifier).state = t.maker.amountForm.errors.initiating(
+        details: e.toString(),
       );
     } finally {
       if (mounted) {
@@ -214,7 +206,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
     final isLoading = ref.watch(isLoadingProvider);
     final globalErrorMessage = ref.watch(errorProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
@@ -257,7 +248,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               if (_amountErrorText == null) const SizedBox(height: 26.0),
             ],
             Text(
-              strings.enterAmountToPay,
+              t.exchange.labels.enterAmount,
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
@@ -268,7 +259,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               ),
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                labelText: strings.amountLabel,
+                labelText: t.common.labels.amount,
                 errorText: _amountErrorText,
               ),
             ),
@@ -347,10 +338,10 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                           child: Row(
                             children: [
                               Text(
-                                strings.amountRangeHint(
-                                  _minFiatAmountStr!,
-                                  _maxFiatAmountStr!,
-                                  "PLN",
+                                t.exchange.labels.rangeHint(
+                                  minAmount: _minFiatAmountStr!,
+                                  maxAmount: _maxFiatAmountStr!,
+                                  currency: "PLN",
                                 ),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
@@ -373,7 +364,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  strings.errorFetchingRate,
+                  t.exchange.errors.fetchingRate,
                   style: const TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -382,7 +373,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  strings.satsEquivalent(_satsEquivalent!.toStringAsFixed(0)),
+                  t.exchange.labels.equivalent(sats: _satsEquivalent!.toStringAsFixed(0)),
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                   textAlign: TextAlign.center,
                 ),
@@ -391,7 +382,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  "Coingecko ${strings.plnBtcRate(_rate!.toStringAsFixed(0))}",
+                  "${ApiService.exchangeRateSourceNames.join(', ')} ${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),
@@ -413,7 +404,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               child:
                   isLoading
                       ? const CircularProgressIndicator(strokeWidth: 2)
-                      : Text(strings.generateInvoice),
+                      : Text(t.maker.amountForm.actions.generateInvoice),
             ),
           ],
         ),

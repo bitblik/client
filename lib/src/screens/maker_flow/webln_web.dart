@@ -4,9 +4,25 @@ Future<bool> get isWeblnSupported async {
   try {
     await FlutterWebln.enable();
     final weblnValue = weblnDecode(FlutterWebln.webln);
-    return weblnValue.isNotEmpty;
+    print("!!!!!!!!!!!!!: isWeblnSupported weblnValue: $weblnValue");
+    if (weblnValue.isNotEmpty) {
+      try {
+        bool a = await FlutterWebln.getInfo().then(allowInterop((response) {
+          print('[!] getInfo method is $response');
+          if (response!=null) {
+            return true;
+          }
+          return false;
+        }));
+        return a;
+      } catch (error) {
+        print('[!] Error in getInfo method is $error');
+        return false;
+      }
+    }
+    return false;
   } catch (e) {
-    print("!!!!!!!!!!!!!$e");
+    print("!!!!!!!!!!!!!: isWeblnSupported $e");
     return false;
   }
 }
@@ -21,7 +37,7 @@ Future<void> sendWeblnPayment(String invoice) async {
       print("!!!! send payment result $result");
     }
   } catch(e) {
-    print("!!!!!!!!!!!!!$e");
+    print("!!!!!!!!!!!!! send payment: $e");
     rethrow;
   }
 }

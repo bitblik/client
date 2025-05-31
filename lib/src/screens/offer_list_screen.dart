@@ -1,6 +1,6 @@
 import 'dart:async'; // Import async for Timer
 
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/coordinator_info.dart'; // Added
-// import 'taker_flow_screen.dart'; // No longer needed directly
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
 import '../utils/ln.dart';
@@ -55,9 +54,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   Future<void> _loadCoordinatorConfig() async {
     if (!mounted) return;
-    // Ensure context is available for AppLocalizations early if needed for error messages
-    // It might be safer to get strings inside the try/catch or pass it if needed for error messages
-    // For now, assuming AppLocalizations.of(context) will be valid when setState is called.
     setState(() {
       _isLoadingCoordinatorConfig = true;
       _coordinatorConfigError = null;
@@ -79,13 +75,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       print(
         "[OfferListScreen] Error loading coordinator info: ${e.toString()}",
       );
-      // It's good practice to ensure context is still valid if using AppLocalizations here.
-      // For simplicity, we'll assume it is, or use a generic error string.
-      final strings = AppLocalizations.of(context);
       setState(() {
         _isLoadingCoordinatorConfig = false;
-        _coordinatorConfigError =
-            strings?.errorLoadingCoordinatorConfig ?? "Error loading config";
+        _coordinatorConfigError = t.system.errors.loadingCoordinatorConfig;
       });
     }
   }
@@ -125,7 +117,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!; // Get strings instance
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
 
@@ -142,9 +133,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
         },
         error: (e, s) {
           _stopRefreshTimer();
-          // Use localized string with placeholder
           return Center(
-            child: Text(strings.errorLoadingLightningAddress(e.toString())),
+            child: Text(t.lightningAddress.errors.loading(details: e.toString())),
           );
         },
         data: (lightningAddress) {
@@ -158,7 +148,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             });
             validateLightningAddress(
               lightningAddress,
-              AppLocalizations.of(context)!,
+              t,
             ).then((error) {
               if (mounted) {
                 setState(() {
@@ -189,7 +179,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.enterLightningAddress,
+                    t.lightningAddress.prompts.enter,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -203,19 +193,15 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       focusNode: _addressFocusNode,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText:
-                            AppLocalizations.of(context)!.lightningAddressHint,
-                        labelText:
-                            AppLocalizations.of(context)!.lightningAddressLabel,
+                        hintText: t.lightningAddress.labels.hint,
+                        labelText: t.lightningAddress.labels.address,
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
                             !value.contains('@')) {
-                          return AppLocalizations.of(
-                            context,
-                          )!.lightningAddressInvalid;
+                          return t.lightningAddress.prompts.invalid;
                         }
                         return _validationError;
                       },
@@ -223,7 +209,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         if (value.isNotEmpty && value.contains('@')) {
                           final error = await validateLightningAddress(
                             value,
-                            AppLocalizations.of(context)!,
+                            t,
                           );
                           if (mounted) {
                             setState(() {
@@ -244,24 +230,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               _addressController.text,
                             );
                             ref.invalidate(lightningAddressProvider);
-                            // Use localized string
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.lightningAddressSaved,
+                                  t.lightningAddress.feedback.saved,
                                 ),
                               ),
                             );
                           } catch (e) {
-                            // Use localized string with placeholder
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.errorSavingAddress(e.toString()),
+                                  t.lightningAddress.errors.saving(details: e.toString()),
                                 ),
                               ),
                             );
@@ -280,31 +260,25 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             _addressController.text,
                           );
                           ref.invalidate(lightningAddressProvider);
-                          // Use localized string
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.lightningAddressSaved,
+                                t.lightningAddress.feedback.saved,
                               ),
                             ),
                           );
                         } catch (e) {
-                          // Use localized string with placeholder
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.errorSavingAddress(e.toString()),
+                                t.lightningAddress.errors.saving(details: e.toString()),
                               ),
                             ),
                           );
                         }
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.saveAndContinue),
+                    child: Text(t.common.buttons.saveAndContinue),
                   ),
                 ],
               ),
@@ -312,7 +286,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
           }
 
           // Lightning address exists, show offers list as before
-          // Reset focus flag so that if user logs out and comes back, focus will be requested again
           _requestedFocus = false;
           _startRefreshTimer();
           return Column(
@@ -331,9 +304,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       )
                     else if (_validationError == null &&
                         _hasValidatedInitialAddress)
-                      // Use localized string for tooltip
                       Tooltip(
-                        message: strings.validLightningAddressTooltip,
+                        message: t.lightningAddress.feedback.valid,
                         child: const Icon(
                           Icons.check_circle,
                           color: Colors.green,
@@ -362,9 +334,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit),
-                      // Use localized string
-                      tooltip:
-                          AppLocalizations.of(context)!.editLightningAddress,
+                      tooltip: t.lightningAddress.prompts.edit,
                       onPressed: () async {
                         final editController = TextEditingController(
                           text: lightningAddress,
@@ -376,18 +346,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         final result = await showDialog<String>(
                           context: context,
                           builder: (context) {
-                            // Request focus when the dialog is shown
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               editFocusNode.requestFocus();
                             });
                             return StatefulBuilder(
                               builder: (context, setState) {
                                 return AlertDialog(
-                                  // Use localized string
                                   title: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.editLightningAddress,
+                                    t.lightningAddress.prompts.edit,
                                   ),
                                   content: Form(
                                     key: editFormKey,
@@ -395,25 +361,15 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       controller: editController,
                                       focusNode: editFocusNode,
                                       keyboardType: TextInputType.emailAddress,
-                                      // Use localized strings
                                       decoration: InputDecoration(
-                                        hintText:
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.lightningAddressHint,
-                                        labelText:
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.lightningAddressLabel,
+                                        hintText: t.lightningAddress.labels.hint,
+                                        labelText: t.lightningAddress.labels.address,
                                       ),
                                       validator: (value) {
                                         if (value == null ||
                                             value.isEmpty ||
                                             !value.contains('@')) {
-                                          // Use localized string
-                                          return AppLocalizations.of(
-                                            context,
-                                          )!.lightningAddressInvalid;
+                                          return t.lightningAddress.prompts.invalid;
                                         }
                                         return editValidationError;
                                       },
@@ -423,7 +379,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           final error =
                                               await validateLightningAddress(
                                                 value,
-                                                AppLocalizations.of(context)!,
+                                                t,
                                               );
                                           setState(() {
                                             editValidationError = error;
@@ -449,30 +405,22 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             Navigator.of(
                                               context,
                                             ).pop(editController.text);
-                                            // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.lightningAddressUpdated,
+                                                  t.lightningAddress.feedback.updated,
                                                 ),
                                               ),
                                             );
                                           } catch (e) {
-                                            // Use localized string with placeholder
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.errorSavingAddress(
-                                                    e.toString(),
-                                                  ),
+                                                  t.lightningAddress.errors.saving(details: e.toString()),
                                                 ),
                                               ),
                                             );
@@ -485,9 +433,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     TextButton(
                                       onPressed:
                                           () => Navigator.of(context).pop(),
-                                      // Use localized string
                                       child: Text(
-                                        AppLocalizations.of(context)!.cancel,
+                                        t.common.buttons.cancel,
                                       ),
                                     ),
                                     TextButton(
@@ -506,39 +453,30 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             Navigator.of(
                                               context,
                                             ).pop(editController.text);
-                                            // Use localized string
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.lightningAddressUpdated,
+                                                  t.lightningAddress.feedback.updated,
                                                 ),
                                               ),
                                             );
                                           } catch (e) {
-                                            // Use localized string with placeholder
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.errorSavingAddress(
-                                                    e.toString(),
-                                                  ),
+                                                  t.lightningAddress.errors.saving(details: e.toString()),
                                                 ),
                                               ),
                                             );
                                           }
                                         }
                                       },
-                                      // Use localized string
                                       child: Text(
-                                        AppLocalizations.of(context)!.save,
+                                        t.common.buttons.save,
                                       ),
                                     ),
                                   ],
@@ -561,28 +499,20 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     final Uri url = Uri.parse(
                       'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
                     );
-                    // if (await canLaunchUrl(url)) {
                     await launchUrl(url);
-                    // }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align items to the top
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Image.asset('assets/simplex.png', height: 24, width: 24),
                       const SizedBox(width: 8),
-                      // Use localized string
                       Flexible(
-                        // Wrap with Flexible
                         child: Text(
-                          AppLocalizations.of(context)!.getNotifiedSimplex,
-                          textAlign: TextAlign.center, // Center align text
+                          t.home.notifications.simplex,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            color:
-                                Theme.of(
-                                  context,
-                                ).colorScheme.primary, // Use theme color
+                            color: Theme.of(context).colorScheme.primary,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -592,37 +522,26 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              // Add some spacing
               Center(
                 child: InkWell(
                   onTap: () async {
                     final Uri url = Uri.parse(
                       'https://matrix.to/#/#bitblik-offers:matrix.org',
                     );
-                    // if (await canLaunchUrl(url)) {
                     await launchUrl(url);
-                    // }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align items to the top
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Image.asset('assets/element.png', height: 24, width: 24),
                       const SizedBox(width: 8),
-                      // Use localized string
                       Flexible(
-                        // Wrap with Flexible
                         child: Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.getNotifiedWithElement, // Use l10n key
-                          textAlign: TextAlign.center, // Center align text
+                          t.home.notifications.element,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            color:
-                                Theme.of(
-                                  context,
-                                ).colorScheme.primary, // Use theme color
+                            color: Theme.of(context).colorScheme.primary,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -632,18 +551,13 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Add some spacing
-              // const SizedBox(
-              //   height: 16,
-              // ), // Add some spacing before active offers // Removed, Divider provides spacing
               Expanded(
                 child: offersAsyncValue.when(
                   data: (offers) {
                     if (offers.isEmpty) {
-                      // Use localized string
                       return Center(
                         child: Text(
-                          AppLocalizations.of(context)!.noOffersAvailable,
+                          t.offers.display.noAvailable,
                         ),
                       );
                     }
@@ -669,9 +583,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             )
                             .toList();
 
-                    // If there are no active offers but there are finished offers,
-                    // we might not want to expand the ListView for active offers.
-                    // The main column will handle scrolling if stats + finished offers exceed screen height.
                     final bool showActiveOffersList = activeOffers.isNotEmpty;
 
                     return Column(
@@ -679,7 +590,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         // Active offers
                         if (showActiveOffersList)
                           Expanded(
-                            // Only expand if there are active offers to show
                             child: RefreshIndicator(
                               onRefresh: () async {
                                 print(
@@ -709,7 +619,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         data:
                                             (publicKey) => () async {
                                               if (publicKey == null) {
-                                                return; // Still need pubkey
+                                                return; 
                                               }
 
                                               final takerId = publicKey;
@@ -746,7 +656,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                         offer.amountSats,
                                                     takerFees: offer.takerFees,
                                                     makerFees: offer.makerFees,
-                                                    // Renamed
                                                     fiatCurrency:
                                                         offer.fiatCurrency,
                                                     fiatAmount:
@@ -789,22 +698,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 } else {
                                                   Navigator.of(
                                                     context,
-                                                  ).pop(); // Pop loading
-                                                  // Use localized string
+                                                  ).pop(); 
                                                   ref
                                                       .read(
                                                         errorProvider.notifier,
                                                       )
-                                                      .state = strings
-                                                          .errorFailedToReserveOfferNoTimestamp;
+                                                      .state = t.reservations.errors.failedNoTimestamp;
                                                   if (scaffoldMessenger
                                                       .mounted) {
                                                     scaffoldMessenger.showSnackBar(
                                                       SnackBar(
-                                                        // Use localized string
                                                         content: Text(
-                                                          strings
-                                                              .errorFailedToReserveOfferNoTimestamp,
+                                                          t.reservations.errors.failedNoTimestamp,
                                                         ),
                                                       ),
                                                     );
@@ -819,11 +724,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 ).canPop()) {
                                                   Navigator.of(context).pop();
                                                 }
-                                                // Use localized string with placeholder
-                                                final errorMsg = strings
-                                                    .errorFailedToReserveOffer(
-                                                      e.toString(),
-                                                    );
+                                                final errorMsg = t.reservations.errors.failedToReserve(details: e.toString());
                                                 ref
                                                     .read(
                                                       errorProvider.notifier,
@@ -832,7 +733,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 if (scaffoldMessenger.mounted) {
                                                   scaffoldMessenger.showSnackBar(
                                                     SnackBar(
-                                                      // Use localized string
                                                       content: Text(errorMsg),
                                                     ),
                                                   );
@@ -842,12 +742,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 );
                                               }
                                             },
-                                        orElse:
-                                            () =>
-                                                null, // Disable if public key loading/error
+                                        orElse: () => null,
                                       ),
                                       child: Text(
-                                        AppLocalizations.of(context)!.take,
+                                        t.offers.actions.take,
                                       ),
                                     );
                                   } else if (isReserved || isBlikReceived) {
@@ -856,11 +754,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         if (myOffer != null &&
                                             offer.id == myOffer.id) {
                                           return ElevatedButton(
-                                            // Use localized string
                                             child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.resume,
+                                              t.offers.actions.resume,
                                             ),
                                             onPressed: () {
                                               ref
@@ -882,7 +777,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 destinationScreen =
                                                     TakerSubmitBlikScreen(
                                                       initialOffer: myOffer,
-                                                    ); // Pass offer
+                                                    ); 
                                               } else if (myOffer.status ==
                                                       OfferStatus
                                                           .blikReceived
@@ -898,7 +793,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 destinationScreen =
                                                     TakerWaitConfirmationScreen(
                                                       offer: myOffer,
-                                                    ); // Pass offer
+                                                    ); 
                                               } else {
                                                 print(
                                                   "[OfferListScreen] Error: Resuming offer in unexpected state: ${myOffer.status}",
@@ -906,16 +801,13 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  // Use localized string
                                                   SnackBar(
                                                     content: Text(
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.errorOfferUnexpectedState,
+                                                      t.offers.errors.unexpectedState,
                                                     ),
                                                   ),
                                                 );
-                                                return; // Don't navigate
+                                                return; 
                                               }
 
                                               Navigator.of(
@@ -980,14 +872,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           vertical: 5.0,
                                         ),
                                         child: ListTile(
-                                          // Use localized strings with placeholders
                                           title: Text(
-                                            // Assuming PLN for now, might need dynamic currency later
-                                            '${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}',
+                                            t.offers.details.amountWithCurrency(amount: formatDouble(offer.fiatAmount ?? 0.0), currency: offer.fiatCurrency),
                                           ),
                                           subtitle: Text(
-                                            // Combine amount, fee, status, and ID using localized strings
-                                            '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.takerFees?.toString() ?? "0", offer.status)}',
+                                            '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
                                           ),
                                           isThreeLine: true,
                                           trailing: trailingWidget,
@@ -1007,8 +896,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
                                           ),
                                           reservedAt: offer.reservedAt!,
-                                          maxDuration:
-                                              _reservationDuration!, // Pass the dynamic duration
+                                          maxDuration: _reservationDuration!,
                                         ),
                                       if (isBlikReceived &&
                                           offer.blikReceivedAt != null)
@@ -1024,18 +912,17 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               ),
                             ),
                           ),
-                        // Finished offers section - this might need adjustment if active offers list is not expanded
+                        // Finished offers section
                         if (finishedOffers.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(
                               top: showActiveOffersList ? 16.0 : 0,
-                            ), // Adjust padding based on active offers
+                            ), 
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Use localized string
                                 Text(
-                                  AppLocalizations.of(context)!.finishedOffers,
+                                  t.offers.display.finishedOffers,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -1044,11 +931,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                 const SizedBox(height: 8),
                                 SizedBox(
                                   height: 200,
-                                  // Consider making this flexible or removing fixed height
                                   child: Scrollbar(
                                     child: ListView.builder(
                                       shrinkWrap: !showActiveOffersList,
-                                      // Shrink wrap if it's the only list
                                       physics:
                                           !showActiveOffersList
                                               ? const NeverScrollableScrollPhysics()
@@ -1061,15 +946,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             vertical: 5.0,
                                           ),
                                           child: ListTile(
-                                            // Use localized string with placeholder
                                             title: Text(
-                                              // Use the existing fiat amount display logic
-                                              '${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}',
+                                              t.offers.details.amountWithCurrency(amount: formatDouble(offer.fiatAmount ?? 0.0), currency: offer.fiatCurrency),
                                             ),
-                                            // Use localized string with placeholders
                                             subtitle: Text(
-                                              // Combine amount, fee, status, and ID using localized strings
-                                              '${AppLocalizations.of(context)!.offerAmountSats(offer.amountSats.toString())}\n${AppLocalizations.of(context)!.offerFeeStatusId(offer.takerFees?.toString() ?? "0", offer.status)}',
+                                              '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
                                             ),
                                             isThreeLine: true,
                                           ),
@@ -1091,18 +972,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Use localized string with placeholder
                             Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.errorLoadingOffers(error.toString()),
+                              t.offers.errors.loading(details: error.toString()),
                             ),
                             const SizedBox(height: 10),
                             ElevatedButton(
                               onPressed:
                                   () => ref.invalidate(availableOffersProvider),
-                              // Use localized string
-                              child: Text(AppLocalizations.of(context)!.retry),
+                              child: Text(t.common.buttons.retry),
                             ),
                           ],
                         ),
@@ -1110,11 +987,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 ),
               ),
               const Divider(height: 32, thickness: 1),
-              // Separator
-              // Add the Stats Section here
               _buildStatsSection(
                 context,
-                strings,
                 ref.watch(successfulOffersStatsProvider),
               ),
             ],
@@ -1160,7 +1034,6 @@ String _formatDurationFromSeconds(int? totalSeconds) {
     result += '${minutes}m ';
   }
   if (seconds > 0 || minutes == 0) {
-    // Show seconds if non-zero, or if minutes is zero (e.g. "0s")
     result += '${seconds}s';
   }
   return result.trim();
@@ -1168,45 +1041,20 @@ String _formatDurationFromSeconds(int? totalSeconds) {
 
 Widget _buildStatsSection(
   BuildContext context,
-  AppLocalizations strings,
   AsyncValue<Map<String, dynamic>> statsAsyncValue,
 ) {
   return statsAsyncValue.when(
     data: (data) {
-      // Changed 'stats' to 'data' to match provider's direct output
-      // Accessing nested stats structure
       final statsMap = data['stats'] as Map<String, dynamic>? ?? {};
       final lifetime = statsMap['lifetime'] as Map<String, dynamic>? ?? {};
       final last7Days = statsMap['last_7_days'] as Map<String, dynamic>? ?? {};
 
-      // Accessing offers list directly from data
       final recentOffersData = data['offers'] as List<dynamic>? ?? [];
-      // Ensure Offer.fromJson is robust or data matches client Offer model exactly
-      // The ApiService already maps this to List<Offer>
       final recentOffers = recentOffersData.cast<Offer>();
 
-      final numberFormat = NumberFormat("#,##0", strings.localeName);
-      final dateFormat = DateFormat.yMd(strings.localeName).add_Hm();
+      final numberFormat = NumberFormat("#,##0", 'en'); // Use 'en' locale for numbers
+      final dateFormat = DateFormat.yMd('en').add_Hm(); // Use 'en' locale for dates
 
-      // Helper for succinct stat line
-      String formatStatLine(
-        String title,
-        int? count,
-        num? avgBlik,
-        num? avgPaid,
-      ) {
-        final countStr = numberFormat.format(count ?? 0);
-        final blikStr = avgBlik?.round().toString() ?? '-';
-        final paidStr = avgPaid?.round().toString() ?? '-';
-        // Using existing localization keys for "trades", "BLIK", "Paid" for now.
-        // Ideally, create a new very compact key like "statsCompactLine": "{title}: {count} trades, BLIK {blikTime}s, Paid {paidTime}s"
-        return '$title: $countStr trades, BLIK: ${blikStr}s, Paid: ${paidStr}s';
-      }
-
-      final lifetimeBlikTime =
-          lifetime['avg_time_blik_received_to_created_seconds'] as num?;
-      final lifetimePaidTime =
-          lifetime['avg_time_taker_paid_to_created_seconds'] as num?;
       final last7DaysBlikTime =
           last7Days['avg_time_blik_received_to_created_seconds'] as num?;
       final last7DaysPaidTime =
@@ -1216,7 +1064,7 @@ Widget _buildStatsSection(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            strings.successfulTradeStatistics, // Existing title
+            t.home.statistics.title,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
@@ -1226,21 +1074,11 @@ Widget _buildStatsSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(
-                //   // Using a placeholder for a new compact localization string
-                //   strings.statsLifetimeCompact(
-                //     numberFormat.format(lifetime['count'] ?? 0),
-                //     lifetimeBlikTime?.round().toString() ?? '-',
-                //     lifetimePaidTime?.round().toString() ?? '-',
-                //   ),
-                //   style: const TextStyle(fontSize: 13),
-                // ),
                 Text(
-                  // Using a placeholder for a new compact localization string
-                  strings.statsLast7DaysCompact(
-                    numberFormat.format(last7Days['count'] ?? 0),
-                    _formatDurationFromSeconds(last7DaysBlikTime!.toInt()),
-                    _formatDurationFromSeconds(last7DaysPaidTime!.toInt()),
+                  t.home.statistics.last7DaysCompact(
+                    count: numberFormat.format(last7Days['count'] ?? 0),
+                    avgBlikTime: _formatDurationFromSeconds(last7DaysBlikTime?.round()),
+                    avgPaidTime: _formatDurationFromSeconds(last7DaysPaidTime?.round()),
                   ),
                   style: const TextStyle(fontSize: 13),
                 ),
@@ -1248,18 +1086,15 @@ Widget _buildStatsSection(
                 if (recentOffers.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(strings.noSuccessfulTradesYet),
+                    child: Text(t.offers.display.noSuccessfulTrades),
                   )
                 else
                   SizedBox(
-                    height: 150, // Fixed height for scrollable list
+                    height: 150,
                     child: Scrollbar(
-                      // Added Scrollbar
                       child: ListView.builder(
                         shrinkWrap: true,
-                        // Important for ListView inside SizedBox
                         physics: const AlwaysScrollableScrollPhysics(),
-                        // Ensure it's scrollable
                         itemCount: recentOffers.length,
                         itemBuilder: (context, index) {
                           final offer = recentOffers[index];
@@ -1271,35 +1106,35 @@ Widget _buildStatsSection(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    strings.offerFiatAmount(
-                                      formatDouble(offer.fiatAmount),
-                                      offer.fiatCurrency,
+                                    t.offers.details.amountWithCurrency(
+                                      amount: formatDouble(offer.fiatAmount ?? 0.0),
+                                      currency: offer.fiatCurrency,
                                     ),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
-                                    strings.offerCreatedAt(
-                                      dateFormat.format(
+                                    t.offers.details.created(
+                                      dateTime: dateFormat.format(
                                         offer.createdAt.toLocal(),
-                                      ), // Named arg
+                                      ),
                                     ),
                                   ),
                                   if (offer.timeToReserveSeconds != null)
                                     Text(
-                                      strings.offerTakenAfter(
-                                        _formatDurationFromSeconds(
+                                      t.offers.details.takenAfter(
+                                        duration: _formatDurationFromSeconds(
                                           offer.timeToReserveSeconds,
-                                        ), // Named arg
+                                        ),
                                       ),
                                     ),
                                   if (offer.totalCompletionTimeTakerSeconds != null)
                                     Text(
-                                      strings.offerPaidAfter(
-                                        _formatDurationFromSeconds(
+                                      t.offers.details.paidAfter(
+                                        duration: _formatDurationFromSeconds(
                                           offer.totalCompletionTimeTakerSeconds,
-                                        ), // Named arg
+                                        ),
                                       ),
                                     ),
                                 ],
@@ -1308,8 +1143,8 @@ Widget _buildStatsSection(
                           );
                         },
                       ),
-                    ), // End of ListView.builder
-                  ), // End of Scrollbar
+                    ), 
+                  ), 
               ],
             ),
           ),
@@ -1319,6 +1154,6 @@ Widget _buildStatsSection(
     loading: () => const Center(child: CircularProgressIndicator()),
     error:
         (error, stackTrace) =>
-            Center(child: Text(strings.errorLoadingStats(error.toString()))),
+            Center(child: Text(t.home.statistics.errors.loading(error: error.toString()))),
   );
 }
