@@ -452,7 +452,7 @@ class _TranslationsExchangeLabelsPl extends TranslationsExchangeLabelsEn {
 	// Translations
 	@override String get enterAmount => 'Wprowadź kwotę (PLN) do zapłaty:';
 	@override String equivalent({required Object sats}) => '≈ ${sats} satoshi';
-	@override String rate({required Object rate}) => 'Kurs PLN/BTC ≈ ${rate}';
+	@override String rate({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
 	@override String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 }
 
@@ -1302,7 +1302,7 @@ extension on TranslationsPl {
 			case 'reservations.errors.notReserved': return ({required Object status}) => 'Oferta nie jest już w stanie zarezerwowanym (${status}).';
 			case 'exchange.labels.enterAmount': return 'Wprowadź kwotę (PLN) do zapłaty:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
-			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs PLN/BTC ≈ ${rate}';
+			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
 			case 'exchange.labels.rangeHint': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 			case 'exchange.feedback.fetching': return 'Pobieranie kursu wymiany...';
 			case 'exchange.errors.fetchingRate': return 'Nie udało się pobrać kursu wymiany.';
