@@ -58,7 +58,77 @@ class ApiService {
     }
   }
 
-  // GET BTC/PLN rate from CoinGecko with caching
+  // Define a structure for exchange rate sources
+  static final List<Map<String, String>> _exchangeRateSources = [
+    {
+      'name': 'CoinGecko',
+      'url':
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=pln',
+      'parser': '_parseCoinGeckoResponse',
+    },
+    {
+      'name': 'Yadio',
+      'url': 'https://api.yadio.io/exrates/pln',
+      'parser': '_parseYadioResponse',
+    },
+    {
+      'name': 'Blockchain.info',
+      'url': 'https://blockchain.info/ticker',
+      'parser': '_parseBlockchainInfoResponse',
+    },
+  ];
+
+  static List<String> get exchangeRateSourceNames =>
+      _exchangeRateSources.map((s) => s['name']!).toList();
+
+  // Parser for CoinGecko response
+  double? _parseCoinGeckoResponse(String responseBody) {
+    try {
+      final data = jsonDecode(responseBody);
+      final rate = data['bitcoin']['pln'];
+      if (rate is num) {
+        return rate.toDouble();
+      }
+    } catch (e) {
+      print('Error parsing CoinGecko response: $e');
+    }
+    return null;
+  }
+
+  // Parser for Yadio.io response
+  double? _parseYadioResponse(String responseBody) {
+    try {
+      final data = jsonDecode(responseBody);
+      // Yadio returns BTC value for 1 PLN, so we need to calculate 1 BTC in PLN
+      // "PLN":{"BTC":0.000002563139, ...}
+      // The main "BTC" key directly gives BTC in PLN: "BTC":390146.61
+      final rate = data['BTC'];
+      if (rate is num) {
+        return rate.toDouble();
+      }
+    } catch (e) {
+      print('Error parsing Yadio response: $e');
+    }
+    return null;
+  }
+
+  // Parser for Blockchain.info response
+  double? _parseBlockchainInfoResponse(String responseBody) {
+    try {
+      final data = jsonDecode(responseBody);
+      // Blockchain.info returns a map of currencies
+      // We need PLN -> last (or 15m, buy, sell - 'last' is usually fine)
+      final plnData = data['PLN'];
+      if (plnData != null && plnData['last'] is num) {
+        return (plnData['last'] as num).toDouble();
+      }
+    } catch (e) {
+      print('Error parsing Blockchain.info response: $e');
+    }
+    return null;
+  }
+
+  // GET BTC/PLN rate from multiple sources with caching
   Future<double> getBtcPlnRate() async {
     // Check cache first
     final cachedRate = MemoryCache.instance.read<double>(_btcPlnCacheKey);
@@ -66,41 +136,71 @@ class ApiService {
       return cachedRate;
     }
 
-    // If not in cache, fetch from API
-    final url = Uri.parse(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=pln',
-    );
+
+    List<Future<double?>> fetchFutures = [];
+
+    for (var source in _exchangeRateSources) {
+      fetchFutures.add(_fetchRateFromSource(source));
+    }
+
+    final List<double?> results = await Future.wait(fetchFutures);
+    final List<double> validRates =
+        results.where((rate) => rate != null).cast<double>().toList();
+
+    if (validRates.isNotEmpty) {
+      final averageRate =
+          validRates.reduce((a, b) => a + b) / validRates.length;
+      MemoryCache.instance.create(
+        _btcPlnCacheKey,
+        averageRate,
+        expiry: const Duration(minutes: 5),
+      );
+      return averageRate;
+    } else {
+      // Attempt to return last known value if all fetches fail
+      final lastKnown = MemoryCache.instance.read<double>(_btcPlnCacheKey);
+      if (lastKnown != null) {
+        print(
+          'Returning stale BTC/PLN rate due to all sources failing to fetch.',
+        );
+        return lastKnown;
+      }
+      throw Exception('Failed to fetch BTC/PLN rate from all sources.');
+    }
+  }
+
+  Future<double?> _fetchRateFromSource(Map<String, String> source) async {
+    final url = Uri.parse(source['url']!);
+    final parserName = source['parser']!;
+    final sourceName = source['name']!;
+
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final rate = data['bitcoin']['pln'];
-        if (rate is num) {
-          final doubleRate = rate.toDouble();
-          // Write to cache with 5-minute expiry
-          MemoryCache.instance.create(
-            _btcPlnCacheKey,
-            doubleRate,
-            expiry: const Duration(minutes: 5),
-          );
-          return doubleRate;
+        double? rate;
+        if (parserName == '_parseCoinGeckoResponse') {
+          rate = _parseCoinGeckoResponse(response.body);
+        } else if (parserName == '_parseYadioResponse') {
+          rate = _parseYadioResponse(response.body);
+        } else if (parserName == '_parseBlockchainInfoResponse') {
+          rate = _parseBlockchainInfoResponse(response.body);
+        }
+        if (rate != null) {
+          print('Successfully fetched rate from $sourceName: $rate');
+          return rate;
         } else {
-          throw Exception('Invalid rate format received from CoinGecko');
+          print('Failed to parse response from $sourceName');
+          return null;
         }
       } else {
-        throw Exception(
-          'Failed to fetch BTC/PLN rate: ${response.statusCode} ${response.body}',
+        print(
+          'Failed to fetch BTC/PLN rate from $sourceName: ${response.statusCode} ${response.body}',
         );
+        return null;
       }
     } catch (e) {
-      print('Error fetching BTC/PLN rate from CoinGecko: $e');
-      // Attempt to return last known value if fetch fails, otherwise rethrow
-      final lastKnown = MemoryCache.instance.read<double>(_btcPlnCacheKey);
-      if (lastKnown != null) {
-        print('Returning stale BTC/PLN rate due to fetch error.');
-        return lastKnown;
-      }
-      rethrow;
+      print('Error fetching BTC/PLN rate from $sourceName: $e');
+      return null;
     }
   }
 

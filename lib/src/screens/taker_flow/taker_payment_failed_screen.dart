@@ -1,4 +1,4 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart'; // Corrected Slang import
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
@@ -35,11 +35,10 @@ class _TakerPaymentFailedScreenState
 
   Future<void> _retryPayment() async {
     final newInvoice = _bolt11Controller.text.trim();
-    final strings = AppLocalizations.of(context)!;
     if (newInvoice.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.errorEnterValidInvoice)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.taker.paymentFailed.errors.enterValidInvoice)),
+      );
       return;
     }
 
@@ -55,10 +54,7 @@ class _TakerPaymentFailedScreenState
       final apiService = ref.read(apiServiceProvider);
       final userPubkey = widget.offer.takerPubkey;
       if (userPubkey == null || userPubkey.isEmpty) {
-        // Use localized string if available, otherwise fallback
-        throw Exception(
-          strings.errorTakerPublicKeyNotFound ?? 'Taker public key not found.',
-        );
+        throw Exception(t.taker.paymentFailed.errors.takerPublicKeyNotFound);
       }
 
       // 1. Update the invoice first
@@ -111,10 +107,7 @@ class _TakerPaymentFailedScreenState
           // Still failed or timed out
           setState(() {
             _currentState = PaymentRetryState.failed; // Set failed state
-            // Use specific localized string if available
-            _errorMessage =
-                strings.paymentRetryFailedError ??
-                'Payment retry failed. Please check the invoice or try again later.';
+            _errorMessage = t.taker.paymentFailed.errors.paymentRetryFailed;
           });
         }
       }
@@ -123,8 +116,9 @@ class _TakerPaymentFailedScreenState
       if (mounted) {
         setState(() {
           _currentState = PaymentRetryState.failed; // Set failed state on error
-          // Use specific localized string if available
-          _errorMessage = strings.errorUpdatingInvoice(e.toString());
+          _errorMessage = t.taker.paymentFailed.errors.updatingInvoice(
+            details: e.toString(),
+          );
         });
       }
     }
@@ -132,8 +126,6 @@ class _TakerPaymentFailedScreenState
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
-
     // Calculate net amount (moved here for access to widget.offer)
     final takerFees =
         widget.offer.takerFees ?? (widget.offer.amountSats * 0.005).ceil();
@@ -141,24 +133,18 @@ class _TakerPaymentFailedScreenState
 
     return Scaffold(
       appBar: AppBar(
-        // Use localized string, dynamically update title based on state
         title: Text(
           _currentState == PaymentRetryState.success
-              ? (strings.paymentSuccessfulTitle ??
-                  'Payment Successful') // Use localized string with fallback
-              : (strings.paymentFailedTitle ??
-                  'Payment Failed'), // Use localized string with fallback
+              ? t.taker.paymentFailed.success.title
+              : t.taker.paymentFailed.title,
         ),
-        // Hide back button automatically when navigation stack allows (or force hide on success)
         automaticallyImplyLeading: _currentState != PaymentRetryState.success,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          // Center content vertically
           child: SingleChildScrollView(
-            // Allow scrolling if content overflows
-            child: _buildContent(context, strings, netAmountSats),
+            child: _buildContent(context, netAmountSats),
           ),
         ),
       ),
@@ -166,26 +152,21 @@ class _TakerPaymentFailedScreenState
   }
 
   // Helper method to build content based on state
-  Widget _buildContent(
-    BuildContext context,
-    AppLocalizations strings,
-    int netAmountSats,
-  ) {
+  Widget _buildContent(BuildContext context, int netAmountSats) {
     switch (_currentState) {
       case PaymentRetryState.loading:
-        return const Column(
-          // Wrap in column for centering
+        return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Processing payment..."), // Add loading text
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(t.taker.paymentFailed.loading.processingPayment),
           ],
         );
 
       case PaymentRetryState.success:
         return Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Icon(
@@ -195,48 +176,43 @@ class _TakerPaymentFailedScreenState
             ),
             const SizedBox(height: 16),
             Text(
-              strings.paymentSuccessfulTitle ??
-                  'Payment Successful', // Use localized string with fallback
+              t.taker.paymentFailed.success.title,
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              strings.paymentSuccessfulMessage ??
-                  'Your payment has been processed successfully.', // Use localized string with fallback
+              t.taker.paymentFailed.success.message,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Clear active offer and go home
                 ref.read(activeOfferProvider.notifier).state = null;
-                // ALSO Reset the app role
                 ref.read(appRoleProvider.notifier).state = AppRole.none;
-                // Use context.go to navigate to the root ('/')
                 if (mounted) {
                   context.go('/');
                 }
               },
-              child: Text(
-                strings.goToHomeButton ?? 'Go to Home',
-              ), // Use localized string with fallback
+              child: Text(t.common.buttons.goHome),
             ),
           ],
         );
 
       case PaymentRetryState.initial:
-      case PaymentRetryState
-          .failed: // Show error/retry UI for initial and failed states
+      case PaymentRetryState.failed:
         return Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 64),
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
-              strings.paymentFailedTitle ??
-                  'Payment Failed', // Use localized string with fallback
+              t.taker.paymentFailed.title,
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
@@ -245,10 +221,9 @@ class _TakerPaymentFailedScreenState
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                 child: Text(
-                  strings.lightningAddressLabelShort(
-                    // Assuming this key exists
-                    widget.offer.takerLightningAddress!,
-                  ),
+                  t.lightningAddress.labels.short(
+                    address: widget.offer.takerLightningAddress!,
+                  ), // Corrected key
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
@@ -256,42 +231,36 @@ class _TakerPaymentFailedScreenState
                 ),
               ),
             const SizedBox(height: 16),
-            // Show specific error message if retry failed
             if (_currentState == PaymentRetryState.failed &&
                 _errorMessage != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                   textAlign: TextAlign.center,
                 ),
               ),
             Text(
-              // Assuming this key exists and takes an int parameter
-              strings.paymentFailedInstructions(netAmountSats),
+              t.taker.paymentFailed.instructions(
+                netAmount: netAmountSats.toString(),
+              ), // Corrected parameter name and type
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             TextField(
               controller: _bolt11Controller,
               decoration: InputDecoration(
-                // Use localized strings with fallbacks
-                labelText:
-                    strings.newLightningInvoiceLabel ??
-                    'New Lightning Invoice (Bolt11)',
-                hintText:
-                    strings.newLightningInvoiceHint ??
-                    'Enter the full ln... invoice',
+                labelText: t.taker.paymentFailed.form.newInvoiceLabel,
+                hintText: t.taker.paymentFailed.form.newInvoiceHint,
                 border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _retryPayment, // Call the retry method
-              // Use localized string with fallback
-              child: Text(strings.submitNewInvoiceButton ?? 'Retry Payment'),
+              onPressed: _retryPayment,
+              child: Text(t.taker.paymentFailed.actions.retryPayment),
             ),
           ],
         );

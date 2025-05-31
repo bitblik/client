@@ -1,4 +1,4 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,12 +36,11 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
     final paymentHash = ref.watch(paymentHashProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.paymentProcessTitle),
+        title: Text(t.taker.paymentProcess.title),
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -52,7 +51,7 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
               paymentHash == null
                   ? _buildErrorContent(
                     context,
-                    l10n.errorMissingPaymentHash, // Use localization
+                    t.taker.paymentProcess.errors.missingPaymentHash,
                   )
                   : _buildPollingContent(context, ref, paymentHash),
         ),
@@ -65,7 +64,6 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
     WidgetRef ref,
     String paymentHash,
   ) {
-    final l10n = AppLocalizations.of(context)!;
     final statusAsyncValue = ref.watch(pollingOfferStatusProvider(paymentHash));
 
     return statusAsyncValue.when(
@@ -77,7 +75,7 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
             children: [
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              Text(l10n.waitingForOfferUpdate),
+              Text(t.taker.paymentProcess.waitingForOfferUpdate),
             ],
           );
         }
@@ -94,36 +92,39 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
             children: [
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              Text(l10n.loadingOfferDetails),
+              Text(t.offers.display.loadingDetails),
             ],
           ),
       error:
           (error, stack) => _buildErrorContent(
             context,
-            l10n.errorLoadingOffer(error.toString()),
+            t.offers.errors.loading(details: error.toString()),
           ),
     );
   }
 
   // Helper for displaying general errors (like missing hash or polling failure)
   Widget _buildErrorContent(BuildContext context, String errorMessage) {
-    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.error_outline, color: Colors.red, size: 60),
+        Icon(
+          Icons.error_outline,
+          color: Theme.of(context).colorScheme.error,
+          size: 60,
+        ),
         const SizedBox(height: 20),
         Text(
           errorMessage,
           textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(color: Colors.red),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.error,
+          ),
         ),
         const SizedBox(height: 30),
         ElevatedButton(
           onPressed: () => context.go('/'), // Go home on error
-          child: Text(l10n.goHome),
+          child: Text(t.common.buttons.goHome),
         ),
       ],
     );
@@ -142,26 +143,23 @@ class _PaymentChecklist extends ConsumerWidget {
     required this.paymentHash, // Add paymentHash to constructor
   });
 
-  String _getStepText(BuildContext context, PaymentStep step) {
-    final l10n = AppLocalizations.of(context)!;
+  String _getStepText(PaymentStep step) {
     switch (step) {
       case PaymentStep.makerConfirmed:
-        return l10n.taskMakerConfirmedBlik;
+        return t.taker.paymentProcess.steps.makerConfirmedBlik;
       case PaymentStep.makerSettled:
-        return l10n.taskMakerInvoiceSettled;
+        return t.taker.paymentProcess.steps.makerInvoiceSettled;
       case PaymentStep.payingTaker:
-        return l10n.taskPayingTakerInvoice;
+        return t.taker.paymentProcess.steps.payingTakerInvoice;
       case PaymentStep.takerPaid:
-        return l10n.taskTakerInvoicePaid;
+        return t.taker.paymentProcess.steps.takerInvoicePaid;
       case PaymentStep.takerPaymentFailed:
-        return l10n.taskTakerPaymentFailed;
+        return t.taker.paymentProcess.steps.takerPaymentFailed;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Add WidgetRef ref
-    final l10n = AppLocalizations.of(context)!;
     bool isFailed = currentStatus == OfferStatus.takerPaymentFailed;
 
     // Find the index corresponding to the current status in the successful flow
@@ -201,9 +199,9 @@ class _PaymentChecklist extends ConsumerWidget {
             // Determine the correct text based on failure state for the last item
             String itemText;
             if (isFailed && stepOrderIndex == successfulStepsOrder.length - 1) {
-              itemText = _getStepText(context, PaymentStep.takerPaymentFailed);
+              itemText = _getStepText(PaymentStep.takerPaymentFailed);
             } else {
-              itemText = _getStepText(context, step);
+              itemText = _getStepText(step);
             }
 
             return _ChecklistItem(
@@ -222,7 +220,7 @@ class _PaymentChecklist extends ConsumerWidget {
                 onPressed: () {
                   context.go("/");
                 },
-                child: Text(l10n.doneButton),
+                child: Text(t.common.buttons.done),
               ),
             ),
           ],
@@ -250,8 +248,6 @@ class _ChecklistItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Add WidgetRef ref
-    final l10n = AppLocalizations.of(context)!;
     Widget leadingIcon;
     Color textColor =
         Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
@@ -284,8 +280,12 @@ class _ChecklistItem extends ConsumerWidget {
         );
         break;
       case ChecklistItemStatus.error:
-        leadingIcon = const Icon(Icons.error, size: 24, color: Colors.red);
-        textColor = Colors.red;
+        leadingIcon = Icon(
+          Icons.error,
+          size: 24,
+          color: Theme.of(context).colorScheme.error,
+        );
+        textColor = Theme.of(context).colorScheme.error;
         textStyle = textStyle.copyWith(
           color: textColor,
           fontWeight: FontWeight.bold,
@@ -311,8 +311,8 @@ class _ChecklistItem extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(left: 40.0),
               child: Text(
-                l10n.errorTakerPaymentFailed,
-                style: const TextStyle(color: Colors.red),
+                t.taker.paymentProcess.errors.takerPaymentFailed,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -321,32 +321,24 @@ class _ChecklistItem extends ConsumerWidget {
               padding: const EdgeInsets.only(left: 40.0),
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.goToFailureDetails),
+                label: Text(t.taker.paymentProcess.actions.goToFailureDetails),
                 onPressed: () {
-                  // No longer async
-                  // Read the offer directly from the provider state
-                  final offer = ref.read(
-                    activeOfferProvider,
-                  ); // Read state directly
+                  final offer = ref.read(activeOfferProvider);
 
                   if (offer != null) {
-                    // Navigate with the offer object if it exists
                     context.go('/taker-failed', extra: offer);
                   } else {
-                    // Handle case where offer is unexpectedly null (e.g., show error)
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          l10n.errorOfferNotFound,
-                        ), // Add localization key if needed
-                        backgroundColor: Colors.red,
+                        content: Text(t.offers.errors.notFound),
+                        backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.red,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               ),
             ),

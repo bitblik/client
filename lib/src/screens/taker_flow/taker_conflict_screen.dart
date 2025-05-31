@@ -1,9 +1,7 @@
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-// import '../../providers/providers.dart'; // If needed for offer details
-// import '../../models/offer.dart'; // If needed
 
 class TakerConflictScreen extends ConsumerWidget {
   final String offerId;
@@ -12,13 +10,10 @@ class TakerConflictScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    // final offer = ref.watch(offerProvider(offerId)); // Example if offer details are needed
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.takerConflictTitle), // Needs localization string
-        automaticallyImplyLeading: false, // Prevent back button
+        title: Text(t.taker.conflict.title),
+        automaticallyImplyLeading: false, 
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,29 +26,27 @@ class TakerConflictScreen extends ConsumerWidget {
                   size: 80, color: Colors.orange),
               const SizedBox(height: 24),
               Text(
-                l10n.takerConflictHeadline, // Needs localization string
+                t.taker.conflict.headline,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
-                l10n.takerConflictBody, // Needs localization string
+                t.taker.conflict.body,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
-                l10n.takerConflictInstructions, // Needs localization string
+                t.taker.conflict.instructions,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              // TODO: Add contact/support information if applicable
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate back to the main screen or offer list
-                  context.go('/'); // Adjust route as needed
+                  context.go('/');
                 },
-                child: Text(l10n.takerConflictBackButton), // Needs localization string
+                child: Text(t.taker.conflict.actions.back),
               ),
             ],
           ),

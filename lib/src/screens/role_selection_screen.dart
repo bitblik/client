@@ -1,6 +1,6 @@
 // RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
 import 'package:flutter/material.dart';
-import 'package:bitblik/l10n/app_localizations.dart';
+import '../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,12 +37,10 @@ class RoleSelectionScreen extends ConsumerWidget {
         break;
       default:
         print("Cannot resume Maker offer in state: $offerStatus");
-        // Use localized string with placeholder
-        final strings = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              strings.errorCannotResumeOfferState(offerStatus.name),
+              t.offers.errors.cannotResume(status: offerStatus.name),
             ),
           ),
         );
@@ -75,12 +73,10 @@ class RoleSelectionScreen extends ConsumerWidget {
       print(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",
       );
-      // Use localized string with placeholder
-      final strings = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            strings.errorCannotResumeTakerOfferState(offerStatus.name),
+            t.offers.errors.cannotResumeTaker(status: offerStatus.name),
           ),
         ),
       );
@@ -88,91 +84,11 @@ class RoleSelectionScreen extends ConsumerWidget {
     }
   }
 
-  // // Helper to Prompt for Lightning Address
-  // static Future<String?> _promptForLightningAddress(
-  //   BuildContext context,
-  //   KeyService keyService,
-  // ) async {
-  //   final controller = TextEditingController();
-  //   final formKey = GlobalKey<FormState>();
-  //
-  //   return showDialog<String>(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext dialogContext) {
-  //       final strings = AppLocalizations.of(context)!; // Get strings
-  //       return AlertDialog(
-  //         // Reuse existing key
-  //         title: Text(strings.enterLightningAddress),
-  //         content: Form(
-  //           key: formKey,
-  //           child: TextFormField(
-  //             controller: controller,
-  //             keyboardType: TextInputType.emailAddress,
-  //             decoration: InputDecoration(
-  //               // Reuse existing key
-  //               hintText: strings.lightningAddressHint,
-  //               // Reuse existing key
-  //               labelText: strings.lightningAddressLabel,
-  //             ),
-  //             validator: (value) {
-  //               if (value == null || value.isEmpty || !value.contains('@')) {
-  //                 // Reuse existing key
-  //                 return strings.lightningAddressInvalid;
-  //               }
-  //               return null;
-  //             },
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             // Reuse existing key
-  //             child: Text(strings.cancel),
-  //             onPressed: () {
-  //               Navigator.of(dialogContext).pop(null);
-  //             },
-  //           ),
-  //           TextButton(
-  //             // Reuse existing key
-  //             child: Text(strings.saveAndContinue),
-  //             onPressed: () async {
-  //               if (formKey.currentState!.validate()) {
-  //                 final address = controller.text;
-  //                 showDialog(
-  //                   context: dialogContext,
-  //                   barrierDismissible: false,
-  //                   builder:
-  //                       (context) =>
-  //                           const Center(child: CircularProgressIndicator()),
-  //                 );
-  //                 try {
-  //                   await keyService.saveLightningAddress(address);
-  //                   Navigator.of(dialogContext).pop(); // Pop loading
-  //                   Navigator.of(dialogContext).pop(address); // Return saved
-  //                 } catch (e) {
-  //                   Navigator.of(dialogContext).pop(); // Pop loading
-  //                   // Reuse existing key with placeholder
-  //                   ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-  //                     SnackBar(
-  //                       content: Text(strings.errorSavingAddress(e.toString())),
-  //                     ),
-  //                   );
-  //                 }
-  //               }
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final initialOfferAsync = ref.watch(initialActiveOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
     ref.watch(lightningAddressProvider);
-    final strings = AppLocalizations.of(context)!; // Get strings
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -194,9 +110,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                   (err, stack) => Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      // Use localized string with placeholder
                       child: Text(
-                        strings.errorCheckingActiveOffers(err.toString()),
+                        t.offers.errors.checkingActive(details: err.toString()),
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -233,8 +148,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                     AppRole.maker;
                                 context.push("/create");
                               },
-                      // Use localized string
-                      child: Text(strings.payWithLightningButton),
+                      child: Text(t.maker.roleSelection.button),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
@@ -246,16 +160,14 @@ class RoleSelectionScreen extends ConsumerWidget {
                                     AppRole.taker;
                                 context.push("/offers");
                               },
-                      // Use localized string
-                      child: Text(strings.sellBlikButton),
+                      child: Text(t.taker.roleSelection.button),
                     ),
                     const SizedBox(height: 30),
                     if (hasActiveOffer && !isTakerPaid) ...[
                       const Divider(),
                       const SizedBox(height: 15),
-                      // Use localized string
                       Text(
-                        strings.activeOfferTitle,
+                        t.offers.display.activeOffer,
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -277,7 +189,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                               const SizedBox(height: 4), // Add some spacing
                               Text(
                                 // Keep status info, but maybe smaller
-                                strings.offerStatusLabel(activeOffer.status),
+                                t.common.labels.status(status: activeOffer.status),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               if (activeOffer.status ==
@@ -287,9 +199,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6.0),
                                   child: Text(
-                                    // Use localized string with placeholder
-                                    strings.lightningAddressLabelShort(
-                                      activeOffer.takerLightningAddress!,
+                                    t.lightningAddress.labels.short(
+                                      address: activeOffer.takerLightningAddress!,
                                     ),
                                     style: TextStyle(
                                       color: Colors.blueGrey[700],
@@ -338,10 +249,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                                           final makerId =
                                               ref.read(publicKeyProvider).value;
                                           if (makerId == null) {
-                                            // Use localized string
                                             throw Exception(
-                                              strings
-                                                  .errorMakerPublicKeyNotFound,
+                                              t.offers.errors.makerPublicKeyNotFound,
                                             );
                                           }
                                           context.go('/confirm-blik');
@@ -351,10 +260,9 @@ class RoleSelectionScreen extends ConsumerWidget {
                                             context,
                                           ).showSnackBar(
                                             SnackBar(
-                                              // Use localized string with placeholder
                                               content: Text(
-                                                strings.errorResumingOffer(
-                                                  e.toString(),
+                                                t.offers.errors.resuming(
+                                                  details: e.toString(),
                                                 ),
                                               ),
                                               backgroundColor: Colors.red,
@@ -401,10 +309,9 @@ class RoleSelectionScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16.0,
                                 ),
-                                // Use localized string with placeholder
                                 child: Text(
-                                  strings.errorLoadingFinishedOffers(
-                                    err.toString(),
+                                  t.offers.errors.loadingFinished(
+                                    details: err.toString(),
                                   ),
                                   style: TextStyle(color: Colors.red),
                                 ),
@@ -416,9 +323,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                               children: [
                                 const Divider(),
                                 const SizedBox(height: 15),
-                                // Use localized string
                                 Text(
-                                  strings.finishedOffersTitle,
+                                  t.offers.display.finishedOffersWithTime,
                                   style:
                                       Theme.of(context).textTheme.titleMedium,
                                   textAlign: TextAlign.center,
@@ -431,12 +337,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                                         "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
                                       ),
                                       subtitle: Text(
-                                        // Use localized string with placeholders
-                                        strings.finishedOfferSubtitle(
-                                          offer.amountSats,
-                                          offer.makerFees,
-                                          offer.status,
-                                          offer.takerPaidAt
+                                        t.offers.details.subtitleWithDate(
+                                          sats: offer.amountSats,
+                                          fee: offer.makerFees,
+                                          status: offer.status,
+                                          date: offer.takerPaidAt
                                                   ?.toLocal()
                                                   .toString()
                                                   .substring(0, 16) ??
