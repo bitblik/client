@@ -159,6 +159,9 @@ class _TakerWaitConfirmationScreenState
           return offerAsyncValue.when(
             data: (offer) {
               if (offer == null) {
+                return const Center(
+                  child: CircularProgressIndicator(key: Key("resetting_null")),
+                );
                 print(
                   "[TakerWaitConfirmation build] Polling provider returned null offer. Resetting.",
                 );
@@ -167,9 +170,6 @@ class _TakerWaitConfirmationScreenState
                     _resetToOfferList(t.offers.status.cancelledOrExpired);
                   }
                 });
-                return const Center(
-                  child: CircularProgressIndicator(key: Key("resetting_null")),
-                );
               }
 
               final currentStatusEnum = offer.statusEnum;
