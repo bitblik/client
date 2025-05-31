@@ -182,6 +182,7 @@ maker:
     title: "Pay this Hold invoice:"
     actions:
       copy: Copy Invoice
+      payInWallet: Pay in Wallet
     
     feedback:
       copied: Invoice copied to clipboard!

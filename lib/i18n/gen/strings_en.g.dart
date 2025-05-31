@@ -814,6 +814,7 @@ class TranslationsMakerPayInvoiceActionsEn {
 
 	// Translations
 	String get copy => 'Copy Invoice';
+	String get payInWallet => 'Pay in Wallet';
 }
 
 // Path: maker.payInvoice.feedback
@@ -1318,6 +1319,7 @@ extension on Translations {
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Error: Public key not yet loaded.';
 			case 'maker.payInvoice.title': return 'Pay this Hold invoice:';
 			case 'maker.payInvoice.actions.copy': return 'Copy Invoice';
+			case 'maker.payInvoice.actions.payInWallet': return 'Pay in Wallet';
 			case 'maker.payInvoice.feedback.copied': return 'Invoice copied to clipboard!';
 			case 'maker.payInvoice.feedback.waitingConfirmation': return 'Waiting for payment confirmation...';
 			case 'maker.payInvoice.errors.couldNotOpenApp': return 'Could not open Lightning app for invoice.';
