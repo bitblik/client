@@ -209,7 +209,6 @@ maker:
   waitForBlik:
     title: Waiting for BLIK
     message: Waiting for Taker to provide BLIK code.
-    timeLimit: Taker has 20 seconds to provide code.
     timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
     progressLabel: "Reserved: ${seconds} s left"
   
