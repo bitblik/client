@@ -149,7 +149,7 @@ exchange:
   labels:
     enterAmount: "Wprowadź kwotę (PLN) do zapłaty:"
     equivalent: "≈ ${sats} satoshi"
-    rate: "Kurs PLN/BTC ≈ ${rate}"
+    rate: "Kurs śr. PLN/BTC ≈ ${rate}"
     rangeHint: "Min/Max: ${minAmount}-${maxAmount} ${currency}"
   
   feedback:

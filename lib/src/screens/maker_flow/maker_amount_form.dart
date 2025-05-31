@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
+import '../../services/api_service.dart'; // Added direct import for ApiService
 
 class MakerAmountForm extends ConsumerStatefulWidget {
   const MakerAmountForm({super.key});
@@ -381,7 +382,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  "Coingecko ${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}",
+                  "${ApiService.exchangeRateSourceNames.join(', ')} ${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),

@@ -453,7 +453,7 @@ class TranslationsExchangeLabelsEn {
 	// Translations
 	String get enterAmount => 'Enter amount (PLN) to pay:';
 	String equivalent({required Object sats}) => '≈ ${sats} satoshi';
-	String rate({required Object rate}) => 'PLN/BTC rate ≈ ${rate}';
+	String rate({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
 	String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 }
 
@@ -1303,7 +1303,7 @@ extension on Translations {
 			case 'reservations.errors.notReserved': return ({required Object status}) => 'Offer is no longer in reserved state (${status}).';
 			case 'exchange.labels.enterAmount': return 'Enter amount (PLN) to pay:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
-			case 'exchange.labels.rate': return ({required Object rate}) => 'PLN/BTC rate ≈ ${rate}';
+			case 'exchange.labels.rate': return ({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
 			case 'exchange.labels.rangeHint': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 			case 'exchange.feedback.fetching': return 'Fetching exchange rate...';
 			case 'exchange.errors.fetchingRate': return 'Failed to fetch exchange rate.';

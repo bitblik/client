@@ -149,7 +149,7 @@ exchange:
   labels:
     enterAmount: "Enter amount (PLN) to pay:"
     equivalent: "≈ ${sats} satoshi"
-    rate: "PLN/BTC rate ≈ ${rate}"
+    rate: "Average PLN/BTC rate ≈ ${rate}"
     rangeHint: "Min/Max: ${minAmount}-${maxAmount} ${currency}"
   
   feedback:
