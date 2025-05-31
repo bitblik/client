@@ -813,6 +813,7 @@ class _TranslationsMakerPayInvoiceActionsPl extends TranslationsMakerPayInvoiceA
 
 	// Translations
 	@override String get copy => 'Kopiuj Fakturę';
+	@override String get payInWallet => 'Zapłać w Portfelu';
 }
 
 // Path: maker.payInvoice.feedback
@@ -1317,6 +1318,7 @@ extension on TranslationsPl {
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Błąd: Klucz publiczny nie został jeszcze załadowany.';
 			case 'maker.payInvoice.title': return 'Zapłać tę fakturę Hold:';
 			case 'maker.payInvoice.actions.copy': return 'Kopiuj Fakturę';
+			case 'maker.payInvoice.actions.payInWallet': return 'Zapłać w Portfelu';
 			case 'maker.payInvoice.feedback.copied': return 'Faktura skopiowana do schowka!';
 			case 'maker.payInvoice.feedback.waitingConfirmation': return 'Oczekiwanie na potwierdzenie płatności...';
 			case 'maker.payInvoice.errors.couldNotOpenApp': return 'Nie można otworzyć aplikacji Lightning dla faktury.';

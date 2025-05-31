@@ -286,37 +286,35 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     child: QrImageView(
                       data: holdInvoice.toUpperCase(),
                       version: QrVersions.auto,
-                      size: 200.0,
+                      size: 300.0,
                       backgroundColor: Colors.white, // Ensure QR is visible
                     ),
                   ),
                 ),
                 const SizedBox(height: 15),
-                // Display Invoice String (selectable and tappable)
-                InkWell(
-                  onTap: () => _launchLightningUrl(holdInvoice),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: SelectableText(
-                      holdInvoice,
-                      textAlign: TextAlign.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.account_balance_wallet), // Or another appropriate icon
+                      label: Text(t.maker.payInvoice.actions.payInWallet),
+                      onPressed: () => _launchLightningUrl(holdInvoice),
                     ),
-                  ),
+                    const SizedBox(width: 8), // Spacing between buttons
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.copy),
+                      label: Text(t.maker.payInvoice.actions.copy),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: holdInvoice));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(t.maker.payInvoice.feedback.copied),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 15),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.copy),
-                  label: Text(t.maker.payInvoice.actions.copy),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: holdInvoice));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.maker.payInvoice.feedback.copied),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 25),
                 const SizedBox(height: 25),
                 // Polling status indicator
                 Row(
@@ -331,6 +329,19 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     Text(t.maker.payInvoice.feedback.waitingConfirmation),
                   ],
                 ),
+                const SizedBox(height: 15),
+                // Display Invoice String (selectable and tappable)
+                InkWell(
+                  onTap: () => _launchLightningUrl(holdInvoice),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SelectableText(
+                      holdInvoice,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+
               ],
             ),
           ),

@@ -182,7 +182,8 @@ maker:
     title: "Zapłać tę fakturę Hold:"
     actions:
       copy: Kopiuj Fakturę
-    
+      payInWallet: Zapłać w Portfelu
+
     feedback:
       copied: Faktura skopiowana do schowka!
       waitingConfirmation: Oczekiwanie na potwierdzenie płatności...
