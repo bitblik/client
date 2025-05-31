@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Correct Slang import
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,88 +9,63 @@ import '../../models/offer.dart'; // For OfferStatus enum
 import '../../providers/providers.dart';
 import '../../widgets/progress_indicators.dart';
 
-// Renamed class
 class MakerWaitTakerScreen extends ConsumerStatefulWidget {
-  const MakerWaitTakerScreen({super.key}); // Updated constructor
+  const MakerWaitTakerScreen({super.key});
 
   @override
   ConsumerState<MakerWaitTakerScreen> createState() =>
       _MakerWaitTakerScreenState();
 }
 
-// Renamed state class
 class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
-  Timer? _statusCheckTimer; // Renamed timer
+  Timer? _statusCheckTimer;
   bool _isChecking = false;
   bool _isCancelling = false;
 
   @override
   void initState() {
     super.initState();
-    // Delay the first status check until after the initial build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Check if still mounted before starting
-        _startStatusCheckTimer(); // Start the timer sequence here
+        _startStatusCheckTimer();
       }
     });
   }
 
   @override
   void dispose() {
-    _statusCheckTimer?.cancel(); // Use renamed timer
+    _statusCheckTimer?.cancel();
     super.dispose();
   }
 
-  // Modified signature to control immediate check
   void _startStatusCheckTimer({bool checkImmediately = false}) {
     _statusCheckTimer?.cancel();
-    print(
-      "[MakerWaitTakerScreen] Starting status check sequence (checkImmediately: $checkImmediately)...",
-    );
-    // Check immediately first time *only if requested*
     if (checkImmediately) {
-      _checkOfferStatus(); // Renamed method call
+      _checkOfferStatus();
     }
-    // Then check periodically
     _statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (
       timer,
     ) async {
-      // Slightly longer interval maybe?
       if (!mounted) {
         timer.cancel();
         return;
       }
       if (!_isChecking) {
-        print("[MakerWaitTakerScreen] Periodic timer initiating status check.");
-        await _checkOfferStatus(); // Renamed method call
-      } else {
-        print(
-          "[MakerWaitTakerScreen] Periodic timer fired but check already in progress.",
-        );
+        await _checkOfferStatus();
       }
     });
-    print(
-      "[MakerWaitTakerScreen] Periodic timer scheduled (ID: ${_statusCheckTimer?.hashCode}).",
-    );
   }
 
-  // Renamed method
   Future<void> _checkOfferStatus() async {
     if (_isChecking) return;
 
-    // Use activeOfferProvider to get the current offer details
     final offer = ref.read(activeOfferProvider);
-    final paymentHash =
-        offer?.holdInvoicePaymentHash; // Get hash from active offer
+    final paymentHash = offer?.holdInvoicePaymentHash;
     final makerId = ref.read(publicKeyProvider).value;
 
     if (paymentHash == null || makerId == null || offer == null) {
-      print(
-        "[MakerWaitTakerScreen] Error: Missing offer, payment hash or public key.",
-      );
       if (offer == null && mounted) {
-        _resetToRoleSelection(t.maker.waitTaker.errors.activeOfferDetailsLost);
+        _resetToRoleSelection(t.maker.waitTaker.errorActiveOfferDetailsLost);
       }
       return;
     }
@@ -100,89 +75,43 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     try {
       final apiService = ref.read(apiServiceProvider);
       final statusString = await apiService.getOfferStatus(paymentHash);
-      print(
-        "[MakerWaitTakerScreen] Poll result for $paymentHash: $statusString",
-      );
 
       if (statusString == null) {
-        print("[MakerWaitTakerScreen] Warning: Status check returned null.");
-        // Added return; finally block will still execute
         return;
       }
 
-      var currentStatus = OfferStatus.values.byName(
-        statusString,
-      ); // Changed to var
+      var currentStatus = OfferStatus.values.byName(statusString);
 
-      // Update the active offer provider if the status changed
       if (offer.status != currentStatus.name) {
         final updatedOfferData = await apiService.getMyActiveOffer(makerId);
         if (updatedOfferData != null) {
           final updatedOffer = Offer.fromJson(updatedOfferData);
           ref.read(activeOfferProvider.notifier).state = updatedOffer;
-          print(
-            "[MakerWaitTakerScreen] Updated activeOfferProvider with status: ${updatedOffer.status}",
-          );
-          // Re-check the status from the *updated* offer object
           if (updatedOffer.status == OfferStatus.reserved.name) {
-            currentStatus =
-                OfferStatus.reserved; // Update local status check variable
+            currentStatus = OfferStatus.reserved;
           }
-        } else {
-          print(
-            "[MakerWaitTakerScreen] Warning: Failed to fetch updated offer details after status change.",
-          );
-          // Don't attempt local update if fetch failed, rely on next poll
         }
       }
 
       if (currentStatus == OfferStatus.reserved) {
-        print(
-          "[MakerWaitTakerScreen] Offer RESERVED. Navigating to wait for BLIK.",
-        );
-        _statusCheckTimer?.cancel(); // Stop timer before navigating
+        _statusCheckTimer?.cancel();
         if (mounted) {
-          // Await the result of the push (which completes when the pushed screen is popped)
-          print(
-            "[MakerWaitTakerScreen] Navigating to MakerWaitForBlikScreen (awaiting)...",
-          );
           context.go('/wait-blik');
-          // When back on this screen, check status and restart timer if appropriate
-          print("[MakerWaitTakerScreen] Returned from MakerWaitForBlikScreen.");
           if (mounted) {
-            final currentOfferState = ref.read(
-              activeOfferProvider,
-            ); // Check state again
+            final currentOfferState = ref.read(activeOfferProvider);
             if (currentOfferState != null &&
                 (currentOfferState.status == OfferStatus.funded.name)) {
-              print(
-                "[MakerWaitTakerScreen] Offer is FUNDED/PUBLISHED. Restarting timer.",
-              );
-              _startStatusCheckTimer(); // Restart the timer here
-            } else {
-              print(
-                "[MakerWaitTakerScreen] Offer status is ${currentOfferState?.status}. Not restarting timer.",
-              );
+              _startStatusCheckTimer();
             }
-          } else {
-            print("[MakerWaitTakerScreen] Widget unmounted after return.");
           }
         }
       } else if (currentStatus == OfferStatus.funded) {
-        print(
-          "[MakerWaitTakerScreen] Still waiting for Taker (Status: $currentStatus).",
-        );
-        // Timer continues automatically in the finally block if status hasn't changed
+        // Timer continues
       } else if (currentStatus == OfferStatus.blikReceived ||
           currentStatus == OfferStatus.blikSentToMaker) {
-        // Handle case where BLIK is received while still on this screen
-        print(
-          "[MakerWaitTakerScreen] Offer status became ${currentStatus.name}. Fetching BLIK code and navigating to confirm screen.",
-        );
         _statusCheckTimer?.cancel();
         try {
-          final String offerId =
-              offer.id; // Use offer ID from the start of the check
+          final String offerId = offer.id;
           final blikCode = await apiService.getBlikCodeForMaker(
             offerId,
             makerId,
@@ -193,51 +122,47 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
               context.go('/confirm-blik');
             }
           } else {
-            print(
-              "[MakerWaitTakerScreen] Error: API returned no BLIK code despite status ${currentStatus.name}. Resetting.",
-            );
             if (mounted) {
-              _resetToRoleSelection(t.maker.waitTaker.errors.failedToRetrieveBlik);
+              _resetToRoleSelection(
+                t.maker.waitTaker.errorFailedToRetrieveBlik,
+              );
             }
           }
         } catch (e) {
-          print("[MakerWaitTakerScreen] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(t.maker.waitTaker.errors.retrievingBlik(details: e.toString()));
+            _resetToRoleSelection(
+              t.maker.waitTaker.errorRetrievingBlik(details: e.toString()),
+            );
           }
         }
       } else if (currentStatus == OfferStatus.expired) {
         _statusCheckTimer?.cancel();
         if (mounted) {
           _resetToRoleSelection(
-            t.maker.waitTaker.errors.offerNoLongerAvailable(status: currentStatus.name),
+            t.maker.waitTaker.offerNoLongerAvailable(
+              status: currentStatus.name,
+            ),
           );
         }
       } else {
-        // Handle other unexpected states explicitly
-        print(
-          "[MakerWaitTakerScreen] Offer in unexpected state ($currentStatus). Resetting.",
-        );
         _statusCheckTimer?.cancel();
         if (mounted) {
           _resetToRoleSelection(
-            t.maker.waitTaker.errors.offerNoLongerAvailable(status: currentStatus.name),
+            t.maker.waitTaker.offerNoLongerAvailable(
+              status: currentStatus.name,
+            ),
           );
         }
       }
     } catch (e) {
-      print('[MakerWaitTakerScreen] Error checking offer status: $e');
-      // Consider if timer should restart on error or stop
-      // _startStatusCheckTimer(); // Optional: restart timer even on error?
+      // Handle error
     } finally {
-      // Ensure _isChecking is reset regardless of outcome
       if (mounted) {
         _isChecking = false;
       }
     }
   }
 
-  // Helper to reset state and go back to role selection
   void _resetToRoleSelection(String message) {
     _statusCheckTimer?.cancel();
     ref.read(appRoleProvider.notifier).state = AppRole.none;
@@ -258,16 +183,14 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     });
   }
 
-  // Function to handle offer cancellation
   Future<void> _cancelOffer() async {
     final offer = ref.read(activeOfferProvider);
     final makerId = ref.read(publicKeyProvider).value;
 
     if (offer == null || makerId == null) {
-      print("[MakerWaitTakerScreen] Cannot cancel: Missing offer or maker ID.");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.maker.waitTaker.errors.couldNotIdentifyOffer)),
+          SnackBar(content: Text(t.maker.waitTaker.errorCouldNotIdentifyOffer)),
         );
       }
       return;
@@ -275,7 +198,11 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     if (offer.status != OfferStatus.funded.name) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.maker.waitTaker.errors.offerCannotBeCancelled(status: offer.status))),
+          SnackBar(
+            content: Text(
+              t.maker.waitTaker.offerCannotBeCancelled(status: offer.status),
+            ),
+          ),
         );
       }
       return;
@@ -289,11 +216,12 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     try {
       final apiService = ref.read(apiServiceProvider);
       await apiService.cancelOffer(offer.id, makerId);
-      _resetToRoleSelection(t.maker.waitTaker.feedback.offerCancelledSuccessfully);
+      _resetToRoleSelection(t.maker.waitTaker.offerCancelledSuccessfully);
     } catch (e) {
-      print("[MakerWaitTakerScreen] Error cancelling offer: $e");
       if (mounted) {
-        final errorMsg = t.maker.waitTaker.errors.failedToCancelOffer(details: e.toString());
+        final errorMsg = t.maker.waitTaker.failedToCancelOffer(
+          details: e.toString(),
+        );
         ref.read(errorProvider.notifier).state = errorMsg;
         ScaffoldMessenger.of(
           context,
@@ -321,18 +249,21 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           children: <Widget>[
             if (offer != null) ...[
               Text(
-                t.maker.waitTaker.yourOffer,
+                t.offers.display.yourOffer, // Changed to common key
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                t.common.satsAmount(sats: offer.amountSats),
+                // Common key
+                t.offers.details.amount(amount: offer.amountSats.toString()),
               ),
               Text(
-                t.maker.waitTaker.makerFee(fee: offer.makerFees),
+                // Common key
+                t.offers.details.makerFee(fee: offer.makerFees.toString()),
               ),
               Text(
-                t.common.status(status: offer.status.toUpperCase()),
+                // Common key
+                t.common.labels.status(status: offer.status.toUpperCase()),
               ),
               const SizedBox(height: 30),
             ],
@@ -342,7 +273,10 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
                 createdAt: offer.createdAt,
               ),
             Text(
-              t.maker.waitTaker.waitingForTaker,
+              t
+                  .maker
+                  .waitTaker
+                  .message, // Changed to use existing YAML key 'message'
               style: const TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
@@ -353,13 +287,20 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
             Consumer(
               builder: (context, ref, _) {
                 final error = ref.watch(errorProvider);
-                // Assuming the error string for cancellation failure is specific enough
-                if (error != null && error == t.maker.waitTaker.errors.failedToCancelOffer(details: '').split(':')[0]) { // Crude check
+                if (error != null &&
+                    error.startsWith(
+                      // Specific key
+                      t.maker.waitTaker
+                          .failedToCancelOffer(details: '')
+                          .split(' {details}')[0],
+                    )) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: Text(
                       error,
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   );
@@ -388,7 +329,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
                           valueColor: AlwaysStoppedAnimation(Colors.white),
                         ),
                       )
-                      : Text(t.maker.waitTaker.actions.cancelOffer),
+                      : Text(
+                        t.offers.actions.cancel, // Changed to common key
+                      ),
             ),
           ],
         ),

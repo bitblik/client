@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'i18n/gen/strings.g.dart';
+import 'i18n/gen/strings.g.dart'; // Import Slang from new path
 import 'src/providers/providers.dart';
 import 'src/providers/locale_provider.dart'; // Import locale provider
 import 'src/screens/role_selection_screen.dart';
@@ -26,6 +26,7 @@ import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -40,7 +41,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/',
         builder:
             (context, state) => const AppScaffold(body: RoleSelectionScreen()),
-        // routes: [,
       ),
       GoRoute(
         path: '/offers',
@@ -187,6 +187,7 @@ Future<void> main() async {
   LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
   runApp(
     TranslationProvider(
+      // Wrap with TranslationProvider
       child: const ProviderScope(child: SafeArea(child: MyApp())),
     ),
   );
@@ -201,20 +202,24 @@ class MyApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider); // Watch the locale provider
 
     // Update Slang locale when provider changes
-    if (locale != null) {
+    if (locale != null &&
+        LocaleSettings.currentLocale.languageCode != locale.languageCode) {
       final appLocale =
           locale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
       LocaleSettings.setLocale(appLocale);
     }
 
     return MaterialApp.router(
-      title: t.app.title,
+      title: t.app.title, // Use Slang for title
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      locale: locale,
-      supportedLocales: AppLocaleUtils.supportedLocales,
+      locale: LocaleSettings.currentLocale.flutterLocale, // Use Slang locale
+      supportedLocales:
+          AppLocaleUtils.supportedLocales, // Use Slang supported locales
+      localizationsDelegates:
+          GlobalMaterialLocalizations.delegates, // Use Slang delegates
       routerConfig: router,
     );
   }
@@ -307,7 +312,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(t.app.title),
+                Text(t.app.title), // Use Slang for app title
                 const SizedBox(width: 4),
                 Text(
                   _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
@@ -319,88 +324,53 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         ),
         actions: [
           // Language Switcher Dropdown
-          // Wrap with Container for white background when closed
           Container(
-            color: Color(0x00fef7ff),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-            ), // Keep horizontal padding
-            child: DropdownButton<Locale>(
-              // Determine current value: provider state, or system locale if provider is null
-              // Ensure the value exists in the items list. Default to 'en' if system/saved locale isn't supported.
-              value:
-                  AppLocaleUtils.supportedLocales.contains(
-                        ref.watch(localeProvider),
-                      )
-                      ? ref.watch(localeProvider)
-                      : (AppLocaleUtils.supportedLocales.contains(
-                            Locale(
-                              WidgetsBinding
-                                  .instance
-                                  .platformDispatcher
-                                  .locale
-                                  .languageCode,
-                            ),
-                          )
-                          ? Locale(
-                            WidgetsBinding
-                                .instance
-                                .platformDispatcher
-                                .locale
-                                .languageCode,
-                          )
-                          : const Locale('en')),
-              // Fallback to 'en'
+            color: Color(
+              0x00fef7ff,
+            ), // Consider Theme.of(context).appBarTheme.backgroundColor or similar
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: DropdownButton<AppLocale>(
+              // Use AppLocale from Slang
+              value: LocaleSettings.currentLocale, // Use Slang current locale
               icon: const Icon(Icons.language),
               underline: const SizedBox.shrink(),
-              // Hide default underline
-              onChanged: (Locale? newLocale) {
+              onChanged: (AppLocale? newLocale) {
                 if (newLocale != null) {
-                  ref.read(localeProvider.notifier).setLocale(newLocale);
-                  // Update Slang locale
-                  final appLocale =
-                      newLocale.languageCode == 'pl'
-                          ? AppLocale.pl
-                          : AppLocale.en;
-                  LocaleSettings.setLocale(appLocale);
+                  LocaleSettings.setLocale(newLocale); // Set Slang locale
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(
+                        newLocale.flutterLocale,
+                      ); // Update Riverpod provider
                 }
               },
               items:
-                  AppLocaleUtils.supportedLocales.map<DropdownMenuItem<Locale>>(
-                    (Locale locale) {
-                      // Simple display name logic
-                      // Add flag emoji based on language code
-                      final String flagEmoji =
-                          locale.languageCode == 'en'
-                              ? '🇬🇧 '
-                              : locale.languageCode == 'pl'
-                              ? '🇵🇱 '
-                              : ''; // No emoji for other languages
-                      final String displayName =
-                          locale.languageCode == 'en'
-                              ? 'English'
-                              : locale.languageCode == 'pl'
-                              ? 'Polski'
-                              : locale.languageCode.toUpperCase();
-                      return DropdownMenuItem<Locale>(
-                        value: locale,
-                        child: Text(flagEmoji + displayName), // Prepend emoji
-                      );
-                    },
-                  ).toList(),
+                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((
+                    AppLocale locale,
+                  ) {
+                    final String flagEmoji =
+                        locale.languageCode == 'en'
+                            ? '🇬🇧 '
+                            : locale.languageCode == 'pl'
+                            ? '🇵🇱 '
+                            : '';
+                    final String displayName =
+                        locale.languageCode == 'en'
+                            ? 'English'
+                            : locale.languageCode == 'pl'
+                            ? 'Polski'
+                            : locale.languageCode.toUpperCase();
+                    return DropdownMenuItem<AppLocale>(
+                      value: locale,
+                      child: Text(flagEmoji + displayName),
+                    );
+                  }).toList(),
             ),
           ),
-          // // Navigation button to offers (commented out)
-          // IconButton(
-          //   icon: const Icon(Icons.list),
-          //   tooltip: 'Offers',
-          //   onPressed: () => context.go('/offers'),
-          // ),
-          // Reset button
           if (appRole != AppRole.none)
             IconButton(
               icon: const Icon(Icons.home),
-              tooltip: 'Reset Role',
+              tooltip: t.common.buttons.goHome, // Use Slang for tooltip
               onPressed: () {
                 // Reset relevant state providers
                 ref.read(appRoleProvider.notifier).state = AppRole.none;
@@ -426,8 +396,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (kIsWeb ||
-                !Platform.isAndroid) // Show on web OR non-Android native
+            if (kIsWeb || !Platform.isAndroid)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
@@ -441,18 +410,18 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Could not open APK link.')),
-                          );
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Could not open APK link.'),
+                              ), // This can remain hardcoded or be added to Slang if needed
+                            );
+                          }
                         }
                       },
-                      child: Icon(
-                        Icons.android,
-                        size: 32, // Adjust size as needed
-                        color: Colors.green, // Optional: for better visibility
-                      ),
+                      child: Icon(Icons.android, size: 32, color: Colors.green),
                     ),
-                    const SizedBox(width: 16), // Spacing between icons
+                    const SizedBox(width: 16),
                     InkWell(
                       onTap: () async {
                         final Uri url = Uri.parse('zapstore://app.bitblik');
@@ -473,7 +442,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   (publicKey) =>
                       publicKey != null
                           ? SelectableText(
-                            'Your PubKey: $publicKey',
+                            'Your PubKey: $publicKey', // This can remain hardcoded or be added to Slang if needed
                             style: Theme.of(context).textTheme.bodySmall,
                             textAlign: TextAlign.center,
                           )
@@ -488,7 +457,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   ),
               error:
                   (err, stack) => Text(
-                    'Error loading key: $err',
+                    'Error loading key: $err', // This can remain hardcoded or be added to Slang if needed
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.red),
@@ -507,7 +476,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                               ? Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: SelectableText(
-                                  'Your Lightning Address: $address',
+                                  t.lightningAddress.labels.short(
+                                    address: address,
+                                  ), // Use Slang
                                   style: Theme.of(context).textTheme.bodySmall,
                                   textAlign: TextAlign.center,
                                 ),
@@ -518,7 +489,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       (err, stack) => Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
-                          'Error loading lightning address: $err',
+                          t.lightningAddress.errors.loading(
+                            details: err.toString(),
+                          ), // Use Slang
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(color: Colors.red),

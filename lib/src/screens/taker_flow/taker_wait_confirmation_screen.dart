@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,12 +10,9 @@ import '../../models/offer.dart';
 import '../../providers/providers.dart';
 
 class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
-  final Offer offer; 
+  final Offer offer;
 
-  const TakerWaitConfirmationScreen({
-    required this.offer,
-    super.key,
-  }); 
+  const TakerWaitConfirmationScreen({required this.offer, super.key});
 
   @override
   ConsumerState<TakerWaitConfirmationScreen> createState() =>
@@ -26,7 +23,7 @@ class _TakerWaitConfirmationScreenState
     extends ConsumerState<TakerWaitConfirmationScreen> {
   Timer? _confirmationTimer;
   int _confirmationCountdownSeconds = 120;
-  bool _timersInitialized = false; 
+  bool _timersInitialized = false;
 
   @override
   void initState() {
@@ -39,7 +36,9 @@ class _TakerWaitConfirmationScreenState
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _resetToOfferList(t.taker.waitConfirmation.errors.invalidOfferStateReceived);
+          _resetToOfferList(
+            t.taker.waitConfirmation.errors.invalidOfferStateReceived,
+          );
         }
       });
     }
@@ -53,15 +52,15 @@ class _TakerWaitConfirmationScreenState
 
   void _initializeOrUpdateCountdownTimer(Offer offer) {
     print("[TakerWaitConfirmation] Initializing/Updating countdown timer...");
-    _startConfirmationTimer(offer); 
-    _timersInitialized = true; 
+    _startConfirmationTimer(offer);
+    _timersInitialized = true;
   }
 
   void _startConfirmationTimer(Offer offer) {
-    _confirmationTimer?.cancel(); 
+    _confirmationTimer?.cancel();
     if (!mounted) return;
 
-    final startTime = offer.blikReceivedAt ?? DateTime.now(); 
+    final startTime = offer.blikReceivedAt ?? DateTime.now();
     final expiresAt = startTime.add(const Duration(seconds: 120));
     final now = DateTime.now();
     final initialRemaining = expiresAt.difference(now);
@@ -105,10 +104,9 @@ class _TakerWaitConfirmationScreenState
 
   void _resetToOfferList(String message) {
     _confirmationTimer?.cancel();
-    ref.read(activeOfferProvider.notifier).state =
-        null; 
-    ref.read(errorProvider.notifier).state = null; 
-    _timersInitialized = false; 
+    ref.read(activeOfferProvider.notifier).state = null;
+    ref.read(errorProvider.notifier).state = null;
+    _timersInitialized = false;
 
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
     final navigator = Navigator.maybeOf(context);
@@ -137,14 +135,14 @@ class _TakerWaitConfirmationScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.taker.waitConfirmation.title), 
-        automaticallyImplyLeading: false, 
+        title: Text(t.taker.waitConfirmation.title),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
             tooltip: t.common.buttons.goHome,
             onPressed: () {
-              _resetToOfferList(t.taker.waitConfirmation.navigatedHome); 
+              _resetToOfferList(t.taker.waitConfirmation.navigatedHome);
             },
           ),
         ],
@@ -166,7 +164,7 @@ class _TakerWaitConfirmationScreenState
                 );
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
-                    _resetToOfferList(t.offers.errors.cancelledOrExpired);
+                    _resetToOfferList(t.offers.status.cancelledOrExpired);
                   }
                 });
                 return const Center(
@@ -189,26 +187,28 @@ class _TakerWaitConfirmationScreenState
                     if (paymentHash != null) {
                       ref.read(paymentHashProvider.notifier).state =
                           paymentHash;
-                      _confirmationTimer?.cancel(); 
+                      _confirmationTimer?.cancel();
                       context.go("/paying-taker");
                     } else {
                       print(
                         "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen. Resetting.",
                       );
-                      _resetToOfferList(t.system.errors.internalOfferIncomplete);
+                      _resetToOfferList(
+                        t.system.errors.internalOfferIncomplete,
+                      );
                     }
                   }
                 });
                 return const Center(
                   child: CircularProgressIndicator(key: Key("navigating_pay")),
-                ); 
+                );
               } else if (currentStatusEnum == OfferStatus.invalidBlik) {
                 print(
                   "[TakerWaitConfirmation build] Status is invalidBlik. Navigating to invalid BLIK screen.",
                 );
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
-                    _confirmationTimer?.cancel(); 
+                    _confirmationTimer?.cancel();
                     context.go('/taker-invalid-blik', extra: offer);
                   }
                 });
@@ -216,48 +216,47 @@ class _TakerWaitConfirmationScreenState
                   child: CircularProgressIndicator(
                     key: Key("navigating_invalid_blik"),
                   ),
-                ); 
+                );
               } else if (currentStatusEnum == OfferStatus.conflict) {
                 print(
                   "[TakerWaitConfirmation build] Status is conflict. Navigating to conflict screen.",
                 );
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
-                    _confirmationTimer?.cancel(); 
-                    context.go(
-                      '/taker-conflict',
-                      extra: offer.id,
-                    ); 
+                    _confirmationTimer?.cancel();
+                    context.go('/taker-conflict', extra: offer.id);
                   }
                 });
                 return const Center(
                   child: CircularProgressIndicator(
                     key: Key("navigating_conflict"),
                   ),
-                ); 
+                );
               } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
                 print(
                   "[TakerWaitConfirmation build] Status is takerPaymentFailed. Navigating to process screen (to show failure).",
                 );
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
-                    _confirmationTimer?.cancel(); 
+                    _confirmationTimer?.cancel();
                     final paymentHash = offer.holdInvoicePaymentHash;
                     if (paymentHash != null) {
                       ref.read(paymentHashProvider.notifier).state =
                           paymentHash;
-                      context.go('/paying-taker'); 
+                      context.go('/paying-taker');
                     } else {
                       print(
                         "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen for failure. Resetting.",
                       );
-                      _resetToOfferList(t.system.errors.internalOfferIncomplete);
+                      _resetToOfferList(
+                        t.system.errors.internalOfferIncomplete,
+                      );
                     }
                   }
                 });
                 return const Center(
                   child: CircularProgressIndicator(key: Key("navigating_fail")),
-                ); 
+                );
               } else if (currentStatusEnum != OfferStatus.blikReceived &&
                   currentStatusEnum != OfferStatus.blikSentToMaker) {
                 print(
@@ -276,15 +275,15 @@ class _TakerWaitConfirmationScreenState
                   child: CircularProgressIndicator(
                     key: Key("resetting_invalid"),
                   ),
-                ); 
+                );
               }
-              
+
               if (!_timersInitialized) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) _initializeOrUpdateCountdownTimer(offer);
                 });
               }
-              
+
               return _buildWaitingContent(context, offer);
             },
             loading:
@@ -303,7 +302,11 @@ class _TakerWaitConfirmationScreenState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 50),
+                      Icon(
+                        Icons.error,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 50,
+                      ),
                       const SizedBox(height: 16),
                       Text(t.offers.errors.loading(details: error.toString())),
                     ],
@@ -327,7 +330,11 @@ class _TakerWaitConfirmationScreenState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 50),
+                  Icon(
+                    Icons.error,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 50,
+                  ),
                   const SizedBox(height: 16),
                   Text(t.system.errors.loadingPublicKey),
                   Text(error.toString()),
@@ -339,9 +346,7 @@ class _TakerWaitConfirmationScreenState
   }
 
   Widget _buildWaitingContent(BuildContext context, Offer offer) {
-    final errorMessage = ref.watch(
-      errorProvider,
-    ); 
+    final errorMessage = ref.watch(errorProvider);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -359,13 +364,15 @@ class _TakerWaitConfirmationScreenState
               const SizedBox(height: 10),
             ],
             Text(
-              t.common.status(status: offer.status), 
+              t.common.labels.status(status: offer.status),
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             Text(
-              t.taker.waitConfirmation.waitingMakerConfirmation(seconds: _confirmationCountdownSeconds),
+              t.taker.waitConfirmation.waitingMakerConfirmation(
+                seconds: _confirmationCountdownSeconds,
+              ),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -379,8 +386,8 @@ class _TakerWaitConfirmationScreenState
             const SizedBox(height: 15),
             Text(
               t.taker.waitConfirmation.importantBlikAmountConfirmation(
-                amount: formatDouble(offer.fiatAmount ?? 0.0), 
-                currency: offer.fiatCurrency, 
+                amount: formatDouble(offer.fiatAmount ?? 0.0),
+                currency: offer.fiatCurrency,
               ),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
