@@ -209,7 +209,6 @@ maker:
   waitForBlik:
     title: Oczekiwanie na BLIK
     message: Oczekiwanie na podanie kodu BLIK przez Takera.
-    timeLimit: Taker ma 20 sekund na podanie kodu.
     timeLimitWithSeconds: "Taker ma ${seconds} sekund na podanie kodu BLIK."
     progressLabel: "Zarezerwowano: ${seconds} s pozostało"
   

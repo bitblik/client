@@ -352,14 +352,6 @@ class _MakerWaitForBlikScreenState
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
-              Text(
-                t
-                    .maker
-                    .waitForBlik
-                    .timeLimit, // Corrected from waitingForTakerBlik
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
               const SizedBox(height: 20),
               ReservationProgressIndicator(
                 key: ValueKey(
