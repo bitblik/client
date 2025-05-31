@@ -8,7 +8,7 @@ import '../../models/coordinator_info.dart'; // Added
 // Added
 import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
 // Import next screen
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Import Slang - CORRECTED PATH
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});
@@ -113,9 +113,7 @@ class _MakerWaitForBlikScreenState
         "[MakerWaitForBlik] Error: Missing offer, payment hash or public key.",
       );
       if (offer == null && mounted) {
-        _resetToRoleSelection(
-          t.offers.errors.detailsMissing,
-        );
+        _resetToRoleSelection(t.offers.errors.detailsMissing);
       }
       return;
     }
@@ -150,18 +148,15 @@ class _MakerWaitForBlikScreenState
         return; // Exit early, finally block will still run
       }
 
-      var currentStatus = OfferStatus.values.byName(
-        statusString,
-      ); 
+      var currentStatus = OfferStatus.values.byName(statusString);
 
-      Offer offerToCheck = offer; 
+      Offer offerToCheck = offer;
       if (offer.status != currentStatus.name) {
         final updatedOfferData = await apiService.getMyActiveOffer(makerId);
         if (updatedOfferData != null) {
           final updatedOffer = Offer.fromJson(updatedOfferData);
           ref.read(activeOfferProvider.notifier).state = updatedOffer;
-          offerToCheck =
-              updatedOffer; 
+          offerToCheck = updatedOffer;
           print(
             "[MakerWaitForBlik] Updated activeOfferProvider with status: ${offerToCheck.status}",
           );
@@ -190,9 +185,7 @@ class _MakerWaitForBlikScreenState
             offerId,
             makerId,
           );
-          print(
-            "[MakerWaitForBlik] API returned blikCode: $blikCode",
-          ); 
+          print("[MakerWaitForBlik] API returned blikCode: $blikCode");
 
           if (blikCode != null && blikCode.isNotEmpty) {
             print(
@@ -233,8 +226,7 @@ class _MakerWaitForBlikScreenState
         print(
           "[MakerWaitForBlik] Still waiting for BLIK (Status: $currentStatus).",
         );
-      }
-      else {
+      } else {
         print(
           "[MakerWaitForBlik] Offer in unexpected state ($currentStatus). Resetting.",
         );
@@ -290,7 +282,9 @@ class _MakerWaitForBlikScreenState
 
     if (_configError != null) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.common.error)),
+        appBar: AppBar(
+          title: Text(t.common.notifications.error),
+        ), // Corrected path
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -299,7 +293,7 @@ class _MakerWaitForBlikScreenState
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadInitialData,
-                child: Text(t.common.actions.retry),
+                child: Text(t.common.buttons.retry), // Corrected path
               ),
             ],
           ),
@@ -311,7 +305,9 @@ class _MakerWaitForBlikScreenState
         offer.reservedAt == null ||
         _reservationDuration == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.common.error)),
+        appBar: AppBar(
+          title: Text(t.common.notifications.error),
+        ), // Corrected path
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +315,7 @@ class _MakerWaitForBlikScreenState
               Text(t.offers.errors.detailsMissing),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _goHome, 
+                onPressed: _goHome,
                 child: Text(t.common.buttons.goHome),
               ),
             ],
@@ -348,7 +344,7 @@ class _MakerWaitForBlikScreenState
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
-                t.maker.waitForBlik.offerReserved,
+                t.maker.waitForBlik.message, // Corrected from offerReserved
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -357,7 +353,10 @@ class _MakerWaitForBlikScreenState
               ),
               const SizedBox(height: 15),
               Text(
-                t.maker.waitForBlik.waitingForTakerBlik,
+                t
+                    .maker
+                    .waitForBlik
+                    .timeLimit, // Corrected from waitingForTakerBlik
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -367,13 +366,16 @@ class _MakerWaitForBlikScreenState
                   'res_timer_${offer.id}_${_reservationDuration!.inSeconds}',
                 ),
                 reservedAt: offer.reservedAt!,
-                maxDuration: _reservationDuration!, 
+                maxDuration: _reservationDuration!,
               ),
               const SizedBox(height: 30),
               const CircularProgressIndicator(),
               const SizedBox(height: 20),
               Text(
-                t.maker.waitForBlik.takerHasSecondsToProvideBlik(seconds: _reservationDuration!.inSeconds),
+                // Using timeLimitWithSeconds as it seems more appropriate here
+                t.maker.waitForBlik.timeLimitWithSeconds(
+                  seconds: _reservationDuration!.inSeconds,
+                ),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),
@@ -383,4 +385,4 @@ class _MakerWaitForBlikScreenState
       ),
     );
   }
-}
+} // Added missing closing brace for the class

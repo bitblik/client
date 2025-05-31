@@ -122,7 +122,7 @@ class _TakerInvalidBlikScreenState
                           if (userPublicKey == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(t.system.errors.publicKeyNotLoaded),
+                                content: Text(t.maker.confirmPayment.errors.missingHashOrKey),
                                 backgroundColor: Theme.of(context).colorScheme.error,
                               ),
                             );

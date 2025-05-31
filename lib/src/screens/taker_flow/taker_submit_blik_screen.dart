@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../gen/strings.g.dart';
+import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -221,7 +221,9 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
       // --- Validation ---
       if (fullOffer.status != OfferStatus.reserved.name) {
-        throw Exception(t.reservations.errors.notReserved(status: fullOffer.status));
+        throw Exception(
+          t.reservations.errors.notReserved(status: fullOffer.status),
+        );
       }
       if (fullOffer.reservedAt == null) {
         throw Exception(t.reservations.errors.timestampMissing);
@@ -250,7 +252,9 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     } catch (e) {
       print("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
       if (mounted) {
-        _resetToOfferList(t.offers.errors.loadingDetails(details: e.toString()));
+        _resetToOfferList(
+          t.offers.errors.loadingDetails(details: e.toString()),
+        );
       }
     }
   }
@@ -384,7 +388,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                     Navigator.of(dialogContext).pop(); // Pop loading
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                       SnackBar(
-                        content: Text(t.lightningAddress.errors.saving(details: e.toString())),
+                        content: Text(
+                          t.lightningAddress.errors.saving(
+                            details: e.toString(),
+                          ),
+                        ),
                       ),
                     );
                   }
@@ -408,21 +416,24 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
     // --- Validations ---
     if (takerId == null) {
-      ref.read(errorProvider.notifier).state = t.taker.paymentProcess.errors.noPublicKey;
+      ref.read(errorProvider.notifier).state =
+          t.taker.paymentProcess.errors.noPublicKey;
       if (offer != null) _startBlikInputTimer(offer);
       return;
     }
     if (offer == null ||
         offer.status != OfferStatus.reserved.name ||
         offer.reservedAt == null) {
-      ref.read(errorProvider.notifier).state = t.taker.submitBlik.errors.stateChanged;
+      ref.read(errorProvider.notifier).state =
+          t.taker.submitBlik.errors.stateChanged;
       _resetToOfferList(t.taker.submitBlik.errors.stateNotValid);
       return;
     }
     if (blikCode.isEmpty ||
         blikCode.length != 6 ||
         int.tryParse(blikCode) == null) {
-      ref.read(errorProvider.notifier).state = t.taker.submitBlik.validation.invalidFormat;
+      ref.read(errorProvider.notifier).state =
+          t.taker.submitBlik.validation.invalidFormat;
       _startBlikInputTimer(offer);
       return;
     }
@@ -466,9 +477,8 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         context.go('/wait-confirmation', extra: updatedOffer);
       }
     } catch (e) {
-      ref.read(errorProvider.notifier).state = t.taker.submitBlik.errors.submitting(
-        details: e.toString(),
-      );
+      ref.read(errorProvider.notifier).state = t.taker.submitBlik.errors
+          .submitting(details: e.toString());
       if (mounted) {
         _startBlikInputTimer(offer);
       }
@@ -644,10 +654,14 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                           final apiService = ref.read(apiServiceProvider);
                           await apiService.cancelReservation(offer.id, takerId);
                           if (mounted) {
-                            _resetToOfferList(t.reservations.feedback.cancelled);
+                            _resetToOfferList(
+                              t.reservations.feedback.cancelled,
+                            );
                           }
                         } catch (e) {
-                          ref.read(errorProvider.notifier).state = t.reservations.errors
+                          ref.read(errorProvider.notifier).state = t
+                              .reservations
+                              .errors
                               .cancelling(error: e.toString());
                           if (mounted) {
                             _startBlikInputTimer(offer);

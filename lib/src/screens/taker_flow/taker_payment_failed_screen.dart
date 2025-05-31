@@ -1,4 +1,4 @@
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Corrected Slang import
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
@@ -36,9 +36,9 @@ class _TakerPaymentFailedScreenState
   Future<void> _retryPayment() async {
     final newInvoice = _bolt11Controller.text.trim();
     if (newInvoice.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.taker.paymentFailed.errors.enterValidInvoice)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.taker.paymentFailed.errors.enterValidInvoice)),
+      );
       return;
     }
 
@@ -54,9 +54,7 @@ class _TakerPaymentFailedScreenState
       final apiService = ref.read(apiServiceProvider);
       final userPubkey = widget.offer.takerPubkey;
       if (userPubkey == null || userPubkey.isEmpty) {
-        throw Exception(
-          t.taker.paymentFailed.errors.takerPublicKeyNotFound,
-        );
+        throw Exception(t.taker.paymentFailed.errors.takerPublicKeyNotFound);
       }
 
       // 1. Update the invoice first
@@ -118,7 +116,9 @@ class _TakerPaymentFailedScreenState
       if (mounted) {
         setState(() {
           _currentState = PaymentRetryState.failed; // Set failed state on error
-          _errorMessage = t.taker.paymentFailed.errors.updatingInvoice(details: e.toString());
+          _errorMessage = t.taker.paymentFailed.errors.updatingInvoice(
+            details: e.toString(),
+          );
         });
       }
     }
@@ -152,10 +152,7 @@ class _TakerPaymentFailedScreenState
   }
 
   // Helper method to build content based on state
-  Widget _buildContent(
-    BuildContext context,
-    int netAmountSats,
-  ) {
+  Widget _buildContent(BuildContext context, int netAmountSats) {
     switch (_currentState) {
       case PaymentRetryState.loading:
         return Column(
@@ -169,7 +166,7 @@ class _TakerPaymentFailedScreenState
 
       case PaymentRetryState.success:
         return Column(
-          mainAxisAlignment: MainAxisAlignment.center, 
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Icon(
@@ -197,21 +194,22 @@ class _TakerPaymentFailedScreenState
                   context.go('/');
                 }
               },
-              child: Text(
-                t.common.buttons.goHome,
-              ), 
+              child: Text(t.common.buttons.goHome),
             ),
           ],
         );
 
       case PaymentRetryState.initial:
-      case PaymentRetryState
-          .failed: 
+      case PaymentRetryState.failed:
         return Column(
-          mainAxisAlignment: MainAxisAlignment.center, 
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error, size: 64),
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
               t.taker.paymentFailed.title,
@@ -223,7 +221,9 @@ class _TakerPaymentFailedScreenState
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                 child: Text(
-                  t.lightningAddress.shortLabel(address: widget.offer.takerLightningAddress!),
+                  t.lightningAddress.labels.short(
+                    address: widget.offer.takerLightningAddress!,
+                  ), // Corrected key
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
@@ -242,7 +242,9 @@ class _TakerPaymentFailedScreenState
                 ),
               ),
             Text(
-              t.taker.paymentFailed.instructions(amount: netAmountSats),
+              t.taker.paymentFailed.instructions(
+                netAmount: netAmountSats.toString(),
+              ), // Corrected parameter name and type
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -257,7 +259,7 @@ class _TakerPaymentFailedScreenState
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _retryPayment, 
+              onPressed: _retryPayment,
               child: Text(t.taker.paymentFailed.actions.retryPayment),
             ),
           ],

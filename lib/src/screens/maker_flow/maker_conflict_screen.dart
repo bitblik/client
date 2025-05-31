@@ -34,7 +34,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
     if (makerId == null) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(t.system.errors.publicKeyNotLoaded)),
+        SnackBar(content: Text(t.maker.amountForm.errors.publicKeyNotLoaded)),
       );
       return;
     }
@@ -46,11 +46,11 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
       await apiService.confirmMakerPayment(widget.offer.id, makerId);
 
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(t.maker.conflict.feedback.paymentConfirmedTakerPaid)),
+        SnackBar(content: Text(t.maker.confirmPayment.feedback.confirmedTakerPaid)),
       );
       context.go('/maker-success', extra: widget.offer);
     } catch (e) {
-      final errorMsg = t.maker.conflict.errors.confirmingPayment(details: e.toString());
+      final errorMsg = t.maker.confirmPayment.errors.confirming(details: e.toString());
       ref.read(errorProvider.notifier).state = errorMsg;
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
     } finally {
@@ -67,7 +67,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
     if (makerId == null) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(t.system.errors.publicKeyNotLoaded)),
+        SnackBar(content: Text(t.maker.amountForm.errors.publicKeyNotLoaded)),
       );
       return;
     }
@@ -111,7 +111,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
         SnackBar(content: Text(t.maker.conflict.feedback.disputeOpenedSuccess)),
       );
     } catch (e) {
-      final errorMsg = t.maker.conflict.errors.openingDispute(details: e.toString());
+      final errorMsg = t.maker.conflict.errors.openingDispute(error: e.toString());
       ref.read(errorProvider.notifier).state = errorMsg;
       scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
     } finally {

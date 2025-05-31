@@ -1,4 +1,4 @@
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Use Riverpod
 import 'package:go_router/go_router.dart'; // Import GoRouter
@@ -20,14 +20,18 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
       );
       return Scaffold(
         appBar: AppBar(
-          title: Text(t.common.error),
+          title: Text(t.common.notifications.error), // Corrected usage of t
           automaticallyImplyLeading: false,
         ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              t.taker.paymentProcess.errors.missingPaymentHash, // Re-using a similar error string
+              t
+                  .taker
+                  .paymentProcess
+                  .errors
+                  .missingPaymentHash, // Corrected usage of t
               style: TextStyle(color: Theme.of(context).colorScheme.error),
               textAlign: TextAlign.center,
             ),
@@ -51,13 +55,13 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
             context.go('/wait-blik', extra: offer);
           }
         });
-      }); 
-    } 
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.maker.invalidBlik.title),
-        automaticallyImplyLeading: false, 
+        title: Text(t.maker.invalidBlik.title), // Corrected usage of t
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -72,18 +76,20 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                t.maker.invalidBlik.info,
+                t.maker.invalidBlik.info, // Corrected usage of t
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 24),
               Text(
                 // Using a generic offer ID display string
-                t.offers.details.offerId(id: offer.id.substring(0, 8)),
+                t.offers.details.id(
+                  id: offer.id.substring(0, 8),
+                ), // Corrected usage of t and key
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 16),
-              const CircularProgressIndicator(), 
+              const CircularProgressIndicator(),
             ],
           ),
         ),

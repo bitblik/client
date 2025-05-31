@@ -1,4 +1,4 @@
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -108,14 +108,18 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error, size: 60),
+        Icon(
+          Icons.error_outline,
+          color: Theme.of(context).colorScheme.error,
+          size: 60,
+        ),
         const SizedBox(height: 20),
         Text(
           errorMessage,
           textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.error),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.error,
+          ),
         ),
         const SizedBox(height: 30),
         ElevatedButton(
@@ -276,7 +280,11 @@ class _ChecklistItem extends ConsumerWidget {
         );
         break;
       case ChecklistItemStatus.error:
-        leadingIcon = Icon(Icons.error, size: 24, color: Theme.of(context).colorScheme.error);
+        leadingIcon = Icon(
+          Icons.error,
+          size: 24,
+          color: Theme.of(context).colorScheme.error,
+        );
         textColor = Theme.of(context).colorScheme.error;
         textStyle = textStyle.copyWith(
           color: textColor,
@@ -315,18 +323,14 @@ class _ChecklistItem extends ConsumerWidget {
                 icon: const Icon(Icons.arrow_forward),
                 label: Text(t.taker.paymentProcess.actions.goToFailureDetails),
                 onPressed: () {
-                  final offer = ref.read(
-                    activeOfferProvider,
-                  ); 
+                  final offer = ref.read(activeOfferProvider);
 
                   if (offer != null) {
                     context.go('/taker-failed', extra: offer);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          t.offers.errors.notFound,
-                        ), 
+                        content: Text(t.offers.errors.notFound),
                         backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );

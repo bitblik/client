@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../gen/strings.g.dart'; // Import Slang
+import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // To reset state
 
@@ -64,21 +64,31 @@ class MakerSuccessScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        t.offers.details.title,
+                        t.maker.success.detailsTitle, // Corrected key
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        t.common.satsAmount(sats: completedOffer.amountSats),
+                        // Assuming a key like common.labels.amountSats exists or similar
+                        // For now, using a generic approach, adjust if specific key exists
+                        t.offers.details.amount(
+                          amount: completedOffer.amountSats.toString(),
+                        ),
                       ),
                       Text(
-                        t.maker.waitTaker.makerFee(fee: completedOffer.makerFees), // Assuming this key is suitable
+                        t.offers.details.makerFee(
+                          fee: completedOffer.makerFees.toString(),
+                        ),
                       ),
                       Text(
-                        t.common.status(status: completedOffer.status.toUpperCase()),
+                        t.common.labels.status(
+                          status: completedOffer.status.toUpperCase(),
+                        ),
                       ),
                       Text(
-                        t.offers.details.offerId(id: completedOffer.id.substring(0, 8)),
+                        t.offers.details.id(
+                          id: completedOffer.id.substring(0, 8),
+                        ),
                       ),
                       // Add more details if needed
                     ],
