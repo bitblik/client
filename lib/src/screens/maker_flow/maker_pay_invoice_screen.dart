@@ -31,13 +31,20 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   @override
   void initState() {
     super.initState();
-    checkWeblnSupport((supported) {
-      if (mounted) {
-        setState(() {
-          isWallet = supported;
-        });
-      }
-    });
+
+    try {
+      checkWeblnSupport((supported) {
+        print("!!!!!!!!!!!!!!! isWallet: $isWallet, supported: $supported");
+        if (mounted) {
+          setState(() {
+            isWallet = supported;
+          });
+        }
+      });
+    } catch (e) {
+      print("!!!!catch $e");
+
+    }
     // Start polling immediately when this screen is shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -121,6 +128,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
     if (kIsWeb) {
+      print("!! launch lightning URL -> sending invoice");
+
       await sendWeblnPayment(invoice).then((_) {}).catchError((e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -175,10 +184,10 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   Widget build(BuildContext context) {
     final holdInvoice = ref.watch(
       holdInvoiceProvider,
-    ); // Watch the invoice state
-
+    );
     // WebLN auto-pay logic
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
+      print("isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment");
       sendWeblnPayment(holdInvoice)
           .then((_) {
             if (mounted) {
@@ -188,13 +197,13 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             }
           })
           .catchError((e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('WebLN payment failed: $e'),
-                ), // Can be localized if needed
-              );
-            }
+            // if (mounted) {
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(
+            //       content: Text('WebLN payment failed: $e'),
+            //     ), // Can be localized if needed
+            //   );
+            // }
           });
     }
 
