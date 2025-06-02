@@ -77,7 +77,7 @@ The system allows for an `invalidBlik` status. If the Maker attempts to use the 
 - **Software Bugs:** As with any software, there's a risk of bugs in the BitBlik client or coordinator that could lead to errors or loss of funds. The software is open-source, so users can audit it, but this requires technical expertise.
 - **Privacy:** Your public keys are stored by the coordinator. Transaction details are also stored in the database. For better privacy you should generate a new key pair for each transaction.
 
-####Is the coordinator custodial?
+#### Is the coordinator custodial?
 
 The coordinator is non-custodial in the traditional sense for the *final* Bitcoin settlement for the Taker, as it pays out to the Taker's invoice. However, during the escrow period, the Maker's funds are locked in a hold invoice that the coordinator has the power to settle (using the preimage) or instruct to be cancelled. So, there's a temporary control element by the coordinator over the locked funds. Both Maker and Taker trust the coordinator to release these funds according to the protocol.
 
