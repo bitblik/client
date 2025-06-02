@@ -4,7 +4,7 @@
 
 #### What is BitBlik?
 
-BitBlik is free and opensource software tool designed to facilitate the exchange of Bitcoin for BLIK codes.\
+BitBlik is free and opensource software designed to facilitate the exchange of Bitcoin for BLIK codes.\
 The fundamental idea is to:
 - pay with Bitcoin everywhere where BLIK payment is accepted
 - buy Bitcoin by generating and selling BLIK codes
