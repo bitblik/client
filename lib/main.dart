@@ -25,6 +25,7 @@ import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
+import 'src/screens/faq_screen.dart'; // Import the FAQ screen
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 
@@ -178,6 +179,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
         },
       ),
+      GoRoute(
+        path: FaqScreen.routeName,
+        builder: (context, state) => AppScaffold(
+          body: const FaqScreen(),
+          pageTitle: "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
+        ),
+      ),
     ],
   );
 });
@@ -228,8 +236,9 @@ class MyApp extends ConsumerWidget {
 // AppScaffold to maintain consistent UI structure with AppBar and footer
 class AppScaffold extends ConsumerStatefulWidget {
   final Widget body;
+  final String? pageTitle; // Optional page title
 
-  const AppScaffold({super.key, required this.body});
+  const AppScaffold({super.key, required this.body, this.pageTitle});
 
   @override
   ConsumerState<AppScaffold> createState() => _AppScaffoldState();
@@ -288,40 +297,47 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     final publicKeyAsync = ref.watch(publicKeyProvider);
     final appRole = ref.watch(appRoleProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              // Reset relevant state providers
-              ref.read(appRoleProvider.notifier).state = AppRole.none;
-              ref.read(activeOfferProvider.notifier).state = null;
-              ref.read(holdInvoiceProvider.notifier).state = null;
-              ref.read(paymentHashProvider.notifier).state = null;
-              ref.read(receivedBlikCodeProvider.notifier).state = null;
-              ref.read(errorProvider.notifier).state = null;
-              ref.read(isLoadingProvider.notifier).state = false;
-              ref.invalidate(availableOffersProvider);
-              ref.invalidate(initialActiveOfferProvider);
+    Widget appBarTitle;
+    // bool canGoBack = GoRouter.of(context).canGoBack(); // Removed this line
 
-              // Navigate to home
-              context.go('/');
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(t.app.title), // Use Slang for app title
-                const SizedBox(width: 4),
-                Text(
-                  _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
-                  style: TextStyle(fontSize: 10, color: Colors.black45),
-                ),
-              ],
-            ),
+    if (widget.pageTitle != null && widget.pageTitle!.isNotEmpty) {
+      appBarTitle = Text(widget.pageTitle!);
+    } else {
+      appBarTitle = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            // Reset relevant state providers
+            ref.read(appRoleProvider.notifier).state = AppRole.none;
+            ref.read(activeOfferProvider.notifier).state = null;
+            ref.read(holdInvoiceProvider.notifier).state = null;
+            ref.read(paymentHashProvider.notifier).state = null;
+            ref.read(receivedBlikCodeProvider.notifier).state = null;
+            ref.read(errorProvider.notifier).state = null;
+            ref.read(isLoadingProvider.notifier).state = false;
+            ref.invalidate(availableOffersProvider);
+            ref.invalidate(initialActiveOfferProvider);
+            context.go('/');
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(t.app.title),
+              const SizedBox(width: 4),
+              Text(
+                _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
+                style: const TextStyle(fontSize: 10, color: Colors.black45),
+              ),
+            ],
           ),
         ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
+        title: appBarTitle,
         actions: [
           // Language Switcher Dropdown
           Container(
@@ -367,6 +383,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   }).toList(),
             ),
           ),
+          // Conditionally display Home icon
           if (appRole != AppRole.none)
             IconButton(
               icon: const Icon(Icons.home),
@@ -387,6 +404,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 context.go('/');
               },
             ),
+          // Always display FAQ icon
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'FAQ', // Consider localizing: t.common.buttons.faq
+            onPressed: () {
+              context.push(FaqScreen.routeName);
+            },
+          ),
         ],
       ),
       body: _buildBody(appRole, widget.body),

@@ -51,6 +51,8 @@ dependencies:
   package_info_plus: ^6.0.0 # For getting app version at runtime
   slang: ^4.7.2
   slang_flutter: ^4.7.0
+  markdown: ^7.3.0 # For parsing Markdown to HTML
+  flutter_html: ^3.0.0 # For rendering HTML content
 
 dev_dependencies:
   #build_runner: 2.4.15
@@ -114,6 +116,7 @@ flutter:
     - assets/element.png
     - assets/logo.png
     - assets/zapstore.png
+    - assets/faq/ # Add the new FAQ directory
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
