@@ -30,7 +30,7 @@ The process generally follows these steps:
 #### How do takers are made aware of new offers?
 
 Takers can register on several messenger channels (SimpleX, Matrix) to receive notifications about new offers.
-Whenever a Maker pays the hold invoice to create a new offer, the coordinator will send a message to all notificatoin channel with the offer details and a link to the BitBlik app where they can accept the offer.
+Whenever a Maker pays the hold invoice to create a new offer, the coordinator will send a message to all notification channels with the offer details and a link to the BitBlik app where they can accept the offer.
 
 #### What is BLIK?
 
