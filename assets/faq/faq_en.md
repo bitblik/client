@@ -21,7 +21,7 @@ The entire exchange process shouldn't take more than a couple of minutes, depend
 The process generally follows these steps:
 1.  **Offer Creation (Maker):** A Maker creates an offer, specifying the amount of fiat they want to receive a BLIK code for, and the equivalent Bitcoin amount.
 2.  **Funding Escrow (Maker):** The Maker pays a Lightning Network "hold invoice" for the specified Bitcoin amount. This locks the Bitcoin with the coordinator but doesn't transfer it yet.
-3.  **Offer Acceptance (Taker):** A Taker finds an offer they like and accepts it, then generate a BLIK code in their banking app and submit it to the coordinator.
+3.  **Offer Acceptance (Taker):** A Taker finds an offer they like and accept it, then generate a BLIK code in their banking app and submit it to the coordinator.
 4.  **Fiat Payment (Maker):** The Maker receives the BLIK code and introduces it in the payment terminal or on-line ecommerce site.
 5.  **BLIK Confirmation (Taker):** The Taker will receive a notification from their bank app to confirm the BLIK payment.
 6.  **Payment Confirmation (Maker):** The Maker confirms within the BitBlik system that they have received the BLIK payment.
