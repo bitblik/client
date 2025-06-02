@@ -92,6 +92,9 @@ System ma status `takerPaymentFailed`. Jeśli koordynator próbuje zapłacić fa
 
 System wydaje się obsługiwać funkcję `cancelOffer`. To anulowałoby fakturę wstrzymaną, a Bitcoin powinien zostać zwrócony do twojego portfela LND (minus ewentualne opłaty LND). To jest zazwyczaj możliwe, jeśli oferta jest nadal w stanie `funded` a nie jeszcze `reserved` lub dalej w procesie.
 
+**Dlaczego aplikacje mobilne nie są dystrybuowane w Google Play Store i Apple App Store?**\
+Te platformy to nie tylko zwykłe rynki do aplikacji; to zamknięte ogrody rządzone przez korporacyjnych strażników, którzy sprawują absolutną władzę nad tym, jakie oprogramowanie użytkownicy mogą instalować. Ten scentralizowany model tworzy pojedynczy punkt awarii i wąskie gardło dla censury. Aplikacje promujące technologie zwiększające prywatność, kontrowersyjne wypowiedzi polityczne lub alternatywne modele ekonomiczne mogą być i często są usuwane z list wyłącznie według uznania właścicieli platform, co hamuje innowacje i swobodną wymianę idei.
+
 ### Spory
 Jeśli zarówno twórca, jak i przyjmujący nie zgadzają się co do statusu płatności lub jeśli występują problemy z transakcją, oferta przechodzi w stan konfliktu, w którym każda strona musi dostarczyć dowody koordynatorowi w celu rozstrzygnięcia sporu.
 
