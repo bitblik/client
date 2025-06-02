@@ -2,7 +2,7 @@
 
 ### Pytania Ogólne
 
-**Czym jest Usługa Escrow BitBlik?**
+#### Czym jest Usługa Escrow BitBlik?
 
 BitBlik to peer-to-peer usługa escrow zaprojektowana w celu ułatwienia wymiany aktywów, koncentrująca się głównie na Bitcoin (poprzez Lightning Network) za walutę fiat (szczególnie przy użyciu BLIK, polskiego systemu płatności). Wykorzystuje faktury wstrzymane Lightning Network jako główny mechanizm zabezpieczania transakcji, zapewniając, że Bitcoin jest zwalniane tylko po potwierdzeniu płatności fiat.
 
@@ -35,11 +35,11 @@ Faktury wstrzymane to specjalny typ faktury Lightning. Gdy faktura wstrzymana je
 
 **Jak moje środki Bitcoin są zabezpieczone jako Twórca oferty (sprzedawca)?**
 
-Jako Twórca oferty, twój Bitcoin jest zablokowany poprzez fakturę wstrzymaną. Koordynator ma preimage wymagany do rozliczenia tej faktury. System jest zaprojektowany tak, aby rozliczać (zwalniać twój Bitcoin do Przyjmującego ofertę) *tylko* po tym, jak potwierdzisz, że otrzymałeś płatność fiat (BLIK) od Przyjmującego ofertę. Jeśli Przyjmujący ofertę nie zapłaci, lub jeśli będzie problem, faktura wstrzymana może zostać anulowana, a Bitcoin powinien zostać zwrócony pod kontrolę twojego węzła LND (minus ewentualne opłaty routingu LND za nieudaną próbę wstrzymania).
+Jako Twórca oferty, twój Bitcoin jest zablokowany poprzez fakturę wstrzymaną. Koordynator ma preimage wymagany do rozliczenia tej faktury. System jest zaprojektowany tak, aby rozliczać (zwalniać twój Bitcoin do Przyjmującego ofertę) *tylko* po tym, jak potwierdzisz, że otrzymałeś płatność fiat (BLIK) od Przyjmującego ofertę. Jeśli Przyjmujący ofertę nie zapłaci, lub jeśli będzie problem, faktura wstrzymana może zostać anulowana, a Bitcoin powinien zostać zwrócony pod kontrolę twojego węzła LN.
 
 **Jak jestem chroniony jako Przyjmujący ofertę (kupujący) jeśli wyślę płatność BLIK?**
 
-Jako Przyjmujący ofertę, twoją główną ochroną jest to, że Twórca oferty już zablokował swój Bitcoin w fakturze wstrzymanej u koordynatora *zanim* zostaniesz poproszony o wysłanie płatności BLIK. Jeśli Twórca oferty potwierdzi otrzymanie twojego BLIK, system jest zaprojektowany tak, aby automatycznie zwolnić Bitcoin do ciebie. Ryzyko polega na tym, że Twórca oferty fałszywie zaprzeczy otrzymaniu twojego BLIK. (Zobacz "Spory").
+Jako Przyjmujący ofertę, twoją główną ochroną jest to, że Twórca oferty już zablokował swój Bitcoin w fakturze wstrzymanej u koordynatora *zanim* zostaniesz poproszony o wysłanie płatności BLIK. Jeśli Twórca oferty potwierdzi otrzymanie twojego BLIK, system jest zaprojektowany tak, aby automatycznie zwolnić Bitcoin do ciebie. Ryzyko polega na tym, że Twórca oferty fałszywie zaprzeczy otrzymaniu twojego BLIK. (Zobacz "[Spory](#spory)").
 
 **Co się dzieje, jeśli Twórca oferty nie potwierdzi mojej płatności BLIK mimo że ją wysłałem?**
 
@@ -92,6 +92,11 @@ System ma status `takerPaymentFailed`. Jeśli koordynator próbuje zapłacić fa
 
 System wydaje się obsługiwać funkcję `cancelOffer`. To anulowałoby fakturę wstrzymaną, a Bitcoin powinien zostać zwrócony do twojego portfela LND (minus ewentualne opłaty LND). To jest zazwyczaj możliwe, jeśli oferta jest nadal w stanie `funded` a nie jeszcze `reserved` lub dalej w procesie.
 
-**Co jeśli będzie spór lub coś pójdzie nie tak?**
+### Spory
+Jeśli zarówno twórca, jak i przyjmujący nie zgadzają się co do statusu płatności lub jeśli występują problemy z transakcją, oferta przechodzi w stan konfliktu, w którym każda strona musi dostarczyć dowody koordynatorowi w celu rozstrzygnięcia sporu.
 
+**Jakiego rodzaju dowody będą wymagane ode mnie jako Twórcy?**
+TODO
+
+**Jakiego rodzaju dowody będą wymagane ode mnie jako Przyjmującego?**
 TODO
