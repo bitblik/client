@@ -295,7 +295,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     final publicKeyAsync = ref.watch(publicKeyProvider);
-    final appRole = ref.watch(appRoleProvider);
+    final appRole = ref.watch(appRoleProvider); // This line needs to be active
+    final String currentPath = GoRouterState.of(context).uri.toString();
 
     Widget appBarTitle;
     // bool canGoBack = GoRouter.of(context).canGoBack(); // Removed this line
@@ -383,8 +384,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   }).toList(),
             ),
           ),
-          // Conditionally display Home icon
-          if (appRole != AppRole.none)
+          // Conditionally display Home icon if not on the main screen ('/')
+          if (currentPath != '/')
             IconButton(
               icon: const Icon(Icons.home),
               tooltip: t.common.buttons.goHome, // Use Slang for tooltip
