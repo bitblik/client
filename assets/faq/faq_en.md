@@ -83,7 +83,9 @@ The coordinator is non-custodial in the traditional sense for the *final* Bitcoi
 
 #### What motivates the Maker to act honestly?
 
-Since the amount of Bitcoin are held in a Lightning Network hold invoice, the Maker (seller) is incentivized to act honestly. Without evidences to contrary the invoice will not be released back to the Maker. 
+Since the amount of Bitcoin are held in a Lightning Network hold invoice, the Maker (seller) is incentivized to act honestly. Without evidences to contrary the invoice will not be released back to the Maker.
+Since hold invoices should only be held for a short period (typically few hours), the invoice will settle and the funds will be kept by coordinator until the Taker provides evidence to resolve the dispute.
+
 
 #### What motivates the Taker to act honestly?
 
@@ -93,7 +95,8 @@ Currently there is no bond system in place to incentivize the Taker to not waste
 
 #### What motivates the coordinator to act honestly?
 
-To maintain trust and reputation in the BitBlik ecosystem, the coordinator must act honestly. If the coordinator were to act maliciously (e.g., stealing funds), it would quickly lose users and its operational viability. The open-source nature of the software also allows for community oversight, which can help ensure that the coordinator's actions are transparent and accountable.
+To be accepted as a BitBlik coordinator by the client software, the coordinator must provide a nostr key (profile) which users can tag and report bad experiences with a given coordinator. Before choosing to use a specific coordinator check its reputation on Nostr. Given the censorship-resistant nature of Nostr, anyone can flood or post invalid reports, so use a client that uses Web of Trust to determine the reputation of each user's reports. Preferably choose a coordinator that has good reputation among your Bitcoin community or. Ultimately, you as the user of this software are responsible for the coordinator that you choose. This is not a platform or service and we take no responsibility for the actions of any coordinator.
+
 ---
 
 ### Fees & Technicals
