@@ -41,11 +41,12 @@ As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the p
 
 **How am I protected as a Taker (buyer) if I send BLIK payment?**
 
-As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. The risk is if the Maker falsely denies receiving your BLIK. (See "Disputes").
+As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. The risk is if the Maker falsely denies receiving your BLIK. (See "[Disputes](#disputes)").
 
 **What happens if the Maker doesn't confirm my BLIK payment even though I sent it?**
 
-This is a conflict scenario. The system records various stages of the transaction, including when the BLIK code was provided and when the offer was marked as `blikReceived`. If the Maker fails to confirm, the offer might enter a `conflict` status. The exact dispute resolution mechanism isn't fully detailed in the current code analysis, but this is a critical point of trust or potential manual intervention by the service operator.
+This is a conflict scenario.
+(See "[Disputes](#disputes)")
 
 **What happens if the Taker provides a BLIK code but doesn't actually make the payment?**
 
@@ -96,6 +97,14 @@ If the coordinator attempts to pay the Taker's Lightning invoice and it fails (e
 
 You can cancel the hold invoice, and the Bitcoin should be returned to your LN wallet. This is typically possible if the offer is still in a `funded` state and not yet `reserved` or further along.
 
-**What if there's a dispute or something goes wrong?**
+### Disputes
+
+If both the maker and taker disagree on the payment status or if there are issues with the transaction, the offer enters a `conflict` state, in which each party must provide evidences for the coordinator to resolve the dispute.
+
+**What kind of evidences will be required from me as a Maker?**
+TODO
+
+**What kind of evidences will be required from me as a Taker?**
 
 TODO
+
