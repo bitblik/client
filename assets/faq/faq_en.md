@@ -81,6 +81,19 @@ The system allows for an `invalidBlik` status. If the Maker attempts to use the 
 
 The coordinator is non-custodial in the traditional sense for the *final* Bitcoin settlement for the Taker, as it pays out to the Taker's invoice. However, during the escrow period, the Maker's funds are locked in a hold invoice that the coordinator has the power to settle (using the preimage) or instruct to be cancelled. So, there's a temporary control element by the coordinator over the locked funds. Both Maker and Taker trust the coordinator to release these funds according to the protocol.
 
+#### What motivates the Maker to act honestly?
+
+Since the amount of Bitcoin are held in a Lightning Network hold invoice, the Maker (seller) is incentivized to act honestly. Without evidences to contrary the invoice will not be released back to the Maker. 
+
+#### What motivates the Taker to act honestly?
+
+If both parties signal a conflict, the Maker needs to provide evidence that the BLIK payment was deducted from their bank account, this will be resolved manually by a human in charge of the coordinator. Failure to provide such evidence will result in the Taker not receiving the Bitcoin, and after 48h the sats will return to the Maker.
+Currently there is no bond system in place to incentivize the Taker to not waste the coordinator's time trying to resolve the dispute, but this will be implemented in the near future.
+
+
+#### What motivates the coordinator to act honestly?
+
+To maintain trust and reputation in the BitBlik ecosystem, the coordinator must act honestly. If the coordinator were to act maliciously (e.g., stealing funds), it would quickly lose users and its operational viability. The open-source nature of the software also allows for community oversight, which can help ensure that the coordinator's actions are transparent and accountable.
 ---
 
 ### Fees & Technicals
