@@ -199,7 +199,7 @@ final pollingMyActiveOfferProvider = StreamProvider.autoDispose.family<
   }
 
   // Periodic fetch every second
-  await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
+  await for (final _ in Stream.periodic(const Duration(seconds: 3))) {
     try {
       final currentOfferData = await apiService.getMyActiveOffer(userPubkey);
       final currentOffer = parseOfferData(currentOfferData);
