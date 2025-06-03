@@ -95,7 +95,7 @@ Currently there is no bond system in place to incentivize the Taker to not waste
 
 #### What motivates the coordinator to act honestly?
 
-To be accepted as a BitBlik coordinator by the client software, the coordinator must provide a nostr key (profile) which users can tag and report bad experiences with a given coordinator. Before choosing to use a specific coordinator check its reputation on Nostr. Given the censorship-resistant nature of Nostr, anyone can flood or post invalid reports, so use a client that uses Web of Trust to determine the reputation of each user's reports. Preferably choose a coordinator that has good reputation among your Bitcoin community or. Ultimately, you as the user of this software are responsible for the coordinator that you choose. This is not a platform or service and we take no responsibility for the actions of any coordinator.
+To be accepted as a BitBlik coordinator by the client software, the coordinator must provide a nostr key (profile) which users can tag and report bad experiences with a given coordinator. Before choosing to use a specific coordinator check its reputation on Nostr. Given the censorship-resistant nature of Nostr, anyone can flood or post invalid reports, so use a client that uses Web of Trust to determine the reputation of each user's reports. Preferably choose a coordinator that has good reputation among your Bitcoin community or your trusted friends. Ultimately, you as the user of this software are responsible for choosing a coordinator with good reputatio. This is not a platform or service and we take no responsibility for the actions of any coordinator.
 
 ---
 
