@@ -192,12 +192,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
+  // LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
   runApp(
-    TranslationProvider(
-      // Wrap with TranslationProvider
-      child: const ProviderScope(child: SafeArea(child: MyApp())),
-    ),
+      const ProviderScope(child: SafeArea( child: MyApp()))
+    // TranslationProvider(
+    //   // Wrap with TranslationProvider
+    //   child: const ProviderScope(child: SafeArea(child: MyApp())),
+    // ),
   );
 }
 
