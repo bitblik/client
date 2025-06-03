@@ -89,7 +89,7 @@ Since hold invoices should only be held for a short period (typically few hours)
 
 #### What motivates the Taker to act honestly?
 
-If both parties signal a conflict, the Maker needs to provide evidence that the BLIK payment was deducted from their bank account, this will be resolved manually by a human in charge of the coordinator. Failure to provide such evidence will result in the Taker not receiving the Bitcoin, and after 48h the sats will return to the Maker.
+If both parties signal a conflict, the Taker must provide evidence that the BLIK payment was deducted from their bank account, this will be resolved manually by a human in charge of the coordinator. Failure to provide such evidence will result in the Taker not receiving the Bitcoin, and after 48h the sats will return to the Maker.
 Currently there is no bond system in place to incentivize the Taker to not waste the coordinator's time trying to resolve the dispute, but this will be implemented in the near future.
 
 
