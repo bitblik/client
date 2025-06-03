@@ -38,7 +38,7 @@ BLIK is a mobile payment system used in Poland. It allows users to make payments
 
 #### What are Lightning Network "hold invoices"?
 
-Hold invoices are a special type of Lightning invoice. When a hold invoice is paid by the Maker (seller of Bitcoin), the funds are not immediately settled. Instead, they are "held" by the Maker's LND node (or the coordinator's LND node acting on their behalf). The funds are only truly released (settled) to the recipient (Taker) when a secret "preimage" is revealed. If the preimage is not revealed within a certain time, or if the invoice is explicitly cancelled, the funds are returned to the payer (Maker). This is the core of BitBlik's escrow mechanism.
+Hold invoices are a special type of Lightning invoice. When a hold invoice is paid by the Maker (seller of Bitcoin), the funds are not immediately settled. Instead, they are "held" by the Maker's Lightning node (or the coordinator's LN node acting on their behalf). The funds are only truly released (settled) to the recipient (Taker) when a secret "preimage" is revealed. If the preimage is not revealed within a certain time, or if the invoice is explicitly cancelled, the funds are returned to the payer (Maker). This is the core of BitBlik's escrow mechanism.
 
 ---
 
@@ -46,7 +46,7 @@ Hold invoices are a special type of Lightning invoice. When a hold invoice is pa
 
 #### How are my Bitcoin funds secured as a Maker (seller)?
 
-As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the preimage required to settle this invoice. The system is designed to only settle (release your Bitcoin to the Taker) *after* you confirm you've received the fiat (BLIK) payment from the Taker. If the Taker fails to pay, or if there's an issue, the hold invoice can be cancelled, and the Bitcoin should be returned to your LND node's control (minus any potential LND routing fees for the failed hold attempt).
+As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the preimage required to settle this invoice. The system is designed to only settle (release your Bitcoin to the Taker) *after* you confirm you've received the fiat (BLIK) payment from the Taker. If the Taker fails to pay, or if there's an issue, the hold invoice can be cancelled, and the Bitcoin should be returned to your LN node's control.
 
 #### How am I protected as a Taker (buyer) if I send BLIK payment?
 
