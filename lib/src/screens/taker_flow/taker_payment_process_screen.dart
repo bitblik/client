@@ -218,6 +218,14 @@ class _PaymentChecklist extends ConsumerWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
+                  ref.read(appRoleProvider.notifier).state = AppRole.none;
+                  ref.read(activeOfferProvider.notifier).state = null;
+                  ref.read(holdInvoiceProvider.notifier).state = null;
+                  ref.read(paymentHashProvider.notifier).state = null;
+                  ref.read(receivedBlikCodeProvider.notifier).state = null;
+                  ref.read(errorProvider.notifier).state = null;
+                  ref.read(isLoadingProvider.notifier).state = false;
+                  ref.invalidate(availableOffersProvider); // Invalidate offer list
                   context.go("/");
                 },
                 child: Text(t.common.buttons.done),
