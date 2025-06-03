@@ -4,14 +4,14 @@
 
 #### What is BitBlik?
 
-BitBlik is free and opensource software designed to facilitate the peer-to-peer exchange of Bitcoin for BLIK codes.\
+BitBlik is free and open source software designed to facilitate the peer-to-peer exchange of Bitcoin for BLIK codes.\
 The fundamental idea is to:
 - pay with Bitcoin everywhere where BLIK payment is accepted
 - buy Bitcoin by generating and selling BLIK codes
 
 #### Why another P2P tool? Why not just use existing ones like RoboSats, Bisq, or Hodl Hodl?
 
-While those P2P escrow services are excellent and should be used for larger and longer-term trades, Bitblik is intended to be used as a quick payment method using BLIK codes in places/situations where it's appropriate, such as self-checkout stores, restaurants, online shopping, and even ATM machines.
+While those P2P escrow services are excellent and should be used for larger and longer-term trades, BitBlik is intended to be used as a quick payment method using BLIK codes in places/situations where it's appropriate, such as self-checkout stores, restaurants, online shopping, and even ATM machines.
 The entire exchange process shouldn't take more than a couple of minutes, depending on how quickly takers notice the new offer and are able to promptly provide and confirm the BLIK code.
 - **Makers** are users looking to sell Bitcoin.
 - **Takers** are users looking to buy Bitcoin.
@@ -19,13 +19,13 @@ The entire exchange process shouldn't take more than a couple of minutes, depend
 #### How does the escrow process work?
 
 The process generally follows these steps:
-1.  **Offer Creation (Maker):** A Maker creates an offer, specifying the amount of fiat they want to receive a BLIK code for, and the equivalent Bitcoin amount.
+1.  **Offer Creation (Maker):** A Maker creates an offer, specifying the amount of fiat they want to receive a BLIK code for.
 2.  **Funding Escrow (Maker):** The Maker pays a Lightning Network "hold invoice" for the specified Bitcoin amount. This locks the Bitcoin with the coordinator but doesn't transfer it yet.
 3.  **Offer Acceptance (Taker):** A Taker finds an offer they like and accept it, then generate a BLIK code in their banking app and submit it to the coordinator.
 4.  **Fiat Payment (Maker):** The Maker receives the BLIK code and introduces it in the payment terminal or on-line ecommerce site.
 5.  **BLIK Confirmation (Taker):** The Taker will receive a notification from their bank app to confirm the BLIK payment.
 6.  **Payment Confirmation (Maker):** The Maker confirms within the BitBlik system that they have received the BLIK payment.
-6.  **Bitcoin Release (Coordinator):** Upon the Maker's confirmation, the coordinator uses the secret preimage to "settle" the hold invoice. This action releases the locked Bitcoin to the Taker's provided Lightning address or invoice.
+7.  **Bitcoin Release (Coordinator):** Upon the Maker's confirmation, the coordinator uses the secret preimage to "settle" the hold invoice. This action releases the locked Bitcoin to the Taker's provided Lightning address or invoice.
 
 #### How do takers are made aware of new offers?
 
@@ -46,16 +46,15 @@ Hold invoices are a special type of Lightning invoice. When a hold invoice is pa
 
 #### How are my Bitcoin funds secured as a Maker (seller)?
 
-As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the preimage required to settle this invoice. The system is designed to only settle (release your Bitcoin to the Taker) *after* you confirm you've received the fiat (BLIK) payment from the Taker. If the Taker fails to pay, or if there's an issue, the hold invoice can be cancelled, and the Bitcoin should be returned to your LN node's control.
+As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the preimage required to settle this invoice. The system is designed to only settle (release your Bitcoin to the Taker) *after* you confirm you've received the fiat (BLIK) payment from the Taker. If the Taker fails to pay, or if there's an issue, the hold invoice is cancelled, and the Bitcoin is returned to your LN node's control.
 
 #### How am I protected as a Taker (buyer) if I send BLIK payment?
 
-As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. The risk is if the Maker falsely denies receiving your BLIK. (See "[Disputes](#disputes)").
+As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. There is a risk if the Maker falsely denies receiving your BLIK. (See "[Disputes](#disputes)").
 
 #### What happens if the Maker doesn't confirm my BLIK payment even though I sent it?
 
-This is a conflict scenario.
-(See "[Disputes](#disputes)")
+This is a conflict scenario. (See "[Disputes](#disputes)")
 
 #### What happens if the Taker provides a BLIK code but doesn't actually make the payment?
 
@@ -74,8 +73,8 @@ The system allows for an `invalidBlik` status. If the Maker attempts to use the 
   -   Operate the service reliably.
 - **LN Node Issues:** Both the coordinator's LN node and potentially users' LN nodes (if self-hosted and interacting directly) need to be online and operational. Issues with LN nodes can delay or complicate transactions.
 - **BLIK System Issues:** Problems with the BLIK payment system itself are outside BitBlik's control. Resolution of such issues must be handled through the Taker's bank or BLIK provider.
-- **Software Bugs:** As with any software, there's a risk of bugs in the BitBlik client or coordinator that could lead to errors or loss of funds. The software is open-source, so users can audit it, but this requires technical expertise.
-- **Privacy:** Your public keys are stored by the coordinator. Transaction details are also stored in the database. For better privacy you should generate a new key pair for each transaction.
+- **Software Bugs:** As with any software, there's a risk of bugs in the BitBlik client or coordinator that could lead to errors or loss of funds. The software is open source, so users can audit it, but this requires technical expertise.
+- **Privacy:** Your public keys are stored by the coordinator. Transaction details are also stored in the database. **For better privacy you should generate a new key pair for each transaction.**
 
 #### Is the coordinator custodial?
 
@@ -83,19 +82,19 @@ The coordinator is non-custodial in the traditional sense for the *final* Bitcoi
 
 #### What motivates the Maker to act honestly?
 
-Since the amount of Bitcoin are held in a Lightning Network hold invoice, the Maker (seller) is incentivized to act honestly. Without evidences to contrary the invoice will not be released back to the Maker.
+Since the Bitcoin are held in a Lightning Network hold invoice, the Maker (seller) is incentivized to act honestly. Without evidence to contrary the invoice will not be released back to the Maker.
 Since hold invoices should only be held for a short period (typically few hours), the invoice will settle and the funds will be kept by coordinator until the Taker provides evidence to resolve the dispute.
 
 
 #### What motivates the Taker to act honestly?
 
-If both parties signal a conflict, the Taker must provide evidence that the BLIK payment was deducted from their bank account, this will be resolved manually by a human in charge of the coordinator. Failure to provide such evidence will result in the Taker not receiving the Bitcoin, and after 48h the sats will return to the Maker.
+If both parties signal a conflict, the Taker must provide evidence that the BLIK payment was deducted from their bank account, this will be resolved manually by a person in charge of the coordinator. Failure to provide such evidence will result in the Taker not receiving the Bitcoin, and after 48h the sats will return to the Maker.
 Currently there is no bond system in place to incentivize the Taker to not waste the coordinator's time trying to resolve the dispute, but this will be implemented in the near future.
 
 
 #### What motivates the coordinator to act honestly?
 
-To be accepted as a BitBlik coordinator by the client software, the coordinator must provide a nostr key (profile) which users can tag and report bad experiences with a given coordinator. Before choosing to use a specific coordinator check its reputation on Nostr. Given the censorship-resistant nature of Nostr, anyone can flood or post invalid reports, so use a client that uses Web of Trust to determine the reputation of each user's reports. Preferably choose a coordinator that has good reputation among your Bitcoin community or your trusted friends. Ultimately, you as the user of this software are responsible for choosing a coordinator with good reputatio. This is not a platform or service and we take no responsibility for the actions of any coordinator.
+To be accepted as a BitBlik coordinator by the client software, the coordinator must provide a nostr key (profile) which users can tag and report bad experiences with a given coordinator. Before choosing to use a specific coordinator check its reputation on Nostr. Given the censorship-resistant nature of Nostr, anyone can flood or post invalid reports, so use a client that uses Web of Trust to determine the reputation of each user's reports. Preferably choose a coordinator that has good reputation among your Bitcoin community or your trusted friends. Ultimately, you as the user of this software are responsible for choosing a coordinator with good reputation. This is not a platform or service and we take no responsibility for the actions of any coordinator.
 
 ---
 
@@ -113,16 +112,16 @@ If the coordinator attempts to pay the Taker's Lightning invoice and it fails (e
 
 You can cancel the hold invoice, and the Bitcoin should be returned to your LN wallet. This is typically possible if the offer is still in a `funded` state and not yet `reserved` or further along.
 
-#### Why aren't the mobile apps distributed in google play store and apple app store?
+#### Why aren't the mobile apps distributed in Google Play store or Apple App Store?
 These platforms are not merely marketplaces; they are walled gardens governed by corporate gatekeepers who exercise absolute authority over what software users can install. This centralized model creates a single point of failure and a chokepoint for censorship. Apps that promote privacy-enhancing technologies, controversial political speech, or alternative economic models can be, and often are, delisted at the sole discretion of the platform owners, stifling innovation and the free exchange of ideas.
 
 ### Disputes
 
-If both the maker and taker disagree on the payment status or if there are issues with the transaction, the offer enters a `conflict` state, in which each party must provide evidences for the coordinator to resolve the dispute manually.
+If both the maker and taker disagree on the payment status or if there are issues with the transaction, the offer enters a `conflict` state, in which each party must provide evidence for the coordinator to resolve the dispute manually.
 
-#### What kind of evidences will be required from me as a Maker?
+#### What kind of evidence will be required from me as a Maker?
 TODO
 
-#### What kind of evidences will be required from me as a Taker?
+#### What kind of evidence will be required from me as a Taker?
 
 TODO
