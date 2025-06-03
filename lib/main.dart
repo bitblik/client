@@ -280,7 +280,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       }
     });
     // Then refresh periodically (e.g., every 1 seconds)
-    _activeOfferRefreshTimer = Timer.periodic(const Duration(seconds: 1), (
+    _activeOfferRefreshTimer = Timer.periodic(const Duration(seconds: 3), (
       timer,
     ) {
       if (mounted) {
