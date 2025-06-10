@@ -308,7 +308,7 @@ taker:
     title: "Waiting for Maker"
     statusLabel: "Offer status: ${status}"
     waitingMaker: "Waiting for Maker confirmation: ${seconds} s"
-    waitingMakerConfirmation: "Waiting for Maker to confirm BLIK payment in their banking app. Time remaining: ${seconds}s"
+    waitingMakerConfirmation: "Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s"
     importantNotice: "VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}"
     importantBlikAmountConfirmation: "VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}."
     instructions: The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.
