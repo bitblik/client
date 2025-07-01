@@ -133,8 +133,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
         },
         error: (e, s) {
           _stopRefreshTimer();
+
           return Center(
-            child: Text(t.lightningAddress.errors.loading(details: e.toString())),
+            child: Text(
+              t.lightningAddress.errors.loading(details: e.toString()),
+            ),
           );
         },
         data: (lightningAddress) {
@@ -146,10 +149,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             setState(() {
               _isValidating = true;
             });
-            validateLightningAddress(
-              lightningAddress,
-              t,
-            ).then((error) {
+            validateLightningAddress(lightningAddress, t).then((error) {
               if (mounted) {
                 setState(() {
                   _validationError = error;
@@ -241,7 +241,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.lightningAddress.errors.saving(details: e.toString()),
+                                  t.lightningAddress.errors.saving(
+                                    details: e.toString(),
+                                  ),
                                 ),
                               ),
                             );
@@ -262,16 +264,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           ref.invalidate(lightningAddressProvider);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                t.lightningAddress.feedback.saved,
-                              ),
+                              content: Text(t.lightningAddress.feedback.saved),
                             ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                t.lightningAddress.errors.saving(details: e.toString()),
+                                t.lightningAddress.errors.saving(
+                                  details: e.toString(),
+                                ),
                               ),
                             ),
                           );
@@ -352,9 +354,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                             return StatefulBuilder(
                               builder: (context, setState) {
                                 return AlertDialog(
-                                  title: Text(
-                                    t.lightningAddress.prompts.edit,
-                                  ),
+                                  title: Text(t.lightningAddress.prompts.edit),
                                   content: Form(
                                     key: editFormKey,
                                     child: TextFormField(
@@ -362,14 +362,19 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       focusNode: editFocusNode,
                                       keyboardType: TextInputType.emailAddress,
                                       decoration: InputDecoration(
-                                        hintText: t.lightningAddress.labels.hint,
-                                        labelText: t.lightningAddress.labels.address,
+                                        hintText:
+                                            t.lightningAddress.labels.hint,
+                                        labelText:
+                                            t.lightningAddress.labels.address,
                                       ),
                                       validator: (value) {
                                         if (value == null ||
                                             value.isEmpty ||
                                             !value.contains('@')) {
-                                          return t.lightningAddress.prompts.invalid;
+                                          return t
+                                              .lightningAddress
+                                              .prompts
+                                              .invalid;
                                         }
                                         return editValidationError;
                                       },
@@ -410,7 +415,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  t.lightningAddress.feedback.updated,
+                                                  t
+                                                      .lightningAddress
+                                                      .feedback
+                                                      .updated,
                                                 ),
                                               ),
                                             );
@@ -420,7 +428,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  t.lightningAddress.errors.saving(details: e.toString()),
+                                                  t.lightningAddress.errors
+                                                      .saving(
+                                                        details: e.toString(),
+                                                      ),
                                                 ),
                                               ),
                                             );
@@ -433,9 +444,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     TextButton(
                                       onPressed:
                                           () => Navigator.of(context).pop(),
-                                      child: Text(
-                                        t.common.buttons.cancel,
-                                      ),
+                                      child: Text(t.common.buttons.cancel),
                                     ),
                                     TextButton(
                                       onPressed: () async {
@@ -458,7 +467,10 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  t.lightningAddress.feedback.updated,
+                                                  t
+                                                      .lightningAddress
+                                                      .feedback
+                                                      .updated,
                                                 ),
                                               ),
                                             );
@@ -468,16 +480,17 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  t.lightningAddress.errors.saving(details: e.toString()),
+                                                  t.lightningAddress.errors
+                                                      .saving(
+                                                        details: e.toString(),
+                                                      ),
                                                 ),
                                               ),
                                             );
                                           }
                                         }
                                       },
-                                      child: Text(
-                                        t.common.buttons.save,
-                                      ),
+                                      child: Text(t.common.buttons.save),
                                     ),
                                   ],
                                 );
@@ -555,11 +568,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: offersAsyncValue.when(
                   data: (offers) {
                     if (offers.isEmpty) {
-                      return Center(
-                        child: Text(
-                          t.offers.display.noAvailable,
-                        ),
-                      );
+                      return Center(child: Text(t.offers.display.noAvailable));
                     }
                     // Separate finished offers
                     final finishedStatuses = [
@@ -619,7 +628,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         data:
                                             (publicKey) => () async {
                                               if (publicKey == null) {
-                                                return; 
+                                                return;
                                               }
 
                                               final takerId = publicKey;
@@ -696,20 +705,24 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     extra: updatedOffer,
                                                   );
                                                 } else {
-                                                  Navigator.of(
-                                                    context,
-                                                  ).pop(); 
+                                                  Navigator.of(context).pop();
                                                   ref
                                                       .read(
                                                         errorProvider.notifier,
                                                       )
-                                                      .state = t.reservations.errors.failedNoTimestamp;
+                                                      .state = t
+                                                          .reservations
+                                                          .errors
+                                                          .failedNoTimestamp;
                                                   if (scaffoldMessenger
                                                       .mounted) {
                                                     scaffoldMessenger.showSnackBar(
                                                       SnackBar(
                                                         content: Text(
-                                                          t.reservations.errors.failedNoTimestamp,
+                                                          t
+                                                              .reservations
+                                                              .errors
+                                                              .failedNoTimestamp,
                                                         ),
                                                       ),
                                                     );
@@ -724,18 +737,26 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 ).canPop()) {
                                                   Navigator.of(context).pop();
                                                 }
-                                                final errorMsg = t.reservations.errors.failedToReserve(details: e.toString());
+                                                final errorMsg = t
+                                                    .reservations
+                                                    .errors
+                                                    .failedToReserve(
+                                                      details: e.toString(),
+                                                    );
                                                 ref
                                                     .read(
                                                       errorProvider.notifier,
                                                     )
                                                     .state = errorMsg;
                                                 if (scaffoldMessenger.mounted) {
-                                                  scaffoldMessenger.showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(errorMsg),
-                                                    ),
-                                                  );
+                                                  scaffoldMessenger
+                                                      .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            errorMsg,
+                                                          ),
+                                                        ),
+                                                      );
                                                 }
                                                 ref.invalidate(
                                                   availableOffersProvider,
@@ -744,9 +765,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             },
                                         orElse: () => null,
                                       ),
-                                      child: Text(
-                                        t.offers.actions.take,
-                                      ),
+                                      child: Text(t.offers.actions.take),
                                     );
                                   } else if (isReserved || isBlikReceived) {
                                     trailingWidget = myActiveOfferAsyncValue.when(
@@ -777,7 +796,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 destinationScreen =
                                                     TakerSubmitBlikScreen(
                                                       initialOffer: myOffer,
-                                                    ); 
+                                                    );
                                               } else if (myOffer.status ==
                                                       OfferStatus
                                                           .blikReceived
@@ -793,7 +812,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 destinationScreen =
                                                     TakerWaitConfirmationScreen(
                                                       offer: myOffer,
-                                                    ); 
+                                                    );
                                               } else {
                                                 print(
                                                   "[OfferListScreen] Error: Resuming offer in unexpected state: ${myOffer.status}",
@@ -803,11 +822,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 ).showSnackBar(
                                                   SnackBar(
                                                     content: Text(
-                                                      t.offers.errors.unexpectedState,
+                                                      t
+                                                          .offers
+                                                          .errors
+                                                          .unexpectedState,
                                                     ),
                                                   ),
                                                 );
-                                                return; 
+                                                return;
                                               }
 
                                               Navigator.of(
@@ -873,7 +895,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         ),
                                         child: ListTile(
                                           title: Text(
-                                            t.offers.details.amountWithCurrency(amount: formatDouble(offer.fiatAmount ?? 0.0), currency: offer.fiatCurrency),
+                                            t.offers.details.amountWithCurrency(
+                                              amount: formatDouble(
+                                                offer.fiatAmount ?? 0.0,
+                                              ),
+                                              currency: offer.fiatCurrency,
+                                            ),
                                           ),
                                           subtitle: Text(
                                             '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
@@ -917,7 +944,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           Padding(
                             padding: EdgeInsets.only(
                               top: showActiveOffersList ? 16.0 : 0,
-                            ), 
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -947,7 +974,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                           ),
                                           child: ListTile(
                                             title: Text(
-                                              t.offers.details.amountWithCurrency(amount: formatDouble(offer.fiatAmount ?? 0.0), currency: offer.fiatCurrency),
+                                              t.offers.details
+                                                  .amountWithCurrency(
+                                                    amount: formatDouble(
+                                                      offer.fiatAmount ?? 0.0,
+                                                    ),
+                                                    currency:
+                                                        offer.fiatCurrency,
+                                                  ),
                                             ),
                                             subtitle: Text(
                                               '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
@@ -973,7 +1007,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              t.offers.errors.loading(details: error.toString()),
+                              t.offers.errors.loading(
+                                details: error.toString(),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             ElevatedButton(
@@ -1039,6 +1075,20 @@ String _formatDurationFromSeconds(int? totalSeconds) {
   return result.trim();
 }
 
+String _formatTimeAgo(DateTime dateTime) {
+  final now = DateTime.now();
+  final difference = now.difference(dateTime);
+  if (difference.inSeconds < 60) {
+    return '${difference.inSeconds}s ago';
+  } else if (difference.inMinutes < 60) {
+    return '${difference.inMinutes}m ago';
+  } else if (difference.inHours < 24) {
+    return '${difference.inHours}h ago';
+  } else {
+    return '${difference.inDays}d ago';
+  }
+}
+
 Widget _buildStatsSection(
   BuildContext context,
   AsyncValue<Map<String, dynamic>> statsAsyncValue,
@@ -1052,8 +1102,12 @@ Widget _buildStatsSection(
       final recentOffersData = data['offers'] as List<dynamic>? ?? [];
       final recentOffers = recentOffersData.cast<Offer>();
 
-      final numberFormat = NumberFormat("#,##0", 'en'); // Use 'en' locale for numbers
-      final dateFormat = DateFormat.yMd('en').add_Hm(); // Use 'en' locale for dates
+      final numberFormat = NumberFormat(
+        "#,##0",
+        'en',
+      ); // Use 'en' locale for numbers
+      final dateFormat =
+          DateFormat.yMd('en').add_Hm(); // Use 'en' locale for dates
 
       final last7DaysBlikTime =
           last7Days['avg_time_blik_received_to_created_seconds'] as num?;
@@ -1074,12 +1128,11 @@ Widget _buildStatsSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Combine last 7d and avg stats into one line
                 Text(
-                  t.home.statistics.last7DaysCompact(
-                    count: numberFormat.format(last7Days['count'] ?? 0),
-                    avgBlikTime: _formatDurationFromSeconds(last7DaysBlikTime?.round()),
-                    avgPaidTime: _formatDurationFromSeconds(last7DaysPaidTime?.round()),
-                  ),
+                  'Last 7d: 	${numberFormat.format(last7Days['count'] ?? 0)}  |  '
+                  'Avg BLIK: ${_formatDurationFromSeconds(last7DaysBlikTime?.round())}  |  '
+                  'Avg Paid: ${_formatDurationFromSeconds(last7DaysPaidTime?.round())}',
                   style: const TextStyle(fontSize: 13),
                 ),
                 const SizedBox(height: 8),
@@ -1090,7 +1143,7 @@ Widget _buildStatsSection(
                   )
                 else
                   SizedBox(
-                    height: 150,
+                    height: 120, // reduce height for compactness
                     child: Scrollbar(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -1099,28 +1152,42 @@ Widget _buildStatsSection(
                         itemBuilder: (context, index) {
                           final offer = recentOffers[index];
                           return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 2.0,
+                              horizontal: 0,
+                            ), // less margin
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ), // less padding
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  // Amount and currency
                                   Text(
                                     t.offers.details.amountWithCurrency(
-                                      amount: formatDouble(offer.fiatAmount ?? 0.0),
+                                      amount: formatDouble(
+                                        offer.fiatAmount ?? 0.0,
+                                      ),
                                       currency: offer.fiatCurrency,
                                     ),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 13,
                                     ),
                                   ),
+                                  const SizedBox(width: 10),
+                                  // Date (now as time ago)
                                   Text(
-                                    t.offers.details.created(
-                                      dateTime: dateFormat.format(
-                                        offer.createdAt.toLocal(),
-                                      ),
+                                    _formatTimeAgo(offer.createdAt.toLocal()),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
                                     ),
                                   ),
+                                  const SizedBox(width: 10),
+                                  // Taken after (if available)
                                   if (offer.timeToReserveSeconds != null)
                                     Text(
                                       t.offers.details.takenAfter(
@@ -1128,14 +1195,20 @@ Widget _buildStatsSection(
                                           offer.timeToReserveSeconds,
                                         ),
                                       ),
+                                      style: const TextStyle(fontSize: 12),
                                     ),
-                                  if (offer.totalCompletionTimeTakerSeconds != null)
+                                  if (offer.timeToReserveSeconds != null)
+                                    const SizedBox(width: 8),
+                                  // Paid after (if available)
+                                  if (offer.totalCompletionTimeTakerSeconds !=
+                                      null)
                                     Text(
                                       t.offers.details.paidAfter(
                                         duration: _formatDurationFromSeconds(
                                           offer.totalCompletionTimeTakerSeconds,
                                         ),
                                       ),
+                                      style: const TextStyle(fontSize: 12),
                                     ),
                                 ],
                               ),
@@ -1143,8 +1216,8 @@ Widget _buildStatsSection(
                           );
                         },
                       ),
-                    ), 
-                  ), 
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1153,7 +1226,10 @@ Widget _buildStatsSection(
     },
     loading: () => const Center(child: CircularProgressIndicator()),
     error:
-        (error, stackTrace) =>
-            Center(child: Text(t.home.statistics.errors.loading(error: error.toString()))),
+        (error, stackTrace) => Center(
+          child: Text(
+            t.home.statistics.errors.loading(error: error.toString()),
+          ),
+        ),
   );
 }
