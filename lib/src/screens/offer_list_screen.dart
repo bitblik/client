@@ -957,7 +957,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 SizedBox(
-                                  height: 200,
+                                  height:
+                                      72, // further reduce height for compactness
                                   child: Scrollbar(
                                     child: ListView.builder(
                                       shrinkWrap: !showActiveOffersList,
@@ -1143,7 +1144,7 @@ Widget _buildStatsSection(
                   )
                 else
                   SizedBox(
-                    height: 120, // reduce height for compactness
+                    height: 72, // further reduce height for compactness
                     child: Scrollbar(
                       child: ListView.builder(
                         shrinkWrap: true,
