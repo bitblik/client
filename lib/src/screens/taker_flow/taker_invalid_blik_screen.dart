@@ -26,7 +26,7 @@ class _TakerInvalidBlikScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.taker.invalidBlik.title), 
+        title: Text(t.taker.invalidBlik.title),
         automaticallyImplyLeading: false, // Prevent back navigation
       ),
       body: Padding(
@@ -43,13 +43,13 @@ class _TakerInvalidBlikScreenState
               ),
               const SizedBox(height: 20),
               Text(
-                t.taker.invalidBlik.message, 
+                t.taker.invalidBlik.message,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
               Text(
-                t.taker.invalidBlik.explanation, 
+                t.taker.invalidBlik.explanation,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
@@ -61,7 +61,7 @@ class _TakerInvalidBlikScreenState
 
                   final userPublicKey = await ref.read(
                     publicKeyProvider.future,
-                  ); 
+                  );
 
                   final takerId = userPublicKey;
                   final apiService = ref.read(apiServiceProvider);
@@ -91,9 +91,11 @@ class _TakerInvalidBlikScreenState
                     context.go("/submit-blik", extra: updatedOffer);
                   } else {
                     // Handle reservation failure
-                     ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(t.taker.invalidBlik.errors.reservationFailed),
+                        content: Text(
+                          t.taker.invalidBlik.errors.reservationFailed,
+                        ),
                         backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
@@ -109,7 +111,7 @@ class _TakerInvalidBlikScreenState
               ElevatedButton(
                 onPressed:
                     _isLoading
-                        ? null 
+                        ? null
                         : () async {
                           setState(() {
                             _isLoading = true;
@@ -117,13 +119,20 @@ class _TakerInvalidBlikScreenState
                           final apiService = ref.read(apiServiceProvider);
                           final userPublicKey = await ref.read(
                             publicKeyProvider.future,
-                          ); 
+                          );
 
                           if (userPublicKey == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(t.maker.confirmPayment.errors.missingHashOrKey),
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                content: Text(
+                                  t
+                                      .maker
+                                      .confirmPayment
+                                      .errors
+                                      .missingHashOrKey,
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                             setState(() {
@@ -134,35 +143,107 @@ class _TakerInvalidBlikScreenState
 
                           try {
                             print(
-                              "[TakerInvalidBlikScreen] Reporting conflict for offer ${offer.id} by taker $userPublicKey",
+                              "[TakerInvalidBlikScreen] Calling blikChargedByTaker for offer ${offer.id} by taker $userPublicKey",
                             );
-                            await apiService.markOfferConflict(
+                            // Replace markOfferConflict with blikChargedByTaker
+                            final result = await apiService.blikChargedByTaker(
                               offer.id,
                               userPublicKey,
                             );
+                            final message =
+                                result['message'] as String? ?? 'Success';
+                            final newStatusString =
+                                result['new_status'] as String?;
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  t.taker.invalidBlik.feedback.conflictReportedSuccess,
-                                ), 
+                                content: Text(message), // Use message from API
                                 backgroundColor: Colors.green,
                               ),
                             );
 
+                            OfferStatus? newStatus;
+                            if (newStatusString != null) {
+                              try {
+                                newStatus = OfferStatus.values.byName(
+                                  newStatusString,
+                                );
+                              } catch (_) {
+                                print(
+                                  'Invalid new status received: $newStatusString',
+                                );
+                              }
+                            }
+
                             if (mounted) {
-                              context.go('/taker-conflict', extra: offer.id);
+                              if (newStatus != null) {
+                                final updatedOffer = offer.copyWith(
+                                  status: newStatus.name,
+                                );
+                                ref.read(activeOfferProvider.notifier).state =
+                                    updatedOffer;
+
+                                if (newStatus == OfferStatus.conflict) {
+                                  context.go(
+                                    '/taker-conflict',
+                                    extra: offer.id,
+                                  );
+                                } else if (newStatus ==
+                                    OfferStatus.takerConfirmed) {
+                                  // Navigate to wait confirmation, which handles takerConfirmed
+                                  context.go(
+                                    '/wait-confirmation',
+                                    extra: updatedOffer,
+                                  );
+                                } else {
+                                  // Fallback or handle other statuses if necessary
+                                  // For now, if it's not conflict or takerConfirmed,
+                                  // the activeOfferProvider is updated, and router should handle it.
+                                  // Or, navigate to a general screen like offers list.
+                                  print(
+                                    "Offer ${offer.id} status changed to $newStatus, activeOfferProvider updated.",
+                                  );
+                                  // Potentially context.go('/offers'); if no specific screen for newStatus
+                                }
+                              } else {
+                                // If no new status, refresh current offer from provider or stay
+                                // For now, assume the message indicates success and we might want to
+                                // navigate to a waiting screen or refresh.
+                                // Given this is "BLIK charged", /wait-confirmation is a sensible default
+                                // if the status didn't explicitly change to conflict.
+                                // Update the local offer state and navigate.
+                                // The polling provider on TakerWaitConfirmationScreen will handle subsequent updates.
+                                final currentOffer = ref.read(
+                                  activeOfferProvider,
+                                );
+                                if (currentOffer != null) {
+                                  // Potentially update status if known, otherwise use existing
+                                  // For now, assume no status change if newStatusString was null
+                                  ref.read(activeOfferProvider.notifier).state =
+                                      currentOffer;
+                                  context.go(
+                                    '/wait-confirmation',
+                                    extra: currentOffer,
+                                  );
+                                } else {
+                                  // Fallback if activeOffer is somehow null
+                                  context.go('/offers');
+                                }
+                              }
                             }
                           } catch (e) {
                             print(
-                              "[TakerInvalidBlikScreen] Error reporting conflict: $e",
+                              "[TakerInvalidBlikScreen] Error calling blikChargedByTaker: $e",
                             );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.taker.invalidBlik.errors.conflictReport(details: e.toString()),
-                                ), 
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                  t.taker.invalidBlik.errors.conflictReport(
+                                    details: e.toString(),
+                                  ),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                           } finally {
@@ -189,7 +270,8 @@ class _TakerInvalidBlikScreenState
                             ),
                           ),
                         )
-                        : Text(t.taker.invalidBlik.actions.reportConflict),
+                        // Use the same text as in TakerExpiredSentBlikScreen for consistency
+                        : Text(t.taker.expiredSentBlikScreen.blikUsedButton),
               ),
               const SizedBox(height: 20),
               TextButton(

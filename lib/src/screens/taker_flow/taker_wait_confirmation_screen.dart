@@ -22,7 +22,7 @@ class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
 class _TakerWaitConfirmationScreenState
     extends ConsumerState<TakerWaitConfirmationScreen> {
   Timer? _confirmationTimer;
-  int _confirmationCountdownSeconds = 120;
+  int _confirmationCountdownSeconds = 10;
   bool _timersInitialized = false;
 
   @override
@@ -30,7 +30,9 @@ class _TakerWaitConfirmationScreenState
     super.initState();
     if (widget.offer.status != OfferStatus.blikReceived.name &&
         widget.offer.status != OfferStatus.blikSentToMaker.name &&
-        widget.offer.status != OfferStatus.makerConfirmed.name) {
+        widget.offer.status != OfferStatus.makerConfirmed.name &&
+        widget.offer.status != OfferStatus.takerConfirmed.name) {
+      // Added takerConfirmed
       print(
         "[TakerWaitConfirmation initState] Error: Received invalid offer state: ${widget.offer.status}. Resetting.",
       );
@@ -73,10 +75,7 @@ class _TakerWaitConfirmationScreenState
       _handleConfirmationTimeout();
     } else {
       setState(() {
-        _confirmationCountdownSeconds = initialRemaining.inSeconds.clamp(
-          0,
-          120,
-        );
+        _confirmationCountdownSeconds = initialRemaining.inSeconds.clamp(0, 10);
       });
       _confirmationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (!mounted) {
@@ -98,7 +97,31 @@ class _TakerWaitConfirmationScreenState
   void _handleConfirmationTimeout() {
     _confirmationTimer?.cancel();
     if (mounted) {
-      print("[TakerWaitConfirmation] Confirmation timer expired.");
+      print(
+        "[TakerWaitConfirmation] Confirmation timer expired. Navigating to /taker-expired-blik",
+      );
+      // Navigate to the TakerExpiredSentBlikScreen
+      // It's important to use a post-frame callback if this might be called
+      // during a build phase, though in a timer callback it's usually safe.
+      // However, to be robust:
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          // Check if the offer status is still one that implies timeout is relevant
+          // For example, if it's already makerConfirmed, takerPaid, etc., don't navigate to expired.
+          // This check might be better placed within the polling logic, but a safety here is good.
+          final currentOfferStatus = ref.read(activeOfferProvider)?.statusEnum;
+          if (currentOfferStatus == OfferStatus.blikReceived ||
+              currentOfferStatus == OfferStatus.blikSentToMaker) {
+            context.go('/taker-expired-blik', extra: widget.offer);
+          } else {
+            print(
+              "[TakerWaitConfirmation] Timeout occurred, but offer status is $currentOfferStatus. Not navigating to expired screen.",
+            );
+            // Optionally, handle this case, e.g., by resetting or showing a generic error.
+            // For now, if it's not an expected timeout state, we might let the polling logic handle it.
+          }
+        }
+      });
     }
   }
 
@@ -258,7 +281,9 @@ class _TakerWaitConfirmationScreenState
                   child: CircularProgressIndicator(key: Key("navigating_fail")),
                 );
               } else if (currentStatusEnum != OfferStatus.blikReceived &&
-                  currentStatusEnum != OfferStatus.blikSentToMaker) {
+                  currentStatusEnum != OfferStatus.blikSentToMaker &&
+                  currentStatusEnum != OfferStatus.takerConfirmed.name) {
+                // Added takerConfirmed
                 print(
                   "[TakerWaitConfirmation build] Offer status ($currentStatusEnum) invalid for waiting screen. Resetting.",
                 );
@@ -370,9 +395,13 @@ class _TakerWaitConfirmationScreenState
             ),
             const SizedBox(height: 10),
             Text(
-              t.taker.waitConfirmation.waitingMakerConfirmation(
-                seconds: _confirmationCountdownSeconds,
-              ),
+              offer.statusEnum == OfferStatus.takerConfirmed
+                  ? t.taker.waitConfirmation.waitingAfterTakerConfirmed(
+                    seconds: _confirmationCountdownSeconds,
+                  )
+                  : t.taker.waitConfirmation.waitingMakerConfirmation(
+                    seconds: _confirmationCountdownSeconds,
+                  ),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
