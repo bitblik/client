@@ -51,6 +51,7 @@ dependencies:
   package_info_plus: ^6.0.0 # For getting app version at runtime
   slang: ^4.7.2
   slang_flutter: ^4.7.0
+  provider: ^6.0.0 # For state management, if chosen over Riverpod for specific cases
   markdown: ^7.3.0 # For parsing Markdown to HTML
   flutter_html: ^3.0.0 # For rendering HTML content
 

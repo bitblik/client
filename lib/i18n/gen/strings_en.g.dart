@@ -162,6 +162,7 @@ class TranslationsTakerEn {
 	late final TranslationsTakerPaymentSuccessEn paymentSuccess = TranslationsTakerPaymentSuccessEn.internal(_root);
 	late final TranslationsTakerInvalidBlikEn invalidBlik = TranslationsTakerInvalidBlikEn.internal(_root);
 	late final TranslationsTakerConflictEn conflict = TranslationsTakerConflictEn.internal(_root);
+	late final TranslationsTakerExpiredSentBlikScreenEn expiredSentBlikScreen = TranslationsTakerExpiredSentBlikScreenEn.internal(_root);
 }
 
 // Path: blik
@@ -544,7 +545,6 @@ class TranslationsMakerWaitForBlikEn {
 	// Translations
 	String get title => 'Waiting for BLIK';
 	String get message => 'Waiting for Taker to provide BLIK code.';
-	String get timeLimit => 'Taker has 20 seconds to provide code.';
 	String timeLimitWithSeconds({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
 	String progressLabel({required Object seconds}) => 'Reserved: ${seconds} s left';
 }
@@ -587,7 +587,6 @@ class TranslationsMakerConflictEn {
 	String get body => 'You marked the BLIK code as invalid, but the Taker reported a conflict, indicating they believe the payment was successful.';
 	String get instructions => 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.';
 	late final TranslationsMakerConflictActionsEn actions = TranslationsMakerConflictActionsEn.internal(_root);
-	late final TranslationsMakerConflictDisputeDialogEn disputeDialog = TranslationsMakerConflictDisputeDialogEn.internal(_root);
 	late final TranslationsMakerConflictFeedbackEn feedback = TranslationsMakerConflictFeedbackEn.internal(_root);
 	late final TranslationsMakerConflictErrorsEn errors = TranslationsMakerConflictErrorsEn.internal(_root);
 }
@@ -642,7 +641,8 @@ class TranslationsTakerWaitConfirmationEn {
 	String get title => 'Waiting for Maker';
 	String statusLabel({required Object status}) => 'Offer status: ${status}';
 	String waitingMaker({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';
-	String waitingMakerConfirmation({required Object seconds}) => 'Waiting for Maker to confirm BLIK payment in their banking app. Time remaining: ${seconds}s';
+	String waitingMakerConfirmation({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
+	String waitingAfterTakerConfirmed({required Object seconds}) => 'You\'ve confirmed the BLIK was used. Waiting for Maker\'s action or dispute resolution. Time remaining: ${seconds}s';
 	String importantNotice({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
 	String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
 	String get instructions => 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
@@ -724,6 +724,28 @@ class TranslationsTakerConflictEn {
 	late final TranslationsTakerConflictActionsEn actions = TranslationsTakerConflictActionsEn.internal(_root);
 	late final TranslationsTakerConflictFeedbackEn feedback = TranslationsTakerConflictFeedbackEn.internal(_root);
 	late final TranslationsTakerConflictErrorsEn errors = TranslationsTakerConflictErrorsEn.internal(_root);
+}
+
+// Path: taker.expiredSentBlikScreen
+class TranslationsTakerExpiredSentBlikScreenEn {
+	TranslationsTakerExpiredSentBlikScreenEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'BLIK Code Expired';
+	String get message => 'The BLIK code has expired because the payment was not confirmed in time (120 seconds).';
+	String get question => 'What would you like to do?';
+	String get retakeOfferButton => 'Re-take Offer & Generate New BLIK';
+	String get blikUsedButton => 'BLIK Used, Payment Deducted';
+	String get needHelpCancelButton => 'Need Help / Cancel';
+	String get retakeOfferNotImplemented => 'Re-take offer functionality to be implemented.';
+	String get confirmingPaymentMessage => 'Confirming payment...';
+	String get paymentConfirmedSuccess => 'Payment confirmed successfully!';
+	String get paymentConfirmedFailed => 'Failed to confirm payment. Please try again.';
+	String get apiCallTakerConfirmedNotImplemented => 'API call for takerConfirmed to be implemented.';
+	String errorOccurred({required Object error}) => 'An error occurred: ${error}';
+	String get helpCancelNotImplemented => 'Help/Cancel functionality to be implemented.';
 }
 
 // Path: blik.instructions
@@ -891,21 +913,6 @@ class TranslationsMakerConflictActionsEn {
 	// Translations
 	String get back => 'Back to Home';
 	String get confirmPayment => 'My mistake, confirm BLIK payment success';
-	String get openDispute => 'Blik payment did NOT succeed, OPEN DISPUTE';
-	String get submitDispute => 'Submit Dispute';
-}
-
-// Path: maker.conflict.disputeDialog
-class TranslationsMakerConflictDisputeDialogEn {
-	TranslationsMakerConflictDisputeDialogEn.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get title => 'Open dispute?';
-	String get content => 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.';
-	String get contentDetailed => 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus dispute fees). Make sure you have a Lightning address configured.';
-	late final TranslationsMakerConflictDisputeDialogActionsEn actions = TranslationsMakerConflictDisputeDialogActionsEn.internal(_root);
 }
 
 // Path: maker.conflict.feedback
@@ -915,7 +922,6 @@ class TranslationsMakerConflictFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get disputeOpenedSuccess => 'Dispute successfully opened. Coordinator will review.';
 }
 
 // Path: maker.conflict.errors
@@ -925,7 +931,6 @@ class TranslationsMakerConflictErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String openingDispute({required Object error}) => 'Error opening dispute: ${error}';
 }
 
 // Path: taker.submitBlik.actions
@@ -1134,7 +1139,6 @@ class TranslationsTakerInvalidBlikActionsEn {
 
 	// Translations
 	String get retry => 'I DID NOT PAY, reserve offer again and send new BLIK code';
-	String get reportConflict => 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!';
 	String get returnHome => 'Return to home';
 }
 
@@ -1145,7 +1149,6 @@ class TranslationsTakerInvalidBlikFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get conflictReportedSuccess => 'Conflict reported. Coordinator will review.';
 }
 
 // Path: taker.invalidBlik.errors
@@ -1197,17 +1200,6 @@ class TranslationsHomeStatisticsErrorsEn {
 
 	// Translations
 	String loading({required Object error}) => 'Error loading statistics: ${error}';
-}
-
-// Path: maker.conflict.disputeDialog.actions
-class TranslationsMakerConflictDisputeDialogActionsEn {
-	TranslationsMakerConflictDisputeDialogActionsEn.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get confirm => 'Open Dispute';
-	String get cancel => 'Cancel';
 }
 
 /// Flat map(s) containing all translations.
@@ -1338,7 +1330,6 @@ extension on Translations {
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Failed to cancel offer: ${details}';
 			case 'maker.waitForBlik.title': return 'Waiting for BLIK';
 			case 'maker.waitForBlik.message': return 'Waiting for Taker to provide BLIK code.';
-			case 'maker.waitForBlik.timeLimit': return 'Taker has 20 seconds to provide code.';
 			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Reserved: ${seconds} s left';
 			case 'maker.confirmPayment.title': return 'BLIK code received!';
@@ -1366,15 +1357,6 @@ extension on Translations {
 			case 'maker.conflict.instructions': return 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.';
 			case 'maker.conflict.actions.back': return 'Back to Home';
 			case 'maker.conflict.actions.confirmPayment': return 'My mistake, confirm BLIK payment success';
-			case 'maker.conflict.actions.openDispute': return 'Blik payment did NOT succeed, OPEN DISPUTE';
-			case 'maker.conflict.actions.submitDispute': return 'Submit Dispute';
-			case 'maker.conflict.disputeDialog.title': return 'Open dispute?';
-			case 'maker.conflict.disputeDialog.content': return 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.';
-			case 'maker.conflict.disputeDialog.contentDetailed': return 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus dispute fees). Make sure you have a Lightning address configured.';
-			case 'maker.conflict.disputeDialog.actions.confirm': return 'Open Dispute';
-			case 'maker.conflict.disputeDialog.actions.cancel': return 'Cancel';
-			case 'maker.conflict.feedback.disputeOpenedSuccess': return 'Dispute successfully opened. Coordinator will review.';
-			case 'maker.conflict.errors.openingDispute': return ({required Object error}) => 'Error opening dispute: ${error}';
 			case 'maker.success.title': return 'Offer completed';
 			case 'maker.success.headline': return 'Payment confirmed!';
 			case 'maker.success.subtitle': return 'Taker has been paid.';
@@ -1396,7 +1378,8 @@ extension on Translations {
 			case 'taker.waitConfirmation.title': return 'Waiting for Maker';
 			case 'taker.waitConfirmation.statusLabel': return ({required Object status}) => 'Offer status: ${status}';
 			case 'taker.waitConfirmation.waitingMaker': return ({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';
-			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Waiting for Maker to confirm BLIK payment in their banking app. Time remaining: ${seconds}s';
+			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
+			case 'taker.waitConfirmation.waitingAfterTakerConfirmed': return ({required Object seconds}) => 'You\'ve confirmed the BLIK was used. Waiting for Maker\'s action or dispute resolution. Time remaining: ${seconds}s';
 			case 'taker.waitConfirmation.importantNotice': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
 			case 'taker.waitConfirmation.importantBlikAmountConfirmation': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
 			case 'taker.waitConfirmation.instructions': return 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
@@ -1447,9 +1430,7 @@ extension on Translations {
 			case 'taker.invalidBlik.message': return 'Maker Rejected BLIK Code';
 			case 'taker.invalidBlik.explanation': return 'The offer maker indicated that the BLIK code you provided was invalid or didn\'t work. What would you like to do?';
 			case 'taker.invalidBlik.actions.retry': return 'I DID NOT PAY, reserve offer again and send new BLIK code';
-			case 'taker.invalidBlik.actions.reportConflict': return 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!';
 			case 'taker.invalidBlik.actions.returnHome': return 'Return to home';
-			case 'taker.invalidBlik.feedback.conflictReportedSuccess': return 'Conflict reported. Coordinator will review.';
 			case 'taker.invalidBlik.errors.reservationFailed': return 'Failed to reserve offer again';
 			case 'taker.invalidBlik.errors.conflictReport': return ({required Object details}) => 'Error reporting conflict: ${details}';
 			case 'taker.conflict.title': return 'Offer Conflict';
@@ -1459,6 +1440,19 @@ extension on Translations {
 			case 'taker.conflict.actions.back': return 'Back to Home';
 			case 'taker.conflict.feedback.reported': return 'Conflict reported. Coordinator will review.';
 			case 'taker.conflict.errors.reporting': return ({required Object details}) => 'Error reporting conflict: ${details}';
+			case 'taker.expiredSentBlikScreen.title': return 'BLIK Code Expired';
+			case 'taker.expiredSentBlikScreen.message': return 'The BLIK code has expired because the payment was not confirmed in time (120 seconds).';
+			case 'taker.expiredSentBlikScreen.question': return 'What would you like to do?';
+			case 'taker.expiredSentBlikScreen.retakeOfferButton': return 'Re-take Offer & Generate New BLIK';
+			case 'taker.expiredSentBlikScreen.blikUsedButton': return 'BLIK Used, Payment Deducted';
+			case 'taker.expiredSentBlikScreen.needHelpCancelButton': return 'Need Help / Cancel';
+			case 'taker.expiredSentBlikScreen.retakeOfferNotImplemented': return 'Re-take offer functionality to be implemented.';
+			case 'taker.expiredSentBlikScreen.confirmingPaymentMessage': return 'Confirming payment...';
+			case 'taker.expiredSentBlikScreen.paymentConfirmedSuccess': return 'Payment confirmed successfully!';
+			case 'taker.expiredSentBlikScreen.paymentConfirmedFailed': return 'Failed to confirm payment. Please try again.';
+			case 'taker.expiredSentBlikScreen.apiCallTakerConfirmedNotImplemented': return 'API call for takerConfirmed to be implemented.';
+			case 'taker.expiredSentBlikScreen.errorOccurred': return ({required Object error}) => 'An error occurred: ${error}';
+			case 'taker.expiredSentBlikScreen.helpCancelNotImplemented': return 'Help/Cancel functionality to be implemented.';
 			case 'blik.instructions.taker': return 'Once the Maker enters the BLIK code, you will need to confirm the payment in your banking app. Ensure the amount is correct before confirming.';
 			case 'home.notifications.simplex': return 'Get notified about new orders via SimpleX';
 			case 'home.notifications.element': return 'Get notified about new orders via Element';

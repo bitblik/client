@@ -451,23 +451,7 @@ class ApiService {
     }
   }
 
-  // POST /offers/{offerId}/conflict
-  Future<void> markOfferConflict(String offerId, String takerId) async {
-    final url = Uri.parse('$_baseUrl/offers/$offerId/conflict');
-    final headers = {
-      'Content-Type': 'application/json',
-      'x-user-pubkey': takerId, // Send taker ID for auth
-    };
-    final body = jsonEncode({}); // Empty body
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      _handleResponse(response); // Throws on error (e.g., 404, 403, 409)
-    } catch (e) {
-      print('Error calling markOfferConflict: $e');
-      rethrow; // Rethrow to allow UI to handle it
-    }
-  }
+  // Method markOfferConflict removed
 
   // POST /offers/{offerId}/dispute - Maker opens dispute
   Future<void> openDispute(String offerId, String makerLnAddress) async {
@@ -543,6 +527,28 @@ class ApiService {
       return result;
     } catch (e) {
       print('Error calling getSuccessfulOffersStats: $e');
+      rethrow;
+    }
+  }
+
+  // POST /offers/{offerId}/blik-charged
+  Future<Map<String, dynamic>> blikChargedByTaker(
+    String offerId,
+    String takerId,
+  ) async {
+    final url = Uri.parse('$_baseUrl/offers/$offerId/blik-charged');
+    final headers = {
+      'Content-Type': 'application/json',
+      'x-user-pubkey': takerId,
+    };
+    final body = jsonEncode({}); // Empty body
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      return _handleResponse(response)
+          as Map<String, dynamic>; // Returns {message, new_status}
+    } catch (e) {
+      print('Error calling blikChargedByTaker: $e');
       rethrow;
     }
   }

@@ -23,6 +23,7 @@ import 'src/screens/offer_list_screen.dart';
 import 'src/models/offer.dart'; // Needed for OfferStatus enum
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
+import 'src/screens/taker_flow/taker_expired_sent_blik_screen.dart'; // Import the new screen
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
 import 'src/screens/faq_screen.dart'; // Import the FAQ screen
@@ -181,10 +182,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: FaqScreen.routeName,
-        builder: (context, state) => AppScaffold(
-          body: const FaqScreen(),
-          pageTitle: "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
-        ),
+        builder:
+            (context, state) => AppScaffold(
+              body: const FaqScreen(),
+              pageTitle:
+                  "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
+            ),
+      ),
+      GoRoute(
+        path: '/taker-expired-blik',
+        builder: (context, state) {
+          if (state.extra == null) {
+            // If no offer is passed, redirect to home or offer list
+            // This prevents errors if the route is accessed directly without an offer
+            context.go("/"); // Or '/offers'
+            return Container(); // Return an empty container while redirecting
+          } else {
+            return AppScaffold(
+              body: TakerExpiredSentBlikScreen(offer: state.extra as Offer),
+            );
+          }
+        },
       ),
     ],
   );
@@ -337,7 +355,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
+        automaticallyImplyLeading:
+            (widget.pageTitle != null &&
+                widget
+                    .pageTitle!
+                    .isNotEmpty), // Show back button if pageTitle is present
         title: appBarTitle,
         actions: [
           // Language Switcher Dropdown
