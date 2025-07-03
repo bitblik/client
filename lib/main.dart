@@ -28,6 +28,7 @@ import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker 
 import 'src/screens/faq_screen.dart'; // Import the FAQ screen
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
+import 'package:uni_links/uni_links.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -181,10 +182,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: FaqScreen.routeName,
-        builder: (context, state) => AppScaffold(
-          body: const FaqScreen(),
-          pageTitle: "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
-        ),
+        builder:
+            (context, state) => AppScaffold(
+              body: const FaqScreen(),
+              pageTitle:
+                  "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
+            ),
       ),
     ],
   );
@@ -201,11 +204,49 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends ConsumerWidget {
+// Replace MyApp with a ConsumerStatefulWidget to handle deep links
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  StreamSubscription? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only listen for deep links on Android/iOS, not web
+    if (!kIsWeb) {
+      _sub = uriLinkStream.listen(
+        (Uri? uri) {
+          if (uri != null) {
+            // Handle both /offers and #/offers
+            final path = uri.path;
+            final fragment = uri.fragment;
+            final router = ref.read(routerProvider);
+            if (path == '/offers' || fragment == '/offers') {
+              router.go('/offers');
+            }
+          }
+        },
+        onError: (err) {
+          // Handle error
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider); // Watch the locale provider
 
@@ -337,7 +378,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
+        automaticallyImplyLeading:
+            (widget.pageTitle != null &&
+                widget
+                    .pageTitle!
+                    .isNotEmpty), // Show back button if pageTitle is present
         title: appBarTitle,
         actions: [
           // Language Switcher Dropdown
