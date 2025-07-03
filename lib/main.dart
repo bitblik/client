@@ -28,7 +28,7 @@ import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker 
 import 'src/screens/faq_screen.dart'; // Import the FAQ screen
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -213,14 +213,15 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  StreamSubscription? _sub;
+  StreamSubscription<Uri>? _sub;
+  final AppLinks _appLinks = AppLinks();
 
   @override
   void initState() {
     super.initState();
     // Only listen for deep links on Android/iOS, not web
     if (!kIsWeb) {
-      _sub = uriLinkStream.listen(
+      _sub = _appLinks.uriLinkStream.listen(
         (Uri? uri) {
           if (uri != null) {
             // Handle both /offers and #/offers
