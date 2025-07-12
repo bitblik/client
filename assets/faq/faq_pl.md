@@ -75,9 +75,18 @@ Jeśli koordynator próbuje zapłacić invoice Lightning Taker i się nie powied
 Możesz anulować hold invoice, a Bitcoin powinien zostać zwrócony do twojego portfela LN. To jest zazwyczaj możliwe, jeśli oferta jest nadal w stanie `funded` i nie jest jeszcze `reserved` lub dalej.
 #### Dlaczego aplikacje mobilne nie są dystrybuowane w google play store i apple app store?
 Te platformy to nie tylko marketplace; to walled gardens rządzone przez korporacyjnych strażników, którzy sprawują absolutną władzę nad tym, jakie oprogramowanie użytkownicy mogą instalować. Ten scentralizowany model tworzy pojedynczy punkt awarii i wąskie gardło dla censury. Aplikacje promujące technologie zwiększające prywatność, kontrowersyjne wypowiedzi polityczne lub alternatywne modele ekonomiczne mogą być i często są usuwane według wyłącznego uznania właścicieli platform, tłumiąc innowacje i swobodną wymianę idei.
+
 ### Spory
 Jeśli zarówno maker, jak i taker nie zgadzają się co do statusu płatności lub jeśli są problemy z transakcją, oferta wchodzi w stan `conflict`, w którym każda strona musi dostarczyć dowody dla koordynatora do ręcznego rozwiązania sporu.
-#### Jakiego rodzaju dowody będą ode mnie wymagane jako Maker?
-DO ZROBIENIA
-#### Jakiego rodzaju dowody będą ode mnie wymagane jako Taker?
-DO ZROBIENIA
+
+> ⚠️ **Ważne:** Każdy koordynator może mieć inne wymagania i/lub procedury rozwiązywania sporów, dlatego zapoznaj się z dokumentacją danego koordynatora lub skontaktuj się z nim bezpośrednio, aby uzyskać szczegółowe informacje.
+
+#### Jakie dowody mogą być ogólnie wymagane ode mnie jako Maker’a przez koordynatora?
+
+Jeśli kod BLIK, którego próbowałeś użyć w terminalu płatniczym lub na stronie e-commerce, był nieprawidłowy lub wygasł, powinieneś dostarczyć dowód nieudanej próby płatności. Może to obejmować:
+- wydruk z terminala płatniczego lub bankomatu z informacją o nieprawidłowym kodzie BLIK 
+- potwierdzenia z nieudaną próbą płatności na stronie e-commerce
+
+#### Jakie dowody mogą być ogólnie wymagane ode mnie jako Taker’a przez koordynatora?
+
+Jeśli Maker zaprzecza, że otrzymał Twoją płatność BLIK, powinieneś dostarczyć dowód, że płatność BLIK została skutecznie pobrana z Twojego konta bankowego. Zazwyczaj będzie to potwierdzenie płatności z aplikacji bankowej, zawierające szczegóły transakcji BLIK, w tym kwotę i znacznik czasu.

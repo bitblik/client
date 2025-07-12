@@ -119,9 +119,13 @@ These platforms are not merely marketplaces; they are walled gardens governed by
 
 If both the maker and taker disagree on the payment status or if there are issues with the transaction, the offer enters a `conflict` state, in which each party must provide evidence for the coordinator to resolve the dispute manually.
 
-#### What kind of evidence will be required from me as a Maker?
-TODO
+> ⚠️ **Important:** Each coordinator may have different requirements and/or procedure for dispute resolution, so check the coordinator's documentation or contact them directly to be sure.
 
-#### What kind of evidence will be required from me as a Taker?
+#### What kind of evidence might be generally required from me as a Maker from the coordinator?
+If the BLIK code you tried to use at the payment terminal or e-commerce site was invalid or expired, you should provide evidence of the failed payment attempt. This could include:
+- invalid BLIK code receipt printed by the payment terminal or ATM.
+- screenshot of the failed payment attempt in the e-commerce site
 
-TODO
+#### What kind of evidence might be generally required from me as a Taker by the coordinator?
+
+If the Maker denies receiving your BLIK payment, you should provide evidence that the BLIK payment was successfully deducted from your bank account. This will typically be a payment receipt by your banking app showing the BLIK transaction details, including the amount & timestamp.
