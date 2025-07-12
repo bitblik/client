@@ -36,10 +36,10 @@ Hold invoices to specjalny typ faktury Lightning. Kiedy hold invoice jest opłac
 #### Jak moje środki Bitcoin są zabezpieczone jako Maker (sprzedawca)?
 Jako Maker, twój Bitcoin jest zablokowany poprzez hold invoice. Koordynator ma preimage wymagany do rozliczenia tego invoice. System jest zaprojektowany tak, aby rozliczyć (uwolnić twój Bitcoin do Taker) *tylko po tym*, jak potwierdzisz, że otrzymałeś płatność fiat (BLIK) od Taker. Jeśli Taker nie zapłaci lub jeśli wystąpi problem, hold invoice może zostać anulowany, a Bitcoin powinien zostać zwrócony (minus ewentualne opłaty routingu Lightning za nieudaną próbę hold).
 #### Jak jestem chroniony jako Taker (kupujący), jeśli wyślę płatność BLIK?
-Jako Taker, twoja główna ochrona polega na tym, że Maker już zablokował swój Bitcoin w hold invoice u koordynatora *zanim* zostaniesz poproszony o wysłanie płatności BLIK. Jeśli Maker potwierdzi otrzymanie twojego BLIK, system jest zaprojektowany tak, aby automatycznie uwolnić Bitcoin dla ciebie. Ryzyko polega na tym, że Maker fałszywie zaprzeczy otrzymaniu twojego BLIK. (Zobacz "[Spory](#spory)").
+Jako Taker, twoja główna ochrona polega na tym, że Maker już zablokował swój Bitcoin w hold invoice u koordynatora *zanim* zostaniesz poproszony o wysłanie płatności BLIK. Jeśli Maker potwierdzi otrzymanie twojego BLIK, system jest zaprojektowany tak, aby automatycznie uwolnić Bitcoin dla ciebie. Ryzyko polega na tym, że Maker fałszywie zaprzeczy otrzymaniu twojego BLIK. (Zobacz "Spory").
 #### Co się dzieje, jeśli Maker nie potwierdzi mojej płatności BLIK, mimo że ją wysłałem?
 To jest scenariusz konfliktu.
-(Zobacz "[Spory](#spory)")
+(Zobacz "Spory")
 #### Co się dzieje, jeśli Taker poda kod BLIK, ale faktycznie nie dokona płatności?
 Jako Maker, nie powinieneś potwierdzać otrzymania płatności, dopóki środki fiat rzeczywiście nie znajdą się na twoim koncie. Jeśli Taker nie zapłaci po podaniu kodu BLIK, nie potwierdziłbyś, a oferta prawdopodobnie wygaśnie lub będzie możliwa do anulowania. Hold invoice zabezpieczający twój Bitcoin ostatecznie zostanie anulowany, zwracając ci środki.
 #### Co jeśli kod BLIK podany przez Taker jest nieprawidłowy lub wygasa?

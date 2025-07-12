@@ -50,11 +50,11 @@ As a Maker, your Bitcoin is locked via a hold invoice. The coordinator has the p
 
 #### How am I protected as a Taker (buyer) if I send BLIK payment?
 
-As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. There is a risk if the Maker falsely denies receiving your BLIK. (See "[Disputes](#disputes)").
+As a Taker, your primary protection is that the Maker has already locked their Bitcoin into a hold invoice with the coordinator *before* you are asked to send the BLIK payment. If the Maker confirms receipt of your BLIK, the system is designed to automatically release the Bitcoin to you. There is a risk if the Maker falsely denies receiving your BLIK. (See "Disputes").
 
 #### What happens if the Maker doesn't confirm my BLIK payment even though I sent it?
 
-This is a conflict scenario. (See "[Disputes](#disputes)")
+This is a conflict scenario. (See "Disputes")
 
 #### What happens if the Taker provides a BLIK code but doesn't actually make the payment?
 
