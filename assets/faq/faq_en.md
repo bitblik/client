@@ -38,7 +38,7 @@ BLIK is a mobile payment system used in Poland. It allows users to make payments
 
 #### What are Lightning Network "hold invoices"?
 
-Hold invoices are a special type of Lightning invoice. When a hold invoice is paid by the Maker (seller of Bitcoin), the funds are not immediately settled. Instead, they are "held" by the Maker's Lightning node (or the coordinator's LN node acting on their behalf). The funds are only truly released (settled) to the recipient (Taker) when a secret "preimage" is revealed. If the preimage is not revealed within a certain time, or if the invoice is explicitly cancelled, the funds are returned to the payer (Maker). This is the core of BitBlik's escrow mechanism.
+Hold invoices are a special type of Lightning invoice. When a hold invoice is paid by the Maker (seller of Bitcoin), the funds are not immediately settled. Instead, they are "held" by the coordinator's Lightning node. The funds are only truly released (settled) to the recipient (Taker) when a secret "preimage" is revealed. If the preimage is not revealed within a certain time, or if the invoice is explicitly cancelled, the funds are returned to the payer (Maker). This is the core of BitBlik's escrow mechanism.
 
 ---
 
