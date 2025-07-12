@@ -62,7 +62,7 @@ As a Maker, you should not confirm receipt of payment until the fiat funds are a
 
 #### What if the BLIK code provided by the Taker is invalid or expires?
 
-The system allows for an `invalidBlik` status. If the Maker attempts to use the BLIK code and it fails, the transaction cannot proceed. The Taker might need to provide a new code, or the offer might be cancelled.
+If the Maker attempts to use the BLIK code and it fails, the transaction cannot proceed. The Taker might need to provide a new code, or the offer might be cancelled.
 
 #### What are the risks of using this service?
 
