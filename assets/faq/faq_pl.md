@@ -29,7 +29,7 @@ BLIK to mobilny system płatności używany w Polsce. Pozwala użytkownikom doko
 
 #### Czym są "hold invoices" Lightning Network?
 
-Hold invoices to specjalny typ faktury Lightning. Kiedy hold invoice jest opłacany przez Maker (sprzedawcy Bitcoin), środki nie są natychmiast rozliczone. Zamiast tego są "trzymane" przez węzeł LND Maker (lub węzeł LND koordynatora działający w jego imieniu). Środki są rzeczywiście uwalniane (rozliczane) do odbiorcy (Taker) tylko wtedy, gdy ujawniony zostanie sekretny "preimage". Jeśli preimage nie zostanie ujawniony w określonym czasie lub jeśli faktura zostanie wyraźnie anulowana, środki są zwracane płatnikowi (Maker). To jest podstawa mechanizmu escrow BitBlik.
+Hold invoices to specjalny typ faktury Lightning. Kiedy hold invoice jest opłacany przez Maker (sprzedawcy Bitcoin), środki nie są natychmiast rozliczone. Zamiast tego są "trzymane" przez węzeł LN koordynatora. Środki są rzeczywiście uwalniane (rozliczane) do odbiorcy (Taker) tylko wtedy, gdy ujawniony zostanie sekretny "preimage". Jeśli preimage nie zostanie ujawniony w określonym czasie lub jeśli faktura zostanie wyraźnie anulowana, środki są zwracane płatnikowi (Maker). To jest podstawa mechanizmu escrow BitBlik.
 
 ---
 ### Bezpieczeństwo i ryzyko
