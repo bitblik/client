@@ -64,6 +64,7 @@ Jeśli obie strony sygnalizują konflikt, Maker musi dostarczyć dowody, że pł
 Obecnie nie ma systemu kaucji, aby zachęcić Taker do nieprzejmowania czasu koordynatora próbami rozwiązania sporu, ale zostanie to wdrożone w najbliższej przyszłości.
 #### Co motywuje koordynatora do uczciwego działania?
 Aby zostać zaakceptowanym jako koordynator BitBlik przez oprogramowanie klienta, koordynator musi podać klucz nostr (profil), który użytkownicy mogą tagować i zgłaszać złe doświadczenia z danym koordynatorem. Przed wyborem konkretnego koordynatora sprawdź jego reputację na Nostr. Biorąc pod uwagę odporność na censurę Nostr, każdy może zalać lub zamieścić nieprawidłowe raporty, więc użyj klienta, który używa Web of Trust do określenia reputacji raportów każdego użytkownika. Najlepiej wybierz koordynatora, który ma dobrą reputację w twojej społeczności Bitcoin. Ostatecznie, ty jako użytkownik tego oprogramowania jesteś odpowiedzialny za koordynatora, którego wybierzesz. To nie jest platforma ani usługa i nie bierzemy odpowiedzialności za działania żadnego koordynatora.
+
 ---
 ### Opłaty i kwestie techniczne
 #### Czy są jakieś opłaty za korzystanie z BitBlik?
