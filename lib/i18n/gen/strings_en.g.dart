@@ -544,7 +544,6 @@ class TranslationsMakerWaitForBlikEn {
 	// Translations
 	String get title => 'Waiting for BLIK';
 	String get message => 'Waiting for Taker to provide BLIK code.';
-	String get timeLimit => 'Taker has 20 seconds to provide code.';
 	String timeLimitWithSeconds({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
 	String progressLabel({required Object seconds}) => 'Reserved: ${seconds} s left';
 }
@@ -642,7 +641,7 @@ class TranslationsTakerWaitConfirmationEn {
 	String get title => 'Waiting for Maker';
 	String statusLabel({required Object status}) => 'Offer status: ${status}';
 	String waitingMaker({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';
-	String waitingMakerConfirmation({required Object seconds}) => 'Waiting for Maker to confirm BLIK payment in their banking app. Time remaining: ${seconds}s';
+	String waitingMakerConfirmation({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
 	String importantNotice({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
 	String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
 	String get instructions => 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
@@ -1338,7 +1337,6 @@ extension on Translations {
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Failed to cancel offer: ${details}';
 			case 'maker.waitForBlik.title': return 'Waiting for BLIK';
 			case 'maker.waitForBlik.message': return 'Waiting for Taker to provide BLIK code.';
-			case 'maker.waitForBlik.timeLimit': return 'Taker has 20 seconds to provide code.';
 			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Reserved: ${seconds} s left';
 			case 'maker.confirmPayment.title': return 'BLIK code received!';
@@ -1396,7 +1394,7 @@ extension on Translations {
 			case 'taker.waitConfirmation.title': return 'Waiting for Maker';
 			case 'taker.waitConfirmation.statusLabel': return ({required Object status}) => 'Offer status: ${status}';
 			case 'taker.waitConfirmation.waitingMaker': return ({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';
-			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Waiting for Maker to confirm BLIK payment in their banking app. Time remaining: ${seconds}s';
+			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
 			case 'taker.waitConfirmation.importantNotice': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
 			case 'taker.waitConfirmation.importantBlikAmountConfirmation': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
 			case 'taker.waitConfirmation.instructions': return 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';

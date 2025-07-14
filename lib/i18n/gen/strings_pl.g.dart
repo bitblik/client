@@ -543,7 +543,6 @@ class _TranslationsMakerWaitForBlikPl extends TranslationsMakerWaitForBlikEn {
 	// Translations
 	@override String get title => 'Oczekiwanie na BLIK';
 	@override String get message => 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-	@override String get timeLimit => 'Taker ma 20 sekund na podanie kodu.';
 	@override String timeLimitWithSeconds({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
 	@override String progressLabel({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 }
@@ -1337,7 +1336,6 @@ extension on TranslationsPl {
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Nie udało się anulować oferty: ${details}';
 			case 'maker.waitForBlik.title': return 'Oczekiwanie na BLIK';
 			case 'maker.waitForBlik.message': return 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-			case 'maker.waitForBlik.timeLimit': return 'Taker ma 20 sekund na podanie kodu.';
 			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'maker.confirmPayment.title': return 'Otrzymano kod BLIK!';
