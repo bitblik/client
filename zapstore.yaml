@@ -1,16 +1,14 @@
-bitblik:
-  android:
-    identifier: app.bitblik
-    name: BitBlik
-    summary: Bitcoin Blik codes exchange app
-    description: Pay with Bitcoin using Blik codes. Buy Bitcoin selling Blik codes.
-    repository: https://github.com/bitblik
-    license: MIT
-    builder: npub1k3g092rlzvn7nftz3jte9pkx63zp705nh78r6hjpjm55fjg7r2cqx8stj3
-    artifacts:
-      app-armeabi-v7a-release.apk:
-        platform: armeabi-v7a
-      app-arm64-v8a-release.apk:
-        platform: arm64-v8a
-      app-x86_64-release.apk:
-        platform: x86_64
+identifier: app.bitblik
+#version: 0.2.8
+name: BitBlik
+summary: Bitcoin Blik codes exchange app
+description: Pay with Bitcoin using Blik codes. Buy Bitcoin selling Blik codes.
+repository: https://github.com/bitblik
+homepage: https://bitblik.app
+license: MIT
+#builder: npub1k3g092rlzvn7nftz3jte9pkx63zp705nh78r6hjpjm55fjg7r2cqx8stj3
+blossom_server: https://cdn.zapstore.dev
+assets:
+  - build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+  - build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+  - build/app/outputs/flutter-apk/app-x86_64-release.apk
