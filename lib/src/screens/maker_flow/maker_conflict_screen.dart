@@ -43,7 +43,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      await apiService.confirmMakerPayment(widget.offer.id, makerId);
+      await apiService.confirmMakerPayment(widget.offer.id, makerId, widget.offer.coordinatorPubkey);
 
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text(t.maker.confirmPayment.feedback.confirmedTakerPaid)),
@@ -102,7 +102,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
     try {
       // Assuming openDispute is now markOfferConflict
-      await apiService.markOfferConflict(widget.offer.id, makerId);
+      await apiService.markOfferConflict(widget.offer.id, makerId, widget.offer.coordinatorPubkey);
 
       setState(() {
         _isDisputeOpened = true; 

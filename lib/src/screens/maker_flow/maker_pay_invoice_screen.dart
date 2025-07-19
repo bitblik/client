@@ -43,86 +43,45 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       });
     } catch (e) {
       print("!!!!catch $e");
-
     }
-    // Start polling immediately when this screen is shown
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _startPollingInvoiceStatus();
-      }
-    });
+    // No longer need to start polling - will use subscription instead
   }
 
   @override
   void dispose() {
-    _statusPollTimer?.cancel(); // Cancel timer on dispose
     super.dispose();
   }
 
-  // --- Polling Logic ---
-  void _startPollingInvoiceStatus() {
-    _statusPollTimer?.cancel(); // Cancel existing timer
-    final paymentHash = ref.read(
-      paymentHashProvider,
-    ); // Read, don't watch in timer callback
-    if (paymentHash == null || !mounted) return;
+  // --- Status Update Handler ---
+  void _handleStatusUpdate(OfferStatus? status) async {
+    if (status == null) return;
 
-    print(
-      '[MakerPayInvoiceScreen] Starting polling for payment hash: $paymentHash',
-    );
-    _statusPollTimer = Timer.periodic(const Duration(seconds: 1), (
-      timer,
-    ) async {
-      // Check mounted at the beginning of the callback
-      if (!mounted) {
-        timer.cancel();
-        return;
+    print('[MakerPayInvoiceScreen] Status update received: $status');
+
+    if (status.index >= OfferStatus.funded.index) {
+      print(
+        '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
+      );
+
+      final publicKey = ref.read(publicKeyProvider).value;
+      if (publicKey == null) {
+        throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
       }
-      final apiService = ref.read(apiServiceProvider); // Use read inside timer
-      try {
-        final status = await apiService.getOfferStatus(paymentHash);
-        // print('[MakerPayInvoiceScreen] Poll result for $paymentHash: $status');
-        if (status != null && status != 'pending_creation') {
-          final offerStatus = OfferStatus.values.byName(status);
-          if (offerStatus.index >= OfferStatus.funded.index) {
-            print(
-              '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
-            );
-            _statusPollTimer?.cancel(); // Stop polling
-            final publicKey = ref.read(publicKeyProvider).value;
-            if (publicKey == null) {
-              throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
-            }
 
-            final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+      final apiService = ref.read(apiServiceProvider);
+      final fullOfferData = await apiService.getMyActiveOffer(publicKey);
 
-            if (fullOfferData == null) {
-              throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
-            }
-
-            final fullOffer = Offer.fromJson(fullOfferData);
-
-            ref.read(activeOfferProvider.notifier).state = fullOffer;
-
-            if (mounted) {
-              context.go("/wait-taker");
-            }
-          } else {
-            if (mounted) {
-              setState(() {});
-            }
-          }
-        } else {
-          if (mounted) {
-            setState(() {});
-          }
-        }
-      } catch (e) {
-        print('[MakerPayInvoiceScreen] Error polling offer status: $e');
-        // Optionally set error state via provider if needed
-        // ref.read(errorProvider.notifier).state = 'Polling failed: $e';
+      if (fullOfferData == null) {
+        throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
       }
-    });
+
+      final fullOffer = Offer.fromJson(fullOfferData);
+      ref.read(activeOfferProvider.notifier).state = fullOffer;
+
+      if (mounted) {
+        context.go("/wait-taker");
+      }
+    }
   }
 
   // --- Intent/URL Launching ---
@@ -182,9 +141,31 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final holdInvoice = ref.watch(
-      holdInvoiceProvider,
-    );
+    final holdInvoice = ref.watch(holdInvoiceProvider);
+    final offer = ref.watch(activeOfferProvider);
+    final publicKeyAsync = ref.watch(publicKeyProvider);
+
+    // Set up status subscription
+    if (offer != null &&
+        offer.holdInvoicePaymentHash != null &&
+        offer.coordinatorPubkey != null) {
+      publicKeyAsync.whenData((publicKey) {
+        if (publicKey != null) {
+          ref.listen<AsyncValue<OfferStatus?>>(
+            offerStatusSubscriptionProvider((
+              paymentHash: offer.holdInvoicePaymentHash!,
+              coordinatorPubKey: offer.coordinatorPubkey!,
+              userPubkey: publicKey,
+            )),
+            (previous, next) {
+              next.whenData((status) {
+                _handleStatusUpdate(status);
+              });
+            },
+          );
+        }
+      });
+    }
     // WebLN auto-pay logic
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
       print("isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment");
@@ -236,45 +217,40 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     if (offer == null) return const SizedBox.shrink();
                     final sats = offer.amountSats;
                     final fiat = offer.fiatAmount ?? 0.0;
-                    final coordinatorInfoAsync = ref.watch(
-                      coordinatorInfoProvider,
-                    );
+                    final apiService = ref.watch(apiServiceProvider);
+                    final coordinatorInfo =
+                        offer.coordinatorPubkey != null
+                            ? apiService.getCoordinatorInfoByPubkey(
+                              offer.coordinatorPubkey!,
+                            )
+                            : null;
                     String formatFiat(double value) => value.toStringAsFixed(
                       value.truncateToDouble() == value ? 0 : 2,
                     );
-                    return coordinatorInfoAsync.when(
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, st) => const SizedBox.shrink(),
-                      data: (coordinatorInfo) {
-                        final feePct = coordinatorInfo.makerFee;
-                        final feeFiat = fiat * feePct / 100;
-                        final totalFiat = fiat + feeFiat;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "$sats sats", // This can be localized if needed: t.offers.details.amount(amount: sats.toString())
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              // This complex string can be localized if needed
-                              "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[700],
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        );
-                      },
+                    if (coordinatorInfo == null) return const SizedBox.shrink();
+                    final feePct = coordinatorInfo.makerFee;
+                    final feeFiat = fiat * feePct / 100;
+                    final totalFiat = fiat + feeFiat;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$sats sats", // This can be localized if needed: t.offers.details.amount(amount: sats.toString())
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          // This complex string can be localized if needed
+                          "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[700], fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -296,7 +272,9 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.account_balance_wallet), // Or another appropriate icon
+                      icon: const Icon(
+                        Icons.account_balance_wallet,
+                      ), // Or another appropriate icon
                       label: Text(t.maker.payInvoice.actions.payInWallet),
                       onPressed: () => _launchLightningUrl(holdInvoice),
                     ),
@@ -341,7 +319,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),

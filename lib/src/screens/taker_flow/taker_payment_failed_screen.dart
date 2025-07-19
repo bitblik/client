@@ -27,6 +27,23 @@ class _TakerPaymentFailedScreenState
   PaymentRetryState _currentState = PaymentRetryState.initial; // Initial state
   String? _errorMessage; // To store error messages
 
+  void _handleStatusUpdate(OfferStatus? status) {
+    if (status == null) return;
+
+    if (mounted) {
+      if (status == OfferStatus.takerPaid) {
+        setState(() {
+          _currentState = PaymentRetryState.success;
+        });
+      } else if (status == OfferStatus.takerPaymentFailed) {
+        setState(() {
+          _currentState = PaymentRetryState.failed;
+          _errorMessage = t.taker.paymentFailed.errors.paymentRetryFailed;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _bolt11Controller.dispose();
@@ -62,54 +79,23 @@ class _TakerPaymentFailedScreenState
         offerId: widget.offer.id,
         newBolt11: newInvoice,
         userPubkey: userPubkey,
+        coordinatorPubkey: widget.offer.coordinatorPubkey,
       );
 
       // 2. Trigger the retry mechanism on the backend
       await apiService.retryTakerPayment(
         offerId: widget.offer.id,
         userPubkey: userPubkey,
+        coordinatorPubkey: widget.offer.coordinatorPubkey,
       );
 
-      // 3. Poll for the final status (success or persistent failure)
-      bool isFinalState = false;
-      String? finalStatus;
-      int attempts = 0;
-      const maxAttempts = 15; // Poll for ~30 seconds
-
-      while (!isFinalState && attempts < maxAttempts && mounted) {
-        attempts++;
-        await Future.delayed(const Duration(seconds: 2));
-        // Ensure still mounted after delay
-        if (!mounted) return;
-
-        final currentStatus = await apiService.getOfferStatus(
-          widget.offer.holdInvoicePaymentHash ?? '',
-        );
-
-        if (currentStatus == OfferStatus.takerPaid.name) {
-          isFinalState = true;
-          finalStatus = currentStatus;
-        } else if (currentStatus == OfferStatus.takerPaymentFailed.name) {
-          // Still failed after retry attempt, stop polling
-          isFinalState = true;
-          finalStatus = currentStatus;
-        }
-        // Continue polling if status is unchanged or in an intermediate state
-      }
-
-      // Update UI based on polling result, only if still mounted
+      // 3. Set up subscription to listen for status updates
       if (mounted) {
-        if (finalStatus == OfferStatus.takerPaid.name) {
-          setState(() {
-            _currentState = PaymentRetryState.success; // Set success state
-          });
-        } else {
-          // Still failed or timed out
-          setState(() {
-            _currentState = PaymentRetryState.failed; // Set failed state
-            _errorMessage = t.taker.paymentFailed.errors.paymentRetryFailed;
-          });
-        }
+        setState(() {
+          _currentState =
+              PaymentRetryState
+                  .loading; // Keep loading while waiting for status
+        });
       }
     } catch (e) {
       // Handle API errors or other exceptions, only if still mounted
@@ -130,6 +116,28 @@ class _TakerPaymentFailedScreenState
     final takerFees =
         widget.offer.takerFees ?? (widget.offer.amountSats * 0.005).ceil();
     final netAmountSats = widget.offer.amountSats - takerFees;
+
+    // Set up status subscription
+    final publicKeyAsync = ref.watch(publicKeyProvider);
+    if (widget.offer.holdInvoicePaymentHash != null &&
+        widget.offer.coordinatorPubkey != null) {
+      publicKeyAsync.whenData((publicKey) {
+        if (publicKey != null) {
+          ref.listen<AsyncValue<OfferStatus?>>(
+            offerStatusSubscriptionProvider((
+              paymentHash: widget.offer.holdInvoicePaymentHash!,
+              coordinatorPubKey: widget.offer.coordinatorPubkey!,
+              userPubkey: publicKey,
+            )),
+            (previous, next) {
+              next.whenData((status) {
+                _handleStatusUpdate(status);
+              });
+            },
+          );
+        }
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(

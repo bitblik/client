@@ -41,9 +41,16 @@ class _MakerWaitForBlikScreenState
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      final offer = ref.read(activeOfferProvider);
+      final coordinatorPubkey = offer?.coordinatorPubkey;
+      if (coordinatorPubkey == null)
+        throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+        coordinatorPubkey,
+      );
+      if (coordinatorInfo == null)
+        throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
-
       setState(() {
         _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
@@ -56,7 +63,7 @@ class _MakerWaitForBlikScreenState
     } catch (e) {
       if (!mounted) return;
       print(
-        "[MakerWaitForBlikScreen] Error loading coordinator info: ${e.toString()}",
+        "[MakerWaitForBlikScreen] Error loading coordinator info:  [1m${e.toString()} [0m",
       );
       setState(() {
         _isLoadingConfig = false;
@@ -68,7 +75,6 @@ class _MakerWaitForBlikScreenState
 
   @override
   void dispose() {
-    _statusCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -85,167 +91,85 @@ class _MakerWaitForBlikScreenState
       }
       return;
     }
-    _statusCheckTimer?.cancel();
-    _checkOfferStatus(); // Check immediately
-    _statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (!_isChecking) {
-        await _checkOfferStatus();
-      }
-    });
+    // No longer need timer - will use subscription instead
   }
 
-  Future<void> _checkOfferStatus() async {
-    if (_isChecking) return;
+  void _handleStatusUpdate(OfferStatus? status) async {
+    if (status == null) return;
 
     final offer = ref.read(activeOfferProvider);
-    final paymentHash = offer?.holdInvoicePaymentHash;
-    final makerId =
-        ref.read(publicKeyProvider).value; // Needed for getMyActiveOffer
+    final makerId = ref.read(publicKeyProvider).value;
+    final coordinatorPubkey = offer?.coordinatorPubkey;
 
-    if (paymentHash == null || makerId == null || offer == null) {
+    if (offer == null || makerId == null || coordinatorPubkey == null) {
       print(
-        "[MakerWaitForBlik] Error: Missing offer, payment hash or public key.",
+        "[MakerWaitForBlik] Error: Missing offer, public key or coordinator pubkey.",
       );
-      if (offer == null && mounted) {
-        _resetToRoleSelection(t.offers.errors.detailsMissing);
-      }
       return;
     }
 
-    // Check if reservation time expired locally first
-    if (offer.reservedAt != null && _reservationDuration != null) {
-      final expiresAt = offer.reservedAt!.add(_reservationDuration!);
-      if (DateTime.now().isAfter(expiresAt)) {
-        print(
-          "[MakerWaitForBlik] Reservation time likely expired locally. Popping back.",
+    print("[MakerWaitForBlik] Status update received: $status");
+
+    if (status == OfferStatus.blikReceived ||
+        status == OfferStatus.blikSentToMaker) {
+      print("[MakerWaitForBlik] BLIK received/sent. Fetching code via API...");
+
+      try {
+        final apiService = ref.read(apiServiceProvider);
+        final blikCode = await apiService.getBlikCodeForMaker(
+          offer.id,
+          makerId,
+          coordinatorPubkey,
         );
-        _statusCheckTimer?.cancel(); // Stop polling
-        if (mounted) {
+        print("[MakerWaitForBlik] API returned blikCode: $blikCode");
+
+        if (blikCode != null && blikCode.isNotEmpty) {
           print(
-            "[MakerWaitForBlik] Popping self and pushing MakerConfirmPaymentScreen...",
+            "[MakerWaitForBlik] BLIK code is valid. Storing in provider...",
           );
-          context.go('/wait-taker');
-        }
-        return; // Don't proceed with API check if locally expired
-      }
-    }
+          ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
+          print("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
 
-    _isChecking = true;
-
-    try {
-      final apiService = ref.read(apiServiceProvider);
-      final statusString = await apiService.getOfferStatus(paymentHash);
-      print("[MakerWaitForBlik] Poll result for $paymentHash: $statusString");
-
-      if (statusString == null) {
-        print("[MakerWaitForBlik] Warning: Status check returned null.");
-        return; // Exit early, finally block will still run
-      }
-
-      var currentStatus = OfferStatus.values.byName(statusString);
-
-      Offer offerToCheck = offer;
-      if (offer.status != currentStatus.name) {
-        final updatedOfferData = await apiService.getMyActiveOffer(makerId);
-        if (updatedOfferData != null) {
-          final updatedOffer = Offer.fromJson(updatedOfferData);
-          ref.read(activeOfferProvider.notifier).state = updatedOffer;
-          offerToCheck = updatedOffer;
-          print(
-            "[MakerWaitForBlik] Updated activeOfferProvider with status: ${offerToCheck.status}",
-          );
-          currentStatus = OfferStatus.values.byName(offerToCheck.status);
+          if (mounted) {
+            print(
+              "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
+            );
+            context.go('/confirm-blik');
+          }
         } else {
           print(
-            "[MakerWaitForBlik] Warning: Failed to fetch updated offer details after status change.",
+            "[MakerWaitForBlik] Error: Status is $status but API returned no BLIK code. Resetting.",
           );
-        }
-      }
-
-      final String offerId = offerToCheck.id;
-
-      if (currentStatus == OfferStatus.blikReceived ||
-          currentStatus == OfferStatus.blikSentToMaker) {
-        print(
-          "[MakerWaitForBlik] BLIK received/sent. Fetching code via API...",
-        );
-        _statusCheckTimer?.cancel();
-
-        try {
-          print(
-            "[MakerWaitForBlik] Calling getBlikCodeForMaker with offerId: $offerId, makerId: $makerId",
-          );
-          final blikCode = await apiService.getBlikCodeForMaker(
-            offerId,
-            makerId,
-          );
-          print("[MakerWaitForBlik] API returned blikCode: $blikCode");
-
-          if (blikCode != null && blikCode.isNotEmpty) {
-            print(
-              "[MakerWaitForBlik] BLIK code is valid. Storing in provider...",
-            );
-            ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
-            print("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
-
-            if (mounted) {
-              print(
-                "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
-              );
-              context.go('/confirm-blik');
-            }
-          } else {
-            print(
-              "[MakerWaitForBlik] Error: Status is ${currentStatus.name} but API returned no BLIK code. Resetting.",
-            );
-            if (mounted) {
-              _resetToRoleSelection(t.system.errors.generic); // Generic error
-            }
-          }
-        } catch (e) {
-          print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(t.system.errors.generic); // Generic error
+            _resetToRoleSelection(t.system.errors.generic);
           }
         }
-      } else if (currentStatus == OfferStatus.funded) {
-        print(
-          "[MakerWaitForBlik] Offer reverted to FUNDED (Taker likely timed out). Popping back.",
-        );
-        _statusCheckTimer?.cancel();
+      } catch (e) {
+        print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
         if (mounted) {
-          context.go('/wait-taker');
-        }
-      } else if (currentStatus == OfferStatus.reserved) {
-        print(
-          "[MakerWaitForBlik] Still waiting for BLIK (Status: $currentStatus).",
-        );
-      } else {
-        print(
-          "[MakerWaitForBlik] Offer in unexpected state ($currentStatus). Resetting.",
-        );
-        _statusCheckTimer?.cancel();
-        if (mounted) {
-          _resetToRoleSelection(t.system.errors.generic); // Generic error
+          _resetToRoleSelection(t.system.errors.generic);
         }
       }
-    } catch (e) {
-      print('[MakerWaitForBlik] Error checking offer status: $e');
-    } finally {
+    } else if (status == OfferStatus.funded) {
+      print(
+        "[MakerWaitForBlik] Offer reverted to FUNDED (Taker likely timed out). Popping back.",
+      );
       if (mounted) {
-        _isChecking = false;
+        context.go('/wait-taker');
+      }
+    } else if (status == OfferStatus.reserved) {
+      print("[MakerWaitForBlik] Still waiting for BLIK (Status: $status).");
+    } else {
+      print(
+        "[MakerWaitForBlik] Offer in unexpected state ($status). Resetting.",
+      );
+      if (mounted) {
+        _resetToRoleSelection(t.system.errors.generic);
       }
     }
   }
 
   void _resetToRoleSelection(String message) {
-    _statusCheckTimer?.cancel();
     ref.read(appRoleProvider.notifier).state = AppRole.none;
     ref.read(activeOfferProvider.notifier).state = null;
     ref.read(holdInvoiceProvider.notifier).state = null;
@@ -265,13 +189,35 @@ class _MakerWaitForBlikScreenState
   }
 
   void _goHome() {
-    _statusCheckTimer?.cancel();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
     final offer = ref.watch(activeOfferProvider);
+    final publicKeyAsync = ref.watch(publicKeyProvider);
+
+    // Set up status subscription
+    if (offer != null &&
+        offer.holdInvoicePaymentHash != null &&
+        offer.coordinatorPubkey != null) {
+      publicKeyAsync.whenData((publicKey) {
+        if (publicKey != null) {
+          ref.listen<AsyncValue<OfferStatus?>>(
+            offerStatusSubscriptionProvider((
+              paymentHash: offer.holdInvoicePaymentHash!,
+              coordinatorPubKey: offer.coordinatorPubkey!,
+              userPubkey: publicKey,
+            )),
+            (previous, next) {
+              next.whenData((status) {
+                _handleStatusUpdate(status);
+              });
+            },
+          );
+        }
+      });
+    }
 
     if (_isLoadingConfig) {
       return Scaffold(

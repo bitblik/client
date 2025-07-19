@@ -39,22 +39,34 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
         ),
       );
     } else {
-      ref.listen<
-        AsyncValue<OfferStatus?>
-      >(pollingOfferStatusProvider(paymentHash), (previous, next) {
-        next.whenData((status) {
-          if (status == OfferStatus.conflict) {
-            print(
-              "[MakerInvalidBlikScreen] Offer status changed to conflict. Navigating...",
-            );
-            context.go('/maker-conflict', extra: offer);
-          } else if (status == OfferStatus.reserved) {
-            print(
-              "[MakerInvalidBlikScreen] Offer status changed to reserved. Navigating back to wait-blik.",
-            );
-            context.go('/wait-blik', extra: offer);
-          }
-        });
+      // Get the user's public key for the subscription
+      final publicKeyAsync = ref.watch(publicKeyProvider);
+
+      publicKeyAsync.whenData((publicKey) {
+        if (publicKey != null) {
+          ref.listen<AsyncValue<OfferStatus?>>(
+            offerStatusSubscriptionProvider((
+              paymentHash: offer.holdInvoicePaymentHash!,
+              coordinatorPubKey: offer.coordinatorPubkey!,
+              userPubkey: publicKey,
+            )),
+            (previous, next) {
+              next.whenData((status) {
+                if (status == OfferStatus.conflict) {
+                  print(
+                    "[MakerInvalidBlikScreen] Offer status changed to conflict. Navigating...",
+                  );
+                  context.go('/maker-conflict', extra: offer);
+                } else if (status == OfferStatus.reserved) {
+                  print(
+                    "[MakerInvalidBlikScreen] Offer status changed to reserved. Navigating back to wait-blik.",
+                  );
+                  context.go('/wait-blik', extra: offer);
+                }
+              });
+            },
+          );
+        }
       });
     }
 

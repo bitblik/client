@@ -8,6 +8,7 @@ import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
 import 'dart:io' show Platform; // Import Platform
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ import 'src/screens/faq_screen.dart'; // Import the FAQ screen
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 import 'package:app_links/app_links.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -194,6 +196,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 Future<void> main() async {
+  // Initialize FFI for desktop platforms
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+  usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
   LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
   runApp(
@@ -219,6 +227,24 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    // Initialize API service and start coordinator discovery
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        // Initialize the API service (including Nostr)
+        await ref.read(initializedApiServiceProvider.future);
+
+        // Start coordinator discovery
+        ref.read(coordinatorDiscoveryProvider);
+
+        print(
+          '🚀 App initialized: API service and coordinator discovery started',
+        );
+      } catch (e) {
+        print('❌ Error during app initialization: $e');
+      }
+    });
+
     // Only listen for deep links on Android/iOS, not web
     if (!kIsWeb) {
       _sub = _appLinks.uriLinkStream.listen(

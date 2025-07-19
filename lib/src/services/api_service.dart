@@ -136,7 +136,6 @@ class ApiService {
       return cachedRate;
     }
 
-
     List<Future<double?>> fetchFutures = [];
 
     for (var source in _exchangeRateSources) {
@@ -304,19 +303,6 @@ class ApiService {
     } catch (e) {
       print('Error calling confirmMakerPayment: $e');
       rethrow;
-    }
-  }
-
-  // GET /offer-status/{paymentHash}
-  Future<String?> getOfferStatus(String paymentHash) async {
-    final url = Uri.parse('$_baseUrl/offer-status/$paymentHash');
-    try {
-      final response = await http.get(url);
-      final Map<String, dynamic>? result = _handleResponse(response);
-      return result?['status'] as String?; // Returns status name string or null
-    } catch (e) {
-      print('Error calling getOfferStatus: $e');
-      return null;
     }
   }
 

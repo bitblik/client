@@ -26,7 +26,7 @@ class _TakerInvalidBlikScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.taker.invalidBlik.title), 
+        title: Text(t.taker.invalidBlik.title),
         automaticallyImplyLeading: false, // Prevent back navigation
       ),
       body: Padding(
@@ -43,13 +43,13 @@ class _TakerInvalidBlikScreenState
               ),
               const SizedBox(height: 20),
               Text(
-                t.taker.invalidBlik.message, 
+                t.taker.invalidBlik.message,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
               Text(
-                t.taker.invalidBlik.explanation, 
+                t.taker.invalidBlik.explanation,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
@@ -61,12 +61,16 @@ class _TakerInvalidBlikScreenState
 
                   final userPublicKey = await ref.read(
                     publicKeyProvider.future,
-                  ); 
+                  );
 
                   final takerId = userPublicKey;
                   final apiService = ref.read(apiServiceProvider);
                   final DateTime? reservationTimestamp = await apiService
-                      .reserveOffer(offer.id, takerId!);
+                      .reserveOffer(
+                        offer.id,
+                        takerId!,
+                        offer.coordinatorPubkey,
+                      );
 
                   if (reservationTimestamp != null) {
                     final Offer updatedOffer = Offer(
@@ -75,6 +79,7 @@ class _TakerInvalidBlikScreenState
                       makerFees: offer.makerFees,
                       fiatCurrency: offer.fiatCurrency,
                       fiatAmount: offer.fiatAmount,
+                      coordinatorPubkey: offer.coordinatorPubkey,
                       status: OfferStatus.reserved.name,
                       createdAt: offer.createdAt,
                       makerPubkey: offer.makerPubkey,
@@ -91,9 +96,11 @@ class _TakerInvalidBlikScreenState
                     context.go("/submit-blik", extra: updatedOffer);
                   } else {
                     // Handle reservation failure
-                     ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(t.taker.invalidBlik.errors.reservationFailed),
+                        content: Text(
+                          t.taker.invalidBlik.errors.reservationFailed,
+                        ),
                         backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
@@ -109,7 +116,7 @@ class _TakerInvalidBlikScreenState
               ElevatedButton(
                 onPressed:
                     _isLoading
-                        ? null 
+                        ? null
                         : () async {
                           setState(() {
                             _isLoading = true;
@@ -117,13 +124,20 @@ class _TakerInvalidBlikScreenState
                           final apiService = ref.read(apiServiceProvider);
                           final userPublicKey = await ref.read(
                             publicKeyProvider.future,
-                          ); 
+                          );
 
                           if (userPublicKey == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(t.maker.confirmPayment.errors.missingHashOrKey),
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                content: Text(
+                                  t
+                                      .maker
+                                      .confirmPayment
+                                      .errors
+                                      .missingHashOrKey,
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                             setState(() {
@@ -139,13 +153,18 @@ class _TakerInvalidBlikScreenState
                             await apiService.markOfferConflict(
                               offer.id,
                               userPublicKey,
+                              offer.coordinatorPubkey,
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.taker.invalidBlik.feedback.conflictReportedSuccess,
-                                ), 
+                                  t
+                                      .taker
+                                      .invalidBlik
+                                      .feedback
+                                      .conflictReportedSuccess,
+                                ),
                                 backgroundColor: Colors.green,
                               ),
                             );
@@ -160,9 +179,12 @@ class _TakerInvalidBlikScreenState
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.taker.invalidBlik.errors.conflictReport(details: e.toString()),
-                                ), 
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                  t.taker.invalidBlik.errors.conflictReport(
+                                    details: e.toString(),
+                                  ),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                           } finally {
