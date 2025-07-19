@@ -31,6 +31,7 @@ class Offer {
   final String status; // e.g., "funded", "reserved", etc. Use OfferStatus.name
   final DateTime createdAt;
   final String makerPubkey;
+  final String coordinatorPubkey; // Added coordinator pubkey
   final String? takerPubkey;
   final DateTime? reservedAt;
   final DateTime? blikReceivedAt;
@@ -104,6 +105,7 @@ class Offer {
     required this.fiatCurrency,
     required this.createdAt,
     required this.makerPubkey,
+    required this.coordinatorPubkey,
     this.takerPubkey,
     this.reservedAt,
     this.blikReceivedAt,
@@ -193,6 +195,8 @@ class Offer {
         json['maker_pubkey'],
         'unknown_maker',
       ), // Default if 'maker_pubkey' is null or not a string
+      coordinatorPubkey:
+          json['coordinator_pubkey'] as String, // Added coordinator pubkey
       takerPubkey: json['taker_pubkey'] as String?, // Already nullable
       reservedAt: parseOptionalDateTime(json['reserved_at'] as String?),
       blikReceivedAt: parseOptionalDateTime(
@@ -224,6 +228,7 @@ class Offer {
       'status': status,
       'created_at': createdAt.toIso8601String(),
       'maker_pubkey': makerPubkey,
+      'coordinator_pubkey': coordinatorPubkey,
       'taker_pubkey': takerPubkey,
       'reserved_at': reservedAt?.toIso8601String(),
       'blik_received_at': blikReceivedAt?.toIso8601String(),
@@ -260,6 +265,7 @@ class Offer {
     String? status,
     DateTime? createdAt,
     String? makerPubkey,
+    String? coordinatorPubkey,
     String? takerPubkey,
     DateTime? reservedAt,
     DateTime? blikReceivedAt,
@@ -283,6 +289,7 @@ class Offer {
       fiatCurrency: fiatCurrency,
       createdAt: createdAt ?? this.createdAt,
       makerPubkey: makerPubkey ?? this.makerPubkey,
+      coordinatorPubkey: coordinatorPubkey ?? this.coordinatorPubkey,
       takerPubkey: takerPubkey ?? this.takerPubkey,
       reservedAt: reservedAt ?? this.reservedAt,
       blikReceivedAt: blikReceivedAt ?? this.blikReceivedAt,

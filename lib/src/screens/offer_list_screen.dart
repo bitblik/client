@@ -60,9 +60,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      final offer = ref.read(activeOfferProvider);
+      final coordinatorPubkey = offer?.coordinatorPubkey;
+      if (coordinatorPubkey == null)
+        throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+        coordinatorPubkey,
+      );
+      if (coordinatorInfo == null)
+        throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
-
       setState(() {
         _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
@@ -654,6 +661,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                         .reserveOffer(
                                                           offer.id,
                                                           takerId,
+                                                          offer
+                                                              .coordinatorPubkey,
                                                         );
 
                                                 if (reservationTimestamp !=
@@ -673,6 +682,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                         OfferStatus
                                                             .reserved
                                                             .name,
+                                                    coordinatorPubkey:
+                                                        offer.coordinatorPubkey,
                                                     createdAt: offer.createdAt,
                                                     makerPubkey:
                                                         offer.makerPubkey,

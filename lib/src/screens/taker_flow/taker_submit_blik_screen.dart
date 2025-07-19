@@ -10,7 +10,6 @@ import '../../models/offer.dart';
 import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
-import '../../services/api_service.dart'; // Added
 
 // --- BlikInputProgressIndicator Widget ---
 class BlikInputProgressIndicator extends StatefulWidget {
@@ -173,13 +172,19 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       // Fetch CoordinatorInfo first
       try {
-        _coordinatorInfo = await apiService.getCoordinatorInfo();
+        final offer = ref.read(activeOfferProvider);
+        final coordinatorPubkey = offer?.coordinatorPubkey;
+        if (coordinatorPubkey != null) {
+          _coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+            coordinatorPubkey,
+          );
+        }
         if (_coordinatorInfo != null) {
           _maxBlikInputTime = Duration(
             seconds: _coordinatorInfo!.reservationSeconds,
           );
         } else {
-          // Fallback if coordinator info is somehow null, though getCoordinatorInfo should throw
+          // Fallback if coordinator info is somehow null
           _maxBlikInputTime = const Duration(seconds: 20); // Default fallback
           print(
             "[TakerSubmitBlikScreen] Warning: CoordinatorInfo was null, using default timeout.",
@@ -461,6 +466,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         takerId: takerId,
         blikCode: blikCode,
         takerLightningAddress: lnAddress,
+        coordinatorPubkey: offer.coordinatorPubkey,
       );
 
       final updatedOffer = offer.copyWith(
@@ -656,7 +662,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                         ref.read(errorProvider.notifier).state = null;
                         try {
                           final apiService = ref.read(apiServiceProvider);
-                          await apiService.cancelReservation(offer.id, takerId);
+                          await apiService.cancelReservation(
+                            offer.id,
+                            takerId,
+                            offer.coordinatorPubkey,
+                          );
                           if (mounted) {
                             _resetToOfferList(
                               t.reservations.feedback.cancelled,

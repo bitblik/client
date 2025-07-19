@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/offer.dart';
+import '../../models/coordinator_info.dart';
 import '../../providers/providers.dart';
 import '../../services/api_service.dart'; // Added direct import for ApiService
+import '../../services/nostr_service.dart'; // Import DiscoveredCoordinator
+import '../../widgets/coordinator_selector.dart'; // Import coordinator selector
 
 class MakerAmountForm extends ConsumerStatefulWidget {
   const MakerAmountForm({super.key});
@@ -25,6 +28,9 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   String? _maxFiatAmountStr;
   bool _isLoadingInitialData = true;
   String? _coordinatorInfoError;
+
+  String? _selectedCoordinatorPubkey; // Remember selected coordinator pubkey
+  CoordinatorInfo? _selectedCoordinatorInfo;
 
   @override
   void initState() {
@@ -59,20 +65,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
         _rate = rate;
       });
 
-      // Try to get coordinator info and set min/max fiat immediately if possible
-      final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
-      final coordinatorInfo = coordinatorInfoAsync.asData?.value;
-      if (coordinatorInfo != null) {
-        final minAllowedFiat =
-            (coordinatorInfo.minAmountSats / 100000000.0) * rate;
-        final maxAllowedFiat =
-            (coordinatorInfo.maxAmountSats / 100000000.0) * rate;
-        final minFiat = (minAllowedFiat * 100).ceil() / 100;
-        final maxFiat = (maxAllowedFiat * 100).floor() / 100;
-        _minFiatAmountStr = "$minFiat";
-        _maxFiatAmountStr = "$maxFiat";
-      }
-
+      // min/max will be set when coordinator is selected
       _validateAndRecalculate();
     } catch (e) {
       if (!mounted) return;
@@ -88,11 +81,10 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   }
 
   void _validateAndRecalculate() {
-    final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
-    final coordinatorInfo = coordinatorInfoAsync.asData?.value;
     final text = _fiatController.text;
     String? currentError;
     double? parsedFiat;
+    final coordinatorInfo = _selectedCoordinatorInfo;
 
     if (text.isEmpty) {
       parsedFiat = null;
@@ -126,7 +118,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
           } else {
             currentError = null;
           }
-          // Do not overwrite _minFiatAmountStr/_maxFiatAmountStr here
         }
       }
     }
@@ -147,22 +138,22 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   }
 
   Future<void> _initiateOffer() async {
-    final coordinatorInfoAsync = ref.read(coordinatorInfoProvider);
-    final coordinatorInfo = coordinatorInfoAsync.asData?.value;
-
-    if (coordinatorInfo == null || _rate == null) {
-      ref.read(errorProvider.notifier).state =
-          t.system.errors.loadingCoordinatorConfig;
-      print("Attempted to initiate offer without coordinator info or rate.");
+    final coordinatorPubkey = _selectedCoordinatorPubkey;
+    if (coordinatorPubkey == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a coordinator first'),
+          duration: Duration(seconds: 2),
+        ),
+      );
       return;
     }
-
-    _validateAndRecalculate();
 
     final publicKeyAsyncValue = ref.read(publicKeyProvider);
     final makerId = publicKeyAsyncValue.value;
     if (makerId == null) {
-      ref.read(errorProvider.notifier).state = t.maker.amountForm.errors.publicKeyNotLoaded;
+      ref.read(errorProvider.notifier).state =
+          t.maker.amountForm.errors.publicKeyNotLoaded;
       return;
     }
 
@@ -177,6 +168,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       final result = await apiService.initiateOfferFiat(
         fiatAmount: fiatAmount,
         makerId: makerId,
+        coordinatorPubkey: coordinatorPubkey,
       );
       ref.read(holdInvoiceProvider.notifier).state = result['holdInvoice'];
       ref.read(paymentHashProvider.notifier).state = result['paymentHash'];
@@ -188,15 +180,16 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
         fiatAmount: fiatAmount,
         fiatCurrency: "PLN", // TODO
         createdAt: DateTime.now(),
+        holdInvoicePaymentHash: result['paymentHash'],
         makerPubkey: makerId,
+        coordinatorPubkey: coordinatorPubkey,
       );
       if (mounted) {
         context.go("/pay");
       }
     } catch (e) {
-      ref.read(errorProvider.notifier).state = t.maker.amountForm.errors.initiating(
-        details: e.toString(),
-      );
+      ref.read(errorProvider.notifier).state = t.maker.amountForm.errors
+          .initiating(details: e.toString());
     } finally {
       if (mounted) {
         ref.read(isLoadingProvider.notifier).state = false;
@@ -209,23 +202,13 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     final isLoading = ref.watch(isLoadingProvider);
     final globalErrorMessage = ref.watch(errorProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
-    final coordinatorInfoAsync = ref.watch(coordinatorInfoProvider);
+    final coordinatorInfo = _selectedCoordinatorInfo;
 
-    final coordinatorInfo = coordinatorInfoAsync.asData?.value;
-
-    if (_isLoadingInitialData || coordinatorInfoAsync.isLoading) {
+    if (_isLoadingInitialData) {
       return const Center(child: CircularProgressIndicator());
     }
-
-    if (coordinatorInfoAsync.hasError) {
-      return Center(
-        child: Text(
-          "${coordinatorInfo?.makerFee != null ? coordinatorInfo!.makerFee.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '') : '0'}% fee",
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.blueGrey),
-        ),
-      );
+    if (_coordinatorInfoError != null) {
+      return Center(child: Text(_coordinatorInfoError!));
     }
 
     return Padding(
@@ -263,103 +246,34 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                 errorText: _amountErrorText,
               ),
             ),
-            const SizedBox(height: 10),
-            if (coordinatorInfo != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                child: InkWell(
-                  onTap: () async {
-                    final npub = coordinatorInfo.nostrNpub;
-                    if (npub != null && npub.isNotEmpty) {
-                      final url = 'https://njump.me/$npub';
-                      await launchUrl(
-                        Uri.parse(url),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (coordinatorInfo.icon != null &&
-                          coordinatorInfo.icon!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 6.0),
-                          child:
-                              coordinatorInfo.icon!.startsWith('http')
-                                  ? Image.network(
-                                    coordinatorInfo.icon!,
-                                    width: 20,
-                                    height: 20,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.account_circle,
-                                              size: 20,
-                                            ),
-                                  )
-                                  : Image.asset(
-                                    coordinatorInfo.icon!,
-                                    width: 20,
-                                    height: 20,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.account_circle,
-                                              size: 20,
-                                            ),
-                                  ),
-                        )
-                      else
-                        const Padding(
-                          padding: EdgeInsets.only(right: 6.0),
-                          child: Icon(Icons.account_circle, size: 20),
-                        ),
-                      Text(
-                        coordinatorInfo.name,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      if (coordinatorInfo.version != null &&
-                          coordinatorInfo.version!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                          child: Text(
-                            'v${coordinatorInfo.version!}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                          ),
-                        ),
+            const SizedBox(height: 16),
 
-                      if (_minFiatAmountStr != null &&
-                          _maxFiatAmountStr != null)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                t.exchange.labels.rangeHint(
-                                  minAmount: _minFiatAmountStr!,
-                                  maxAmount: _maxFiatAmountStr!,
-                                  currency: "PLN",
-                                ),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(
-                                  "${coordinatorInfo.makerFee.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '')}% fee",
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.blueGrey),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+            // Coordinator Selector
+            CoordinatorSelector(
+              onCoordinatorSelected: (coordinator) async {
+                setState(() {
+                  _selectedCoordinatorPubkey = coordinator.pubkey;
+                  _selectedCoordinatorInfo = coordinator.toCoordinatorInfo();
+                });
+                if (_rate != null) {
+                  final minAllowedFiat =
+                      (_selectedCoordinatorInfo!.minAmountSats / 100000000.0) *
+                      _rate!;
+                  final maxAllowedFiat =
+                      (_selectedCoordinatorInfo!.maxAmountSats / 100000000.0) *
+                      _rate!;
+                  final minFiat = (minAllowedFiat * 100).ceil() / 100;
+                  final maxFiat = (maxAllowedFiat * 100).floor() / 100;
+                  setState(() {
+                    _minFiatAmountStr = "$minFiat";
+                    _maxFiatAmountStr = "$maxFiat";
+                  });
+                  _validateAndRecalculate();
+                }
+              },
+            ),
+
+            const SizedBox(height: 8),
             if (_rate == null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -373,7 +287,9 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  t.exchange.labels.equivalent(sats: _satsEquivalent!.toStringAsFixed(0)),
+                  t.exchange.labels.equivalent(
+                    sats: _satsEquivalent!.toStringAsFixed(0),
+                  ),
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                   textAlign: TextAlign.center,
                 ),
@@ -391,16 +307,30 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               const SizedBox(height: 20),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed:
-                  (isLoading ||
-                          _isLoadingInitialData ||
-                          publicKeyAsyncValue.isLoading ||
-                          _amountErrorText != null ||
-                          _fiatController.text.isEmpty ||
-                          coordinatorInfo == null ||
-                          _rate == null)
-                      ? null
-                      : _initiateOffer,
+              onPressed: () {
+                if (isLoading ||
+                    _isLoadingInitialData ||
+                    publicKeyAsyncValue.isLoading ||
+                    _amountErrorText != null ||
+                    _fiatController.text.isEmpty ||
+                    _selectedCoordinatorPubkey == null ||
+                    _rate == null) {
+                  // Show message if no coordinator selected
+                  if (_selectedCoordinatorPubkey == null &&
+                      !isLoading &&
+                      !_isLoadingInitialData) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select a coordinator first'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                _initiateOffer();
+              },
               child:
                   isLoading
                       ? const CircularProgressIndicator(strokeWidth: 2)
