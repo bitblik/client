@@ -14,6 +14,7 @@ import 'dart:io' show Platform; // Import Platform
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'i18n/gen/strings.g.dart'; // Import Slang from new path
 import 'src/providers/providers.dart';
@@ -197,7 +198,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 Future<void> main() async {
   // Initialize FFI for desktop platforms
-  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }

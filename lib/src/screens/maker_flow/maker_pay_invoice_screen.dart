@@ -101,7 +101,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     final link = 'lightning:$invoice';
     try {
-      if (Platform.isAndroid) {
+      if (!kIsWeb && Platform.isAndroid) {
         final intent = AndroidIntent(
           action: 'action_view',
           data: link,
