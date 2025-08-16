@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/offer.dart';
@@ -17,7 +18,7 @@ class OfferDbService {
   }
 
   Future<Database> _initDb() async {
-    final dbPath = await getDatabasesPath();
+    final dbPath = kIsWeb? "bitblik.db" : await getDatabasesPath();
     final path = join(dbPath, 'offer.db');
     return await openDatabase(
       path,
