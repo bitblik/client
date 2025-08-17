@@ -255,6 +255,27 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
             // Coordinator Selector
             CoordinatorSelector(
+              fiatExchangeRate: _rate,
+              summaryMode: true,
+              selectedCoordinator:
+                  _selectedCoordinatorPubkey != null &&
+                          _selectedCoordinatorInfo != null
+                      ? DiscoveredCoordinator(
+                        pubkey: _selectedCoordinatorPubkey!,
+                        name: _selectedCoordinatorInfo!.name,
+                        icon: _selectedCoordinatorInfo!.icon,
+                        version: _selectedCoordinatorInfo!.version ?? "",
+                        minAmountSats: _selectedCoordinatorInfo!.minAmountSats,
+                        maxAmountSats: _selectedCoordinatorInfo!.maxAmountSats,
+                        makerFee: _selectedCoordinatorInfo!.makerFee,
+                        takerFee: _selectedCoordinatorInfo!.takerFee,
+                        currencies: _selectedCoordinatorInfo!.currencies,
+                        reservationSeconds:
+                            _selectedCoordinatorInfo!.reservationSeconds,
+                        lastSeen:
+                            DateTime.now(), // NOTE: could track lastSeen if important
+                      )
+                      : null,
               onCoordinatorSelected: (coordinator) async {
                 setState(() {
                   _selectedCoordinatorPubkey = coordinator.pubkey;
@@ -312,30 +333,18 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               const SizedBox(height: 20),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                if (isLoading ||
-                    _isLoadingInitialData ||
-                    publicKeyAsyncValue.isLoading ||
-                    _amountErrorText != null ||
-                    _fiatController.text.isEmpty ||
-                    _selectedCoordinatorPubkey == null ||
-                    _rate == null) {
-                  // Show message if no coordinator selected
-                  if (_selectedCoordinatorPubkey == null &&
-                      !isLoading &&
-                      !_isLoadingInitialData) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a coordinator first'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                _initiateOffer();
-              },
+              onPressed:
+                  _selectedCoordinatorPubkey == null ||
+                          isLoading ||
+                          _isLoadingInitialData ||
+                          publicKeyAsyncValue.isLoading ||
+                          _amountErrorText != null ||
+                          _fiatController.text.isEmpty ||
+                          _rate == null
+                      ? null
+                      : () {
+                        _initiateOffer();
+                      },
               child:
                   isLoading
                       ? const CircularProgressIndicator(strokeWidth: 2)
