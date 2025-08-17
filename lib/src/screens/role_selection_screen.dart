@@ -88,7 +88,7 @@ class RoleSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final initialOfferAsync = ref.watch(initialActiveOfferProvider);
+    final activeOffer = ref.read(activeOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
     ref.watch(lightningAddressProvider);
 
@@ -100,28 +100,11 @@ class RoleSelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const SizedBox(height: 24),
-            initialOfferAsync.when(
-              loading:
-                  () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-              error:
-                  (err, stack) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Text(
-                        t.offers.errors.checkingActive(details: err.toString()),
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ),
-              data: (activeOffer) {
+            Builder(
+              builder: (context) {
                 final currentPubKey = publicKeyAsync.value;
-                bool hasActiveOffer =
-                    activeOffer != null && currentPubKey != null;
+                bool hasActiveOffer = activeOffer != null &&
+                    currentPubKey != null;
                 AppRole? activeRole;
                 if (hasActiveOffer) {
                   if (activeOffer.makerPubkey == currentPubKey) {
@@ -133,35 +116,29 @@ class RoleSelectionScreen extends ConsumerWidget {
                   }
                 }
 
-                // Exclude takerPaid from active offer, show in finished section
-                final isTakerPaid =
-                    hasActiveOffer &&
+                final isTakerPaid = hasActiveOffer &&
                     activeOffer!.status == OfferStatus.takerPaid.name;
                 final hasRealActiveOffer = hasActiveOffer && !isTakerPaid;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ElevatedButton(
-                      onPressed:
-                          hasRealActiveOffer
-                              ? null
-                              : () {
-                                ref.read(appRoleProvider.notifier).state =
-                                    AppRole.maker;
-                                context.push("/create");
-                              },
+                      onPressed: hasRealActiveOffer ? null : () {
+                        ref
+                            .read(appRoleProvider.notifier)
+                            .state = AppRole.maker;
+                        context.push("/create");
+                      },
                       child: Text(t.maker.roleSelection.button),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                      onPressed:
-                          hasRealActiveOffer
-                              ? null
-                              : () {
-                                ref.read(appRoleProvider.notifier).state =
-                                    AppRole.taker;
-                                context.push("/offers");
-                              },
+                      onPressed: hasRealActiveOffer ? null : () {
+                        ref
+                            .read(appRoleProvider.notifier)
+                            .state = AppRole.taker;
+                        context.push("/offers");
+                      },
                       child: Text(t.taker.roleSelection.button),
                     ),
                     const SizedBox(height: 30),
@@ -176,24 +153,20 @@ class RoleSelectionScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       Card(
                         child: ListTile(
-                          // Removed title showing Role as requested
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                // Display Fiat Amount and Currency
                                 "${formatDouble(activeOffer!.fiatAmount)} ${activeOffer.fiatCurrency}",
-                                style:
-                                    Theme.of(context)
-                                        .textTheme
-                                        .titleMedium, // Make it stand out a bit more
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .titleMedium,
                               ),
-                              const SizedBox(height: 4), // Add some spacing
+                              const SizedBox(height: 4),
                               Text(
-                                // Keep status info, but maybe smaller
                                 t.common.labels.status(
-                                  status: activeOffer.status,
-                                ),
+                                    status: activeOffer.status),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               if (activeOffer.status ==
@@ -204,8 +177,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.only(top: 6.0),
                                   child: Text(
                                     t.lightningAddress.labels.short(
-                                      address:
-                                          activeOffer.takerLightningAddress!,
+                                      address: activeOffer
+                                          .takerLightningAddress!,
                                     ),
                                     style: TextStyle(
                                       color: Colors.blueGrey[700],
@@ -223,56 +196,49 @@ class RoleSelectionScreen extends ConsumerWidget {
                               (activeOffer.status == OfferStatus.takerPaid.name)
                                   ? null
                                   : () {
-                                    ref
-                                        .read(activeOfferProvider.notifier)
-                                        .setActiveOffer(activeOffer);
+                                // ref
+                                //     .read(activeOfferProvider.notifier)
+                                //     .setActiveOffer(activeOffer);
                                     if (activeRole == AppRole.maker) {
                                       if (activeOffer.holdInvoicePaymentHash !=
                                           null) {
                                         ref
                                             .read(paymentHashProvider.notifier)
-                                            .state = activeOffer
-                                                .holdInvoicePaymentHash!;
+                                            .state =
+                                        activeOffer.holdInvoicePaymentHash!;
                                       }
                                       final offerStatus = OfferStatus.values
                                           .byName(activeOffer.status);
                                       if (offerStatus ==
-                                              OfferStatus.blikReceived ||
+                                          OfferStatus.blikReceived ||
                                           offerStatus ==
                                               OfferStatus.blikSentToMaker) {
                                         showDialog(
                                           context: context,
                                           barrierDismissible: false,
-                                          builder:
-                                              (context) => const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
+                                          builder: (context) =>
+                                          const Center(
+                                              child: CircularProgressIndicator()),
                                         );
                                         try {
                                           ref.read(apiServiceProvider);
-                                          final makerId =
-                                              ref.read(publicKeyProvider).value;
+                                          final makerId = ref
+                                              .read(publicKeyProvider)
+                                              .value;
                                           if (makerId == null) {
-                                            throw Exception(
-                                              t
-                                                  .offers
-                                                  .errors
-                                                  .makerPublicKeyNotFound,
-                                            );
+                                            throw Exception(t.offers.errors
+                                                .makerPublicKeyNotFound);
                                           }
                                           context.go('/confirm-blik');
                                         } catch (e) {
                                           Navigator.of(context).pop();
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
+                                          ScaffoldMessenger
+                                              .of(context)
+                                              .showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                t.offers.errors.resuming(
-                                                  details: e.toString(),
-                                                ),
-                                              ),
+                                                  t.offers.errors.resuming(
+                                                      details: e.toString())),
                                               backgroundColor: Colors.red,
                                             ),
                                           );
@@ -280,93 +246,94 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               .read(appRoleProvider.notifier)
                                               .state = AppRole.none;
                                           ref
-                                              .read(
-                                                activeOfferProvider.notifier,
-                                              )
+                                              .read(activeOfferProvider.notifier)
                                               .setActiveOffer(null);
                                         }
                                       } else {
                                         _navigateToMakerStep(
-                                          context,
-                                          activeOffer,
-                                        );
+                                            context, activeOffer);
                                       }
                                     } else {
                                       _navigateToTakerStep(
-                                        context,
-                                        activeOffer,
-                                      );
+                                          context, activeOffer);
                                     }
                                   },
                         ),
                       ),
                     ],
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final finishedAsync = ref.watch(finishedOffersProvider);
-                        return finishedAsync.when(
-                          loading:
-                              () => const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 16.0),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                          error:
-                              (err, stack) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16.0,
-                                ),
-                                child: Text(
-                                  t.offers.errors.loadingFinished(
-                                    details: err.toString(),
-                                  ),
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                          data: (finishedOffers) {
-                            if (finishedOffers.isEmpty) return const SizedBox();
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const Divider(),
-                                const SizedBox(height: 15),
-                                Text(
-                                  t.offers.display.finishedOffersWithTime,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 10),
-                                ...finishedOffers.map(
-                                  (offer) => Card(
-                                    child: ListTile(
-                                      title: Text(
-                                        "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
-                                      ),
-                                      subtitle: Text(
-                                        t.offers.details.subtitleWithDate(
-                                          sats: offer.amountSats,
-                                          fee: offer.makerFees,
-                                          status: offer.status,
-                                          date:
-                                              offer.takerPaidAt
-                                                  ?.toLocal()
-                                                  .toString()
-                                                  .substring(0, 16) ??
-                                              '-',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
                   ],
+                );
+              },
+            ),
+            Consumer(
+              builder: (context, ref, _) {
+                final finishedAsync = ref.watch(finishedOffersProvider);
+                return finishedAsync.when(
+                  loading:
+                      () =>
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  error:
+                      (err, stack) =>
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16.0,
+                        ),
+                        child: Text(
+                          t.offers.errors.loadingFinished(
+                            details: err.toString(),
+                          ),
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                  data: (finishedOffers) {
+                    if (finishedOffers.isEmpty) return const SizedBox();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Divider(),
+                        const SizedBox(height: 15),
+                        Text(
+                          t.offers.display.finishedOffersWithTime,
+                          style:
+                          Theme
+                              .of(context)
+                              .textTheme
+                              .titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        ...finishedOffers.map(
+                              (offer) =>
+                              Card(
+                                child: ListTile(
+                                  title: Text(
+                                    "${formatDouble(offer.fiatAmount)} ${offer
+                                        .fiatCurrency}",
+                              ),
+                              subtitle: Text(
+                                t.offers.details.subtitleWithDate(
+                                  sats: offer.amountSats,
+                                  fee: offer.makerFees,
+                                  status: offer.status,
+                                  date:
+                                  offer.takerPaidAt
+                                      ?.toLocal()
+                                      .toString()
+                                      .substring(0, 16) ??
+                                      '-',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),

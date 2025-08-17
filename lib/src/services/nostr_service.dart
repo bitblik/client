@@ -187,7 +187,7 @@ class NostrService {
         cache: MemCacheManager(),
         eventVerifier: Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: lib_logger.Level.trace,
+        logLevel: lib_logger.Level.info,
       ),
     );
 

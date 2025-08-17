@@ -316,13 +316,11 @@ class AppScaffold extends ConsumerStatefulWidget {
 }
 
 class _AppScaffoldState extends ConsumerState<AppScaffold> {
-  Timer? _activeOfferRefreshTimer;
   String? _clientVersion;
 
   @override
   void initState() {
     super.initState();
-    _startActiveOfferRefreshTimer();
     _loadVersion();
   }
 
@@ -337,30 +335,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
   @override
   void dispose() {
-    _activeOfferRefreshTimer?.cancel();
     super.dispose();
-  }
-
-  void _startActiveOfferRefreshTimer() {
-    _activeOfferRefreshTimer?.cancel();
-    // Refresh immediately first time after a short delay
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        print("[AppScaffold] Initial refresh of active offer.");
-        ref.invalidate(initialActiveOfferProvider);
-      }
-    });
-    // Then refresh periodically (e.g., every 1 seconds)
-    _activeOfferRefreshTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) {
-      if (mounted) {
-        // print("[AppScaffold] Periodic refresh of active offer.");
-        ref.invalidate(initialActiveOfferProvider);
-      } else {
-        timer.cancel(); // Stop timer if widget is disposed
-      }
-    });
   }
 
   @override
@@ -387,7 +362,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ref.read(errorProvider.notifier).state = null;
             ref.read(isLoadingProvider.notifier).state = false;
             ref.invalidate(availableOffersProvider);
-            ref.invalidate(initialActiveOfferProvider);
             context.go('/');
           },
           child: Row(
@@ -472,7 +446,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 ref.read(errorProvider.notifier).state = null;
                 ref.read(isLoadingProvider.notifier).state = false;
                 ref.invalidate(availableOffersProvider);
-                ref.invalidate(initialActiveOfferProvider);
 
                 // Navigate to home
                 context.go('/');

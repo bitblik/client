@@ -70,13 +70,24 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
       final apiService = ref.read(apiServiceProvider);
       final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+      final offer = ref.read(activeOfferProvider);
 
-      if (fullOfferData == null) {
+      if (fullOfferData == null || offer == null) {
         throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
       }
 
-      final fullOffer = Offer.fromJson(fullOfferData);
-      await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
+      Map<String,dynamic> json =offer.toJson();
+
+      json['id'] = fullOfferData['id'];
+      json['status'] = fullOfferData['status'];
+      json['created_at'] = fullOfferData['created_at'];
+      json['fiat_amount'] = fullOfferData['fiat_amount'];
+      json['fiat_currency'] = fullOfferData['fiat_currency'];
+      json['amount_sats'] = fullOfferData['amount_sats'];
+      json['maker_fees'] = fullOfferData['maker_fees'];
+
+      final updatedOffer = Offer.fromJson(json);
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
       if (mounted) {
         context.go("/wait-taker");
@@ -158,8 +169,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     // Set up status subscription
     if (offer != null &&
-        offer.holdInvoicePaymentHash != null &&
-        offer.coordinatorPubkey != null) {
+        offer.holdInvoicePaymentHash != null) {
       publicKeyAsync.whenData((publicKey) {
         if (publicKey != null) {
           ref.listen<AsyncValue<OfferStatus?>>(

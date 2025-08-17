@@ -148,35 +148,6 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
   }
 }
 
-// Provider to check for an existing active offer for the current user on startup
-final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
-  // Try to load from SQLite first
-  final localOffer = await OfferDbService().getActiveOffer();
-  if (localOffer != null) return localOffer;
-
-  // // If not found locally, fallback to API (for first run or sync)
-  // final publicKey = await ref.watch(publicKeyProvider.future);
-  // if (publicKey == null) {
-  //   return null; // No public key, no active offer
-  // }
-  // final apiService = ref.watch(apiServiceProvider);
-  // final offerData = await apiService.getMyActiveOffer(publicKey);
-  //
-  // if (offerData != null) {
-  //   try {
-  //     final offer = Offer.fromJson(offerData);
-  //     // Save to SQLite for future use
-  //     await OfferDbService().upsertActiveOffer(offer);
-  //     return offer;
-  //   } catch (e) {
-  //     print("Error parsing active offer data: $e");
-  //     print("Received data: $offerData");
-  //     return null;
-  //   }
-  // }
-  return null;
-});
-
 /// Provider to expose the stored Lightning Address
 final lightningAddressProvider = FutureProvider<String?>((ref) async {
   final keyService = ref.watch(keyServiceProvider);
