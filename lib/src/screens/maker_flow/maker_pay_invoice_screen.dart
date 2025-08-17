@@ -301,8 +301,10 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     ElevatedButton.icon(
                       icon: const Icon(
@@ -311,7 +313,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                       label: Text(t.maker.payInvoice.actions.payInWallet),
                       onPressed: () => _launchLightningUrl(holdInvoice),
                     ),
-                    const SizedBox(width: 8), // Spacing between buttons
                     ElevatedButton.icon(
                       icon: const Icon(Icons.copy),
                       label: Text(t.maker.payInvoice.actions.copy),
@@ -322,6 +323,20 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                             content: Text(t.maker.payInvoice.feedback.copied),
                           ),
                         );
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.cancel),
+                      label: Text(t.common.buttons.cancel),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        await ref
+                            .read(activeOfferProvider.notifier)
+                            .setActiveOffer(null);
+                        context.go('/');
                       },
                     ),
                   ],
