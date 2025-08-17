@@ -103,14 +103,13 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
+        ref.invalidate(activeOfferProvider);
       }
     });
     _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
         print("[OfferListScreen] Periodic refresh.");
         ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
       } else {
         timer.cancel();
       }
@@ -129,7 +128,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
     final offersAsyncValue = ref.watch(availableOffersProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
-    final myActiveOfferAsyncValue = ref.watch(initialActiveOfferProvider);
+    final myActiveOffer = ref.watch(activeOfferProvider);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -612,7 +611,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                   "[OfferListScreen] Manual refresh triggered.",
                                 );
                                 ref.invalidate(availableOffersProvider);
-                                ref.invalidate(initialActiveOfferProvider);
+                                ref.invalidate(activeOfferProvider);
                                 await ref.read(availableOffersProvider.future);
                               },
                               child: ListView.builder(
@@ -781,113 +780,90 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       child: Text(t.offers.actions.take),
                                     );
                                   } else if (isReserved || isBlikReceived) {
-                                    trailingWidget = myActiveOfferAsyncValue.when(
-                                      data: (myOffer) {
-                                        if (myOffer != null &&
-                                            offer.id == myOffer.id) {
-                                          return ElevatedButton(
-                                            child: Text(
-                                              t.offers.actions.resume,
-                                            ),
-                                            onPressed: () {
-                                              ref
-                                                  .read(
-                                                    activeOfferProvider
-                                                        .notifier,
-                                                  )
-                                                  .setActiveOffer(myOffer);
-                                              ref
-                                                  .read(
-                                                    appRoleProvider.notifier,
-                                                  )
-                                                  .state = AppRole.taker;
+                                    if (myActiveOffer != null &&
+                                        offer.id == myActiveOffer.id) {
+                                      trailingWidget = ElevatedButton(
+                                        child: Text(
+                                          t.offers.actions.resume,
+                                        ),
+                                        onPressed: () {
+                                          ref
+                                              .read(
+                                            activeOfferProvider
+                                                .notifier,
+                                          )
+                                              .setActiveOffer(myActiveOffer);
+                                          ref
+                                              .read(
+                                            appRoleProvider.notifier,
+                                          )
+                                              .state = AppRole.taker;
 
-                                              // Determine which screen to navigate to based on status
-                                              Widget destinationScreen;
-                                              if (myOffer.status ==
-                                                  OfferStatus.reserved.name) {
-                                                destinationScreen =
-                                                    TakerSubmitBlikScreen(
-                                                      initialOffer: myOffer,
-                                                    );
-                                              } else if (myOffer.status ==
-                                                      OfferStatus
-                                                          .blikReceived
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .blikSentToMaker
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .makerConfirmed
-                                                          .name) {
-                                                destinationScreen =
-                                                    TakerWaitConfirmationScreen(
-                                                      offer: myOffer,
-                                                    );
-                                              } else {
-                                                print(
-                                                  "[OfferListScreen] Error: Resuming offer in unexpected state: ${myOffer.status}",
+                                          // Determine which screen to navigate to based on status
+                                          Widget destinationScreen;
+                                          if (myActiveOffer.status ==
+                                              OfferStatus.reserved.name) {
+                                            destinationScreen =
+                                                TakerSubmitBlikScreen(
+                                                  initialOffer: myActiveOffer,
                                                 );
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      t
-                                                          .offers
-                                                          .errors
-                                                          .unexpectedState,
-                                                    ),
-                                                  ),
+                                          } else if (myActiveOffer.status ==
+                                              OfferStatus
+                                                  .blikReceived
+                                                  .name ||
+                                              myActiveOffer.status ==
+                                                  OfferStatus
+                                                      .blikSentToMaker
+                                                      .name ||
+                                              myActiveOffer.status ==
+                                                  OfferStatus
+                                                      .makerConfirmed
+                                                      .name) {
+                                            destinationScreen =
+                                                TakerWaitConfirmationScreen(
+                                                  offer: myActiveOffer,
                                                 );
-                                                return;
-                                              }
-
-                                              Navigator.of(
-                                                context,
-                                                rootNavigator: true,
-                                              ).push(
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (context) =>
-                                                          destinationScreen,
+                                          } else {
+                                            print(
+                                              "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer
+                                                  .status}",
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  t
+                                                      .offers
+                                                      .errors
+                                                      .unexpectedState,
                                                 ),
-                                              );
-                                            },
-                                          );
-                                        } else {
-                                          return Text(
-                                            offer.status.toUpperCase(),
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          Navigator.of(
+                                            context,
+                                            rootNavigator: true,
+                                          ).push(
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                              destinationScreen,
                                             ),
                                           );
-                                        }
-                                      },
-                                      loading:
-                                          () => const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                      error: (e, s) {
-                                        print(
-                                          "Error loading myActiveOffer: $e",
-                                        );
-                                        return Text(
-                                          offer.status.toUpperCase(),
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                    );
+                                        },
+                                      );
+                                    } else {
+                                      trailingWidget = Text(
+                                        offer.status.toUpperCase(),
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }
                                   } else {
                                     trailingWidget = Text(
                                       offer.status.toUpperCase(),
