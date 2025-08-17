@@ -19,7 +19,6 @@ class MakerWaitTakerScreen extends ConsumerStatefulWidget {
 
 class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
   Timer? _statusCheckTimer;
-  bool _isChecking = false;
   bool _isCancelling = false;
 
   @override

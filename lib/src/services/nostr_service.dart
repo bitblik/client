@@ -56,6 +56,7 @@ class DiscoveredCoordinator {
   final List<String> currencies;
   final String version;
   final DateTime lastSeen;
+  final bool? responsive;
 
   DiscoveredCoordinator({
     required this.pubkey,
@@ -69,6 +70,7 @@ class DiscoveredCoordinator {
     required this.currencies,
     required this.version,
     required this.lastSeen,
+    this.responsive,
   });
 
   factory DiscoveredCoordinator.fromNostrEvent(Nip01Event event) {
@@ -94,6 +96,7 @@ class DiscoveredCoordinator {
               .toList(),
       version: tags['version'] ?? '',
       lastSeen: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
+      responsive: null,
     );
   }
 
@@ -863,19 +866,54 @@ class NostrService {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
       _discoveredCoordinators[coordinator.pubkey] = coordinator;
-
+      final coordinatorPubkey = coordinator.pubkey;
       // Cache coordinator info immediately when discovered
       final coordinatorInfo = coordinator.toCoordinatorInfo();
       _coordinatorInfoCache[coordinator.pubkey] = coordinatorInfo;
-
-      // Notify listeners
+      // Notify listeners immediately with newly discovered
       _coordinatorsController.add(_discoveredCoordinators.values.toList());
-
       print(
         '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
       );
+      // Check health via get_info after discovery
+      _checkCoordinatorHealth(coordinatorPubkey);
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
+    }
+  }
+
+  // Add health check
+  Future<void> _checkCoordinatorHealth(String coordinatorPubkey) async {
+    try {
+      final request = NostrRequest(method: 'get_info', params: {});
+      await sendRequest(request, coordinatorPubkey);
+      // If no exception, coordinator is responsive
+      _markCoordinatorResponsive(coordinatorPubkey, true);
+    } catch (e) {
+      print('🚨 Coordinator $coordinatorPubkey did not respond to get_info: $e');
+      _markCoordinatorResponsive(coordinatorPubkey, false);
+    }
+  }
+
+  void _markCoordinatorResponsive(String pubkey, bool responsive) {
+    if (_discoveredCoordinators.containsKey(pubkey)) {
+      final c = _discoveredCoordinators[pubkey]!;
+      _discoveredCoordinators[pubkey] = DiscoveredCoordinator(
+        pubkey: c.pubkey,
+        name: c.name,
+        icon: c.icon,
+        minAmountSats: c.minAmountSats,
+        maxAmountSats: c.maxAmountSats,
+        makerFee: c.makerFee,
+        takerFee: c.takerFee,
+        reservationSeconds: c.reservationSeconds,
+        currencies: c.currencies,
+        version: c.version,
+        lastSeen: c.lastSeen,
+        responsive: responsive,
+      );
+      // Update listeners
+      _coordinatorsController.add(_discoveredCoordinators.values.toList());
     }
   }
 

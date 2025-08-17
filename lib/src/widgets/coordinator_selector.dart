@@ -29,165 +29,270 @@ class CoordinatorSelector extends ConsumerWidget {
     Function(DiscoveredCoordinator)? onTap,
     bool showInfoOnly = false,
   }) {
+    final isUnresponsive = coordinator.responsive == false;
     return Card(
       elevation: isSelected ? 4 : 1,
-      color:
-          isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+      color: (coordinator.responsive == false || coordinator.responsive == null)
+          ? Colors.grey.withOpacity(0.2)
+          : (isSelected
+          ? Theme
+          .of(context)
+          .primaryColor
+          .withOpacity(0.1)
+          : null),
       child: InkWell(
-        onTap:
-            showInfoOnly
-                ? null
-                : () {
-                  onTap?.call(coordinator);
-                },
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Coordinator icon
-                  if (coordinator.icon != null && coordinator.icon!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child:
-                          coordinator.icon!.startsWith('http')
-                              ? Image.network(
-                                coordinator.icon!,
-                                width: 24,
-                                height: 24,
-                                errorBuilder:
-                                    (context, error, stackTrace) => const Icon(
-                                      Icons.account_circle,
-                                      size: 24,
-                                    ),
-                              )
-                              : Image.asset(
-                                coordinator.icon!,
-                                width: 24,
-                                height: 24,
-                                errorBuilder:
-                                    (context, error, stackTrace) => const Icon(
-                                      Icons.account_circle,
-                                      size: 24,
-                                    ),
-                              ),
-                    )
-                  else
-                    const Padding(
-                      padding: EdgeInsets.only(right: 8.0),
-                      child: Icon(Icons.account_circle, size: 24),
-                    ),
-
-                  // Coordinator name and version
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          coordinator.name,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(
-                            fontWeight:
-                                isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+        onTap: (showInfoOnly || isUnresponsive ||
+            coordinator.responsive == null)
+            ? null
+            : () {
+          onTap?.call(coordinator);
+        },
+        child: Opacity(
+          opacity: (coordinator.responsive == false ||
+              coordinator.responsive == null) ? 0.6 : 1.0,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Coordinator icon
+                    if (coordinator.icon != null &&
+                        coordinator.icon!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: coordinator.icon!.startsWith('http')
+                            ? Image.network(
+                          coordinator.icon!,
+                          width: 24,
+                          height: 24,
+                          errorBuilder: (context, error, stackTrace) =>
+                          const Icon(
+                            Icons.account_circle,
+                            size: 24,
+                          ),
+                        )
+                            : Image.asset(
+                          coordinator.icon!,
+                          width: 24,
+                          height: 24,
+                          errorBuilder: (context, error, stackTrace) =>
+                          const Icon(
+                            Icons.account_circle,
+                            size: 24,
                           ),
                         ),
-                        if (coordinator.version.isNotEmpty)
-                          Text(
-                            'v${coordinator.version}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      )
+                    else
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Icon(Icons.account_circle, size: 24),
+                      ),
+
+                    // Coordinator name and version
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                coordinator.name,
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              if (coordinator.responsive == true)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 4.0),
+                                  child: Icon(
+                                      Icons.check_circle, color: Colors.green,
+                                      size: 18),
+                                ),
+                              if (coordinator.responsive == false)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 4.0),
+                                  child: Tooltip(
+                                    message: 'This coordinator is unresponsive',
+                                    preferBelow: false,
+                                    child: Icon(Icons.error_outline,
+                                        color: Colors.redAccent, size: 18),
+                                  ),
+                                ),
+                              if (coordinator.responsive == null)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 4.0),
+                                  child: Tooltip(
+                                    message: 'Waiting for coordinator response',
+                                    preferBelow: false,
+                                    child: Icon(
+                                        Icons.help_outline, color: Colors.amber,
+                                        size: 18),
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
+                          if (coordinator.version.isNotEmpty)
+                            Text(
+                              'v${coordinator.version}',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.grey),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // Status indicator
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle,
-                      color: Theme.of(context).primaryColor,
-                      size: 20,
+                    // Status indicator
+                    if (isSelected)
+                      Icon(
+                        Icons.check_circle,
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
+                        size: 20,
+                      ),
+
+                    // External link button
+                    IconButton(
+                      icon: const Icon(Icons.open_in_new, size: 16),
+                      onPressed: (coordinator.responsive == false ||
+                          coordinator.responsive == null)
+                          ? null
+                          : () async {
+                        final url =
+                            'https://njump.me/${Nip19.encodePubKey(
+                            coordinator.pubkey)}';
+                        await launchUrl(
+                          Uri.parse(url),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
                     ),
+                  ],
+                ),
 
-                  // External link button
-                  IconButton(
-                    icon: const Icon(Icons.open_in_new, size: 16),
-                    onPressed: () async {
-                      final url = 'https://njump.me/${Nip19.encodePubKey(coordinator.pubkey)}';
-                      await launchUrl(
-                        Uri.parse(url),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    },
-                  ),
-                ],
-              ),
+                const SizedBox(height: 8),
 
-              const SizedBox(height: 8),
-
-              // Coordinator details
-              Wrap(
-                spacing: 16,
-                runSpacing: 4,
-                children: [
-                  _buildInfoChip(
-                    context,
-                    Icons.account_balance_wallet,
-                    'Range: ${(coordinator.minAmountSats / 100000000).toStringAsFixed(6)} - ${(coordinator.maxAmountSats / 100000000).toStringAsFixed(6)} BTC',
-                  ),
-                  _buildInfoChip(
-                    context,
-                    Icons.percent,
-                    'Maker: ${coordinator.makerFee.toStringAsFixed(2)}%',
-                  ),
-                  _buildInfoChip(
-                    context,
-                    Icons.percent,
-                    'Taker: ${coordinator.takerFee.toStringAsFixed(2)}%',
-                  ),
-                  if (coordinator.currencies.isNotEmpty)
+                // Coordinator details
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 4,
+                  children: [
                     _buildInfoChip(
                       context,
-                      Icons.attach_money,
-                      coordinator.currencies.join(', '),
+                      Icons.account_balance_wallet,
+                      'Range: ${(coordinator.minAmountSats / 100000000)
+                          .toStringAsFixed(6)} - ${(coordinator.maxAmountSats /
+                          100000000).toStringAsFixed(6)} BTC',
+                      iconColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                      textColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
                     ),
-                  _buildInfoChip(
-                    context,
-                    Icons.schedule,
-                    'Timeout: ${coordinator.reservationSeconds}s',
-                  ),
-                ],
-              ),
+                    _buildInfoChip(
+                      context,
+                      Icons.percent,
+                      'Maker: ${coordinator.makerFee.toStringAsFixed(2)}%',
+                      iconColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                      textColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                    ),
+                    _buildInfoChip(
+                      context,
+                      Icons.percent,
+                      'Taker: ${coordinator.takerFee.toStringAsFixed(2)}%',
+                      iconColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                      textColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                    ),
+                    if (coordinator.currencies.isNotEmpty)
+                      _buildInfoChip(
+                        context,
+                        Icons.attach_money,
+                        coordinator.currencies.join(', '),
+                        iconColor: coordinator.responsive == false ||
+                            coordinator.responsive == null
+                            ? Colors.grey
+                            : null,
+                        textColor: coordinator.responsive == false ||
+                            coordinator.responsive == null
+                            ? Colors.grey
+                            : null,
+                      ),
+                    _buildInfoChip(
+                      context,
+                      Icons.schedule,
+                      'Timeout: ${coordinator.reservationSeconds}s',
+                      iconColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                      textColor: coordinator.responsive == false ||
+                          coordinator.responsive == null
+                          ? Colors.grey
+                          : null,
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 4),
+                const SizedBox(height: 4),
 
-              // Last seen
-              Text(
-                'Last seen: ${_formatLastSeen(coordinator.lastSeen)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-              ),
-            ],
+                // Last seen
+                Text(
+                  'Last seen: ${_formatLastSeen(coordinator.lastSeen)}',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodySmall,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+  Widget _buildInfoChip(BuildContext context,
+      IconData icon,
+      String text, {
+        Color? iconColor,
+        Color? textColor,
+      }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: Colors.grey),
+        Icon(icon, size: 12, color: iconColor ?? Colors.grey),
         const SizedBox(width: 4),
-        Text(text, style: Theme.of(context).textTheme.bodySmall),
+        Text(text, style: Theme
+            .of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(color: textColor ?? Colors.grey)),
       ],
     );
   }
@@ -219,6 +324,7 @@ class CoordinatorSelector extends ConsumerWidget {
             child: ListView(
               shrinkWrap: true,
               children: coordinators.map((coordinator) {
+                final isUnresponsive = coordinator.responsive == false;
                 final rate = fiatExchangeRate ?? 1.0;
                 final minPln = (coordinator.minAmountSats / 100000000.0 * rate)
                     .toStringAsFixed(2);
@@ -240,22 +346,62 @@ class CoordinatorSelector extends ConsumerWidget {
                               coordinator.icon!, width: 32, height: 32))
                               : const Icon(Icons.account_circle, size: 32),
                           const SizedBox(width: 8),
-                          Text(coordinator.name,
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600)),
+                          Text(
+                            coordinator.name,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: (coordinator.responsive == false ||
+                                    coordinator.responsive == null)
+                                    ? Colors.grey
+                                    : null),
+                          ),
+                          if (coordinator.responsive == true)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Icon(
+                                  Icons.check_circle, color: Colors.green,
+                                  size: 18),
+                            ),
+                          if (coordinator.responsive == false)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Tooltip(
+                                message: 'This coordinator is unresponsive',
+                                preferBelow: false,
+                                child: Icon(Icons.error_outline,
+                                    color: Colors.redAccent, size: 18),
+                              ),
+                            ),
+                          if (coordinator.responsive == null)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Tooltip(
+                                message: 'Waiting for coordinator response',
+                                preferBelow: false,
+                                child: Icon(
+                                    Icons.help_outline, color: Colors.amber,
+                                    size: 18),
+                              ),
+                            ),
                           const Spacer(),
                           IconButton(
                             icon: Image.asset(
                               'assets/nostr.png',
-                              width: 22, height: 22,
+                              width: 22,
+                              height: 22,
                             ),
                             tooltip: 'View Nostr profile',
-                            onPressed: () async {
+                            onPressed: (coordinator.responsive == false ||
+                                coordinator.responsive == null)
+                                ? null
+                                : () async {
                               final url = 'https://njump.me/${Nip19
-                                  .encodePubKey(coordinator.pubkey)}';
+                                  .encodePubKey(
+                                  coordinator.pubkey)}';
                               await launchUrl(
                                 Uri.parse(url),
                                 mode: LaunchMode.externalApplication,
@@ -274,28 +420,38 @@ class CoordinatorSelector extends ConsumerWidget {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           if (coordinator.version.isNotEmpty)
-                            Text('v${coordinator.version}', style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.grey)),
-                          Text('Min/Max: $minPln-$maxPln PLN', style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall),
-                          Text('$feePct% fee', style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.blueGrey)),
+                            Text('v${coordinator.version}',
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(color: Colors.grey)),
+                          Text('Min/Max: $minPln-$maxPln PLN',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .bodySmall),
+                          Text('$feePct% fee',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.blueGrey)),
                         ],
                       ),
                     ],
                   ),
-                  onTap: () {
+                  onTap: (coordinator.responsive == false ||
+                      coordinator.responsive == null)
+                      ? null
+                      : () {
                     Navigator.of(context).pop();
                     onCoordinatorSelected?.call(coordinator);
                   },
+                  tileColor: (coordinator.responsive == false ||
+                      coordinator.responsive == null)
+                      ? Colors.grey.withOpacity(0.15)
+                      : null,
                 );
               }).toList(),
             ),
@@ -331,20 +487,24 @@ class CoordinatorSelector extends ConsumerWidget {
                   Row(
                     children: [
                       (selectedCoordinator.icon != null &&
-                          selectedCoordinator.icon!.isNotEmpty) ?
-                      (selectedCoordinator.icon!.startsWith('http')
+                          selectedCoordinator.icon!.isNotEmpty)
+                          ? (selectedCoordinator.icon!.startsWith('http')
                           ? Image.network(
                           selectedCoordinator.icon!, width: 32, height: 32)
                           : Image.asset(
                           selectedCoordinator.icon!, width: 32, height: 32))
                           : const Icon(Icons.account_circle, size: 32),
                       const SizedBox(width: 8),
-                      Text(selectedCoordinator.name,
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600)),
+                      Text(
+                        selectedCoordinator.name,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                            fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const Spacer(),
                       const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
                     ],
@@ -355,20 +515,25 @@ class CoordinatorSelector extends ConsumerWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (selectedCoordinator.version.isNotEmpty)
-                        Text('v${selectedCoordinator.version}', style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey)),
-                      Text('Min/Max: $minPln-$maxPln PLN', style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodySmall),
-                      Text('$feePct% fee', style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.blueGrey)),
+                        Text('v${selectedCoordinator.version}',
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.grey)),
+                      Text('Min/Max: $minPln-$maxPln PLN',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodySmall
+                      ),
+                      Text('$feePct% fee',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.blueGrey)
+                      ),
                     ],
                   ),
                 ],
@@ -404,9 +569,11 @@ class CoordinatorSelector extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Looking for BitBlik coordinators on the Nostr network',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
@@ -441,9 +608,11 @@ class CoordinatorSelector extends ConsumerWidget {
                 const Spacer(),
                 Text(
                   '${coordinators.length} found',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Colors.grey),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
@@ -458,27 +627,27 @@ class CoordinatorSelector extends ConsumerWidget {
             const SizedBox(height: 8),
             // Coordinator list
             Column(
-              children:
-                  coordinators.map((coordinator) {
-                    final isSelected =
-                        selectedCoordinator?.pubkey == coordinator.pubkey;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: _buildCoordinatorCard(
-                        context,
-                        coordinator,
-                        isSelected: isSelected,
-                        onTap: onCoordinatorSelected,
-                        showInfoOnly: showInfoOnly,
-                      ),
-                    );
-                  }).toList(),
+              children: coordinators.map((coordinator) {
+                final isSelected =
+                    selectedCoordinator?.pubkey == coordinator.pubkey;
+                final isUnresponsive = coordinator.responsive == false;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: _buildCoordinatorCard(
+                    context,
+                    coordinator,
+                    isSelected: isSelected,
+                    onTap: onCoordinatorSelected,
+                    showInfoOnly: showInfoOnly,
+                  ),
+                );
+              }).toList(),
             ),
           ],
         );
       },
-      loading:
-          () => Card(
+      loading: () =>
+          Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -493,8 +662,8 @@ class CoordinatorSelector extends ConsumerWidget {
               ),
             ),
           ),
-      error:
-          (error, stack) => Card(
+      error: (error, stack) =>
+          Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -503,8 +672,15 @@ class CoordinatorSelector extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Error discovering coordinators',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.error,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .error,
                     ),
                   ),
                   const SizedBox(height: 4),
