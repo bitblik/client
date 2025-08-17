@@ -172,18 +172,23 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       );
       ref.read(holdInvoiceProvider.notifier).state = result['holdInvoice'];
       ref.read(paymentHashProvider.notifier).state = result['paymentHash'];
-      ref.read(activeOfferProvider.notifier).state = Offer(
-        id: "empty",
-        amountSats: result['makerFees'] + result['amountSats'],
-        makerFees: result['makerFees'],
-        status: OfferStatus.created.name,
-        fiatAmount: fiatAmount,
-        fiatCurrency: "PLN", // TODO
-        createdAt: DateTime.now(),
-        holdInvoicePaymentHash: result['paymentHash'],
-        makerPubkey: makerId,
-        coordinatorPubkey: coordinatorPubkey,
-      );
+      await ref
+          .read(activeOfferProvider.notifier)
+          .setActiveOffer(
+            Offer(
+              id: "empty",
+              amountSats: result['makerFees'] + result['amountSats'],
+              makerFees: result['makerFees'],
+              status: OfferStatus.created.name,
+              fiatAmount: fiatAmount,
+              fiatCurrency: "PLN", // TODO
+              createdAt: DateTime.now(),
+              holdInvoicePaymentHash: result['paymentHash'],
+              holdInvoice: result['holdInvoice'],
+              makerPubkey: makerId,
+              coordinatorPubkey: coordinatorPubkey,
+            ),
+          );
       if (mounted) {
         context.go("/pay");
       }

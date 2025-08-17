@@ -34,7 +34,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     try {
       checkWeblnSupport((supported) {
-        print("!!!!!!!!!!!!!!! isWallet: $isWallet, supported: $supported");
+        // print("!!!!!!!!!!!!!!! isWallet: $isWallet, supported: $supported");
         if (mounted) {
           setState(() {
             isWallet = supported;
@@ -42,7 +42,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
         }
       });
     } catch (e) {
-      print("!!!!catch $e");
+      // print("!!!!catch $e");
     }
     // No longer need to start polling - will use subscription instead
   }
@@ -76,7 +76,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       }
 
       final fullOffer = Offer.fromJson(fullOfferData);
-      ref.read(activeOfferProvider.notifier).state = fullOffer;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
 
       if (mounted) {
         context.go("/wait-taker");
@@ -141,9 +141,20 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final holdInvoice = ref.watch(holdInvoiceProvider);
+    final holdInvoiceFromProvider = ref.watch(holdInvoiceProvider);
     final offer = ref.watch(activeOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
+
+    // Get hold invoice from either provider or active offer
+    final holdInvoice = holdInvoiceFromProvider ?? offer?.holdInvoice;
+
+    // Debug logging
+    print(
+      '[MakerPayInvoiceScreen] holdInvoiceFromProvider: $holdInvoiceFromProvider',
+    );
+    print('[MakerPayInvoiceScreen] offer?.holdInvoice: ${offer?.holdInvoice}');
+    print('[MakerPayInvoiceScreen] final holdInvoice: $holdInvoice');
+    print('[MakerPayInvoiceScreen] offer: ${offer?.toJson()}');
 
     // Set up status subscription
     if (offer != null &&
@@ -193,8 +204,30 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       // Use Builder to get context below Scaffold if needed for SnackBar
       builder: (context) {
         if (holdInvoice == null) {
-          // Should not happen if navigation is correct, but handle defensively
-          return Center(child: Text(t.offers.errors.detailsMissing));
+          // This can happen when resuming an existing offer that doesn't have the hold invoice stored
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  t.offers.errors.detailsMissing,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Hold invoice not available for this offer.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.go('/'),
+                  child: Text(t.common.buttons.goHome),
+                ),
+              ],
+            ),
+          );
         }
 
         return Padding(

@@ -195,8 +195,10 @@ class _TakerPaymentFailedScreenState
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                ref.read(activeOfferProvider.notifier).state = null;
+              onPressed: () async {
+                await ref
+                    .read(activeOfferProvider.notifier)
+                    .setActiveOffer(null);
                 ref.read(appRoleProvider.notifier).state = AppRole.none;
                 if (mounted) {
                   context.go('/');

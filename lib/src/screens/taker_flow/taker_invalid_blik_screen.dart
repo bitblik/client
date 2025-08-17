@@ -90,7 +90,9 @@ class _TakerInvalidBlikScreenState
                       holdInvoicePaymentHash: offer.holdInvoicePaymentHash,
                     );
 
-                    ref.read(activeOfferProvider.notifier).state = updatedOffer;
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(updatedOffer);
                     ref.read(appRoleProvider.notifier).state = AppRole.taker;
 
                     context.go("/submit-blik", extra: updatedOffer);
@@ -215,8 +217,10 @@ class _TakerInvalidBlikScreenState
               ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () {
-                  ref.read(activeOfferProvider.notifier).state = null;
+                onPressed: () async {
+                  await ref
+                      .read(activeOfferProvider.notifier)
+                      .setActiveOffer(null);
                   context.go('/offers');
                 },
                 child: Text(t.common.actions.cancelAndReturnToOffers),
