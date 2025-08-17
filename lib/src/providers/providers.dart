@@ -33,6 +33,8 @@ final initializedApiServiceProvider = FutureProvider<ApiServiceNostr>((
 });
 
 /// Provider for discovered coordinators with refresh capability
+// NOTE: The DiscoveredCoordinator model now includes 'responsive' bool.
+// Unresponsive coordinators will be emitted in the state list and should be handled in the UI (greyed out, unselectable, show warning)
 final discoveredCoordinatorsProvider = StateNotifierProvider<
   DiscoveredCoordinatorsNotifier,
   AsyncValue<List<DiscoveredCoordinator>>

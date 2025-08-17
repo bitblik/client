@@ -370,7 +370,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               Text(t.app.title),
               const SizedBox(width: 4),
               Text(
-                _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
+                _clientVersion != null ? 'v$_clientVersion beta' : 'beta',
                 style: const TextStyle(fontSize: 10, color: Colors.black45),
               ),
             ],

@@ -1,4 +1,5 @@
 // RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,7 +89,7 @@ class RoleSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeOffer = ref.read(activeOfferProvider);
+    final activeOffer = ref.watch(activeOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
     ref.watch(lightningAddressProvider);
 
@@ -118,7 +119,7 @@ class RoleSelectionScreen extends ConsumerWidget {
 
                 final isTakerPaid = hasActiveOffer &&
                     activeOffer!.status == OfferStatus.takerPaid.name;
-                final hasRealActiveOffer = hasActiveOffer && !isTakerPaid;
+                final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

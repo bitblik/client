@@ -94,10 +94,10 @@ class OfferDbService {
       final jsonData = offer.toJson();
       print('[OfferDbService] Upserting offer with data: $jsonData');
 
-      // Debug: Check table schema
-      final tableInfo = await db.rawQuery('PRAGMA table_info(active_offer)');
-      print('[OfferDbService] Table schema: $tableInfo');
-
+      // // Debug: Check table schema
+      // final tableInfo = await db.rawQuery('PRAGMA table_info(active_offer)');
+      // print('[OfferDbService] Table schema: $tableInfo');
+      await deleteActiveOffer();
       await db.insert(
         'active_offer',
         jsonData,
@@ -113,7 +113,7 @@ class OfferDbService {
 
   Future<Offer?> getActiveOffer() async {
     final db = await database;
-    final maps = await db.query('active_offer', limit: 1);
+    final maps = await db.query('active_offer', limit: 1, orderBy: 'created_at DESC');
     if (maps.isNotEmpty) {
       return Offer.fromJson(maps.first);
     }
