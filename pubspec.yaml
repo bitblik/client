@@ -128,6 +128,7 @@ flutter:
     - assets/simplex.png
     - assets/element.png
     - assets/logo.png
+    - assets/nostr.png
     - assets/zapstore.png
     - assets/faq/ # Add the new FAQ directory
 
