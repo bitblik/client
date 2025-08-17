@@ -104,9 +104,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     }
   }
 
-  void _resetToRoleSelection(String message) {
+  Future<void> _resetToRoleSelection(String message) async {
     ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
+    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(holdInvoiceProvider.notifier).state = null;
     ref.read(paymentHashProvider.notifier).state = null;
     ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -125,9 +125,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
   Future<void> _cancelOffer() async {
     final offer = ref.read(activeOfferProvider);
-    final makerId = ref.read(publicKeyProvider).value;
+    final makerPubKey = ref.read(publicKeyProvider).value;
 
-    if (offer == null || makerId == null) {
+    if (offer == null || makerPubKey == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.maker.waitTaker.errorCouldNotIdentifyOffer)),
@@ -155,7 +155,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      await apiService.cancelOffer(offer.id, makerId, offer.coordinatorPubkey);
+      await apiService.cancelOffer(offer.id, offer.coordinatorPubkey);
       _resetToRoleSelection(t.maker.waitTaker.offerCancelledSuccessfully);
     } catch (e) {
       if (mounted) {

@@ -132,11 +132,19 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
 
   Future<void> setActiveOffer(Offer? offer) async {
     if (offer != null) {
+      print('[ActiveOfferNotifier] Setting active offer: ${offer.toJson()}');
       await OfferDbService().upsertActiveOffer(offer);
     } else {
+      print('[ActiveOfferNotifier] Clearing active offer');
       await OfferDbService().deleteActiveOffer();
     }
     state = offer;
+  }
+
+  /// Force a database reset (useful for development when schema changes are made)
+  Future<void> resetDatabase() async {
+    await OfferDbService().resetDatabase();
+    state = null;
   }
 }
 

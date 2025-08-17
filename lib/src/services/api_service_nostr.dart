@@ -324,11 +324,10 @@ class ApiServiceNostr {
   // DELETE /offers/{offerId}/cancel - via Nostr
   Future<void> cancelOffer(
     String offerId,
-    String makerId,
     String coordinatorPubkey,
   ) async {
     try {
-      await _nostrService.cancelOffer(offerId, makerId, coordinatorPubkey);
+      await _nostrService.cancelOffer(offerId, coordinatorPubkey);
     } catch (e) {
       print('Error calling cancelOffer: $e');
       rethrow;

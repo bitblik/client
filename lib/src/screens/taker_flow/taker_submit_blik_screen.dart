@@ -238,7 +238,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
       // --- End Validation ---
 
-      ref.read(activeOfferProvider.notifier).state = fullOffer;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
       print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
       // Ensure _maxBlikInputTime is set before starting timer
@@ -311,18 +311,18 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
   }
 
-  void _handleBlikInputTimeout() {
+  Future<void> _handleBlikInputTimeout() async {
     _blikInputTimer?.cancel();
     if (mounted) {
       print("[TakerSubmitBlikScreen] BLIK input timer expired.");
-      ref.read(activeOfferProvider.notifier).state = null;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
       _resetToOfferList(t.taker.submitBlik.timeExpired);
     }
   }
 
-  void _resetToOfferList(String message) {
+  Future<void> _resetToOfferList(String message) async {
     _blikInputTimer?.cancel();
-    ref.read(activeOfferProvider.notifier).state = null;
+    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(errorProvider.notifier).state = null;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
     Navigator.maybeOf(context);
@@ -474,7 +474,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         blikReceivedAt: DateTime.now(),
         blikCode: blikCode,
       );
-      ref.read(activeOfferProvider.notifier).state = updatedOffer;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
       print(
         "[TakerSubmitBlikScreen] BLIK submitted. Navigating to WaitConfirmation.",

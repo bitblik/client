@@ -703,7 +703,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                         activeOfferProvider
                                                             .notifier,
                                                       )
-                                                      .state = updatedOffer;
+                                                      .setActiveOffer(
+                                                        updatedOffer,
+                                                      );
                                                   ref
                                                       .read(
                                                         appRoleProvider
@@ -793,7 +795,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     activeOfferProvider
                                                         .notifier,
                                                   )
-                                                  .state = myOffer;
+                                                  .setActiveOffer(myOffer);
                                               ref
                                                   .read(
                                                     appRoleProvider.notifier,

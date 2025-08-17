@@ -15,8 +15,10 @@ class RoleSelectionScreen extends ConsumerWidget {
     final offerStatus = OfferStatus.values.byName(offer.status);
 
     switch (offerStatus) {
-      case OfferStatus
-          .created: // Should ideally not happen if polling works, but handle defensively
+      case OfferStatus.created:
+        // Offer created but not yet funded - go to pay invoice screen
+        context.go("/pay", extra: offer);
+        break;
       case OfferStatus.funded:
         // Waiting for a taker to reserve
         context.go("/wait-taker", extra: offer);
@@ -189,7 +191,9 @@ class RoleSelectionScreen extends ConsumerWidget {
                               const SizedBox(height: 4), // Add some spacing
                               Text(
                                 // Keep status info, but maybe smaller
-                                t.common.labels.status(status: activeOffer.status),
+                                t.common.labels.status(
+                                  status: activeOffer.status,
+                                ),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               if (activeOffer.status ==
@@ -200,7 +204,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.only(top: 6.0),
                                   child: Text(
                                     t.lightningAddress.labels.short(
-                                      address: activeOffer.takerLightningAddress!,
+                                      address:
+                                          activeOffer.takerLightningAddress!,
                                     ),
                                     style: TextStyle(
                                       color: Colors.blueGrey[700],
@@ -220,7 +225,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                   : () {
                                     ref
                                         .read(activeOfferProvider.notifier)
-                                        .state = activeOffer;
+                                        .setActiveOffer(activeOffer);
                                     if (activeRole == AppRole.maker) {
                                       if (activeOffer.holdInvoicePaymentHash !=
                                           null) {
@@ -250,7 +255,10 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               ref.read(publicKeyProvider).value;
                                           if (makerId == null) {
                                             throw Exception(
-                                              t.offers.errors.makerPublicKeyNotFound,
+                                              t
+                                                  .offers
+                                                  .errors
+                                                  .makerPublicKeyNotFound,
                                             );
                                           }
                                           context.go('/confirm-blik');
@@ -275,7 +283,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               .read(
                                                 activeOfferProvider.notifier,
                                               )
-                                              .state = null;
+                                              .setActiveOffer(null);
                                         }
                                       } else {
                                         _navigateToMakerStep(
@@ -341,7 +349,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                                           sats: offer.amountSats,
                                           fee: offer.makerFees,
                                           status: offer.status,
-                                          date: offer.takerPaidAt
+                                          date:
+                                              offer.takerPaidAt
                                                   ?.toLocal()
                                                   .toString()
                                                   .substring(0, 16) ??

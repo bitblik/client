@@ -378,10 +378,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       appBarTitle = MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: () {
-            // Reset relevant state providers
+          onTap: () async {
+            // Reset relevant state providers (but keep active offer)
             ref.read(appRoleProvider.notifier).state = AppRole.none;
-            ref.read(activeOfferProvider.notifier).state = null;
             ref.read(holdInvoiceProvider.notifier).state = null;
             ref.read(paymentHashProvider.notifier).state = null;
             ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -464,10 +463,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             IconButton(
               icon: const Icon(Icons.home),
               tooltip: t.common.buttons.goHome, // Use Slang for tooltip
-              onPressed: () {
-                // Reset relevant state providers
+              onPressed: () async {
+                // Reset relevant state providers (but keep active offer)
                 ref.read(appRoleProvider.notifier).state = AppRole.none;
-                ref.read(activeOfferProvider.notifier).state = null;
                 ref.read(holdInvoiceProvider.notifier).state = null;
                 ref.read(paymentHashProvider.notifier).state = null;
                 ref.read(receivedBlikCodeProvider.notifier).state = null;

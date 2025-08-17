@@ -37,6 +37,7 @@ class Offer {
   final DateTime? blikReceivedAt;
   final String? blikCode;
   final String? holdInvoicePaymentHash;
+  final String? holdInvoice; // The actual bolt11 invoice string
   // Added fields based on DB schema that might be useful
   final String? takerLightningAddress;
   final String? takerInvoice;
@@ -111,6 +112,7 @@ class Offer {
     this.blikReceivedAt,
     this.blikCode,
     this.holdInvoicePaymentHash,
+    this.holdInvoice,
     this.takerLightningAddress,
     this.takerInvoice,
     this.holdInvoicePreimage,
@@ -204,6 +206,7 @@ class Offer {
       ),
       blikCode: json['blik_code'] as String?,
       holdInvoicePaymentHash: json['hold_invoice_payment_hash'] as String?,
+      holdInvoice: json['hold_invoice'] as String?,
       // Parse additional fields if present in JSON
       takerLightningAddress: json['taker_lightning_address'] as String?,
       takerInvoice: json['taker_invoice'] as String?,
@@ -225,6 +228,8 @@ class Offer {
       'id': id,
       'amount_sats': amountSats,
       'maker_fees': makerFees, // Renamed key and field
+      'fiat_amount': fiatAmount,
+      'fiat_currency': fiatCurrency,
       'status': status,
       'created_at': createdAt.toIso8601String(),
       'maker_pubkey': makerPubkey,
@@ -234,6 +239,7 @@ class Offer {
       'blik_received_at': blikReceivedAt?.toIso8601String(),
       'blik_code': blikCode,
       'hold_invoice_payment_hash': holdInvoicePaymentHash,
+      'hold_invoice': holdInvoice,
       'taker_lightning_address': takerLightningAddress,
       'taker_invoice': takerInvoice,
       'hold_invoice_preimage': holdInvoicePreimage,
@@ -271,6 +277,7 @@ class Offer {
     DateTime? blikReceivedAt,
     String? blikCode,
     String? holdInvoicePaymentHash,
+    String? holdInvoice,
     String? takerLightningAddress,
     String? takerInvoice,
     String? holdInvoicePreimage,
@@ -296,6 +303,7 @@ class Offer {
       blikCode: blikCode ?? this.blikCode,
       holdInvoicePaymentHash:
           holdInvoicePaymentHash ?? this.holdInvoicePaymentHash,
+      holdInvoice: holdInvoice ?? this.holdInvoice,
       takerLightningAddress:
           takerLightningAddress ?? this.takerLightningAddress,
       takerInvoice: takerInvoice ?? this.takerInvoice,
