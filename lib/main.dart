@@ -341,7 +341,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     final publicKeyAsync = ref.watch(publicKeyProvider);
-    final appRole = ref.watch(appRoleProvider); // This line needs to be active
     final String currentPath = GoRouterState.of(context).uri.toString();
 
     Widget appBarTitle;
@@ -355,7 +354,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         child: GestureDetector(
           onTap: () async {
             // Reset relevant state providers (but keep active offer)
-            ref.read(appRoleProvider.notifier).state = AppRole.none;
             ref.read(holdInvoiceProvider.notifier).state = null;
             ref.read(paymentHashProvider.notifier).state = null;
             ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -439,7 +437,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               tooltip: t.common.buttons.goHome, // Use Slang for tooltip
               onPressed: () async {
                 // Reset relevant state providers (but keep active offer)
-                ref.read(appRoleProvider.notifier).state = AppRole.none;
                 ref.read(holdInvoiceProvider.notifier).state = null;
                 ref.read(paymentHashProvider.notifier).state = null;
                 ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -461,7 +458,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           ),
         ],
       ),
-      body: _buildBody(appRole, widget.body),
+      body: _buildBody(widget.body),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -580,36 +577,37 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   }
 
   // Body builder that handles both direct routes and role-based content
-  Widget _buildBody(AppRole role, Widget directChild) {
+  Widget _buildBody(Widget directChild) {
     // If we're displaying a direct route's content, show that
     if (directChild is! RoleSelectionScreen) {
       return directChild;
     }
 
     // Otherwise, use the role-based logic for default screens
-    switch (role) {
-      case AppRole.maker:
-        return const MakerAmountForm();
-      case AppRole.taker:
-        final activeOffer = ref.watch(activeOfferProvider);
-        if (activeOffer == null) {
-          return const OfferListScreen();
-        } else {
-          if (activeOffer.status == OfferStatus.reserved.name) {
-            return TakerSubmitBlikScreen(initialOffer: activeOffer);
-          } else if (activeOffer.status == OfferStatus.blikReceived.name ||
-              activeOffer.status == OfferStatus.blikSentToMaker.name ||
-              activeOffer.status == OfferStatus.makerConfirmed.name) {
-            return TakerWaitConfirmationScreen(offer: activeOffer);
-          } else {
-            print(
-              "[AppScaffold] Taker role active but offer status (${activeOffer.status}) not suitable for flow screens. Showing OfferListScreen.",
-            );
-            return const OfferListScreen();
-          }
-        }
-      case AppRole.none:
-        return const RoleSelectionScreen();
-    }
+    // switch (role) {
+    //   case AppRole.maker:
+    //     return const MakerAmountForm();
+    //   case AppRole.taker:
+    //     final activeOffer = ref.watch(activeOfferProvider);
+    //     if (activeOffer == null) {
+    //       return const OfferListScreen();
+    //     } else {
+    //       if (activeOffer.status == OfferStatus.reserved.name) {
+    //         return TakerSubmitBlikScreen(initialOffer: activeOffer);
+    //       } else if (activeOffer.status == OfferStatus.blikReceived.name ||
+    //           activeOffer.status == OfferStatus.blikSentToMaker.name ||
+    //           activeOffer.status == OfferStatus.makerConfirmed.name) {
+    //         return TakerWaitConfirmationScreen(offer: activeOffer);
+    //       } else {
+    //         print(
+    //           "[AppScaffold] Taker role active but offer status (${activeOffer.status}) not suitable for flow screens. Showing OfferListScreen.",
+    //         );
+    //         return const OfferListScreen();
+    //       }
+    //     }
+    //   case AppRole.none:
+    //     return const RoleSelectionScreen();
+    // }
+    return const RoleSelectionScreen();
   }
 }

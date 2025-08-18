@@ -170,7 +170,6 @@ class _MakerWaitForBlikScreenState
   }
 
   Future<void> _resetToRoleSelection(String message) async {
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
     await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(holdInvoiceProvider.notifier).state = null;
     ref.read(paymentHashProvider.notifier).state = null;

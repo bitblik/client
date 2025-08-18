@@ -93,7 +93,6 @@ class _TakerInvalidBlikScreenState
                     await ref
                         .read(activeOfferProvider.notifier)
                         .setActiveOffer(updatedOffer);
-                    ref.read(appRoleProvider.notifier).state = AppRole.taker;
 
                     context.go("/submit-blik", extra: updatedOffer);
                   } else {

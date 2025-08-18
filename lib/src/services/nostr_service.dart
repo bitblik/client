@@ -110,7 +110,8 @@ class DiscoveredCoordinator {
       takerFee: takerFee,
       reservationSeconds: reservationSeconds,
       currencies: currencies,
-      nostrNpub: pubkey, // Use the pubkey as nostrNpub
+      nostrNpub: pubkey,
+      // Use the pubkey as nostrNpub
       version: version,
     );
   }
@@ -124,6 +125,7 @@ class NostrService {
   static const List<String> _defaultRelayUrls = [
     'wss://relay.damus.io',
     'wss://relay.primal.net',
+    'wss://relay.mostro.network',
   ];
 
   // Event kinds (matching coordinator)
@@ -131,6 +133,7 @@ class NostrService {
   static const int KIND_COORDINATOR_REQUEST = 25195;
   static const int KIND_COORDINATOR_RESPONSE = 25196;
   static const int KIND_OFFER_STATUS_UPDATE = 25197;
+  static const int KIND_OFFER = 38383;
 
   final KeyService _keyService;
   late final Ndk _ndk;
@@ -142,6 +145,7 @@ class NostrService {
   NdkResponse? _responseSubscription;
   NdkResponse? _coordinatorDiscoverySubscription;
   NdkResponse? _offerStatusSubscription;
+  NdkResponse? _offerSubscription;
   bool _isInitialized = false;
 
   // Discovered coordinators
@@ -150,11 +154,14 @@ class NostrService {
       StreamController<List<DiscoveredCoordinator>>.broadcast();
   final StreamController<OfferStatusUpdate> _offerStatusController =
       StreamController<OfferStatusUpdate>.broadcast();
+  late StreamController<Offer> _offerStreamController;
 
   // Coordinator info cache by pubkey
   final Map<String, CoordinatorInfo> _coordinatorInfoCache = {};
 
-  NostrService(this._keyService);
+  NostrService(this._keyService) {
+    _offerStreamController = StreamController<Offer>.broadcast();
+  }
 
   /// Initialize the Nostr service
   Future<void> init() async {
@@ -372,56 +379,91 @@ class NostrService {
     );
   }
 
-  /// GET /offers - This method will now query all discovered coordinators
-  Future<List<Offer>> listAvailableOffers() async {
+  /// Get a stream of all live offers published (subscribe before listening!)
+  Stream<Offer> get offersStream => _offerStreamController.stream;
+
+  /// Start listening for offers (subscribe to event kind 38383 from all coordinators)
+  Future<void> startOfferSubscription() async {
     if (!_isInitialized) {
       await init();
     }
 
-    final allOffers = <Offer>[];
-    final coordinators = _discoveredCoordinators.values.toList();
-    if (coordinators.isEmpty) {
-      print("No coordinators discovered, cannot list offers.");
-      return [];
+    // Unsubscribe previous subscription, if any
+    if (_offerSubscription != null) {
+      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
     }
-
-    final List<Future<List<Offer>>> offerFutures = [];
-
-    for (final coordinator in coordinators) {
-      offerFutures.add(_listOffersFromCoordinator(coordinator.pubkey));
-    }
-
-    // Using Future.wait to fetch from all coordinators in parallel
-    final List<List<Offer>> results = await Future.wait(offerFutures);
-    for (final offerList in results) {
-      allOffers.addAll(offerList);
-    }
-
-    // Sort offers by creation date, newest first
-    allOffers.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-    return allOffers;
+    final filter = Filter(
+      kinds: [KIND_OFFER],
+      tags: {
+        "#f": ["PLN"],
+        "#s": ['pending'],
+      //   "#y": ["Bitblik"],
+      //   // "#pm": ["BLIK"],
+      },
+      since:
+          DateTime.now()
+              .subtract(const Duration(hours: 2))
+              .millisecondsSinceEpoch ~/
+          1000,
+    );
+    _offerSubscription = _ndk.requests.subscription(
+      name: "offers-stream",
+      filters: [filter],
+    );
+    _offerSubscription!.stream.listen(_handleOfferEvent);
+    print('🔎 Started offers subscription');
   }
 
-  /// Helper to list offers from a single coordinator
-  Future<List<Offer>> _listOffersFromCoordinator(
-    String coordinatorPubkey,
-  ) async {
+  void _handleOfferEvent(Nip01Event event) {
     try {
-      final request = NostrRequest(method: 'list_offers', params: {});
-      final response = await sendRequest(request, coordinatorPubkey);
-      return _handleResponse(response, (result) {
-        final List<dynamic> jsonList = result['offers'] ?? [];
-        return jsonList.map((json) {
-          final offer = Offer.fromJson(json);
-          // Manually add the coordinator pubkey to the offer object upon retrieval
-          return offer.copyWith(coordinatorPubkey: coordinatorPubkey);
-        }).toList();
-      });
+      // Map event.tags and content to Offer
+      // Most data is in tags according to your coordinator event logic
+      final tagMap = <String, String>{};
+      for (final t in event.tags) {
+        if (t.length >= 2) tagMap[t[0]] = t[1];
+      }
+      // Build Offer (fallback/default when fields missing!)
+      final offer = Offer(
+        id: tagMap['d'] ?? event.id,
+        amountSats: int.tryParse(tagMap['amt'] ?? '0') ?? 0,
+        makerFees: int.tryParse(tagMap['maker_fees'] ?? '0') ?? 0,
+        fiatAmount: double.tryParse(tagMap['fa'] ?? '0') ?? 0.0,
+        fiatCurrency: tagMap['f'] ?? 'PLN',
+        status: OfferStatus.funded.name,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
+        makerPubkey: tagMap['maker'] ?? event.pubKey,
+        coordinatorPubkey: tagMap['p'] ?? event.pubKey,
+        // or from context
+        takerPubkey: tagMap['taker'],
+        reservedAt: null,
+        blikReceivedAt: null,
+        blikCode: null,
+        holdInvoicePaymentHash: tagMap['pmt_hash'],
+        holdInvoice: tagMap['hold_invoice'],
+        takerLightningAddress: tagMap['taker_ln'],
+        takerInvoice: tagMap['taker_inv'],
+        holdInvoicePreimage: tagMap['preimage'],
+        updatedAt: null,
+        makerConfirmedAt: null,
+        settledAt: null,
+        takerPaidAt: null,
+        takerFees: int.tryParse(tagMap['taker_fees'] ?? '0'),
+      );
+      _offerStreamController.add(offer);
     } catch (e) {
-      print("Error fetching offers from coordinator $coordinatorPubkey: $e");
-      return []; // Return empty list on error for this coordinator
+      print('❌ Error parsing offer event: $e');
     }
+  }
+
+  /// Stop the live offer subscription
+  Future<void> stopOfferSubscription() async {
+    if (_offerSubscription != null) {
+      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
+      _offerSubscription = null;
+    }
+    await _offerStreamController.close();
+    _offerStreamController =
+        StreamController<Offer>.broadcast(); // so can restart
   }
 
   /// POST /offers/{offerId}/reserve
@@ -597,10 +639,7 @@ class NostrService {
   }
 
   /// DELETE /offers/{offerId}/cancel
-  Future<void> cancelOffer(
-    String offerId,
-    String coordinatorPubkey,
-  ) async {
+  Future<void> cancelOffer(String offerId, String coordinatorPubkey) async {
     final request = NostrRequest(
       method: 'cancel_offer',
       params: {'offer_id': offerId},
@@ -787,7 +826,10 @@ class NostrService {
   }
 
   /// Start listening for offer status updates
-  Future<void> startOfferStatusSubscription(String coordinatorPubKey, String userPubkey) async {
+  Future<void> startOfferStatusSubscription(
+    String coordinatorPubKey,
+    String userPubkey,
+  ) async {
     if (!_isInitialized) {
       await init();
     }
@@ -801,7 +843,8 @@ class NostrService {
 
     final filter = Filter(
       kinds: [KIND_OFFER_STATUS_UPDATE],
-      authors: [coordinatorPubKey], // Only listen to events from this coordinator
+      authors: [coordinatorPubKey],
+      // Only listen to events from this coordinator
       pTags: [userPubkey], // Events tagged to the user's pubkey
       // since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     );
@@ -890,7 +933,9 @@ class NostrService {
       // If no exception, coordinator is responsive
       _markCoordinatorResponsive(coordinatorPubkey, true);
     } catch (e) {
-      print('🚨 Coordinator $coordinatorPubkey did not respond to get_info: $e');
+      print(
+        '🚨 Coordinator $coordinatorPubkey did not respond to get_info: $e',
+      );
       _markCoordinatorResponsive(coordinatorPubkey, false);
     }
   }
@@ -954,9 +999,13 @@ class NostrService {
         _offerStatusSubscription!.requestId,
       );
     }
+    if (_offerSubscription != null) {
+      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
+    }
     _pendingRequests.clear();
     await _coordinatorsController.close();
     await _offerStatusController.close();
+    await _offerStreamController.close();
     await _ndk.destroy();
     _isInitialized = false;
   }
@@ -981,7 +1030,10 @@ class OfferStatusUpdate {
     required this.timestamp,
   });
 
-  factory OfferStatusUpdate.fromJson(Map<String, dynamic> json, String coordinatorPubkey) {
+  factory OfferStatusUpdate.fromJson(
+    Map<String, dynamic> json,
+    String coordinatorPubkey,
+  ) {
     return OfferStatusUpdate(
       offerId: json['offer_id'] as String,
       paymentHash: json['payment_hash'] as String,

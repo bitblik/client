@@ -25,9 +25,6 @@ class OfferListScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferListScreenState extends ConsumerState<OfferListScreen> {
-  Timer? _refreshTimer;
-
-  bool _timerActive = false;
   bool _requestedFocus = false;
   String? _validationError;
   bool _hasValidatedInitialAddress = false;
@@ -62,26 +59,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       final apiService = ref.read(apiServiceProvider);
       final offer = ref.read(activeOfferProvider);
       final coordinatorPubkey = offer?.coordinatorPubkey;
-      if (coordinatorPubkey == null)
-        throw Exception('No coordinator pubkey for active offer');
-      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
-        coordinatorPubkey,
-      );
-      if (coordinatorInfo == null)
-        throw Exception('No coordinator info found for pubkey');
+      if (coordinatorPubkey == null) throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(coordinatorPubkey);
+      if (coordinatorInfo == null) throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
       setState(() {
         _coordinatorInfo = coordinatorInfo;
-        _reservationDuration = Duration(
-          seconds: coordinatorInfo.reservationSeconds,
-        );
+        _reservationDuration = Duration(seconds: coordinatorInfo.reservationSeconds);
         _isLoadingCoordinatorConfig = false;
       });
     } catch (e) {
       if (!mounted) return;
-      print(
-        "[OfferListScreen] Error loading coordinator info: ${e.toString()}",
-      );
+      print("[OfferListScreen] Error loading coordinator info: ${e.toString()}");
       setState(() {
         _isLoadingCoordinatorConfig = false;
         _coordinatorConfigError = t.system.errors.loadingCoordinatorConfig;
@@ -91,34 +80,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _addressFocusNode.dispose();
     super.dispose();
-  }
-
-  void _startRefreshTimer() {
-    if (_timerActive) return;
-    _timerActive = true;
-    _refreshTimer?.cancel();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ref.invalidate(availableOffersProvider);
-        ref.invalidate(activeOfferProvider);
-      }
-    });
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (mounted) {
-        print("[OfferListScreen] Periodic refresh.");
-        ref.invalidate(availableOffersProvider);
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  void _stopRefreshTimer() {
-    _refreshTimer?.cancel();
-    _timerActive = false;
   }
 
   @override
@@ -134,23 +97,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       padding: const EdgeInsets.all(16.0),
       child: lightningAddressAsync.when(
         loading: () {
-          _stopRefreshTimer();
           return const Center(child: CircularProgressIndicator());
         },
         error: (e, s) {
-          _stopRefreshTimer();
-
-          return Center(
-            child: Text(
-              t.lightningAddress.errors.loading(details: e.toString()),
-            ),
-          );
+          return Center(child: Text(t.lightningAddress.errors.loading(details: e.toString())));
         },
         data: (lightningAddress) {
           // Perform one-time validation when address is loaded
-          if (!_hasValidatedInitialAddress &&
-              lightningAddress != null &&
-              lightningAddress.isNotEmpty) {
+          if (!_hasValidatedInitialAddress && lightningAddress != null && lightningAddress.isNotEmpty) {
             _hasValidatedInitialAddress = true;
             setState(() {
               _isValidating = true;
@@ -166,8 +120,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
           }
 
           if (lightningAddress == null || lightningAddress.isEmpty) {
-            _stopRefreshTimer();
-
             // Only request focus the first time after widget is mounted and input is shown
             if (_requestedFocus && _addressFocusNode.hasFocus) {
               // do nothing, already focused
@@ -186,10 +138,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 children: [
                   Text(
                     t.lightningAddress.prompts.enter,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Form(
@@ -204,19 +153,14 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
+                        if (value == null || value.isEmpty || !value.contains('@')) {
                           return t.lightningAddress.prompts.invalid;
                         }
                         return _validationError;
                       },
                       onChanged: (value) async {
                         if (value.isNotEmpty && value.contains('@')) {
-                          final error = await validateLightningAddress(
-                            value,
-                            t,
-                          );
+                          final error = await validateLightningAddress(value, t);
                           if (mounted) {
                             setState(() {
                               _validationError = error;
@@ -229,29 +173,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         }
                       },
                       onFieldSubmitted: (value) async {
-                        if (_addressFormKey.currentState!.validate() &&
-                            _validationError == null) {
+                        if (_addressFormKey.currentState!.validate() && _validationError == null) {
                           try {
-                            await keyService.saveLightningAddress(
-                              _addressController.text,
-                            );
+                            await keyService.saveLightningAddress(_addressController.text);
                             ref.invalidate(lightningAddressProvider);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.feedback.saved,
-                                ),
-                              ),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(t.lightningAddress.feedback.saved)));
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.errors.saving(
-                                    details: e.toString(),
-                                  ),
-                                ),
-                              ),
+                              SnackBar(content: Text(t.lightningAddress.errors.saving(details: e.toString()))),
                             );
                           }
                         }
@@ -261,27 +192,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_addressFormKey.currentState!.validate() &&
-                          _validationError == null) {
+                      if (_addressFormKey.currentState!.validate() && _validationError == null) {
                         try {
-                          await keyService.saveLightningAddress(
-                            _addressController.text,
-                          );
+                          await keyService.saveLightningAddress(_addressController.text);
                           ref.invalidate(lightningAddressProvider);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(t.lightningAddress.feedback.saved),
-                            ),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(t.lightningAddress.feedback.saved)));
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                t.lightningAddress.errors.saving(
-                                  details: e.toString(),
-                                ),
-                              ),
-                            ),
+                            SnackBar(content: Text(t.lightningAddress.errors.saving(details: e.toString()))),
                           );
                         }
                       }
@@ -295,7 +215,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
           // Lightning address exists, show offers list as before
           _requestedFocus = false;
-          _startRefreshTimer();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -305,38 +224,19 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (_isValidating)
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else if (_validationError == null &&
-                        _hasValidatedInitialAddress)
+                      const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    else if (_validationError == null && _hasValidatedInitialAddress)
                       Tooltip(
                         message: t.lightningAddress.feedback.valid,
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 20,
-                        ),
+                        child: const Icon(Icons.check_circle, color: Colors.green, size: 20),
                       )
                     else if (_validationError != null)
-                      Tooltip(
-                        message: _validationError!,
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                      ),
+                      Tooltip(message: _validationError!, child: const Icon(Icons.error, color: Colors.red, size: 20)),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
                         lightningAddress,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -344,9 +244,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       icon: const Icon(Icons.edit),
                       tooltip: t.lightningAddress.prompts.edit,
                       onPressed: () async {
-                        final editController = TextEditingController(
-                          text: lightningAddress,
-                        );
+                        final editController = TextEditingController(text: lightningAddress);
                         final editFormKey = GlobalKey<FormState>();
                         final editFocusNode = FocusNode();
                         String? editValidationError;
@@ -368,30 +266,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       focusNode: editFocusNode,
                                       keyboardType: TextInputType.emailAddress,
                                       decoration: InputDecoration(
-                                        hintText:
-                                            t.lightningAddress.labels.hint,
-                                        labelText:
-                                            t.lightningAddress.labels.address,
+                                        hintText: t.lightningAddress.labels.hint,
+                                        labelText: t.lightningAddress.labels.address,
                                       ),
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty ||
-                                            !value.contains('@')) {
-                                          return t
-                                              .lightningAddress
-                                              .prompts
-                                              .invalid;
+                                        if (value == null || value.isEmpty || !value.contains('@')) {
+                                          return t.lightningAddress.prompts.invalid;
                                         }
                                         return editValidationError;
                                       },
                                       onChanged: (value) async {
-                                        if (value.isNotEmpty &&
-                                            value.contains('@')) {
-                                          final error =
-                                              await validateLightningAddress(
-                                                value,
-                                                t,
-                                              );
+                                        if (value.isNotEmpty && value.contains('@')) {
+                                          final error = await validateLightningAddress(value, t);
                                           setState(() {
                                             editValidationError = error;
                                           });
@@ -402,43 +288,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         }
                                       },
                                       onFieldSubmitted: (value) async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
+                                        if (editFormKey.currentState!.validate() && editValidationError == null) {
                                           try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
-                                                );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
+                                            await keyService.saveLightningAddress(editController.text);
+                                            ref.invalidate(lightningAddressProvider);
+                                            Navigator.of(context).pop(editController.text);
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text(t.lightningAddress.feedback.updated)),
                                             );
                                           } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
-                                                      ),
-                                                ),
+                                                content: Text(t.lightningAddress.errors.saving(details: e.toString())),
                                               ),
                                             );
                                           }
@@ -448,49 +309,23 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                   ),
                                   actions: [
                                     TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(),
+                                      onPressed: () => Navigator.of(context).pop(),
                                       child: Text(t.common.buttons.cancel),
                                     ),
                                     TextButton(
                                       onPressed: () async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
+                                        if (editFormKey.currentState!.validate() && editValidationError == null) {
                                           try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
-                                                );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
+                                            await keyService.saveLightningAddress(editController.text);
+                                            ref.invalidate(lightningAddressProvider);
+                                            Navigator.of(context).pop(editController.text);
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text(t.lightningAddress.feedback.updated)),
                                             );
                                           } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
-                                                      ),
-                                                ),
+                                                content: Text(t.lightningAddress.errors.saving(details: e.toString())),
                                               ),
                                             );
                                           }
@@ -544,9 +379,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
               Center(
                 child: InkWell(
                   onTap: () async {
-                    final Uri url = Uri.parse(
-                      'https://matrix.to/#/#bitblik-offers:matrix.org',
-                    );
+                    final Uri url = Uri.parse('https://matrix.to/#/#bitblik-offers:matrix.org');
                     await launchUrl(url);
                   },
                   child: Row(
@@ -583,20 +416,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       OfferStatus.expired.name,
                       OfferStatus.cancelled.name,
                     ];
-                    final finishedOffers =
-                        offers
-                            .where(
-                              (offer) =>
-                                  finishedStatuses.contains(offer.status),
-                            )
-                            .toList();
-                    final activeOffers =
-                        offers
-                            .where(
-                              (offer) =>
-                                  !finishedStatuses.contains(offer.status),
-                            )
-                            .toList();
+                    final finishedOffers = offers.where((offer) => finishedStatuses.contains(offer.status)).toList();
+                    final activeOffers = offers.where((offer) => !finishedStatuses.contains(offer.status)).toList();
 
                     final bool showActiveOffersList = activeOffers.isNotEmpty;
 
@@ -607,9 +428,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           Expanded(
                             child: RefreshIndicator(
                               onRefresh: () async {
-                                print(
-                                  "[OfferListScreen] Manual refresh triggered.",
-                                );
+                                print("[OfferListScreen] Manual refresh triggered.");
                                 ref.invalidate(availableOffersProvider);
                                 ref.invalidate(activeOfferProvider);
                                 await ref.read(availableOffersProvider.future);
@@ -618,13 +437,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                 itemCount: activeOffers.length,
                                 itemBuilder: (context, index) {
                                   final offer = activeOffers[index];
-                                  final bool isFunded =
-                                      offer.status == OfferStatus.funded.name;
-                                  final bool isReserved =
-                                      offer.status == OfferStatus.reserved.name;
-                                  final bool isBlikReceived =
-                                      offer.status ==
-                                      OfferStatus.blikReceived.name;
+                                  final bool isFunded = offer.status == OfferStatus.funded.name;
+                                  final bool isReserved = offer.status == OfferStatus.reserved.name;
+                                  final bool isBlikReceived = offer.status == OfferStatus.blikReceived.name;
 
                                   Widget? trailingWidget;
 
@@ -638,141 +453,66 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                               }
 
                                               final takerId = publicKey;
-                                              final apiService = ref.read(
-                                                apiServiceProvider,
-                                              );
-                                              final scaffoldMessenger =
-                                                  ScaffoldMessenger.of(context);
+                                              final apiService = ref.read(apiServiceProvider);
+                                              final scaffoldMessenger = ScaffoldMessenger.of(context);
 
                                               showDialog(
                                                 context: context,
                                                 barrierDismissible: false,
-                                                builder:
-                                                    (context) => const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    ),
+                                                builder: (context) => const Center(child: CircularProgressIndicator()),
                                               );
                                               try {
-                                                final DateTime?
-                                                reservationTimestamp =
-                                                    await apiService
-                                                        .reserveOffer(
-                                                          offer.id,
-                                                          takerId,
-                                                          offer
-                                                              .coordinatorPubkey,
-                                                        );
+                                                final DateTime? reservationTimestamp = await apiService.reserveOffer(
+                                                  offer.id,
+                                                  takerId,
+                                                  offer.coordinatorPubkey,
+                                                );
 
-                                                if (reservationTimestamp !=
-                                                    null) {
-                                                  final Offer
-                                                  updatedOffer = Offer(
+                                                if (reservationTimestamp != null) {
+                                                  final Offer updatedOffer = Offer(
                                                     id: offer.id,
-                                                    amountSats:
-                                                        offer.amountSats,
+                                                    amountSats: offer.amountSats,
                                                     takerFees: offer.takerFees,
                                                     makerFees: offer.makerFees,
-                                                    fiatCurrency:
-                                                        offer.fiatCurrency,
-                                                    fiatAmount:
-                                                        offer.fiatAmount,
-                                                    status:
-                                                        OfferStatus
-                                                            .reserved
-                                                            .name,
-                                                    coordinatorPubkey:
-                                                        offer.coordinatorPubkey,
+                                                    fiatCurrency: offer.fiatCurrency,
+                                                    fiatAmount: offer.fiatAmount,
+                                                    status: OfferStatus.reserved.name,
+                                                    coordinatorPubkey: offer.coordinatorPubkey,
                                                     createdAt: offer.createdAt,
-                                                    makerPubkey:
-                                                        offer.makerPubkey,
+                                                    makerPubkey: offer.makerPubkey,
                                                     takerPubkey: takerId,
-                                                    reservedAt:
-                                                        reservationTimestamp,
-                                                    blikReceivedAt:
-                                                        offer.blikReceivedAt,
+                                                    reservedAt: reservationTimestamp,
+                                                    blikReceivedAt: offer.blikReceivedAt,
                                                     blikCode: offer.blikCode,
-                                                    holdInvoicePaymentHash:
-                                                        offer
-                                                            .holdInvoicePaymentHash,
+                                                    holdInvoicePaymentHash: offer.holdInvoicePaymentHash,
                                                   );
 
-                                                  ref
-                                                      .read(
-                                                        activeOfferProvider
-                                                            .notifier,
-                                                      )
-                                                      .setActiveOffer(
-                                                        updatedOffer,
-                                                      );
-                                                  ref
-                                                      .read(
-                                                        appRoleProvider
-                                                            .notifier,
-                                                      )
-                                                      .state = AppRole.taker;
+                                                  ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
-                                                  context.go(
-                                                    "/submit-blik",
-                                                    extra: updatedOffer,
-                                                  );
+                                                  context.go("/submit-blik", extra: updatedOffer);
                                                 } else {
                                                   Navigator.of(context).pop();
-                                                  ref
-                                                      .read(
-                                                        errorProvider.notifier,
-                                                      )
-                                                      .state = t
-                                                          .reservations
-                                                          .errors
-                                                          .failedNoTimestamp;
-                                                  if (scaffoldMessenger
-                                                      .mounted) {
+                                                  ref.read(errorProvider.notifier).state =
+                                                      t.reservations.errors.failedNoTimestamp;
+                                                  if (scaffoldMessenger.mounted) {
                                                     scaffoldMessenger.showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          t
-                                                              .reservations
-                                                              .errors
-                                                              .failedNoTimestamp,
-                                                        ),
-                                                      ),
+                                                      SnackBar(content: Text(t.reservations.errors.failedNoTimestamp)),
                                                     );
                                                   }
-                                                  ref.invalidate(
-                                                    availableOffersProvider,
-                                                  );
+                                                  ref.invalidate(availableOffersProvider);
                                                 }
                                               } catch (e) {
-                                                if (Navigator.of(
-                                                  context,
-                                                ).canPop()) {
+                                                if (Navigator.of(context).canPop()) {
                                                   Navigator.of(context).pop();
                                                 }
-                                                final errorMsg = t
-                                                    .reservations
-                                                    .errors
-                                                    .failedToReserve(
-                                                      details: e.toString(),
-                                                    );
-                                                ref
-                                                    .read(
-                                                      errorProvider.notifier,
-                                                    )
-                                                    .state = errorMsg;
-                                                if (scaffoldMessenger.mounted) {
-                                                  scaffoldMessenger
-                                                      .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            errorMsg,
-                                                          ),
-                                                        ),
-                                                      );
-                                                }
-                                                ref.invalidate(
-                                                  availableOffersProvider,
+                                                final errorMsg = t.reservations.errors.failedToReserve(
+                                                  details: e.toString(),
                                                 );
+                                                ref.read(errorProvider.notifier).state = errorMsg;
+                                                if (scaffoldMessenger.mounted) {
+                                                  scaffoldMessenger.showSnackBar(SnackBar(content: Text(errorMsg)));
+                                                }
+                                                ref.invalidate(availableOffersProvider);
                                               }
                                             },
                                         orElse: () => null,
@@ -780,97 +520,46 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       child: Text(t.offers.actions.take),
                                     );
                                   } else if (isReserved || isBlikReceived) {
-                                    if (myActiveOffer != null &&
-                                        offer.id == myActiveOffer.id) {
+                                    if (myActiveOffer != null && offer.id == myActiveOffer.id) {
                                       trailingWidget = ElevatedButton(
-                                        child: Text(
-                                          t.offers.actions.resume,
-                                        ),
+                                        child: Text(t.offers.actions.resume),
                                         onPressed: () {
-                                          ref
-                                              .read(
-                                            activeOfferProvider
-                                                .notifier,
-                                          )
-                                              .setActiveOffer(myActiveOffer);
-                                          ref
-                                              .read(
-                                            appRoleProvider.notifier,
-                                          )
-                                              .state = AppRole.taker;
+                                          ref.read(activeOfferProvider.notifier).setActiveOffer(myActiveOffer);
 
                                           // Determine which screen to navigate to based on status
                                           Widget destinationScreen;
-                                          if (myActiveOffer.status ==
-                                              OfferStatus.reserved.name) {
-                                            destinationScreen =
-                                                TakerSubmitBlikScreen(
-                                                  initialOffer: myActiveOffer,
-                                                );
-                                          } else if (myActiveOffer.status ==
-                                              OfferStatus
-                                                  .blikReceived
-                                                  .name ||
-                                              myActiveOffer.status ==
-                                                  OfferStatus
-                                                      .blikSentToMaker
-                                                      .name ||
-                                              myActiveOffer.status ==
-                                                  OfferStatus
-                                                      .makerConfirmed
-                                                      .name) {
-                                            destinationScreen =
-                                                TakerWaitConfirmationScreen(
-                                                  offer: myActiveOffer,
-                                                );
+                                          if (myActiveOffer.status == OfferStatus.reserved.name) {
+                                            destinationScreen = TakerSubmitBlikScreen(initialOffer: myActiveOffer);
+                                          } else if (myActiveOffer.status == OfferStatus.blikReceived.name ||
+                                              myActiveOffer.status == OfferStatus.blikSentToMaker.name ||
+                                              myActiveOffer.status == OfferStatus.makerConfirmed.name) {
+                                            destinationScreen = TakerWaitConfirmationScreen(offer: myActiveOffer);
                                           } else {
                                             print(
-                                              "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer
-                                                  .status}",
+                                              "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer.status}",
                                             );
                                             ScaffoldMessenger.of(
                                               context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .offers
-                                                      .errors
-                                                      .unexpectedState,
-                                                ),
-                                              ),
-                                            );
+                                            ).showSnackBar(SnackBar(content: Text(t.offers.errors.unexpectedState)));
                                             return;
                                           }
 
                                           Navigator.of(
                                             context,
                                             rootNavigator: true,
-                                          ).push(
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                              destinationScreen,
-                                            ),
-                                          );
+                                          ).push(MaterialPageRoute(builder: (context) => destinationScreen));
                                         },
                                       );
                                     } else {
                                       trailingWidget = Text(
                                         offer.status.toUpperCase(),
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold),
                                       );
                                     }
                                   } else {
                                     trailingWidget = Text(
                                       offer.status.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold),
                                     );
                                   }
 
@@ -879,15 +568,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                   return Column(
                                     children: [
                                       Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 5.0,
-                                        ),
+                                        margin: const EdgeInsets.symmetric(vertical: 5.0),
                                         child: ListTile(
                                           title: Text(
                                             t.offers.details.amountWithCurrency(
-                                              amount: formatDouble(
-                                                offer.fiatAmount ?? 0.0,
-                                              ),
+                                              amount: formatDouble(offer.fiatAmount ?? 0.0),
                                               currency: offer.fiatCurrency,
                                             ),
                                           ),
@@ -900,26 +585,18 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       ),
                                       if (isFunded)
                                         FundedOfferProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_funded_${offer.id}',
-                                          ),
+                                          key: ValueKey('progress_funded_${offer.id}'),
                                           createdAt: offer.createdAt,
                                         ),
-                                      if (isReserved &&
-                                          offer.reservedAt != null)
+                                      if (isReserved && offer.reservedAt != null)
                                         ReservationProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
-                                          ),
+                                          key: ValueKey('progress_res_${offer.id}_${_reservationDuration!.inSeconds}'),
                                           reservedAt: offer.reservedAt!,
                                           maxDuration: _reservationDuration!,
                                         ),
-                                      if (isBlikReceived &&
-                                          offer.blikReceivedAt != null)
+                                      if (isBlikReceived && offer.blikReceivedAt != null)
                                         BlikConfirmationProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_blik_${offer.id}',
-                                          ),
+                                          key: ValueKey('progress_blik_${offer.id}'),
                                           blikReceivedAt: offer.blikReceivedAt!,
                                         ),
                                     ],
@@ -931,47 +608,32 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         // Finished offers section
                         if (finishedOffers.isNotEmpty)
                           Padding(
-                            padding: EdgeInsets.only(
-                              top: showActiveOffersList ? 16.0 : 0,
-                            ),
+                            padding: EdgeInsets.only(top: showActiveOffersList ? 16.0 : 0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   t.offers.display.finishedOffers,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const SizedBox(height: 8),
                                 SizedBox(
-                                  height:
-                                      72, // further reduce height for compactness
+                                  height: 72, // further reduce height for compactness
                                   child: Scrollbar(
                                     child: ListView.builder(
                                       shrinkWrap: !showActiveOffersList,
-                                      physics:
-                                          !showActiveOffersList
-                                              ? const NeverScrollableScrollPhysics()
-                                              : null,
+                                      physics: !showActiveOffersList ? const NeverScrollableScrollPhysics() : null,
                                       itemCount: finishedOffers.length,
                                       itemBuilder: (context, index) {
                                         final offer = finishedOffers[index];
                                         return Card(
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 5.0,
-                                          ),
+                                          margin: const EdgeInsets.symmetric(vertical: 5.0),
                                           child: ListTile(
                                             title: Text(
-                                              t.offers.details
-                                                  .amountWithCurrency(
-                                                    amount: formatDouble(
-                                                      offer.fiatAmount ?? 0.0,
-                                                    ),
-                                                    currency:
-                                                        offer.fiatCurrency,
-                                                  ),
+                                              t.offers.details.amountWithCurrency(
+                                                amount: formatDouble(offer.fiatAmount ?? 0.0),
+                                                currency: offer.fiatCurrency,
+                                              ),
                                             ),
                                             subtitle: Text(
                                               '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
@@ -989,22 +651,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       ],
                     );
                   },
-                  loading:
-                      () => const Center(child: CircularProgressIndicator()),
+                  loading: () => const Center(child: CircularProgressIndicator()),
                   error:
                       (error, stackTrace) => Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              t.offers.errors.loading(
-                                details: error.toString(),
-                              ),
-                            ),
+                            Text(t.offers.errors.loading(details: error.toString())),
                             const SizedBox(height: 10),
                             ElevatedButton(
-                              onPressed:
-                                  () => ref.invalidate(availableOffersProvider),
+                              onPressed: () => ref.invalidate(availableOffersProvider),
                               child: Text(t.common.buttons.retry),
                             ),
                           ],
@@ -1013,10 +669,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 ),
               ),
               const Divider(height: 32, thickness: 1),
-              _buildStatsSection(
-                context,
-                ref.watch(successfulOffersStatsProvider),
-              ),
+              _buildStatsSection(context, ref.watch(successfulOffersStatsProvider)),
             ],
           );
         },
@@ -1079,10 +732,7 @@ String _formatTimeAgo(DateTime dateTime) {
   }
 }
 
-Widget _buildStatsSection(
-  BuildContext context,
-  AsyncValue<Map<String, dynamic>> statsAsyncValue,
-) {
+Widget _buildStatsSection(BuildContext context, AsyncValue<Map<String, dynamic>> statsAsyncValue) {
   return statsAsyncValue.when(
     data: (data) {
       final statsMap = data['stats'] as Map<String, dynamic>? ?? {};
@@ -1092,25 +742,16 @@ Widget _buildStatsSection(
       final recentOffersData = data['offers'] as List<dynamic>? ?? [];
       final recentOffers = recentOffersData.cast<Offer>();
 
-      final numberFormat = NumberFormat(
-        "#,##0",
-        'en',
-      ); // Use 'en' locale for numbers
-      final dateFormat =
-          DateFormat.yMd('en').add_Hm(); // Use 'en' locale for dates
+      final numberFormat = NumberFormat("#,##0", 'en'); // Use 'en' locale for numbers
+      final dateFormat = DateFormat.yMd('en').add_Hm(); // Use 'en' locale for dates
 
-      final last7DaysBlikTime =
-          last7Days['avg_time_blik_received_to_created_seconds'] as num?;
-      final last7DaysPaidTime =
-          last7Days['avg_time_taker_paid_to_created_seconds'] as num?;
+      final last7DaysBlikTime = last7Days['avg_time_blik_received_to_created_seconds'] as num?;
+      final last7DaysPaidTime = last7Days['avg_time_taker_paid_to_created_seconds'] as num?;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            t.home.statistics.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
+          Text(t.home.statistics.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 8),
 
           Padding(
@@ -1142,61 +783,41 @@ Widget _buildStatsSection(
                         itemBuilder: (context, index) {
                           final offer = recentOffers[index];
                           return Card(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 2.0,
-                              horizontal: 0,
-                            ), // less margin
+                            margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 0), // less margin
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 4.0,
-                              ), // less padding
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // less padding
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   // Amount and currency
                                   Text(
                                     t.offers.details.amountWithCurrency(
-                                      amount: formatDouble(
-                                        offer.fiatAmount ?? 0.0,
-                                      ),
+                                      amount: formatDouble(offer.fiatAmount ?? 0.0),
                                       currency: offer.fiatCurrency,
                                     ),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                   ),
                                   const SizedBox(width: 10),
                                   // Date (now as time ago)
                                   Text(
                                     _formatTimeAgo(offer.createdAt.toLocal()),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
                                   const SizedBox(width: 10),
                                   // Taken after (if available)
                                   if (offer.timeToReserveSeconds != null)
                                     Text(
                                       t.offers.details.takenAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.timeToReserveSeconds,
-                                        ),
+                                        duration: _formatDurationFromSeconds(offer.timeToReserveSeconds),
                                       ),
                                       style: const TextStyle(fontSize: 12),
                                     ),
-                                  if (offer.timeToReserveSeconds != null)
-                                    const SizedBox(width: 8),
+                                  if (offer.timeToReserveSeconds != null) const SizedBox(width: 8),
                                   // Paid after (if available)
-                                  if (offer.totalCompletionTimeTakerSeconds !=
-                                      null)
+                                  if (offer.totalCompletionTimeTakerSeconds != null)
                                     Text(
                                       t.offers.details.paidAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.totalCompletionTimeTakerSeconds,
-                                        ),
+                                        duration: _formatDurationFromSeconds(offer.totalCompletionTimeTakerSeconds),
                                       ),
                                       style: const TextStyle(fontSize: 12),
                                     ),
@@ -1215,11 +836,6 @@ Widget _buildStatsSection(
       );
     },
     loading: () => const Center(child: CircularProgressIndicator()),
-    error:
-        (error, stackTrace) => Center(
-          child: Text(
-            t.home.statistics.errors.loading(error: error.toString()),
-          ),
-        ),
+    error: (error, stackTrace) => Center(child: Text(t.home.statistics.errors.loading(error: error.toString()))),
   );
 }

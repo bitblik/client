@@ -213,14 +213,14 @@ class ApiServiceNostr {
   }
 
   // GET /offers - via Nostr
-  Future<List<Offer>> listAvailableOffers() async {
-    try {
-      return await _nostrService.listAvailableOffers();
-    } catch (e) {
-      print('Error calling listAvailableOffers: $e');
-      rethrow;
-    }
-  }
+  // Future<List<Offer>> listAvailableOffers() async {
+  //   try {
+  //     return await _nostrService.listAvailableOffers();
+  //   } catch (e) {
+  //     print('Error calling listAvailableOffers: $e');
+  //     rethrow;
+  //   }
+  // }
 
   // POST /offers/{offerId}/reserve - via Nostr
   Future<DateTime?> reserveOffer(
@@ -486,4 +486,9 @@ class ApiServiceNostr {
 
   /// Get current relay URLs
   List<String> get relayUrls => _nostrService.relayUrls;
+
+  Stream<Offer> get offersStream => _nostrService.offersStream;
+
+  Future<void> startOfferSubscription() async =>
+      _nostrService.startOfferSubscription();
 }

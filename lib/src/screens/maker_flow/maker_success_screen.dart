@@ -12,7 +12,6 @@ class MakerSuccessScreen extends ConsumerWidget {
 
   Future<void> _goHome(BuildContext context, WidgetRef ref) async {
     // Reset relevant state providers before going home
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
     await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(holdInvoiceProvider.notifier).state = null;
     ref.read(paymentHashProvider.notifier).state = null;

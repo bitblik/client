@@ -199,7 +199,6 @@ class _TakerPaymentFailedScreenState
                 await ref
                     .read(activeOfferProvider.notifier)
                     .setActiveOffer(null);
-                ref.read(appRoleProvider.notifier).state = AppRole.none;
                 if (mounted) {
                   context.go('/');
                 }

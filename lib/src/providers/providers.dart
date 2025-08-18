@@ -110,11 +110,23 @@ final coordinatorInfoByPubkeyProvider =
       return apiService.getCoordinatorInfoByPubkey(pubkey);
     });
 
-// Provider for fetching the list of available offers
-// Using FutureProvider to handle async loading and errors
-final availableOffersProvider = FutureProvider<List<Offer>>((ref) async {
+// Only initialize the Nostr offer subscription once (global for the app lifetime)
+final offersSubscriptionInitializer = FutureProvider<void>((ref) async {
   final apiService = ref.watch(apiServiceProvider);
-  return apiService.listAvailableOffers();
+  await apiService.startOfferSubscription();
+});
+
+// Provider for real-time list of available offers from Nostr subscription
+final availableOffersProvider = StreamProvider<List<Offer>>((ref) async* {
+  // Depend on single global initializer
+  await ref.watch(offersSubscriptionInitializer.future);
+  final apiService = ref.watch(apiServiceProvider);
+  final offers = <Offer>[];
+  await for (final offer in apiService.offersStream) {
+    offers.removeWhere((o) => o.id == offer.id);
+    offers.add(offer);
+    yield List<Offer>.from(offers.reversed);
+  }
 });
 
 // Provider to hold the currently selected/active offer (if any)
@@ -320,7 +332,7 @@ final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
   final apiService = ref.watch(apiServiceProvider);
-  return apiService.getSuccessfulOffersStats();
+  return {};//apiService.getSuccessfulOffersStats();
 });
 
 // Provider to expose the public key hex.
@@ -337,9 +349,9 @@ final holdInvoiceProvider = StateProvider<String?>((ref) => null);
 final paymentHashProvider = StateProvider<String?>((ref) => null);
 
 // Provider to manage the current role (Maker/Taker) or view state
-enum AppRole { none, maker, taker }
+// enum AppRole { none, maker, taker }
 
-final appRoleProvider = StateProvider<AppRole>((ref) => AppRole.none);
+// final appRoleProvider = StateProvider<AppRole>((ref) => AppRole.none);
 
 // Provider to manage loading states for specific actions
 final isLoadingProvider = StateProvider<bool>((ref) => false);

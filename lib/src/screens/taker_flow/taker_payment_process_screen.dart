@@ -247,7 +247,6 @@ class _PaymentChecklist extends ConsumerWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  ref.read(appRoleProvider.notifier).state = AppRole.none;
                   await ref
                       .read(activeOfferProvider.notifier)
                       .setActiveOffer(null);
