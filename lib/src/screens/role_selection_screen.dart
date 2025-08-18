@@ -106,28 +106,15 @@ class RoleSelectionScreen extends ConsumerWidget {
                 final currentPubKey = publicKeyAsync.value;
                 bool hasActiveOffer = activeOffer != null &&
                     currentPubKey != null;
-                AppRole? activeRole;
-                if (hasActiveOffer) {
-                  if (activeOffer.makerPubkey == currentPubKey) {
-                    activeRole = AppRole.maker;
-                  } else if (activeOffer.takerPubkey == currentPubKey) {
-                    activeRole = AppRole.taker;
-                  } else {
-                    hasActiveOffer = false;
-                  }
-                }
 
                 final isTakerPaid = hasActiveOffer &&
-                    activeOffer!.status == OfferStatus.takerPaid.name;
+                    activeOffer.status == OfferStatus.takerPaid.name;
                 final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ElevatedButton(
                       onPressed: hasRealActiveOffer ? null : () {
-                        ref
-                            .read(appRoleProvider.notifier)
-                            .state = AppRole.maker;
                         context.push("/create");
                       },
                       child: Text(t.maker.roleSelection.button),
@@ -135,9 +122,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: hasRealActiveOffer ? null : () {
-                        ref
-                            .read(appRoleProvider.notifier)
-                            .state = AppRole.taker;
                         context.push("/offers");
                       },
                       child: Text(t.taker.roleSelection.button),
@@ -200,7 +184,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                                 // ref
                                 //     .read(activeOfferProvider.notifier)
                                 //     .setActiveOffer(activeOffer);
-                                    if (activeRole == AppRole.maker) {
                                       if (activeOffer.holdInvoicePaymentHash !=
                                           null) {
                                         ref
@@ -244,9 +227,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                                             ),
                                           );
                                           ref
-                                              .read(appRoleProvider.notifier)
-                                              .state = AppRole.none;
-                                          ref
                                               .read(activeOfferProvider.notifier)
                                               .setActiveOffer(null);
                                         }
@@ -254,10 +234,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                                         _navigateToMakerStep(
                                             context, activeOffer);
                                       }
-                                    } else {
-                                      _navigateToTakerStep(
-                                          context, activeOffer);
-                                    }
                                   },
                         ),
                       ),
