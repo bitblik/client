@@ -172,7 +172,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       // Fetch CoordinatorInfo first
       try {
-        final offer = ref.read(activeOfferProvider);
+        final offer = widget.initialOffer;
         final coordinatorPubkey = offer?.coordinatorPubkey;
         if (coordinatorPubkey != null) {
           _coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
@@ -413,7 +413,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   Future<void> _submitBlik() async {
     _blikInputTimer?.cancel();
 
-    final offer = ref.read(activeOfferProvider);
+    final offer = widget.initialOffer;
     final blikCode = _blikController.text;
     final takerId = ref.read(publicKeyProvider).value;
     final keyService = ref.read(keyServiceProvider);

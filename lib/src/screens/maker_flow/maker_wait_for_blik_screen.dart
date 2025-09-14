@@ -204,8 +204,8 @@ class _MakerWaitForBlikScreenState
         if (publicKey != null) {
           ref.listen<AsyncValue<OfferStatus?>>(
             offerStatusSubscriptionProvider((
-              paymentHash: offer.holdInvoicePaymentHash!,
-              coordinatorPubKey: offer.coordinatorPubkey!,
+              offerId: offer.id,
+              coordinatorPubKey: offer.coordinatorPubkey,
               userPubkey: publicKey,
             )),
             (previous, next) {

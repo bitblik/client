@@ -864,9 +864,8 @@ class NostrService {
     final filter = Filter(
       kinds: [KIND_OFFER_STATUS_UPDATE],
       authors: [coordinatorPubKey],
-      // Only listen to events from this coordinator
       pTags: [userPubkey], // Events tagged to the user's pubkey
-      // since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     );
 
     final response = _ndk.requests.subscription(
