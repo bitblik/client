@@ -116,15 +116,18 @@ final offersSubscriptionInitializer = FutureProvider<void>((ref) async {
   await apiService.startOfferSubscription();
 });
 
+final offers = <Offer>[];
+
 // Provider for real-time list of available offers from Nostr subscription
 final availableOffersProvider = StreamProvider<List<Offer>>((ref) async* {
   // Depend on single global initializer
   await ref.watch(offersSubscriptionInitializer.future);
   final apiService = ref.watch(apiServiceProvider);
-  final offers = <Offer>[];
   await for (final offer in apiService.offersStream) {
     offers.removeWhere((o) => o.id == offer.id);
-    offers.add(offer);
+    if (offer.status == 'funded') {
+      offers.add(offer);
+    }
     yield List<Offer>.from(offers.reversed);
   }
 });
