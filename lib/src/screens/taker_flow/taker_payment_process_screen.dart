@@ -81,8 +81,8 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
 
         final statusAsyncValue = ref.watch(
           offerStatusSubscriptionProvider((
-            paymentHash: offer.holdInvoicePaymentHash!,
-            coordinatorPubKey: offer.coordinatorPubkey!,
+            offerId: offer.id,
+            coordinatorPubKey: offer.coordinatorPubkey,
             userPubkey: publicKey,
           )),
         );

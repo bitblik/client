@@ -152,16 +152,11 @@ class _TakerWaitConfirmationScreenState
           if (publicKey == null) {
             return Center(child: Text(t.system.errors.noPublicKey));
           }
-          final offer = ref.watch(activeOfferProvider);
-          if (offer == null ||
-              offer.holdInvoicePaymentHash == null ||
-              offer.coordinatorPubkey == null) {
-            return Center(child: Text('Missing offer details'));
-          }
+          final offer = widget.offer;
           final statusAsyncValue = ref.watch(
             offerStatusSubscriptionProvider((
-              paymentHash: offer.holdInvoicePaymentHash!,
-              coordinatorPubKey: offer.coordinatorPubkey!,
+              offerId: offer.id,
+              coordinatorPubKey: offer.coordinatorPubkey,
               userPubkey: publicKey,
             )),
           );

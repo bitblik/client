@@ -206,14 +206,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                                         );
                                         try {
                                           ref.read(apiServiceProvider);
-                                          final makerId = ref
-                                              .read(publicKeyProvider)
-                                              .value;
-                                          if (makerId == null) {
-                                            throw Exception(t.offers.errors
-                                                .makerPublicKeyNotFound);
+                                          if (currentPubKey == activeOffer.makerPubkey) {
+                                            context.go('/confirm-blik');
+                                          } else if (currentPubKey == activeOffer.takerPubkey) {
+                                            context.go('/wait-confirmation', extra: activeOffer);
                                           }
-                                          context.go('/confirm-blik');
                                         } catch (e) {
                                           Navigator.of(context).pop();
                                           ScaffoldMessenger

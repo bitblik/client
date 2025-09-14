@@ -86,6 +86,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final router = GoRouter.of(context);
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
 
@@ -435,7 +436,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               },
                               child: ListView.builder(
                                 itemCount: activeOffers.length,
-                                itemBuilder: (context, index) {
+                                itemBuilder: (innerContext, index) {
                                   final offer = activeOffers[index];
                                   final bool isFunded = offer.status == OfferStatus.funded.name;
                                   final bool isReserved = offer.status == OfferStatus.reserved.name;
@@ -447,7 +448,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     trailingWidget = ElevatedButton(
                                       onPressed: publicKeyAsyncValue.maybeWhen(
                                         data:
-                                            (publicKey) => () async {
+                                            (publicKey) => ()  {
                                               if (publicKey == null) {
                                                 return;
                                               }
@@ -462,11 +463,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                 builder: (context) => const Center(child: CircularProgressIndicator()),
                                               );
                                               try {
-                                                final DateTime? reservationTimestamp = await apiService.reserveOffer(
+                                                // final DateTime?  =
+                                                apiService.reserveOffer(
                                                   offer.id,
                                                   takerId,
                                                   offer.coordinatorPubkey,
-                                                );
+                                                ).then((reservationTimestamp) {
 
                                                 if (reservationTimestamp != null) {
                                                   final Offer updatedOffer = Offer(
@@ -489,7 +491,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
                                                   ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
-                                                  context.go("/submit-blik", extra: updatedOffer);
+                                                  router.go("/submit-blik", extra: updatedOffer);
                                                 } else {
                                                   Navigator.of(context).pop();
                                                   ref.read(errorProvider.notifier).state =
@@ -501,6 +503,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                   }
                                                   ref.invalidate(availableOffersProvider);
                                                 }
+                                                });
                                               } catch (e) {
                                                 if (Navigator.of(context).canPop()) {
                                                   Navigator.of(context).pop();

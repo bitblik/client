@@ -125,8 +125,8 @@ class _TakerPaymentFailedScreenState
         if (publicKey != null) {
           ref.listen<AsyncValue<OfferStatus?>>(
             offerStatusSubscriptionProvider((
-              paymentHash: widget.offer.holdInvoicePaymentHash!,
-              coordinatorPubKey: widget.offer.coordinatorPubkey!,
+              offerId: widget.offer.id,
+              coordinatorPubKey: widget.offer.coordinatorPubkey,
               userPubkey: publicKey,
             )),
             (previous, next) {

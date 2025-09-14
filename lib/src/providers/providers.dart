@@ -284,13 +284,13 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
 final offerStatusSubscriptionProvider = StreamProvider.autoDispose.family<
   OfferStatus?, // Yields the OfferStatus enum or null
   ({
-    String paymentHash,
+    String offerId,
     String coordinatorPubKey,
     String userPubkey,
   }) // Takes paymentHash, coordinatorPubKey, and userPubkey as parameters
 >((ref, params) async* {
   final apiService = ref.watch(apiServiceProvider);
-  final paymentHash = params.paymentHash;
+  final offerId = params.offerId;
   final coordinatorPubKey = params.coordinatorPubKey;
   final userPubkey = params.userPubkey;
 
@@ -310,7 +310,7 @@ final offerStatusSubscriptionProvider = StreamProvider.autoDispose.family<
   // Listen for status updates via Nostr subscription
   await for (final statusUpdate in apiService.offerStatusStream) {
     // Only process updates for the specific payment hash
-    if (statusUpdate.paymentHash == paymentHash) {
+    if (statusUpdate.offerId == offerId) {
       final status = parseStatus(statusUpdate.status);
       yield status;
 
@@ -320,7 +320,7 @@ final offerStatusSubscriptionProvider = StreamProvider.autoDispose.family<
           status == OfferStatus.expired ||
           status == OfferStatus.cancelled) {
         print(
-          "Offer $paymentHash reached final state: $status. Stopping status subscription.",
+          "Offer $offerId reached final state: $status. Stopping status subscription.",
         );
         break;
       }

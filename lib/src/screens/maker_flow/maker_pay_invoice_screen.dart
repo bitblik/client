@@ -177,7 +177,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
         if (publicKey != null) {
           ref.listen<AsyncValue<OfferStatus?>>(
             offerStatusSubscriptionProvider((
-              paymentHash: offer.holdInvoicePaymentHash!,
+              offerId: offer.id,
               coordinatorPubKey: offer.coordinatorPubkey,
               userPubkey: publicKey,
             )),
