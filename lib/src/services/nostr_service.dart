@@ -123,7 +123,7 @@ class NostrService {
   static const String _relayUrlsKey = 'relay_urls';
 
   static const List<String> _defaultRelayUrls = [
-    'wss://relay.damus.io',
+    // 'wss://relay.damus.io',
     'wss://relay.primal.net',
     'wss://relay.mostro.network',
   ];
@@ -382,6 +382,7 @@ class NostrService {
   /// Get a stream of all live offers published (subscribe before listening!)
   Stream<Offer> get offersStream => _offerStreamController.stream;
 
+
   /// Start listening for offers (subscribe to event kind 38383 from all coordinators)
   Future<void> startOfferSubscription() async {
     if (!_isInitialized) {
@@ -396,7 +397,7 @@ class NostrService {
       kinds: [KIND_OFFER],
       tags: {
         "#f": ["PLN"],
-        "#s": ['pending'],
+//        "#s": ['pending'],
       //   "#y": ["Bitblik"],
       //   // "#pm": ["BLIK"],
       },
@@ -429,7 +430,7 @@ class NostrService {
         makerFees: int.tryParse(tagMap['maker_fees'] ?? '0') ?? 0,
         fiatAmount: double.tryParse(tagMap['fa'] ?? '0') ?? 0.0,
         fiatCurrency: tagMap['f'] ?? 'PLN',
-        status: OfferStatus.funded.name,
+        status: (_mapOfferStatusToNip69Status(tagMap['s']??'pending') ?? OfferStatus.funded).name,
         createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
         makerPubkey: tagMap['maker'] ?? event.pubKey,
         coordinatorPubkey: tagMap['p'] ?? event.pubKey,
@@ -454,6 +455,25 @@ class NostrService {
       print('❌ Error parsing offer event: $e');
     }
   }
+
+  /// Map internal offer status to NIP-69 status
+  OfferStatus? _mapOfferStatusToNip69Status(String status) {
+    switch (status) {
+      case 'pending':
+        return OfferStatus.funded;
+      case 'in-progress':
+        return OfferStatus.reserved;
+      case 'success':
+        return OfferStatus.takerPaid;
+      case 'canceled':
+        return OfferStatus.cancelled;
+      case 'dispute':
+        return OfferStatus.conflict;
+      default:
+        return null;
+    }
+  }
+
 
   /// Stop the live offer subscription
   Future<void> stopOfferSubscription() async {
