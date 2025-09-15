@@ -177,7 +177,7 @@ class _TakerWaitConfirmationScreenState
                 ),
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => _buildWaitingContent(context, offer),
             error: (e, s) => Center(child: Text('Error: ${e.toString()}')),
           );
         },
