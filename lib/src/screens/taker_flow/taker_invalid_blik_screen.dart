@@ -216,9 +216,10 @@ class _TakerInvalidBlikScreenState
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () async {
-                  await ref
-                      .read(activeOfferProvider.notifier)
-                      .setActiveOffer(null);
+                  // PILA no no no, we should cancel the reservation and go back to funded, TODO!!!!
+                  // await ref
+                  //     .read(activeOfferProvider.notifier)
+                  //     .setActiveOffer(null);
                   context.go('/offers');
                 },
                 child: Text(t.common.actions.cancelAndReturnToOffers),
