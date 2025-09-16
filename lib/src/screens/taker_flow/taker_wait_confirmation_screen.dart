@@ -153,14 +153,14 @@ class _TakerWaitConfirmationScreenState
         print(
           "[TakerWaitConfirmation] Status is $currentStatusEnum. Navigating to process screen.",
         );
-        final paymentHash = offer.holdInvoicePaymentHash;
-        if (paymentHash != null) {
-          ref.read(paymentHashProvider.notifier).state = paymentHash;
+        // final paymentHash = offer.holdInvoicePaymentHash;
+        // if (paymentHash != null) {
+        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
           _confirmationTimer?.cancel();
           context.go("/paying-taker");
-        } else {
-          _resetToOfferList(t.system.errors.internalOfferIncomplete);
-        }
+        // } else {
+        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        // }
       } else if (currentStatusEnum == OfferStatus.invalidBlik) {
         _confirmationTimer?.cancel();
         context.go('/taker-invalid-blik', extra: offer);
@@ -168,14 +168,14 @@ class _TakerWaitConfirmationScreenState
         _confirmationTimer?.cancel();
         context.go('/taker-conflict', extra: offer.id);
       } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
-        final paymentHash = offer.holdInvoicePaymentHash;
-        if (paymentHash != null) {
-          ref.read(paymentHashProvider.notifier).state = paymentHash;
+        // final paymentHash = offer.holdInvoicePaymentHash;
+        // if (paymentHash != null) {
+        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
           _confirmationTimer?.cancel();
           context.go('/paying-taker');
-        } else {
-          _resetToOfferList(t.system.errors.internalOfferIncomplete);
-        }
+        // } else {
+        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        // }
       } else if (currentStatusEnum != OfferStatus.blikReceived &&
           currentStatusEnum != OfferStatus.blikSentToMaker) {
         _resetToOfferList(
