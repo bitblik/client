@@ -544,6 +544,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   try {
                     await keyService.savePrivateKey(privateKeyController.text);
 
+                    // Clear the active offer when restoring a new key
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(null);
+
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
                     ref.invalidate(apiServiceProvider);
