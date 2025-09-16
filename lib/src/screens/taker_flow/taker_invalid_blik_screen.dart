@@ -153,7 +153,6 @@ class _TakerInvalidBlikScreenState
                             );
                             await apiService.markOfferConflict(
                               offer.id,
-                              userPublicKey,
                               offer.coordinatorPubkey,
                             );
 

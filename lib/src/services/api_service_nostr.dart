@@ -407,13 +407,11 @@ class ApiServiceNostr {
   // POST /offers/{offerId}/conflict - via Nostr
   Future<void> markOfferConflict(
     String offerId,
-    String takerId,
     String coordinatorPubKey,
   ) async {
     try {
       await _nostrService.markOfferConflict(
         offerId,
-        takerId,
         coordinatorPubKey,
       );
     } catch (e) {
@@ -422,14 +420,19 @@ class ApiServiceNostr {
     }
   }
 
-  // POST /offers/{offerId}/dispute - This might not be needed in Nostr version
-  // or could be implemented as a separate dispute resolution mechanism
-  Future<void> openDispute(String offerId, String makerLnAddress) async {
-    // TODO: Implement dispute mechanism for Nostr version
-    // This could involve creating a special event or using a different approach
-    throw UnimplementedError(
-      'Dispute mechanism not yet implemented for Nostr version',
-    );
+  Future<void> openDispute(
+      String offerId,
+      String coordinatorPubKey,
+      ) async {
+    try {
+      await _nostrService.openDispute(
+        offerId,
+        coordinatorPubKey,
+      );
+    } catch (e) {
+      print('Error calling markOfferConflict: $e');
+      rethrow;
+    }
   }
 
   /// Get coordinator info by pubkey
