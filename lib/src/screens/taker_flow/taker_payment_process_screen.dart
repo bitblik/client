@@ -48,12 +48,15 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child:
-              paymentHash == null
-                  ? _buildErrorContent(
-                    context,
-                    t.taker.paymentProcess.errors.missingPaymentHash,
-                  )
-                  : _buildPollingContent(context, ref, paymentHash),
+              // paymentHash == null
+              //     ? _buildErrorContent(
+              //       context,
+              //       t.taker.paymentProcess.errors.missingPaymentHash,
+              //     )
+              //     :
+              _buildPollingContent(context, ref
+                  // , paymentHash
+              ),
         ),
       ),
     );
@@ -62,7 +65,7 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
   Widget _buildPollingContent(
     BuildContext context,
     WidgetRef ref,
-    String paymentHash,
+    // String paymentHash,
   ) {
     // Watch the active offer for real-time updates
     final offer = ref.watch(activeOfferProvider);
@@ -94,7 +97,7 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
     // Build the checklist UI based on the current status from the active offer
     return _PaymentChecklist(
       currentStatus: currentStatus,
-      paymentHash: paymentHash, // Pass paymentHash
+      // paymentHash: paymentHash, // Pass paymentHash
     );
   }
 
@@ -131,11 +134,11 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
 class _PaymentChecklist extends ConsumerWidget {
   // Make ConsumerWidget
   final OfferStatus currentStatus;
-  final String paymentHash; // Add paymentHash field
+  // final String paymentHash; // Add paymentHash field
 
   const _PaymentChecklist({
     required this.currentStatus,
-    required this.paymentHash, // Add paymentHash to constructor
+    // required this.paymentHash, // Add paymentHash to constructor
   });
 
   String _getStepText(PaymentStep step) {
@@ -202,7 +205,7 @@ class _PaymentChecklist extends ConsumerWidget {
             return _ChecklistItem(
               text: itemText,
               status: itemStatus,
-              paymentHash: paymentHash, // Pass paymentHash down
+              // paymentHash: paymentHash, // Pass paymentHash down
               isLastError:
                   isFailed && stepOrderIndex == successfulStepsOrder.length - 1,
             );
@@ -242,13 +245,13 @@ class _ChecklistItem extends ConsumerWidget {
   // Make ConsumerWidget
   final String text;
   final ChecklistItemStatus status;
-  final String paymentHash; // Add paymentHash field
+  // final String paymentHash; // Add paymentHash field
   final bool isLastError;
 
   const _ChecklistItem({
     required this.text,
     required this.status,
-    required this.paymentHash, // Add paymentHash to constructor
+    // required this.paymentHash, // Add paymentHash to constructor
     this.isLastError = false,
   });
 
