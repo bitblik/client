@@ -743,7 +743,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           }
                         }
                       },
-                      child: Icon(Icons.android, size: 32, color: Colors.green),
+                      child: Image.asset(
+                        'assets/apk.png',
+                        width: 100,
+                        height: 31,
+                        fit: BoxFit.contain,
+                      ),
+                      //  Icon(Icons.android, size: 32, color: Colors.green),
                     ),
                     const SizedBox(width: 16),
                     InkWell(
@@ -765,53 +771,57 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               data:
                   (publicKey) =>
                       publicKey != null
-                          ? GestureDetector(
-                            onTap: _showNekoInfoDialog,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  t.neko.yourNeko,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(width: 4),
-                                CachedNetworkImage(
-                                  imageUrl:
-                                      'https://robohash.org/$publicKey?set=set4',
-                                  placeholder:
-                                      (context, url) =>
-                                          const CircularProgressIndicator(),
-                                  errorWidget:
-                                      (context, url, error) =>
-                                          const Icon(Icons.error),
-                                  width: 24,
-                                  height: 24,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: SelectableText(
-                                    '${publicKey.substring(0, 10)}...',
+                          ? MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: _showNekoInfoDialog,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    t.neko.yourNeko,
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
-                                    textAlign: TextAlign.left,
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.backup),
-                                  tooltip: 'Backup Neko',
-                                  onPressed: _showBackupDialog,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.restore),
-                                  tooltip: 'Restore Neko',
-                                  onPressed: _showRestoreDialog,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.refresh),
-                                  tooltip: 'Generate New Neko',
-                                  onPressed: _showGenerateNewKeyDialog,
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  CachedNetworkImage(
+                                    imageUrl:
+                                        'https://robohash.org/$publicKey?set=set4',
+                                    placeholder:
+                                        (context, url) =>
+                                            const CircularProgressIndicator(),
+                                    errorWidget:
+                                        (context, url, error) =>
+                                            const Icon(Icons.error),
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      '${publicKey.substring(0, 10)}...',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.backup),
+                                    tooltip: 'Backup Neko',
+                                    onPressed: _showBackupDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.restore),
+                                    tooltip: 'Restore Neko',
+                                    onPressed: _showRestoreDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.refresh),
+                                    tooltip: 'Generate New Neko',
+                                    onPressed: _showGenerateNewKeyDialog,
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                           : const SizedBox.shrink(),
