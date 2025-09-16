@@ -47,6 +47,10 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsMakerPl maker = _TranslationsMakerPl._(_root);
 	@override late final _TranslationsTakerPl taker = _TranslationsTakerPl._(_root);
 	@override late final _TranslationsBlikPl blik = _TranslationsBlikPl._(_root);
+	@override late final _TranslationsNekoInfoPl nekoInfo = _TranslationsNekoInfoPl._(_root);
+	@override late final _TranslationsGenerateNewKeyPl generateNewKey = _TranslationsGenerateNewKeyPl._(_root);
+	@override late final _TranslationsBackupPl backup = _TranslationsBackupPl._(_root);
+	@override late final _TranslationsRestorePl restore = _TranslationsRestorePl._(_root);
 	@override late final _TranslationsHomePl home = _TranslationsHomePl._(_root);
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
 }
@@ -171,6 +175,57 @@ class _TranslationsBlikPl extends TranslationsBlikEn {
 
 	// Translations
 	@override late final _TranslationsBlikInstructionsPl instructions = _TranslationsBlikInstructionsPl._(_root);
+}
+
+// Path: nekoInfo
+class _TranslationsNekoInfoPl extends TranslationsNekoInfoEn {
+	_TranslationsNekoInfoPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Czym jest Neko?';
+	@override String get description => 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.';
+}
+
+// Path: generateNewKey
+class _TranslationsGenerateNewKeyPl extends TranslationsGenerateNewKeyEn {
+	_TranslationsGenerateNewKeyPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Wygeneruj nowe Neko';
+	@override String get description => 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
+	@override late final _TranslationsGenerateNewKeyButtonsPl buttons = _TranslationsGenerateNewKeyButtonsPl._(_root);
+	@override late final _TranslationsGenerateNewKeyErrorsPl errors = _TranslationsGenerateNewKeyErrorsPl._(_root);
+	@override late final _TranslationsGenerateNewKeyFeedbackPl feedback = _TranslationsGenerateNewKeyFeedbackPl._(_root);
+}
+
+// Path: backup
+class _TranslationsBackupPl extends TranslationsBackupEn {
+	_TranslationsBackupPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Zarchiwizuj Neko';
+	@override String get description => 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
+	@override late final _TranslationsBackupFeedbackPl feedback = _TranslationsBackupFeedbackPl._(_root);
+}
+
+// Path: restore
+class _TranslationsRestorePl extends TranslationsRestoreEn {
+	_TranslationsRestorePl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Przywróć Neko';
+	@override late final _TranslationsRestoreLabelsPl labels = _TranslationsRestoreLabelsPl._(_root);
+	@override late final _TranslationsRestoreButtonsPl buttons = _TranslationsRestoreButtonsPl._(_root);
+	@override late final _TranslationsRestoreErrorsPl errors = _TranslationsRestoreErrorsPl._(_root);
+	@override late final _TranslationsRestoreFeedbackPl feedback = _TranslationsRestoreFeedbackPl._(_root);
 }
 
 // Path: home
@@ -732,6 +787,88 @@ class _TranslationsBlikInstructionsPl extends TranslationsBlikInstructionsEn {
 
 	// Translations
 	@override String get taker => 'Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem.';
+}
+
+// Path: generateNewKey.buttons
+class _TranslationsGenerateNewKeyButtonsPl extends TranslationsGenerateNewKeyButtonsEn {
+	_TranslationsGenerateNewKeyButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get generate => 'Generuj';
+}
+
+// Path: generateNewKey.errors
+class _TranslationsGenerateNewKeyErrorsPl extends TranslationsGenerateNewKeyErrorsEn {
+	_TranslationsGenerateNewKeyErrorsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get activeOffer => 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
+	@override String get failed => 'Nie udało się wygenerować nowego Neko';
+}
+
+// Path: generateNewKey.feedback
+class _TranslationsGenerateNewKeyFeedbackPl extends TranslationsGenerateNewKeyFeedbackEn {
+	_TranslationsGenerateNewKeyFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get success => 'Nowe Neko wygenerowane pomyślnie!';
+}
+
+// Path: backup.feedback
+class _TranslationsBackupFeedbackPl extends TranslationsBackupFeedbackEn {
+	_TranslationsBackupFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get copied => 'Klucz prywatny skopiowany do schowka!';
+}
+
+// Path: restore.labels
+class _TranslationsRestoreLabelsPl extends TranslationsRestoreLabelsEn {
+	_TranslationsRestoreLabelsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get privateKey => 'Klucz prywatny';
+}
+
+// Path: restore.buttons
+class _TranslationsRestoreButtonsPl extends TranslationsRestoreButtonsEn {
+	_TranslationsRestoreButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get restore => 'Przywróć';
+}
+
+// Path: restore.errors
+class _TranslationsRestoreErrorsPl extends TranslationsRestoreErrorsEn {
+	_TranslationsRestoreErrorsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get invalidKey => 'Musi to być 64-znakowy ciąg szesnastkowy.';
+	@override String get failed => 'Przywracanie nie powiodło się';
+}
+
+// Path: restore.feedback
+class _TranslationsRestoreFeedbackPl extends TranslationsRestoreFeedbackEn {
+	_TranslationsRestoreFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get success => 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
 }
 
 // Path: home.notifications
@@ -1457,6 +1594,23 @@ extension on TranslationsPl {
 			case 'taker.conflict.feedback.reported': return 'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';
 			case 'taker.conflict.errors.reporting': return ({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 			case 'blik.instructions.taker': return 'Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem.';
+			case 'nekoInfo.title': return 'Czym jest Neko?';
+			case 'nekoInfo.description': return 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.';
+			case 'generateNewKey.title': return 'Wygeneruj nowe Neko';
+			case 'generateNewKey.description': return 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
+			case 'generateNewKey.buttons.generate': return 'Generuj';
+			case 'generateNewKey.errors.activeOffer': return 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
+			case 'generateNewKey.errors.failed': return 'Nie udało się wygenerować nowego Neko';
+			case 'generateNewKey.feedback.success': return 'Nowe Neko wygenerowane pomyślnie!';
+			case 'backup.title': return 'Zarchiwizuj Neko';
+			case 'backup.description': return 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
+			case 'backup.feedback.copied': return 'Klucz prywatny skopiowany do schowka!';
+			case 'restore.title': return 'Przywróć Neko';
+			case 'restore.labels.privateKey': return 'Klucz prywatny';
+			case 'restore.buttons.restore': return 'Przywróć';
+			case 'restore.errors.invalidKey': return 'Musi to być 64-znakowy ciąg szesnastkowy.';
+			case 'restore.errors.failed': return 'Przywracanie nie powiodło się';
+			case 'restore.feedback.success': return 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
 			case 'home.notifications.simplex': return 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
 			case 'home.notifications.element': return 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
 			case 'home.statistics.title': return 'Ostatnie Transakcje';

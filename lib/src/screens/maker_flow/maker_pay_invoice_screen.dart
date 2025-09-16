@@ -54,7 +54,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   // --- Status Update Handler ---
   void _handleStatusUpdate(OfferStatus? status) async {
-    if (status == null) return;
+    if (status == null || !mounted) return;
 
     print('[MakerPayInvoiceScreen] Status update received: $status');
 
@@ -71,7 +71,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
       throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
     }
 
-    Map<String,dynamic> json =offer.toJson();
+    Map<String, dynamic> json = offer.toJson();
 
     json['id'] = fullOfferData['id'];
     json['status'] = fullOfferData['status'];
@@ -155,41 +155,19 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final holdInvoiceFromProvider = ref.watch(holdInvoiceProvider);
     final offer = ref.watch(activeOfferProvider);
-    final publicKeyAsync = ref.watch(publicKeyProvider);
 
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        _handleStatusUpdate(next.statusEnum);
+      }
+    });
+
+    final holdInvoiceFromProvider = ref.watch(holdInvoiceProvider);
     // Get hold invoice from either provider or active offer
     final holdInvoice = holdInvoiceFromProvider ?? offer?.holdInvoice;
 
-    // Debug logging
-    print(
-      '[MakerPayInvoiceScreen] holdInvoiceFromProvider: $holdInvoiceFromProvider',
-    );
-    print('[MakerPayInvoiceScreen] offer?.holdInvoice: ${offer?.holdInvoice}');
-    print('[MakerPayInvoiceScreen] final holdInvoice: $holdInvoice');
-    print('[MakerPayInvoiceScreen] offer: ${offer?.toJson()}');
-
-    // Set up status subscription
-    if (offer != null &&
-        offer.holdInvoicePaymentHash != null) {
-      publicKeyAsync.whenData((publicKey) {
-        if (publicKey != null) {
-          ref.listen<AsyncValue<OfferStatus?>>(
-            offerStatusSubscriptionProvider((
-              offerId: offer.id,
-              coordinatorPubKey: offer.coordinatorPubkey,
-              userPubkey: publicKey,
-            )),
-            (previous, next) {
-              next.whenData((status) {
-                _handleStatusUpdate(status);
-              });
-            },
-          );
-        }
-      });
-    }
     // WebLN auto-pay logic
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
       print("isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment");
@@ -202,22 +180,14 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             }
           })
           .catchError((e) {
-            // if (mounted) {
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(
-            //       content: Text('WebLN payment failed: $e'),
-            //     ), // Can be localized if needed
-            //   );
-            // }
+            // Handle error if needed
           });
     }
 
     // Add Scaffold wrapper
     return Builder(
-      // Use Builder to get context below Scaffold if needed for SnackBar
       builder: (context) {
         if (holdInvoice == null) {
-          // This can happen when resuming an existing offer that doesn't have the hold invoice stored
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -256,10 +226,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 15),
-                // Amount info: sats, fiat, fee
                 Builder(
                   builder: (context) {
-                    final offer = ref.watch(activeOfferProvider);
                     if (offer == null) return const SizedBox.shrink();
                     final sats = offer.amountSats;
                     final fiat = offer.fiatAmount ?? 0.0;
@@ -281,7 +249,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "$sats sats", // This can be localized if needed: t.offers.details.amount(amount: sats.toString())
+                          "$sats sats",
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -290,7 +258,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          // This complex string can be localized if needed
                           "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: Colors.grey[700], fontSize: 13),
@@ -301,7 +268,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   },
                 ),
                 const SizedBox(height: 15),
-                // Display QR Code (tappable)
                 Center(
                   child: GestureDetector(
                     onTap: () => _launchLightningUrl(holdInvoice),
@@ -309,7 +275,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                       data: holdInvoice.toUpperCase(),
                       version: QrVersions.auto,
                       size: 300.0,
-                      backgroundColor: Colors.white, // Ensure QR is visible
+                      backgroundColor: Colors.white,
                     ),
                   ),
                 ),
@@ -320,9 +286,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   runSpacing: 8,
                   children: [
                     ElevatedButton.icon(
-                      icon: const Icon(
-                        Icons.account_balance_wallet,
-                      ), // Or another appropriate icon
+                      icon: const Icon(Icons.account_balance_wallet),
                       label: Text(t.maker.payInvoice.actions.payInWallet),
                       onPressed: () => _launchLightningUrl(holdInvoice),
                     ),
@@ -355,7 +319,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   ],
                 ),
                 const SizedBox(height: 25),
-                // Polling status indicator
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -369,7 +332,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   ],
                 ),
                 const SizedBox(height: 15),
-                // Display Invoice String (selectable and tappable)
                 InkWell(
                   onTap: () => _launchLightningUrl(holdInvoice),
                   child: Padding(

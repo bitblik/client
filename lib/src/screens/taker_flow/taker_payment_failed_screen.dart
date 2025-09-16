@@ -112,32 +112,22 @@ class _TakerPaymentFailedScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Listen to the activeOfferProvider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null && next.id == widget.offer.id) {
+        try {
+          final status = OfferStatus.values.byName(next.status);
+          _handleStatusUpdate(status);
+        } catch (e) {
+          print("Error parsing offer status in TakerPaymentFailedScreen: $e");
+        }
+      }
+    });
+
     // Calculate net amount (moved here for access to widget.offer)
     final takerFees =
         widget.offer.takerFees ?? (widget.offer.amountSats * 0.005).ceil();
     final netAmountSats = widget.offer.amountSats - takerFees;
-
-    // Set up status subscription
-    final publicKeyAsync = ref.watch(publicKeyProvider);
-    if (widget.offer.holdInvoicePaymentHash != null &&
-        widget.offer.coordinatorPubkey != null) {
-      publicKeyAsync.whenData((publicKey) {
-        if (publicKey != null) {
-          ref.listen<AsyncValue<OfferStatus?>>(
-            offerStatusSubscriptionProvider((
-              offerId: widget.offer.id,
-              coordinatorPubKey: widget.offer.coordinatorPubkey,
-              userPubkey: publicKey,
-            )),
-            (previous, next) {
-              next.whenData((status) {
-                _handleStatusUpdate(status);
-              });
-            },
-          );
-        }
-      });
-    }
 
     return Scaffold(
       appBar: AppBar(

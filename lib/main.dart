@@ -28,7 +28,9 @@ import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
 import 'src/screens/faq_screen.dart'; // Import the FAQ screen
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 import 'package:app_links/app_links.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -240,6 +242,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         // Start coordinator discovery
         ref.read(coordinatorDiscoveryProvider);
 
+        // Initialize the offer status subscription manager
+        ref.read(offerStatusSubscriptionManagerProvider);
+
         print(
           '🚀 App initialized: API service and coordinator discovery started',
         );
@@ -336,6 +341,251 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _showNekoInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.nekoInfo.title),
+          content: Text(t.nekoInfo.description),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showGenerateNewKeyDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final activeOffer = ref.read(activeOfferProvider);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.generateNewKey.title),
+          content: Text(
+            activeOffer != null
+                ? t.generateNewKey.errors.activeOffer
+                : t.generateNewKey.description,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            if (activeOffer == null)
+              TextButton(
+                child: Text(t.generateNewKey.buttons.generate),
+                onPressed: () async {
+                  try {
+                    await keyService.generateNewKeyPair();
+
+                    // Invalidate providers to force re-initialization
+                    ref.invalidate(keyServiceProvider);
+                    ref.invalidate(apiServiceProvider);
+                    ref.invalidate(initializedApiServiceProvider);
+                    ref.invalidate(publicKeyProvider);
+                    ref.invalidate(coordinatorDiscoveryProvider);
+
+                    // Show loading indicator
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
+                    );
+
+                    // Re-initialize services
+                    await ref.read(initializedApiServiceProvider.future);
+                    ref.read(coordinatorDiscoveryProvider);
+
+                    Navigator.of(context).pop(); // Close loading dialog
+                    Navigator.of(context).pop(); // Close generate key dialog
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t.generateNewKey.feedback.success),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  // --- Backup and Restore Dialogs ---
+
+  void _showBackupDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final privateKey = keyService.privateKeyHex;
+    if (privateKey == null) return;
+
+    bool isRevealed = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(t.backup.title),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(t.backup.description),
+                    const SizedBox(height: 16),
+                    Text(
+                      isRevealed
+                          ? privateKey
+                          : '****************************************************************',
+                      style: const TextStyle(fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton.icon(
+                  icon: Icon(
+                    isRevealed ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  label: Text(
+                    isRevealed
+                        ? t.common.buttons.hide
+                        : t.common.buttons.reveal,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isRevealed = !isRevealed;
+                    });
+                  },
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.copy),
+                  label: Text(t.common.buttons.copy),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: privateKey));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.backup.feedback.copied)),
+                    );
+                  },
+                ),
+                TextButton(
+                  child: Text(t.common.buttons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showRestoreDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final TextEditingController privateKeyController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.restore.title),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: privateKeyController,
+              decoration: InputDecoration(
+                labelText: t.restore.labels.privateKey,
+                hintText: 'e.g., a0b1c2...',
+              ),
+              validator: (value) {
+                if (value == null ||
+                    value.length != 64 ||
+                    !RegExp(r'^[0-9a-fA-F]+$').hasMatch(value)) {
+                  return t.restore.errors.invalidKey;
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(t.restore.buttons.restore),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    await keyService.savePrivateKey(privateKeyController.text);
+
+                    // Invalidate providers to force re-initialization
+                    ref.invalidate(keyServiceProvider);
+                    ref.invalidate(apiServiceProvider);
+                    ref.invalidate(initializedApiServiceProvider);
+                    ref.invalidate(publicKeyProvider);
+                    ref.invalidate(coordinatorDiscoveryProvider);
+
+                    // Show loading indicator
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
+                    );
+
+                    // Re-initialize services
+                    await ref.read(initializedApiServiceProvider.future);
+                    ref.read(coordinatorDiscoveryProvider);
+
+                    Navigator.of(context).pop(); // Close loading dialog
+                    Navigator.of(context).pop(); // Close restore dialog
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.restore.feedback.success)),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.restore.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -510,10 +760,54 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               data:
                   (publicKey) =>
                       publicKey != null
-                          ? SelectableText(
-                            'Your PubKey: $publicKey', // This can remain hardcoded or be added to Slang if needed
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
+                          ? GestureDetector(
+                            onTap: _showNekoInfoDialog,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Your Neko: ',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(width: 4),
+                                CachedNetworkImage(
+                                  imageUrl:
+                                      'https://robohash.org/$publicKey?set=set4',
+                                  placeholder:
+                                      (context, url) =>
+                                          const CircularProgressIndicator(),
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          const Icon(Icons.error),
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: SelectableText(
+                                    '${publicKey.substring(0, 10)}...',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.backup),
+                                  tooltip: 'Backup Neko',
+                                  onPressed: _showBackupDialog,
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.restore),
+                                  tooltip: 'Restore Neko',
+                                  onPressed: _showRestoreDialog,
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.refresh),
+                                  tooltip: 'Generate New Neko',
+                                  onPressed: _showGenerateNewKeyDialog,
+                                ),
+                              ],
+                            ),
                           )
                           : const SizedBox.shrink(),
               loading:

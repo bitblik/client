@@ -16,6 +16,11 @@ common:
     retry: Retry
     goHome: Go Home
     saveAndContinue: Save and Continue
+    reveal: Reveal
+    hide: Hide
+    copy: Copy
+    close: Close
+    restore: Restore
   
   labels:
     amount: "Amount (PLN)"
@@ -436,6 +441,45 @@ home:
     
     errors:
       loading: "Error loading statistics: ${error}"
+
+# =============================================================================
+# KEY MANAGEMENT
+# =============================================================================
+nekoInfo:
+  title: What is a Neko?
+  description: "Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer."
+
+generateNewKey:
+  title: Generate New Neko
+  description: Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven't backed it up.
+  buttons:
+    generate: Generate
+  errors:
+    activeOffer: You cannot generate a new Neko while you have an active offer.
+    failed: "Failed to generate new Neko"
+  feedback:
+    success: New Neko generated successfully!
+
+# =============================================================================
+# BACKUP AND RESTORE
+# =============================================================================
+backup:
+  title: Backup Neko
+  description: This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.
+  feedback:
+    copied: Private key copied to clipboard!
+
+restore:
+  title: Restore Neko
+  labels:
+    privateKey: Private Key
+  buttons:
+    restore: Restore
+  errors:
+    invalidKey: Must be a 64-character hex string.
+    failed: "Restore failed"
+  feedback:
+    success: Neko restored successfully! App will restart.
 
 # =============================================================================
 # SYSTEM ERRORS AND CONFIGURATIONS

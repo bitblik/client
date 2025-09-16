@@ -29,6 +29,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
         _startStatusCheckTimer();
       }
     });
+    final offer = ref.read(activeOfferProvider);
+    _handleStatusUpdate(offer?.statusEnum);
+    // Listen to the active offer provider for status changes
   }
 
   @override
@@ -176,30 +179,14 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the active offer provider to get real-time status updates
     final offer = ref.watch(activeOfferProvider);
-    final publicKeyAsync = ref.watch(publicKeyProvider);
 
-    // Set up status subscription
-    if (offer != null &&
-        offer.holdInvoicePaymentHash != null &&
-        offer.coordinatorPubkey != null) {
-      publicKeyAsync.whenData((publicKey) {
-        if (publicKey != null) {
-          ref.listen<AsyncValue<OfferStatus?>>(
-            offerStatusSubscriptionProvider((
-              offerId: offer.id,
-              coordinatorPubKey: offer.coordinatorPubkey,
-              userPubkey: publicKey,
-            )),
-            (previous, next) {
-              next.whenData((status) {
-                _handleStatusUpdate(status);
-              });
-            },
-          );
-        }
-      });
-    }
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        _handleStatusUpdate(next.statusEnum);
+      }
+    });
 
     return Padding(
       padding: const EdgeInsets.all(16.0),

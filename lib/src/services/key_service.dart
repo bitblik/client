@@ -61,11 +61,11 @@ class KeyService {
           print(
             '⚠️ Stored private key hex is invalid ($storedPrivateKeyHex). Generating new key pair.',
           );
-          await _generateAndStoreKeyPair();
+          await generateNewKeyPair();
         }
       } else {
         // Generate new key pair
-        await _generateAndStoreKeyPair();
+        await generateNewKeyPair();
         print(
           '🔑 Generated and stored new key pair. Public key: $_publicKeyHex',
         );
@@ -80,7 +80,7 @@ class KeyService {
   }
 
   // Generates a new key pair and stores the private key
-  Future<void> _generateAndStoreKeyPair() async {
+  Future<void> generateNewKeyPair() async {
     // Generate 32 random bytes for the private key
     final random = Random.secure();
     final privateKeyBytes = Uint8List.fromList(
@@ -94,6 +94,25 @@ class KeyService {
 
     // Store the new private key securely
     await _storage.write(key: _privateKeyStorageKey, value: _privateKeyHex);
+  }
+
+  // Saves a provided private key, replacing the existing one.
+  Future<void> savePrivateKey(String privateKeyHex) async {
+    // Basic validation
+    if (privateKeyHex.length != 64 ||
+        !RegExp(r'^[0-9a-fA-F]+$').hasMatch(privateKeyHex)) {
+      throw ArgumentError(
+        'Invalid private key format. It must be a 64-character hex string.',
+      );
+    }
+
+    // Update the in-memory keys
+    _privateKeyHex = privateKeyHex;
+    _publicKeyHex = bip340.getPublicKey(_privateKeyHex!);
+
+    // Store the new private key securely, overwriting the old one
+    await _storage.write(key: _privateKeyStorageKey, value: _privateKeyHex);
+    print('✅ Restored and saved new key pair. Public key: $_publicKeyHex');
   }
 
   // Optional: Method to delete keys (for testing or user request)
