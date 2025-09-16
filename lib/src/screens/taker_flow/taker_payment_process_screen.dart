@@ -64,71 +64,37 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
     WidgetRef ref,
     String paymentHash,
   ) {
-    final offer = ref.read(activeOfferProvider);
-    if (offer == null || offer.holdInvoicePaymentHash == null) {
-      // Handle error or loading state
-      return Center(child: Text('Missing offer details'));
+    // Watch the active offer for real-time updates
+    final offer = ref.watch(activeOfferProvider);
+
+    if (offer == null) {
+      // Offer might be loading or cleared, show a loading indicator.
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(t.taker.paymentProcess.waitingForOfferUpdate),
+        ],
+      );
     }
 
-    // Get the user's public key for the subscription
-    final publicKeyAsync = ref.watch(publicKeyProvider);
+    OfferStatus? currentStatus;
+    try {
+      currentStatus = OfferStatus.values.byName(offer.status);
+    } catch (e) {
+      return _buildErrorContent(
+        context,
+        t.offers.errors.loading(
+          details: "Invalid offer status: ${offer.status}",
+        ),
+      );
+    }
 
-    return publicKeyAsync.when(
-      data: (publicKey) {
-        if (publicKey == null) {
-          return Center(child: Text('Missing public key'));
-        }
-
-        final statusAsyncValue = ref.watch(
-          offerStatusSubscriptionProvider((
-            offerId: offer.id,
-            coordinatorPubKey: offer.coordinatorPubkey,
-            userPubkey: publicKey,
-          )),
-        );
-
-        return statusAsyncValue.when(
-          data: (status) {
-            if (status == null) {
-              // Still waiting for the first status update
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(t.taker.paymentProcess.waitingForOfferUpdate),
-                ],
-              );
-            }
-
-            // Build the checklist UI based on the current status
-            return _PaymentChecklist(
-              currentStatus: status,
-              paymentHash: paymentHash, // Pass paymentHash
-            );
-          },
-          loading:
-              () => Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(t.offers.display.loadingDetails),
-                ],
-              ),
-          error:
-              (error, stack) => _buildErrorContent(
-                context,
-                t.offers.errors.loading(details: error.toString()),
-              ),
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error:
-          (error, stack) => _buildErrorContent(
-            context,
-            'Error loading public key: ${error.toString()}',
-          ),
+    // Build the checklist UI based on the current status from the active offer
+    return _PaymentChecklist(
+      currentStatus: currentStatus,
+      paymentHash: paymentHash, // Pass paymentHash
     );
   }
 

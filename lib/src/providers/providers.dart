@@ -158,6 +158,13 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
     state = offer;
   }
 
+  void updateOfferStatus(OfferStatusUpdate update) {
+    if (state != null) {
+      final updatedOffer = state!.copyWith(status: update.status, reservedAt: update.reservedAt);
+      setActiveOffer(updatedOffer);
+    }
+  }
+
   /// Force a database reset (useful for development when schema changes are made)
   Future<void> resetDatabase() async {
     await OfferDbService().resetDatabase();
@@ -280,52 +287,55 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
 //   }
 // });
 
-/// Provider that listens for offer status updates via Nostr subscription
-final offerStatusSubscriptionProvider = StreamProvider.autoDispose.family<
-  OfferStatus?, // Yields the OfferStatus enum or null
-  ({
-    String offerId,
-    String coordinatorPubKey,
-    String userPubkey,
-  }) // Takes paymentHash, coordinatorPubKey, and userPubkey as parameters
->((ref, params) async* {
-  final apiService = ref.watch(apiServiceProvider);
-  final offerId = params.offerId;
-  final coordinatorPubKey = params.coordinatorPubKey;
-  final userPubkey = params.userPubkey;
+/// This provider manages the lifecycle of the offer status subscription.
+/// It should be initialized once in the app's lifecycle, for example in main.dart,
+/// to ensure it's always running and can react to changes in the active offer.
+final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
+  StreamSubscription? statusSubscription;
 
-  OfferStatus? parseStatus(String? statusString) {
-    if (statusString == null) return null;
-    try {
-      return OfferStatus.values.byName(statusString);
-    } catch (e) {
-      print("Error parsing status string '$statusString': $e");
-      return null;
+  ref.listen<Offer?>(activeOfferProvider, (previous, current) {
+    // If there's an existing subscription, cancel it.
+    statusSubscription?.cancel();
+
+    if (current != null) {
+      print(
+        "[SubscriptionManager] Active offer changed to ${current.id}. Starting new status subscription.",
+      );
+      final apiService = ref.read(apiServiceProvider);
+      final activeOfferNotifier = ref.read(activeOfferProvider.notifier);
+
+      // Start the subscription for the new active offer.
+      apiService.startOfferStatusSubscription(
+        current.coordinatorPubkey,
+        current.takerPubkey ?? current.makerPubkey,
+      );
+
+      // Listen to the stream for status updates.
+      statusSubscription = apiService.offerStatusStream.listen((statusUpdate) {
+        // Ensure the update is for the current active offer.
+        if (statusUpdate.offerId == current.id ||
+            statusUpdate.paymentHash == current.holdInvoicePaymentHash) {
+          OfferStatus? newStatus;
+          try {
+            newStatus = OfferStatus.values.byName(statusUpdate.status);
+          } catch (e) {
+            print("Error parsing status string '${statusUpdate.status}': $e");
+          }
+
+          if (newStatus != null) {
+            print(
+              "Offer ${current.id} status updated to: $newStatus. Updating active offer provider.",
+            );
+            activeOfferNotifier.updateOfferStatus(statusUpdate);
+          }
+        }
+      });
+    } else {
+      print(
+        "[SubscriptionManager] Active offer cleared. Subscription stopped.",
+      );
     }
-  }
-
-  // Start the subscription
-  await apiService.startOfferStatusSubscription(coordinatorPubKey, userPubkey);
-
-  // Listen for status updates via Nostr subscription
-  await for (final statusUpdate in apiService.offerStatusStream) {
-    // Only process updates for the specific payment hash
-    if (statusUpdate.offerId == offerId) {
-      final status = parseStatus(statusUpdate.status);
-      yield status;
-
-      // Stop listening on final states
-      if (status == OfferStatus.takerPaid ||
-          status == OfferStatus.takerPaymentFailed ||
-          status == OfferStatus.expired ||
-          status == OfferStatus.cancelled) {
-        print(
-          "Offer $offerId reached final state: $status. Stopping status subscription.",
-        );
-        break;
-      }
-    }
-  }
+  }, fireImmediately: true); // fireImmediately to handle initial state
 });
 
 // offerDetailsProvider REMOVED as per user feedback
@@ -335,7 +345,7 @@ final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
   final apiService = ref.watch(apiServiceProvider);
-  return {};//apiService.getSuccessfulOffersStats();
+  return {}; //apiService.getSuccessfulOffersStats();
 });
 
 // Provider to expose the public key hex.

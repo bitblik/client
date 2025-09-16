@@ -382,7 +382,6 @@ class NostrService {
   /// Get a stream of all live offers published (subscribe before listening!)
   Stream<Offer> get offersStream => _offerStreamController.stream;
 
-
   /// Start listening for offers (subscribe to event kind 38383 from all coordinators)
   Future<void> startOfferSubscription() async {
     if (!_isInitialized) {
@@ -397,9 +396,9 @@ class NostrService {
       kinds: [KIND_OFFER],
       tags: {
         "#f": ["PLN"],
-//        "#s": ['pending'],
-      //   "#y": ["Bitblik"],
-      //   // "#pm": ["BLIK"],
+        //        "#s": ['pending'],
+        //   "#y": ["Bitblik"],
+        //   // "#pm": ["BLIK"],
       },
       since:
           DateTime.now()
@@ -430,7 +429,10 @@ class NostrService {
         makerFees: int.tryParse(tagMap['maker_fees'] ?? '0') ?? 0,
         fiatAmount: double.tryParse(tagMap['fa'] ?? '0') ?? 0.0,
         fiatCurrency: tagMap['f'] ?? 'PLN',
-        status: (_mapOfferStatusToNip69Status(tagMap['s']??'pending') ?? OfferStatus.funded).name,
+        status:
+            (_mapOfferStatusToNip69Status(tagMap['s'] ?? 'pending') ??
+                    OfferStatus.funded)
+                .name,
         createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
         makerPubkey: tagMap['maker'] ?? event.pubKey,
         coordinatorPubkey: tagMap['p'] ?? event.pubKey,
@@ -473,7 +475,6 @@ class NostrService {
         return null;
     }
   }
-
 
   /// Stop the live offer subscription
   Future<void> stopOfferSubscription() async {
@@ -1039,12 +1040,14 @@ class OfferStatusUpdate {
   final String paymentHash;
   final String status;
   final String coordinatorPubkey;
+  DateTime? reservedAt;
   final DateTime timestamp;
 
   OfferStatusUpdate({
     required this.offerId,
     required this.paymentHash,
     required this.status,
+    this.reservedAt,
     required this.coordinatorPubkey,
     required this.timestamp,
   });
@@ -1053,10 +1056,17 @@ class OfferStatusUpdate {
     Map<String, dynamic> json,
     String coordinatorPubkey,
   ) {
+    var a = json['reserved_at'];
     return OfferStatusUpdate(
       offerId: json['offer_id'] as String,
       paymentHash: json['payment_hash'] as String,
       status: json['status'] as String,
+      reservedAt:
+           a != null
+              ? DateTime.fromMillisecondsSinceEpoch(
+                (a as int) * 1000,
+              )
+              : null,
       coordinatorPubkey: coordinatorPubkey,
       timestamp: DateTime.fromMillisecondsSinceEpoch(
         (json['timestamp'] as int) * 1000,

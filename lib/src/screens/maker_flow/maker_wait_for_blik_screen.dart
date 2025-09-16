@@ -193,30 +193,18 @@ class _MakerWaitForBlikScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Watch the active offer to get the latest data
     final offer = ref.watch(activeOfferProvider);
-    final publicKeyAsync = ref.watch(publicKeyProvider);
 
-    // Set up status subscription
-    if (offer != null &&
-        offer.holdInvoicePaymentHash != null &&
-        offer.coordinatorPubkey != null) {
-      publicKeyAsync.whenData((publicKey) {
-        if (publicKey != null) {
-          ref.listen<AsyncValue<OfferStatus?>>(
-            offerStatusSubscriptionProvider((
-              offerId: offer.id,
-              coordinatorPubKey: offer.coordinatorPubkey,
-              userPubkey: publicKey,
-            )),
-            (previous, next) {
-              next.whenData((status) {
-                _handleStatusUpdate(status);
-              });
-            },
-          );
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        // Handle status update only if the status has actually changed
+        if (previous == null || previous.status != next.status) {
+          _handleStatusUpdate(next.statusEnum);
         }
-      });
-    }
+      }
+    });
 
     if (_isLoadingConfig) {
       return Scaffold(

@@ -49,6 +49,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsTakerEn taker = TranslationsTakerEn.internal(_root);
 	late final TranslationsBlikEn blik = TranslationsBlikEn.internal(_root);
 	late final TranslationsHomeEn home = TranslationsHomeEn.internal(_root);
+	late final TranslationsNekoInfoEn nekoInfo = TranslationsNekoInfoEn.internal(_root);
+	late final TranslationsGenerateNewKeyEn generateNewKey = TranslationsGenerateNewKeyEn.internal(_root);
+	late final TranslationsBackupEn backup = TranslationsBackupEn.internal(_root);
+	late final TranslationsRestoreEn restore = TranslationsRestoreEn.internal(_root);
 	late final TranslationsSystemEn system = TranslationsSystemEn.internal(_root);
 }
 
@@ -185,6 +189,57 @@ class TranslationsHomeEn {
 	late final TranslationsHomeStatisticsEn statistics = TranslationsHomeStatisticsEn.internal(_root);
 }
 
+// Path: nekoInfo
+class TranslationsNekoInfoEn {
+	TranslationsNekoInfoEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'What is a Neko?';
+	String get description => 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.';
+}
+
+// Path: generateNewKey
+class TranslationsGenerateNewKeyEn {
+	TranslationsGenerateNewKeyEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'Generate New Neko';
+	String get description => 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven\'t backed it up.';
+	late final TranslationsGenerateNewKeyButtonsEn buttons = TranslationsGenerateNewKeyButtonsEn.internal(_root);
+	late final TranslationsGenerateNewKeyErrorsEn errors = TranslationsGenerateNewKeyErrorsEn.internal(_root);
+	late final TranslationsGenerateNewKeyFeedbackEn feedback = TranslationsGenerateNewKeyFeedbackEn.internal(_root);
+}
+
+// Path: backup
+class TranslationsBackupEn {
+	TranslationsBackupEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'Backup Neko';
+	String get description => 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
+	late final TranslationsBackupFeedbackEn feedback = TranslationsBackupFeedbackEn.internal(_root);
+}
+
+// Path: restore
+class TranslationsRestoreEn {
+	TranslationsRestoreEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'Restore Neko';
+	late final TranslationsRestoreLabelsEn labels = TranslationsRestoreLabelsEn.internal(_root);
+	late final TranslationsRestoreButtonsEn buttons = TranslationsRestoreButtonsEn.internal(_root);
+	late final TranslationsRestoreErrorsEn errors = TranslationsRestoreErrorsEn.internal(_root);
+	late final TranslationsRestoreFeedbackEn feedback = TranslationsRestoreFeedbackEn.internal(_root);
+}
+
 // Path: system
 class TranslationsSystemEn {
 	TranslationsSystemEn.internal(this._root);
@@ -210,6 +265,11 @@ class TranslationsCommonButtonsEn {
 	String get retry => 'Retry';
 	String get goHome => 'Go Home';
 	String get saveAndContinue => 'Save and Continue';
+	String get reveal => 'Reveal';
+	String get hide => 'Hide';
+	String get copy => 'Copy';
+	String get close => 'Close';
+	String get restore => 'Restore';
 }
 
 // Path: common.labels
@@ -759,6 +819,88 @@ class TranslationsHomeStatisticsEn {
 	late final TranslationsHomeStatisticsErrorsEn errors = TranslationsHomeStatisticsErrorsEn.internal(_root);
 }
 
+// Path: generateNewKey.buttons
+class TranslationsGenerateNewKeyButtonsEn {
+	TranslationsGenerateNewKeyButtonsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get generate => 'Generate';
+}
+
+// Path: generateNewKey.errors
+class TranslationsGenerateNewKeyErrorsEn {
+	TranslationsGenerateNewKeyErrorsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get activeOffer => 'You cannot generate a new Neko while you have an active offer.';
+	String get failed => 'Failed to generate new Neko';
+}
+
+// Path: generateNewKey.feedback
+class TranslationsGenerateNewKeyFeedbackEn {
+	TranslationsGenerateNewKeyFeedbackEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get success => 'New Neko generated successfully!';
+}
+
+// Path: backup.feedback
+class TranslationsBackupFeedbackEn {
+	TranslationsBackupFeedbackEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get copied => 'Private key copied to clipboard!';
+}
+
+// Path: restore.labels
+class TranslationsRestoreLabelsEn {
+	TranslationsRestoreLabelsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get privateKey => 'Private Key';
+}
+
+// Path: restore.buttons
+class TranslationsRestoreButtonsEn {
+	TranslationsRestoreButtonsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get restore => 'Restore';
+}
+
+// Path: restore.errors
+class TranslationsRestoreErrorsEn {
+	TranslationsRestoreErrorsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get invalidKey => 'Must be a 64-character hex string.';
+	String get failed => 'Restore failed';
+}
+
+// Path: restore.feedback
+class TranslationsRestoreFeedbackEn {
+	TranslationsRestoreFeedbackEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get success => 'Neko restored successfully! App will restart.';
+}
+
 // Path: system.errors
 class TranslationsSystemErrorsEn {
 	TranslationsSystemErrorsEn.internal(this._root);
@@ -1222,6 +1364,11 @@ extension on Translations {
 			case 'common.buttons.retry': return 'Retry';
 			case 'common.buttons.goHome': return 'Go Home';
 			case 'common.buttons.saveAndContinue': return 'Save and Continue';
+			case 'common.buttons.reveal': return 'Reveal';
+			case 'common.buttons.hide': return 'Hide';
+			case 'common.buttons.copy': return 'Copy';
+			case 'common.buttons.close': return 'Close';
+			case 'common.buttons.restore': return 'Restore';
 			case 'common.labels.amount': return 'Amount (PLN)';
 			case 'common.labels.status': return ({required Object status}) => 'Status: ${status}';
 			case 'common.labels.role': return ({required Object role}) => 'Role: ${role}';
@@ -1464,6 +1611,23 @@ extension on Translations {
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Error loading statistics: ${error}';
+			case 'nekoInfo.title': return 'What is a Neko?';
+			case 'nekoInfo.description': return 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.';
+			case 'generateNewKey.title': return 'Generate New Neko';
+			case 'generateNewKey.description': return 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven\'t backed it up.';
+			case 'generateNewKey.buttons.generate': return 'Generate';
+			case 'generateNewKey.errors.activeOffer': return 'You cannot generate a new Neko while you have an active offer.';
+			case 'generateNewKey.errors.failed': return 'Failed to generate new Neko';
+			case 'generateNewKey.feedback.success': return 'New Neko generated successfully!';
+			case 'backup.title': return 'Backup Neko';
+			case 'backup.description': return 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
+			case 'backup.feedback.copied': return 'Private key copied to clipboard!';
+			case 'restore.title': return 'Restore Neko';
+			case 'restore.labels.privateKey': return 'Private Key';
+			case 'restore.buttons.restore': return 'Restore';
+			case 'restore.errors.invalidKey': return 'Must be a 64-character hex string.';
+			case 'restore.errors.failed': return 'Restore failed';
+			case 'restore.feedback.success': return 'Neko restored successfully! App will restart.';
 			case 'system.loadingPublicKey': return 'Loading your public key...';
 			case 'system.errors.generic': return 'An unexpected error occurred. Please try again.';
 			case 'system.errors.loadingTimeoutConfig': return 'Error loading timeout configuration.';

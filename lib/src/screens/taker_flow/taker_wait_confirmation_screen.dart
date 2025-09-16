@@ -131,7 +131,72 @@ class _TakerWaitConfirmationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final publicKeyAsyncValue = ref.watch(publicKeyProvider);
+    // Watch the active offer provider to get real-time status updates
+    final offer = ref.watch(activeOfferProvider);
+
+    // Use addPostFrameCallback to handle navigation after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (offer == null) {
+        print("[TakerWaitConfirmation] Active offer is null. Resetting.");
+        _resetToOfferList(t.offers.status.cancelledOrExpired);
+        return;
+      }
+
+      final currentStatusEnum = offer.statusEnum;
+
+      if (currentStatusEnum == OfferStatus.makerConfirmed ||
+          currentStatusEnum == OfferStatus.settled ||
+          currentStatusEnum == OfferStatus.payingTaker ||
+          currentStatusEnum == OfferStatus.takerPaid) {
+        print(
+          "[TakerWaitConfirmation] Status is $currentStatusEnum. Navigating to process screen.",
+        );
+        final paymentHash = offer.holdInvoicePaymentHash;
+        if (paymentHash != null) {
+          ref.read(paymentHashProvider.notifier).state = paymentHash;
+          _confirmationTimer?.cancel();
+          context.go("/paying-taker");
+        } else {
+          _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        }
+      } else if (currentStatusEnum == OfferStatus.invalidBlik) {
+        _confirmationTimer?.cancel();
+        context.go('/taker-invalid-blik', extra: offer);
+      } else if (currentStatusEnum == OfferStatus.conflict) {
+        _confirmationTimer?.cancel();
+        context.go('/taker-conflict', extra: offer.id);
+      } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
+        final paymentHash = offer.holdInvoicePaymentHash;
+        if (paymentHash != null) {
+          ref.read(paymentHashProvider.notifier).state = paymentHash;
+          _confirmationTimer?.cancel();
+          context.go('/paying-taker');
+        } else {
+          _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        }
+      } else if (currentStatusEnum != OfferStatus.blikReceived &&
+          currentStatusEnum != OfferStatus.blikSentToMaker) {
+        _resetToOfferList(
+          t.offers.errors.unexpectedStateWithStatus(
+            status: currentStatusEnum.name,
+          ),
+        );
+      }
+    });
+
+    if (offer == null) {
+      // Show a loading indicator while waiting for the offer or resetting
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // Initialize timer if not already done
+    if (!_timersInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _initializeOrUpdateCountdownTimer(offer);
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -147,68 +212,7 @@ class _TakerWaitConfirmationScreenState
           ),
         ],
       ),
-      body: publicKeyAsyncValue.when(
-        data: (publicKey) {
-          if (publicKey == null) {
-            return Center(child: Text(t.system.errors.noPublicKey));
-          }
-          final offer = widget.offer;
-          final statusAsyncValue = ref.watch(
-            offerStatusSubscriptionProvider((
-              offerId: offer.id,
-              coordinatorPubKey: offer.coordinatorPubkey,
-              userPubkey: publicKey,
-            )),
-          );
-
-          return statusAsyncValue.when(
-            data: (status) {
-              if (status == null) {
-                return Center(child: Text('Waiting for offer status...'));
-              }
-              // Display status info
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Current offer status: ${status.name}'),
-                    // Add more UI as needed for the status
-                  ],
-                ),
-              );
-            },
-            loading: () => _buildWaitingContent(context, offer),
-            error: (e, s) => Center(child: Text('Error: ${e.toString()}')),
-          );
-        },
-        loading:
-            () => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(t.system.loadingPublicKey),
-                ],
-              ),
-            ),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 50,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(t.system.errors.loadingPublicKey),
-                  Text(error.toString()),
-                ],
-              ),
-            ),
-      ),
+      body: _buildWaitingContent(context, offer),
     );
   }
 
