@@ -107,6 +107,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                 bool hasActiveOffer = activeOffer != null &&
                     currentPubKey != null;
 
+
                 final isTakerPaid = hasActiveOffer &&
                     activeOffer.status == OfferStatus.takerPaid.name;
                 final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
@@ -228,8 +229,13 @@ class RoleSelectionScreen extends ConsumerWidget {
                                               .setActiveOffer(null);
                                         }
                                       } else {
-                                        _navigateToMakerStep(
-                                            context, activeOffer);
+                                        if (currentPubKey == activeOffer.makerPubkey) {
+                                          _navigateToMakerStep(
+                                              context, activeOffer);
+                                          } else if (currentPubKey == activeOffer.takerPubkey) {
+                                          _navigateToTakerStep(
+                                              context, activeOffer);
+                                          }
                                       }
                                   },
                         ),
