@@ -771,7 +771,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Your Neko: ',
+                                  t.neko.yourNeko,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 const SizedBox(width: 4),

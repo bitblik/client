@@ -54,6 +54,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsBackupEn backup = TranslationsBackupEn.internal(_root);
 	late final TranslationsRestoreEn restore = TranslationsRestoreEn.internal(_root);
 	late final TranslationsSystemEn system = TranslationsSystemEn.internal(_root);
+	late final TranslationsNekoEn neko = TranslationsNekoEn.internal(_root);
 }
 
 // Path: app
@@ -250,6 +251,16 @@ class TranslationsSystemEn {
 	String get loadingPublicKey => 'Loading your public key...';
 	late final TranslationsSystemErrorsEn errors = TranslationsSystemErrorsEn.internal(_root);
 	late final TranslationsSystemBlikEn blik = TranslationsSystemBlikEn.internal(_root);
+}
+
+// Path: neko
+class TranslationsNekoEn {
+	TranslationsNekoEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get yourNeko => 'Your Neko:';
 }
 
 // Path: common.buttons
@@ -1045,7 +1056,7 @@ class TranslationsMakerConflictDisputeDialogEn {
 	// Translations
 	String get title => 'Open dispute?';
 	String get content => 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.';
-	String get contentDetailed => 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus dispute fees). Make sure you have a Lightning address configured.';
+	String get contentDetailed => 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus fees). Make sure you have a Lightning address configured.';
 	late final TranslationsMakerConflictDisputeDialogActionsEn actions = TranslationsMakerConflictDisputeDialogActionsEn.internal(_root);
 }
 
@@ -1515,7 +1526,7 @@ extension on Translations {
 			case 'maker.conflict.actions.submitDispute': return 'Submit Dispute';
 			case 'maker.conflict.disputeDialog.title': return 'Open dispute?';
 			case 'maker.conflict.disputeDialog.content': return 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.';
-			case 'maker.conflict.disputeDialog.contentDetailed': return 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus dispute fees). Make sure you have a Lightning address configured.';
+			case 'maker.conflict.disputeDialog.contentDetailed': return 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus fees). Make sure you have a Lightning address configured.';
 			case 'maker.conflict.disputeDialog.actions.confirm': return 'Open Dispute';
 			case 'maker.conflict.disputeDialog.actions.cancel': return 'Cancel';
 			case 'maker.conflict.feedback.disputeOpenedSuccess': return 'Dispute successfully opened. Coordinator will review.';
@@ -1636,6 +1647,7 @@ extension on Translations {
 			case 'system.errors.internalOfferIncomplete': return 'Internal error: Offer details are incomplete. Please try again.';
 			case 'system.errors.loadingPublicKey': return 'Error loading your public key. Please restart the app.';
 			case 'system.blik.copied': return 'BLIK code copied to clipboard';
+			case 'neko.yourNeko': return 'Your Neko:';
 			default: return null;
 		}
 	}

@@ -53,6 +53,7 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsRestorePl restore = _TranslationsRestorePl._(_root);
 	@override late final _TranslationsHomePl home = _TranslationsHomePl._(_root);
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
+	@override late final _TranslationsNekoPl neko = _TranslationsNekoPl._(_root);
 }
 
 // Path: app
@@ -249,6 +250,16 @@ class _TranslationsSystemPl extends TranslationsSystemEn {
 	@override String get loadingPublicKey => 'Ładowanie Twojego klucza publicznego...';
 	@override late final _TranslationsSystemErrorsPl errors = _TranslationsSystemErrorsPl._(_root);
 	@override late final _TranslationsSystemBlikPl blik = _TranslationsSystemBlikPl._(_root);
+}
+
+// Path: neko
+class _TranslationsNekoPl extends TranslationsNekoEn {
+	_TranslationsNekoPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get yourNeko => 'Twój Neko:';
 }
 
 // Path: common.buttons
@@ -1039,7 +1050,7 @@ class _TranslationsMakerConflictDisputeDialogPl extends TranslationsMakerConflic
 	// Translations
 	@override String get title => 'Otworzyć spór?';
 	@override String get content => 'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co zajmie czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura hold zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
-	@override String get contentDetailed => 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
+	@override String get contentDetailed => 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty). Upewnij się, że masz skonfigurowany adres Lightning.';
 	@override late final _TranslationsMakerConflictDisputeDialogActionsPl actions = _TranslationsMakerConflictDisputeDialogActionsPl._(_root);
 }
 
@@ -1504,7 +1515,7 @@ extension on TranslationsPl {
 			case 'maker.conflict.actions.submitDispute': return 'Zgłoś Spór';
 			case 'maker.conflict.disputeDialog.title': return 'Otworzyć spór?';
 			case 'maker.conflict.disputeDialog.content': return 'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co zajmie czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura hold zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
-			case 'maker.conflict.disputeDialog.contentDetailed': return 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
+			case 'maker.conflict.disputeDialog.contentDetailed': return 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty). Upewnij się, że masz skonfigurowany adres Lightning.';
 			case 'maker.conflict.disputeDialog.actions.confirm': return 'Otwórz Spór';
 			case 'maker.conflict.disputeDialog.actions.cancel': return 'Anuluj';
 			case 'maker.conflict.feedback.disputeOpenedSuccess': return 'Spór pomyślnie otwarty. Koordynator rozpatrzy sprawę.';
@@ -1625,6 +1636,7 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
+			case 'neko.yourNeko': return 'Twój Neko:';
 			default: return null;
 		}
 	}
