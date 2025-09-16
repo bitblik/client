@@ -102,7 +102,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
     try {
       // Assuming openDispute is now markOfferConflict
-      await apiService.markOfferConflict(widget.offer.id, makerId, widget.offer.coordinatorPubkey);
+      await apiService.openDispute(widget.offer.id,  widget.offer.coordinatorPubkey);
 
       setState(() {
         _isDisputeOpened = true; 

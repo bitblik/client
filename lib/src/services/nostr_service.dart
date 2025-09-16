@@ -731,14 +731,25 @@ class NostrService {
     _handleResponse(response, (result) => null);
   }
 
-  /// POST /offers/{offerId}/conflict
   Future<void> markOfferConflict(
     String offerId,
-    String takerId,
     String coordinatorPubkey,
   ) async {
     final request = NostrRequest(
       method: 'mark_offer_conflict',
+      params: {'offer_id': offerId},
+    );
+
+    final response = await sendRequest(request, coordinatorPubkey);
+    _handleResponse(response, (result) => null);
+  }
+
+  Future<void> openDispute(
+      String offerId,
+      String coordinatorPubkey,
+      ) async {
+    final request = NostrRequest(
+      method: 'open_dispute',
       params: {'offer_id': offerId},
     );
 
