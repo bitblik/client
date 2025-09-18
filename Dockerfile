@@ -1,6 +1,6 @@
 # Stage 1: Build the Flutter web application
 # Use an official Flutter image that includes the SDK
-FROM instrumentisto/flutter:3.32.0 AS build
+FROM instrumentisto/flutter:3.35.3 AS build
 
 # Set working directory INSIDE the client directory structure for the build
 WORKDIR /app
