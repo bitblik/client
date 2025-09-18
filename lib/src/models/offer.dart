@@ -125,8 +125,8 @@ class Offer {
 
   // Factory constructor to create an Offer from JSON data (Map).
   factory Offer.fromJson(Map<String, dynamic> json) {
-    DateTime? parseOptionalDateTime(String? dateString) {
-      return dateString != null ? DateTime.parse(dateString) : null;
+    DateTime? parseOptionalDateTime(int? timestamp) {
+      return timestamp!= null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
     }
 
     // Helper to safely parse string providing a default
@@ -190,8 +190,8 @@ class Offer {
         json['status'],
         OfferStatus.takerPaid.name,
       ), // Default to takerPaid for stats if missing
-      createdAt: DateTime.parse(
-        json['created_at'] as String,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+        json['created_at'] as int,
       ), // Assumed to be present and valid
       makerPubkey: safeString(
         json['maker_pubkey'],
@@ -200,9 +200,9 @@ class Offer {
       coordinatorPubkey:
           json['coordinator_pubkey'] as String, // Added coordinator pubkey
       takerPubkey: json['taker_pubkey'] as String?, // Already nullable
-      reservedAt: parseOptionalDateTime(json['reserved_at'] as String?),
+      reservedAt: parseOptionalDateTime(json['reserved_at'] as int?),
       blikReceivedAt: parseOptionalDateTime(
-        json['blik_received_at'] as String?,
+        json['blik_received_at'] as int?,
       ),
       blikCode: json['blik_code'] as String?,
       holdInvoicePaymentHash: json['hold_invoice_payment_hash'] as String?,
@@ -212,12 +212,12 @@ class Offer {
       takerInvoice: json['taker_invoice'] as String?,
       holdInvoicePreimage:
           json['hold_invoice_preimage'] as String?, // Be cautious exposing this
-      updatedAt: parseOptionalDateTime(json['updated_at'] as String?),
+      updatedAt: parseOptionalDateTime(json['updated_at'] as int?),
       makerConfirmedAt: parseOptionalDateTime(
-        json['maker_confirmed_at'] as String?,
+        json['maker_confirmed_at'] as int?,
       ),
-      settledAt: parseOptionalDateTime(json['settled_at'] as String?),
-      takerPaidAt: parseOptionalDateTime(json['taker_paid_at'] as String?),
+      settledAt: parseOptionalDateTime(json['settled_at'] as int?),
+      takerPaidAt: parseOptionalDateTime(json['taker_paid_at'] as int?),
       takerFees: json['taker_fees'] as int?, // Renamed key and field
     );
   }
