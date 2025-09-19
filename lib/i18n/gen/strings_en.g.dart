@@ -54,7 +54,6 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsBackupEn backup = TranslationsBackupEn.internal(_root);
 	late final TranslationsRestoreEn restore = TranslationsRestoreEn.internal(_root);
 	late final TranslationsSystemEn system = TranslationsSystemEn.internal(_root);
-	late final TranslationsNekoEn neko = TranslationsNekoEn.internal(_root);
 }
 
 // Path: app
@@ -275,18 +274,6 @@ class TranslationsSystemEn {
 
 	late final TranslationsSystemErrorsEn errors = TranslationsSystemErrorsEn.internal(_root);
 	late final TranslationsSystemBlikEn blik = TranslationsSystemBlikEn.internal(_root);
-}
-
-// Path: neko
-class TranslationsNekoEn {
-	TranslationsNekoEn.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// en: 'Your Neko:'
-	String get yourNeko => 'Your Neko:';
 }
 
 // Path: common.buttons
@@ -2225,7 +2212,6 @@ extension on Translations {
 			case 'system.errors.internalOfferIncomplete': return 'Internal error: Offer details are incomplete. Please try again.';
 			case 'system.errors.loadingPublicKey': return 'Error loading your public key. Please restart the app.';
 			case 'system.blik.copied': return 'BLIK code copied to clipboard';
-			case 'neko.yourNeko': return 'Your Neko:';
 			default: return null;
 		}
 	}

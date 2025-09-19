@@ -53,7 +53,6 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsRestorePl restore = _TranslationsRestorePl._(_root);
 	@override late final _TranslationsHomePl home = _TranslationsHomePl._(_root);
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
-	@override late final _TranslationsNekoPl neko = _TranslationsNekoPl._(_root);
 }
 
 // Path: app
@@ -250,16 +249,6 @@ class _TranslationsSystemPl extends TranslationsSystemEn {
 	@override String get loadingPublicKey => 'Ładowanie Twojego klucza publicznego...';
 	@override late final _TranslationsSystemErrorsPl errors = _TranslationsSystemErrorsPl._(_root);
 	@override late final _TranslationsSystemBlikPl blik = _TranslationsSystemBlikPl._(_root);
-}
-
-// Path: neko
-class _TranslationsNekoPl extends TranslationsNekoEn {
-	_TranslationsNekoPl._(TranslationsPl root) : this._root = root, super.internal(root);
-
-	final TranslationsPl _root; // ignore: unused_field
-
-	// Translations
-	@override String get yourNeko => 'Twój Neko:';
 }
 
 // Path: common.buttons
@@ -1636,7 +1625,6 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
-			case 'neko.yourNeko': return 'Twój Neko:';
 			default: return null;
 		}
 	}
