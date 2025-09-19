@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform; // Import Platform
+
+import 'package:app_links/app_links.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_confirm_payment_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
@@ -8,33 +11,31 @@ import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
-import 'dart:io' show Platform; // Import Platform
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'i18n/gen/strings.g.dart'; // Import Slang from new path
-import 'src/providers/providers.dart';
-import 'src/providers/locale_provider.dart'; // Import locale provider
-import 'src/screens/role_selection_screen.dart';
-import 'src/screens/maker_flow/maker_amount_form.dart';
-import 'src/screens/offer_list_screen.dart';
 import 'src/models/offer.dart'; // Needed for OfferStatus enum
+import 'src/providers/providers.dart';
+import 'src/screens/faq_screen.dart'; // Import the FAQ screen
+import 'src/screens/maker_flow/maker_amount_form.dart';
+import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
+import 'src/screens/offer_list_screen.dart';
+import 'src/screens/role_selection_screen.dart';
+import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
-import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
-import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
-import 'src/screens/faq_screen.dart'; // Import the FAQ screen
-import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
-import 'package:app_links/app_links.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
