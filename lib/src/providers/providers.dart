@@ -47,7 +47,7 @@ class DiscoveredCoordinatorsNotifier
   }
 
   void _startPeriodicRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
       _loadCoordinators();
     });
   }
@@ -65,8 +65,7 @@ class DiscoveredCoordinatorsNotifier
 
       // Cache coordinator info for all discovered coordinators
       for (final coordinator in coordinators) {
-        final coordinatorInfo = coordinator.toCoordinatorInfo();
-        apiService.cacheCoordinatorInfo(coordinator.pubkey, coordinatorInfo);
+        apiService.checkCoordinatorHealth(coordinator.pubkey);
       }
 
       state = AsyncValue.data(coordinators);

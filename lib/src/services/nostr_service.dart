@@ -143,10 +143,11 @@ class NostrService {
   final Random _random = Random();
 
   List<String> _relayUrls = [];
+
   NdkResponse? _responseSubscription;
-  NdkResponse? _coordinatorDiscoverySubscription;
   NdkResponse? _offerStatusSubscription;
   NdkResponse? _offerSubscription;
+
   bool _isInitialized = false;
 
   // Discovered coordinators
@@ -314,12 +315,12 @@ class NostrService {
 
       // Wait for response with timeout
       return await completer.future.timeout(
-        const Duration(seconds: 30),
+        const Duration(seconds: 10),
         onTimeout: () {
           _pendingRequests.remove(requestId);
           throw TimeoutException(
             'Request timed out',
-            const Duration(seconds: 30),
+            const Duration(seconds: 10),
           );
         },
       );
@@ -501,7 +502,7 @@ class NostrService {
     final filter = Filter(kinds: [KIND_OFFER], dTags: [offerId], limit: 1);
 
     // Use query for a one-time fetch.
-    final response = _ndk.requests.query(filters: [filter]);
+    final response = _ndk.requests.query(filters: [filter], cacheRead: false);
     final events = await response.stream.toList();
 
     if (events.isEmpty) {
@@ -797,11 +798,6 @@ class NostrService {
     return null;
   }
 
-  /// Cache coordinator info for a specific pubkey
-  void cacheCoordinatorInfo(String coordinatorPubkey, CoordinatorInfo info) {
-    _coordinatorInfoCache[coordinatorPubkey] = info;
-  }
-
   /// GET /stats/successful-offers - This will now query all coordinators
   Future<Map<String, dynamic>> getSuccessfulOffersStats() async {
     if (!_isInitialized) {
@@ -872,8 +868,6 @@ class NostrService {
       name: "coordinator-discovery",
       filters: [filter],
     );
-    _coordinatorDiscoverySubscription = response;
-
     response.stream.listen(_handleCoordinatorInfoEvent);
     print('🔍 Started coordinator discovery');
   }
@@ -971,21 +965,21 @@ class NostrService {
         '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
       );
       // Check health via get_info after discovery (don't await)
-      _checkCoordinatorHealth(coordinatorPubkey);
+      checkCoordinatorHealth(coordinatorPubkey);
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
     }
   }
 
   // Add health check
-  Future<void> _checkCoordinatorHealth(String coordinatorPubkey) async {
+  Future<void> checkCoordinatorHealth(String coordinatorPubkey) async {
     try {
       final request = NostrRequest(method: 'get_info', params: {});
       // Use a shorter timeout for health checks
       await sendRequest(
         request,
         coordinatorPubkey,
-      ).timeout(const Duration(seconds: 10));
+      );
       // If no exception, coordinator is responsive
       _markCoordinatorResponsive(coordinatorPubkey, true);
     } catch (e) {
@@ -1044,11 +1038,6 @@ class NostrService {
   Future<void> dispose() async {
     if (_responseSubscription != null) {
       await _ndk.requests.closeSubscription(_responseSubscription!.requestId);
-    }
-    if (_coordinatorDiscoverySubscription != null) {
-      await _ndk.requests.closeSubscription(
-        _coordinatorDiscoverySubscription!.requestId,
-      );
     }
     if (_offerStatusSubscription != null) {
       await _ndk.requests.closeSubscription(

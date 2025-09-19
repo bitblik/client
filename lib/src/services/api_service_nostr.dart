@@ -377,11 +377,6 @@ class ApiServiceNostr {
     return _nostrService.getCoordinatorInfoByPubkey(coordinatorPubkey);
   }
 
-  /// Cache coordinator info
-  void cacheCoordinatorInfo(String coordinatorPubkey, CoordinatorInfo info) {
-    _nostrService.cacheCoordinatorInfo(coordinatorPubkey, info);
-  }
-
   // GET /stats/successful-offers - via Nostr
   Future<Map<String, dynamic>> getSuccessfulOffersStats() async {
     try {
@@ -400,6 +395,11 @@ class ApiServiceNostr {
   /// Start coordinator discovery
   Future<void> startCoordinatorDiscovery() async {
     await _nostrService.startCoordinatorDiscovery();
+  }
+
+  /// Start coordinator discovery
+  Future<void> checkCoordinatorHealth(String pubKey) async {
+    await _nostrService.checkCoordinatorHealth(pubKey);
   }
 
   /// Start listening for offer status updates

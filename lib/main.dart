@@ -273,7 +273,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         await ref.read(initializedApiServiceProvider.future);
 
         // Start coordinator discovery
-        ref.read(coordinatorDiscoveryProvider);
+        // ref.read(coordinatorDiscoveryProvider);
 
         // Initialize the offer status subscription manager
         ref.read(offerStatusSubscriptionManagerProvider);
