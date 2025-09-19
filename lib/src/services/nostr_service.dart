@@ -500,9 +500,9 @@ class NostrService {
 
     final response = await sendRequest(request, coordinatorPubkey);
     return _handleResponse(response, (result) {
-      final timestampString = result['reserved_at'] as String?;
-      if (timestampString != null) {
-        return DateTime.tryParse(timestampString)?.toLocal();
+      final timestamp = result['reserved_at'] as int?;
+      if (timestamp != null) {
+        return DateTime.fromMillisecondsSinceEpoch(timestamp);
       }
       return null;
     });
