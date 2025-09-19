@@ -207,7 +207,8 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     final isLoading = ref.watch(isLoadingProvider);
     final globalErrorMessage = ref.watch(errorProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
-    final coordinatorInfo = _selectedCoordinatorInfo;
+    // final coordinatorInfo = _selectedCoordinatorInfo;
+    final t = Translations.of(context);
 
     if (_isLoadingInitialData) {
       return const Center(child: CircularProgressIndicator());
