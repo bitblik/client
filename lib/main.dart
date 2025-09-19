@@ -663,19 +663,19 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
-                                  const SizedBox(width: 4),
+                                  // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
+                                  // const SizedBox(width: 4),
                                   CachedNetworkImage(
                                     imageUrl: 'https://robohash.org/$publicKey?set=set4',
                                     placeholder: (context, url) => const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) => const Icon(Icons.error),
-                                    width: 24,
-                                    height: 24,
+                                    width: 32,
+                                    height: 32,
                                   ),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
-                                      '${Nip19.encodePubKey(publicKey).substring(0, 10)}...',
+                                      '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
                                       style: Theme.of(context).textTheme.bodySmall,
                                       textAlign: TextAlign.left,
                                     ),
