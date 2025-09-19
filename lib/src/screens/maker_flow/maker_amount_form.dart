@@ -256,7 +256,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             // Coordinator Selector
             CoordinatorSelector(
               fiatExchangeRate: _rate,
-              summaryMode: true,
               selectedCoordinator:
                   _selectedCoordinatorPubkey != null &&
                           _selectedCoordinatorInfo != null

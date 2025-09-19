@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+
 import 'package:logger/logger.dart' as lib_logger;
 import 'package:ndk/ndk.dart';
 import 'package:ndk/shared/nips/nip44/nip44.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'key_service.dart';
-import '../models/offer.dart';
+
 import '../models/coordinator_info.dart';
+import '../models/offer.dart';
+import 'key_service.dart';
 
 /// Request/Response models for Nostr RPC communication
 class NostrRequest {
@@ -187,9 +188,6 @@ class NostrService {
 
   /// Initialize NDK and connect to relays
   Future<void> _initializeNdk() async {
-    if (_keyService.privateKeyHex == null) {
-      throw Exception('KeyService not initialized');
-    }
 
     // Initialize NDK with bootstrap relays config
     _ndk = Ndk(
@@ -199,12 +197,6 @@ class NostrService {
         bootstrapRelays: _relayUrls,
         logLevel: lib_logger.Level.info,
       ),
-    );
-
-    // Initialize client signer with existing keys
-    _clientSigner = Bip340EventSigner(
-      privateKey: _keyService.privateKeyHex!,
-      publicKey: _keyService.publicKeyHex!,
     );
 
     print(
@@ -270,6 +262,14 @@ class NostrService {
     if (!_isInitialized) {
       await init();
     }
+    if (_keyService.privateKeyHex == null) {
+      throw Exception('KeyService not initialized');
+    }
+    // Initialize client signer with existing keys
+    _clientSigner = Bip340EventSigner(
+      privateKey: _keyService.privateKeyHex!,
+      publicKey: _keyService.publicKeyHex!,
+    );
 
     final requestId = request.id ?? _generateRequestId();
     final requestWithId = NostrRequest(
@@ -397,8 +397,8 @@ class NostrService {
       tags: {
         "#f": ["PLN"],
         //        "#s": ['pending'],
-        //   "#y": ["Bitblik"],
-        //   // "#pm": ["BLIK"],
+        "#y": ["Bitblik"],
+        "#pm": ["BLIK"],
       },
       since:
           DateTime.now()
@@ -416,46 +416,51 @@ class NostrService {
 
   void _handleOfferEvent(Nip01Event event) {
     try {
-      // Map event.tags and content to Offer
-      // Most data is in tags according to your coordinator event logic
-      final tagMap = <String, String>{};
-      for (final t in event.tags) {
-        if (t.length >= 2) tagMap[t[0]] = t[1];
-      }
-      // Build Offer (fallback/default when fields missing!)
-      final offer = Offer(
-        id: tagMap['d'] ?? event.id,
-        amountSats: int.tryParse(tagMap['amt'] ?? '0') ?? 0,
-        makerFees: int.tryParse(tagMap['maker_fees'] ?? '0') ?? 0,
-        fiatAmount: double.tryParse(tagMap['fa'] ?? '0') ?? 0.0,
-        fiatCurrency: tagMap['f'] ?? 'PLN',
-        status:
-            (_mapOfferStatusToNip69Status(tagMap['s'] ?? 'pending') ??
-                    OfferStatus.funded)
-                .name,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
-        makerPubkey: tagMap['maker'] ?? event.pubKey,
-        coordinatorPubkey: tagMap['p'] ?? event.pubKey,
-        // or from context
-        takerPubkey: tagMap['taker'],
-        reservedAt: null,
-        blikReceivedAt: null,
-        blikCode: null,
-        holdInvoicePaymentHash: tagMap['pmt_hash'],
-        holdInvoice: tagMap['hold_invoice'],
-        takerLightningAddress: tagMap['taker_ln'],
-        takerInvoice: tagMap['taker_inv'],
-        holdInvoicePreimage: tagMap['preimage'],
-        updatedAt: null,
-        makerConfirmedAt: null,
-        settledAt: null,
-        takerPaidAt: null,
-        takerFees: int.tryParse(tagMap['taker_fees'] ?? '0'),
-      );
+      final offer = _mapEventToOffer(event);
       _offerStreamController.add(offer);
     } catch (e) {
       print('❌ Error parsing offer event: $e');
     }
+  }
+
+  Offer _mapEventToOffer(Nip01Event event) {
+    // Map event.tags and content to Offer
+    // Most data is in tags according to your coordinator event logic
+    final tagMap = <String, String>{};
+    for (final t in event.tags) {
+      if (t.length >= 2) tagMap[t[0]] = t[1];
+    }
+    // Build Offer (fallback/default when fields missing!)
+    final offer = Offer(
+      id: tagMap['d'] ?? event.id,
+      amountSats: int.tryParse(tagMap['amt'] ?? '0') ?? 0,
+      makerFees: int.tryParse(tagMap['maker_fees'] ?? '0') ?? 0,
+      fiatAmount: double.tryParse(tagMap['fa'] ?? '0') ?? 0.0,
+      fiatCurrency: tagMap['f'] ?? 'PLN',
+      status:
+          (_mapOfferStatusToNip69Status(tagMap['s'] ?? 'pending') ??
+                  OfferStatus.funded)
+              .name,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
+      makerPubkey: tagMap['maker'] ?? event.pubKey,
+      coordinatorPubkey: tagMap['p'] ?? event.pubKey,
+      // or from context
+      takerPubkey: tagMap['taker'],
+      reservedAt: null,
+      blikReceivedAt: null,
+      blikCode: null,
+      holdInvoicePaymentHash: tagMap['pmt_hash'],
+      holdInvoice: tagMap['hold_invoice'],
+      takerLightningAddress: tagMap['taker_ln'],
+      takerInvoice: tagMap['taker_inv'],
+      holdInvoicePreimage: tagMap['preimage'],
+      updatedAt: null,
+      makerConfirmedAt: null,
+      settledAt: null,
+      takerPaidAt: null,
+      takerFees: int.tryParse(tagMap['taker_fees'] ?? '0'),
+    );
+    return offer;
   }
 
   /// Map internal offer status to NIP-69 status
@@ -485,6 +490,25 @@ class NostrService {
     await _offerStreamController.close();
     _offerStreamController =
         StreamController<Offer>.broadcast(); // so can restart
+  }
+
+  /// GET /offers/{offerId}
+  Future<Offer?> getOffer(String offerId) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
+    final filter = Filter(kinds: [KIND_OFFER], dTags: [offerId], limit: 1);
+
+    // Use query for a one-time fetch.
+    final response = _ndk.requests.query(filters: [filter]);
+    final events = await response.stream.toList();
+
+    if (events.isEmpty) {
+      return null;
+    }
+
+    return _mapEventToOffer(events.first);
   }
 
   /// POST /offers/{offerId}/reserve
@@ -744,10 +768,7 @@ class NostrService {
     _handleResponse(response, (result) => null);
   }
 
-  Future<void> openDispute(
-      String offerId,
-      String coordinatorPubkey,
-      ) async {
+  Future<void> openDispute(String offerId, String coordinatorPubkey) async {
     final request = NostrRequest(
       method: 'open_dispute',
       params: {'offer_id': offerId},
@@ -847,7 +868,7 @@ class NostrService {
           1000,
     );
 
-    final response = _ndk.requests.subscription(
+    final response = _ndk.requests.query(
       name: "coordinator-discovery",
       filters: [filter],
     );
@@ -949,7 +970,7 @@ class NostrService {
       print(
         '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
       );
-      // Check health via get_info after discovery
+      // Check health via get_info after discovery (don't await)
       _checkCoordinatorHealth(coordinatorPubkey);
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
@@ -960,7 +981,11 @@ class NostrService {
   Future<void> _checkCoordinatorHealth(String coordinatorPubkey) async {
     try {
       final request = NostrRequest(method: 'get_info', params: {});
-      await sendRequest(request, coordinatorPubkey);
+      // Use a shorter timeout for health checks
+      await sendRequest(
+        request,
+        coordinatorPubkey,
+      ).timeout(const Duration(seconds: 10));
       // If no exception, coordinator is responsive
       _markCoordinatorResponsive(coordinatorPubkey, true);
     } catch (e) {
@@ -1073,10 +1098,8 @@ class OfferStatusUpdate {
       paymentHash: json['payment_hash'] as String,
       status: json['status'] as String,
       reservedAt:
-           a != null
-              ? DateTime.fromMillisecondsSinceEpoch(
-                (a as int) * 1000,
-              )
+          a != null
+              ? DateTime.fromMillisecondsSinceEpoch((a as int) * 1000)
               : null,
       coordinatorPubkey: coordinatorPubkey,
       timestamp: DateTime.fromMillisecondsSinceEpoch(

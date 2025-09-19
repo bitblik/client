@@ -16,7 +16,7 @@ final keyServiceProvider = Provider<KeyService>((ref) {
 });
 
 final apiServiceProvider = Provider<ApiServiceNostr>((ref) {
-  final keyService = ref.watch(keyServiceProvider);
+  final keyService = ref.read(keyServiceProvider);
   return ApiServiceNostr(keyService);
 });
 
@@ -40,6 +40,7 @@ class DiscoveredCoordinatorsNotifier
 
   DiscoveredCoordinatorsNotifier(this._ref)
     : super(const AsyncValue.loading()) {
+    _ref.read(keyServiceProvider);
     _loadCoordinators();
     _startDiscovery();
     _startPeriodicRefresh();
@@ -153,7 +154,10 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
 
   void updateOfferStatus(OfferStatusUpdate update) {
     if (state != null) {
-      final updatedOffer = state!.copyWith(status: update.status, reservedAt: update.reservedAt);
+      final updatedOffer = state!.copyWith(
+        status: update.status,
+        reservedAt: update.reservedAt,
+      );
       setActiveOffer(updatedOffer);
     }
   }
@@ -169,7 +173,6 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
 final lightningAddressProvider = FutureProvider<String?>((ref) async {
   final keyService = ref.watch(keyServiceProvider);
   // Ensure KeyService is initialized (which loads keys) before getting address
-  await keyService.init();
   return keyService.getLightningAddress();
 });
 
@@ -247,7 +250,19 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
   }, fireImmediately: true); // fireImmediately to handle initial state
 });
 
-// offerDetailsProvider REMOVED as per user feedback
+// Provider for fetching a single offer's details.
+// It's a family provider because it depends on an external parameter (the offer ID).
+final offerDetailsProvider = FutureProvider.family<Offer?, String>((
+  ref,
+  offerId,
+) async {
+  // First, ensure that the API service is fully initialized.
+  final apiService = await ref.watch(initializedApiServiceProvider.future);
+  // Trigger coordinator discovery
+  ref.watch(discoveredCoordinatorsProvider);
+  // Then, fetch the specific offer.
+  return apiService.getOffer(offerId);
+});
 
 // Provider for fetching successful offers statistics
 final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
