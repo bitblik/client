@@ -149,22 +149,6 @@ class Offer {
       return defaultValue;
     }
 
-    // createdAt is essential and sent by coordinator. If it's null/missing, it's a bigger issue.
-    // For stats, offers without createdAt would be problematic.
-    final createdAtString = json['created_at'] as String?;
-    if (createdAtString == null) {
-      // This case should ideally not happen for offers in stats.
-      // Throwing an error or using a very old default date.
-      // For now, let's use epoch if it's absolutely missing, though this offer will be unusable.
-      print(
-        "Warning: Offer.fromJson received null or missing 'created_at'. Offer might be invalid for stats.",
-      );
-      // Fallback to a very old date or throw, depending on how critical it is.
-      // For stats display, an offer without created_at is problematic.
-      // Let's assume for now that `created_at` will always be present for successful offers.
-      // If not, the `DateTime.parse` will throw, which is acceptable to highlight data issue.
-    }
-
     return Offer(
       id: safeString(
         json['id'],
