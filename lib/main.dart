@@ -19,8 +19,10 @@ import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for G
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/utils/utils.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -286,13 +288,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     super.dispose();
   }
 
-  void _showNekoInfoDialog() {
+  void _showNekoInfoDialog(String pubKey) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(t.nekoInfo.title),
-          content: Text(t.nekoInfo.description),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [Text(t.nekoInfo.description),SizedBox(height: 20),SelectableText(Nip19.encodePubKey(pubKey))]),
           actions: <Widget>[
             TextButton(child: Text(t.common.buttons.close), onPressed: () => Navigator.of(context).pop()),
           ],
@@ -381,8 +383,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   children: <Widget>[
                     Text(t.backup.description),
                     const SizedBox(height: 16),
-                    Text(
-                      isRevealed ? privateKey : '****************************************************************',
+                    SelectableText(
+                      isRevealed ? Nip19.encodePrivateKey(privateKey) : '****************************************************************',
                       style: const TextStyle(fontFamily: 'monospace'),
                     ),
                   ],
@@ -402,7 +404,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   icon: const Icon(Icons.copy),
                   label: Text(t.common.buttons.copy),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: privateKey));
+                    Clipboard.setData(ClipboardData(text: Nip19.encodePrivateKey(privateKey)));
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.backup.feedback.copied)));
                   },
                 ),
@@ -434,9 +436,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             key: formKey,
             child: TextFormField(
               controller: privateKeyController,
-              decoration: InputDecoration(labelText: t.restore.labels.privateKey, hintText: 'e.g., a0b1c2...'),
+              decoration: InputDecoration(labelText: t.restore.labels.privateKey, hintText: 'e.g., nsec1...'),
               validator: (value) {
-                if (value == null || value.length != 64 || !RegExp(r'^[0-9a-fA-F]+$').hasMatch(value)) {
+                if (value == null || !Nip19.isPrivateKey(value)) {
                   return t.restore.errors.invalidKey;
                 }
                 return null;
@@ -455,7 +457,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   try {
-                    await keyService.savePrivateKey(privateKeyController.text);
+                    String pKey = Nip19.decode(privateKeyController.text);
+                    await keyService.savePrivateKey(pKey);
 
                     // Clear the active offer when restoring a new key
                     await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
@@ -656,7 +659,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           ? MouseRegion(
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
-                              onTap: _showNekoInfoDialog,
+                              onTap: () => _showNekoInfoDialog(publicKey),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -672,7 +675,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
-                                      '${publicKey.substring(0, 10)}...',
+                                      '${Nip19.encodePubKey(publicKey).substring(0, 10)}...',
                                       style: Theme.of(context).textTheme.bodySmall,
                                       textAlign: TextAlign.left,
                                     ),
