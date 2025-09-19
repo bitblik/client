@@ -117,14 +117,22 @@ class RoleSelectionScreen extends ConsumerWidget {
                   children: [
                     ElevatedButton(
                       onPressed: hasRealActiveOffer ? null : () {
-                        context.push("/create");
+                        if (kIsWeb) {
+                          context.go("/create");
+                        } else {
+                          context.push("/create");
+                        }
                       },
                       child: Text(t.maker.roleSelection.button),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: hasRealActiveOffer ? null : () {
-                        context.push("/offers");
+                        if (kIsWeb) {
+                          context.go("/offers");
+                        } else {
+                          context.push("/offers");
+                        }
                       },
                       child: Text(t.taker.roleSelection.button),
                     ),
@@ -209,9 +217,17 @@ class RoleSelectionScreen extends ConsumerWidget {
                                         try {
                                           ref.read(apiServiceProvider);
                                           if (currentPubKey == activeOffer.makerPubkey) {
-                                            context.go('/confirm-blik');
+                                            if (kIsWeb) {
+                                              context.go('/confirm-blik');
+                                            } else {
+                                              context.push('/confirm-blik');
+                                            }
                                           } else if (currentPubKey == activeOffer.takerPubkey) {
-                                            context.go('/wait-confirmation', extra: activeOffer);
+                                            if (kIsWeb) {
+                                              context.go('/wait-confirmation', extra: activeOffer);
+                                            } else {
+                                              context.push('/wait-confirmation', extra: activeOffer);
+                                            }
                                           }
                                         } catch (e) {
                                           Navigator.of(context).pop();

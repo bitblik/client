@@ -1,13 +1,12 @@
-import '../../../i18n/gen/strings.g.dart';
+import 'package:bitblik/src/services/api_service_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../models/offer.dart';
+import '../../../i18n/gen/strings.g.dart';
 import '../../models/coordinator_info.dart';
+import '../../models/offer.dart';
 import '../../providers/providers.dart';
-import '../../services/api_service.dart'; // Added direct import for ApiService
 import '../../services/nostr_service.dart'; // Import DiscoveredCoordinator
 import '../../widgets/coordinator_selector.dart'; // Import coordinator selector
 
@@ -325,7 +324,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  "${ApiService.exchangeRateSourceNames.join(', ')} ${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}",
+                  "${ApiServiceNostr.exchangeRateSourceNames.join(', ')} ${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),

@@ -9,21 +9,17 @@ import '../services/api_service_nostr.dart';
 import '../services/nostr_service.dart'; // Import DiscoveredCoordinator
 import '../services/key_service.dart'; // Import KeyService
 import '../services/offer_db_service.dart';
-// Remove import of main.dart
 
-// Provider for the KeyService instance (needed by ApiServiceNostr)
 final keyServiceProvider = Provider<KeyService>((ref) {
   final service = KeyService();
   return service;
 });
 
-// Provider for the ApiServiceNostr instance
 final apiServiceProvider = Provider<ApiServiceNostr>((ref) {
   final keyService = ref.watch(keyServiceProvider);
   return ApiServiceNostr(keyService);
 });
 
-// Provider that initializes the API service
 final initializedApiServiceProvider = FutureProvider<ApiServiceNostr>((
   ref,
 ) async {
@@ -32,9 +28,6 @@ final initializedApiServiceProvider = FutureProvider<ApiServiceNostr>((
   return apiService;
 });
 
-/// Provider for discovered coordinators with refresh capability
-// NOTE: The DiscoveredCoordinator model now includes 'responsive' bool.
-// Unresponsive coordinators will be emitted in the state list and should be handled in the UI (greyed out, unselectable, show warning)
 final discoveredCoordinatorsProvider = StateNotifierProvider<
   DiscoveredCoordinatorsNotifier,
   AsyncValue<List<DiscoveredCoordinator>>

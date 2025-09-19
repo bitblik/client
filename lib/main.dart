@@ -42,7 +42,6 @@ final double kTakerFeePercentage = 0.5;
 final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 late AppLocale appLocale;
 
-// Create a GoRouter provider for navigation
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     debugLogDiagnostics: true,
@@ -220,7 +219,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             final fragment = uri.fragment;
             final router = ref.read(routerProvider);
             if (path == '/offers' || fragment == '/offers') {
-              router.go('/offers');
+              kIsWeb? router.go('/offers'): router.push('/offers');
             }
           }
         },
@@ -242,18 +241,12 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.watch(routerProvider);
     final t = Translations.of(context);
 
-    // Update Slang locale when provider changes
     return MaterialApp.router(
       title: t.app.title,
-      // Use Slang for title
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
       locale: appLocale.flutterLocale,
-      // locale: LocaleSettings.currentLocale.flutterLocale,
-      // Use Slang locale
       supportedLocales: AppLocaleUtils.supportedLocales,
-      // Use Slang supported locales
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      // Use Slang delegates
       routerConfig: router,
     );
   }
@@ -609,7 +602,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             icon: const Icon(Icons.help_outline),
             tooltip: 'FAQ', // Consider localizing: t.common.buttons.faq
             onPressed: () {
-              context.push(FaqScreen.routeName);
+              kIsWeb? context.go(FaqScreen.routeName) : context.push(FaqScreen.routeName);
             },
           ),
         ],
