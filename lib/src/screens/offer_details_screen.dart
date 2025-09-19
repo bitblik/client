@@ -1,16 +1,13 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ndk/shared/nips/nip19/nip19.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../i18n/gen/strings.g.dart';
 import '../models/offer.dart';
 import '../providers/providers.dart';
-import '../services/nostr_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../widgets/progress_indicators.dart';
-import 'taker_flow/taker_submit_blik_screen.dart';
-import 'taker_flow/taker_wait_confirmation_screen.dart';
 
 class OfferDetailsScreen extends ConsumerStatefulWidget {
   final String offerId;
@@ -206,16 +203,14 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                   IconButton(
                                     icon: Image.asset(
                                       'assets/nostr.png',
-                                      width: 24,
-                                      height: 24,
+                                      width: 32,
+                                      height: 32,
                                     ),
                                     onPressed: () async {
                                       final url = Uri.parse(
                                         'https://njump.me/${Nip19.encodePubKey(offer.coordinatorPubkey)}',
                                       );
-                                      if (await canLaunchUrl(url)) {
-                                        await launchUrl(url);
-                                      }
+                                      await launchUrl(url, mode: LaunchMode.externalApplication);
                                     },
                                   ),
                                 ],
