@@ -1,58 +1,30 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
-import '../models/offer.dart';
+
 import '../models/coordinator_info.dart';
-import 'nostr_service.dart';
+import '../models/offer.dart';
 import 'key_service.dart';
+import 'nostr_service.dart';
 
 class ApiServiceNostr {
   static const _btcPlnCacheKey = 'btcPlnRate';
-  static const _coordinatorInfoCacheKey = 'coordinatorInfo';
-  CoordinatorInfo? _cachedCoordinatorInfo;
-  DateTime? _coordinatorInfoLastFetched;
 
   final NostrService _nostrService;
   final KeyService _keyService;
 
   ApiServiceNostr(this._keyService) : _nostrService = NostrService(_keyService);
 
-  /// Initialize the service
   Future<void> init() async {
     await _keyService.init();
     await _nostrService.init();
   }
 
-  /// Dispose resources
   Future<void> dispose() async {
     await _nostrService.dispose();
   }
 
-  // Helper method for handling HTTP responses (for external APIs)
-  dynamic _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) {
-        return null;
-      }
-      return jsonDecode(response.body);
-    } else {
-      String errorMessage = 'API Error: ${response.statusCode}';
-      try {
-        final errorBody = jsonDecode(response.body);
-        if (errorBody is Map && errorBody.containsKey('error')) {
-          errorMessage += ' - ${errorBody['error']}';
-        } else {
-          errorMessage += ' - ${response.body}';
-        }
-      } catch (_) {
-        errorMessage += ' - ${response.body}';
-      }
-      print(errorMessage);
-      throw Exception(errorMessage);
-    }
-  }
-
-  // POST /initiate-offer (fiat version) - via Nostr
   Future<Map<String, dynamic>> initiateOfferFiat({
     required double fiatAmount,
     required String makerId,
@@ -73,7 +45,6 @@ class ApiServiceNostr {
     }
   }
 
-  // Define a structure for exchange rate sources
   static final List<Map<String, String>> _exchangeRateSources = [
     {
       'name': 'CoinGecko',
@@ -110,7 +81,6 @@ class ApiServiceNostr {
     return null;
   }
 
-  // Parser for Yadio.io response
   double? _parseYadioResponse(String responseBody) {
     try {
       final data = jsonDecode(responseBody);
@@ -124,7 +94,6 @@ class ApiServiceNostr {
     return null;
   }
 
-  // Parser for Blockchain.info response
   double? _parseBlockchainInfoResponse(String responseBody) {
     try {
       final data = jsonDecode(responseBody);
@@ -138,7 +107,6 @@ class ApiServiceNostr {
     return null;
   }
 
-  // GET BTC/PLN rate from multiple sources with caching (still HTTP)
   Future<double> getBtcPlnRate() async {
     // Check cache first
     final cachedRate = MemoryCache.instance.read<double>(_btcPlnCacheKey);
@@ -212,17 +180,6 @@ class ApiServiceNostr {
     }
   }
 
-  // GET /offers - via Nostr
-  // Future<List<Offer>> listAvailableOffers() async {
-  //   try {
-  //     return await _nostrService.listAvailableOffers();
-  //   } catch (e) {
-  //     print('Error calling listAvailableOffers: $e');
-  //     rethrow;
-  //   }
-  // }
-
-  // POST /offers/{offerId}/reserve - via Nostr
   Future<DateTime?> reserveOffer(
     String offerId,
     String takerId,
@@ -240,7 +197,6 @@ class ApiServiceNostr {
     }
   }
 
-  // POST /offers/{offerId}/blik - via Nostr
   Future<void> submitBlikCode({
     required String offerId,
     required String takerId,
@@ -262,7 +218,6 @@ class ApiServiceNostr {
     }
   }
 
-  // GET /offers/{offerId}/blik - via Nostr
   Future<String?> getBlikCodeForMaker(
     String offerId,
     String makerId,
@@ -283,7 +238,6 @@ class ApiServiceNostr {
     }
   }
 
-  // POST /offers/{offerId}/confirm - via Nostr
   Future<void> confirmMakerPayment(
     String offerId,
     String makerId,
@@ -301,7 +255,6 @@ class ApiServiceNostr {
     }
   }
 
-  // GET /my-active-offer - via Nostr
   Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey) async {
     try {
       return await _nostrService.getMyActiveOffer(userPubkey);
@@ -311,7 +264,6 @@ class ApiServiceNostr {
     }
   }
 
-  // GET /my-finished-offers - via Nostr
   Future<List<Offer>> getMyFinishedOffers(String userPubkey) async {
     try {
       return await _nostrService.getMyFinishedOffers(userPubkey);
@@ -321,7 +273,6 @@ class ApiServiceNostr {
     }
   }
 
-  // DELETE /offers/{offerId}/cancel - via Nostr
   Future<void> cancelOffer(
     String offerId,
     String coordinatorPubkey,
@@ -334,7 +285,6 @@ class ApiServiceNostr {
     }
   }
 
-  // DELETE /offers/{offerId}/reservation (taker cancels reservation) - via Nostr
   Future<void> cancelReservation(
     String offerId,
     String takerPubkey,
@@ -352,7 +302,6 @@ class ApiServiceNostr {
     }
   }
 
-  // POST /offers/{offerId}/update-invoice - via Nostr
   Future<void> updateTakerInvoice({
     required String offerId,
     required String newBolt11,
