@@ -273,10 +273,7 @@ class ApiServiceNostr {
     }
   }
 
-  Future<void> cancelOffer(
-    String offerId,
-    String coordinatorPubkey,
-  ) async {
+  Future<void> cancelOffer(String offerId, String coordinatorPubkey) async {
     try {
       await _nostrService.cancelOffer(offerId, coordinatorPubkey);
     } catch (e) {
@@ -359,25 +356,16 @@ class ApiServiceNostr {
     String coordinatorPubKey,
   ) async {
     try {
-      await _nostrService.markOfferConflict(
-        offerId,
-        coordinatorPubKey,
-      );
+      await _nostrService.markOfferConflict(offerId, coordinatorPubKey);
     } catch (e) {
       print('Error calling markOfferConflict: $e');
       rethrow;
     }
   }
 
-  Future<void> openDispute(
-      String offerId,
-      String coordinatorPubKey,
-      ) async {
+  Future<void> openDispute(String offerId, String coordinatorPubKey) async {
     try {
-      await _nostrService.openDispute(
-        offerId,
-        coordinatorPubKey,
-      );
+      await _nostrService.openDispute(offerId, coordinatorPubKey);
     } catch (e) {
       print('Error calling markOfferConflict: $e');
       rethrow;
@@ -415,8 +403,14 @@ class ApiServiceNostr {
   }
 
   /// Start listening for offer status updates
-  Future<void> startOfferStatusSubscription(String coordinatorPubKey, String userPubkey) async {
-    await _nostrService.startOfferStatusSubscription(coordinatorPubKey, userPubkey);
+  Future<void> startOfferStatusSubscription(
+    String coordinatorPubKey,
+    String userPubkey,
+  ) async {
+    await _nostrService.startOfferStatusSubscription(
+      coordinatorPubKey,
+      userPubkey,
+    );
   }
 
   /// Stop offer status subscription
@@ -443,4 +437,13 @@ class ApiServiceNostr {
 
   Future<void> startOfferSubscription() async =>
       _nostrService.startOfferSubscription();
+
+  Future<Offer?> getOffer(String offerId) async {
+    try {
+      return await _nostrService.getOffer(offerId);
+    } catch (e) {
+      print('Error calling getOffer: $e');
+      rethrow;
+    }
+  }
 }
