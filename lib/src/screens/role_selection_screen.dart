@@ -92,6 +92,7 @@ class RoleSelectionScreen extends ConsumerWidget {
     final activeOffer = ref.watch(activeOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
     ref.watch(lightningAddressProvider);
+    final t = Translations.of(context);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),

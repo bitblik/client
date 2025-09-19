@@ -46,7 +46,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     super.initState();
     _hasValidatedInitialAddress = false;
     _isValidating = false;
-    _loadCoordinatorConfig();
+    // _loadCoordinatorConfig();
   }
 
   Future<void> _loadCoordinatorConfig() async {
@@ -89,6 +89,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     final router = GoRouter.of(context);
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
+    final t = Translations.of(context);
 
     final offersAsyncValue = ref.watch(availableOffersProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
@@ -654,7 +655,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       ],
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => Container(),//const Center(child: CircularProgressIndicator()),
                   error:
                       (error, stackTrace) => Center(
                         child: Column(

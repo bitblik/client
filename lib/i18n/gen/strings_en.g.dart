@@ -64,7 +64,11 @@ class TranslationsAppEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'BitBlik'
 	String get title => 'BitBlik';
+
+	/// en: 'Hello!'
 	String get greeting => 'Hello!';
 }
 
@@ -197,7 +201,11 @@ class TranslationsNekoInfoEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'What is a Neko?'
 	String get title => 'What is a Neko?';
+
+	/// en: 'Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator. To ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.'
 	String get description => 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.';
 }
 
@@ -208,8 +216,13 @@ class TranslationsGenerateNewKeyEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Generate New Neko'
 	String get title => 'Generate New Neko';
+
+	/// en: 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven't backed it up.'
 	String get description => 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven\'t backed it up.';
+
 	late final TranslationsGenerateNewKeyButtonsEn buttons = TranslationsGenerateNewKeyButtonsEn.internal(_root);
 	late final TranslationsGenerateNewKeyErrorsEn errors = TranslationsGenerateNewKeyErrorsEn.internal(_root);
 	late final TranslationsGenerateNewKeyFeedbackEn feedback = TranslationsGenerateNewKeyFeedbackEn.internal(_root);
@@ -222,8 +235,13 @@ class TranslationsBackupEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Backup Neko'
 	String get title => 'Backup Neko';
+
+	/// en: 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.'
 	String get description => 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
+
 	late final TranslationsBackupFeedbackEn feedback = TranslationsBackupFeedbackEn.internal(_root);
 }
 
@@ -234,7 +252,10 @@ class TranslationsRestoreEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Restore Neko'
 	String get title => 'Restore Neko';
+
 	late final TranslationsRestoreLabelsEn labels = TranslationsRestoreLabelsEn.internal(_root);
 	late final TranslationsRestoreButtonsEn buttons = TranslationsRestoreButtonsEn.internal(_root);
 	late final TranslationsRestoreErrorsEn errors = TranslationsRestoreErrorsEn.internal(_root);
@@ -248,7 +269,10 @@ class TranslationsSystemEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Loading your public key...'
 	String get loadingPublicKey => 'Loading your public key...';
+
 	late final TranslationsSystemErrorsEn errors = TranslationsSystemErrorsEn.internal(_root);
 	late final TranslationsSystemBlikEn blik = TranslationsSystemBlikEn.internal(_root);
 }
@@ -260,6 +284,8 @@ class TranslationsNekoEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Your Neko:'
 	String get yourNeko => 'Your Neko:';
 }
 
@@ -270,16 +296,38 @@ class TranslationsCommonButtonsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
+
+	/// en: 'Save'
 	String get save => 'Save';
+
+	/// en: 'Done'
 	String get done => 'Done';
+
+	/// en: 'Retry'
 	String get retry => 'Retry';
+
+	/// en: 'Go Home'
 	String get goHome => 'Go Home';
+
+	/// en: 'Save and Continue'
 	String get saveAndContinue => 'Save and Continue';
+
+	/// en: 'Reveal'
 	String get reveal => 'Reveal';
+
+	/// en: 'Hide'
 	String get hide => 'Hide';
+
+	/// en: 'Copy'
 	String get copy => 'Copy';
+
+	/// en: 'Close'
 	String get close => 'Close';
+
+	/// en: 'Restore'
 	String get restore => 'Restore';
 }
 
@@ -290,8 +338,14 @@ class TranslationsCommonLabelsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Amount (PLN)'
 	String get amount => 'Amount (PLN)';
+
+	/// en: 'Status: ${status}'
 	String status({required Object status}) => 'Status: ${status}';
+
+	/// en: 'Role: ${role}'
 	String role({required Object role}) => 'Role: ${role}';
 }
 
@@ -302,8 +356,14 @@ class TranslationsCommonNotificationsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Success'
 	String get success => 'Success';
+
+	/// en: 'Error'
 	String get error => 'Error';
+
+	/// en: 'Loading...'
 	String get loading => 'Loading...';
 }
 
@@ -314,8 +374,14 @@ class TranslationsCommonClipboardEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Copy to clipboard'
 	String get copyToClipboard => 'Copy to clipboard';
+
+	/// en: 'Paste from clipboard'
 	String get pasteFromClipboard => 'Paste from clipboard';
+
+	/// en: 'Copied to clipboard!'
 	String get copied => 'Copied to clipboard!';
 }
 
@@ -326,7 +392,11 @@ class TranslationsCommonActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Cancel and return to offers'
 	String get cancelAndReturnToOffers => 'Cancel and return to offers';
+
+	/// en: 'Cancel and return home'
 	String get cancelAndReturnHome => 'Cancel and return home';
 }
 
@@ -337,8 +407,14 @@ class TranslationsLightningAddressLabelsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Lightning Address'
 	String get address => 'Lightning Address';
+
+	/// en: 'user@domain.com'
 	String get hint => 'user@domain.com';
+
+	/// en: 'Lightning Address: ${address}'
 	String short({required Object address}) => 'Lightning Address: ${address}';
 }
 
@@ -349,9 +425,17 @@ class TranslationsLightningAddressPromptsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Enter your Lightning address to continue'
 	String get enter => 'Enter your Lightning address to continue';
+
+	/// en: 'Edit Lightning address'
 	String get edit => 'Edit Lightning address';
+
+	/// en: 'Enter a valid Lightning address'
 	String get invalid => 'Enter a valid Lightning address';
+
+	/// en: 'Lightning address is required.'
 	String get required => 'Lightning address is required.';
 }
 
@@ -362,8 +446,14 @@ class TranslationsLightningAddressFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Lightning address saved!'
 	String get saved => 'Lightning address saved!';
+
+	/// en: 'Lightning address updated!'
 	String get updated => 'Lightning address updated!';
+
+	/// en: 'Valid Lightning address'
 	String get valid => 'Valid Lightning address';
 }
 
@@ -374,7 +464,11 @@ class TranslationsLightningAddressErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error saving address: ${details}'
 	String saving({required Object details}) => 'Error saving address: ${details}';
+
+	/// en: 'Error loading Lightning address: ${details}'
 	String loading({required Object details}) => 'Error loading Lightning address: ${details}';
 }
 
@@ -385,13 +479,29 @@ class TranslationsOffersDisplayEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Your offer:'
 	String get yourOffer => 'Your offer:';
+
+	/// en: 'Selected offer:'
 	String get selectedOffer => 'Selected offer:';
+
+	/// en: 'You have an active offer:'
 	String get activeOffer => 'You have an active offer:';
+
+	/// en: 'Finished offers'
 	String get finishedOffers => 'Finished offers';
+
+	/// en: 'Finished offers (last 24h):'
 	String get finishedOffersWithTime => 'Finished offers (last 24h):';
+
+	/// en: 'No available offers.'
 	String get noAvailable => 'No available offers.';
+
+	/// en: 'No successful trades.'
 	String get noSuccessfulTrades => 'No successful trades.';
+
+	/// en: 'Loading offer details...'
 	String get loadingDetails => 'Loading offer details...';
 }
 
@@ -402,17 +512,41 @@ class TranslationsOffersDetailsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Amount: ${amount} satoshi'
 	String amount({required Object amount}) => 'Amount: ${amount} satoshi';
+
+	/// en: '${amount} ${currency}'
 	String amountWithCurrency({required Object amount, required Object currency}) => '${amount} ${currency}';
+
+	/// en: 'Maker fee: ${fee} satoshi'
 	String makerFee({required Object fee}) => 'Maker fee: ${fee} satoshi';
+
+	/// en: 'Taker fee: ${fee} satoshi'
 	String takerFee({required Object fee}) => 'Taker fee: ${fee} satoshi';
+
+	/// en: 'Taker fee: ${fee} satoshi | Status: ${status}'
 	String takerFeeWithStatus({required Object fee, required Object status}) => 'Taker fee: ${fee} satoshi | Status: ${status}';
+
+	/// en: '${sats} + ${fee} (fee) satoshi Status: ${status}'
 	String subtitle({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (fee) satoshi\nStatus: ${status}';
+
+	/// en: '${sats} + ${fee} (fee) satoshi Status: ${status} Paid: ${date}'
 	String subtitleWithDate({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (fee) satoshi\nStatus: ${status}\nPaid: ${date}';
+
+	/// en: 'Status: ${status} Amount: ${amount} satoshi'
 	String activeSubtitle({required Object status, required Object amount}) => 'Status: ${status}\nAmount: ${amount} satoshi';
+
+	/// en: 'Offer ID: ${id}...'
 	String id({required Object id}) => 'Offer ID: ${id}...';
+
+	/// en: 'Created: ${dateTime}'
 	String created({required Object dateTime}) => 'Created: ${dateTime}';
+
+	/// en: 'Taken after: ${duration}'
 	String takenAfter({required Object duration}) => 'Taken after: ${duration}';
+
+	/// en: 'Paid after: ${duration}'
 	String paidAfter({required Object duration}) => 'Paid after: ${duration}';
 }
 
@@ -423,8 +557,14 @@ class TranslationsOffersActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'TAKE'
 	String get take => 'TAKE';
+
+	/// en: 'RESUME'
 	String get resume => 'RESUME';
+
+	/// en: 'Cancel offer'
 	String get cancel => 'Cancel offer';
 }
 
@@ -435,9 +575,17 @@ class TranslationsOffersStatusEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Offer reserved by Taker!'
 	String get reserved => 'Offer reserved by Taker!';
+
+	/// en: 'Offer cancelled successfully.'
 	String get cancelled => 'Offer cancelled successfully.';
+
+	/// en: 'Offer has been cancelled or expired.'
 	String get cancelledOrExpired => 'Offer has been cancelled or expired.';
+
+	/// en: 'Offer is no longer available (Status: ${status}).'
 	String noLongerAvailable({required Object status}) => 'Offer is no longer available (Status: ${status}).';
 }
 
@@ -448,8 +596,14 @@ class TranslationsOffersProgressEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Waiting for taker: ${time}'
 	String waitingForTaker({required Object time}) => 'Waiting for taker: ${time}';
+
+	/// en: 'Reserved: ${seconds} s left'
 	String reserved({required Object seconds}) => 'Reserved: ${seconds} s left';
+
+	/// en: 'Confirming: ${seconds} s left'
 	String confirming({required Object seconds}) => 'Confirming: ${seconds} s left';
 }
 
@@ -460,24 +614,62 @@ class TranslationsOffersErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error loading offers: ${details}'
 	String loading({required Object details}) => 'Error loading offers: ${details}';
+
+	/// en: 'Error loading offer details: ${details}'
 	String loadingDetails({required Object details}) => 'Error loading offer details: ${details}';
+
+	/// en: 'Error: Offer details missing or invalid.'
 	String get detailsMissing => 'Error: Offer details missing or invalid.';
+
+	/// en: 'Unable to load offer details.'
 	String get detailsNotLoaded => 'Unable to load offer details.';
+
+	/// en: 'Error: Offer not found.'
 	String get notFound => 'Error: Offer not found.';
+
+	/// en: 'Error: Offer is in an unexpected state.'
 	String get unexpectedState => 'Error: Offer is in an unexpected state.';
+
+	/// en: 'Offer is in an unexpected state (${status}). Please try again or contact support.'
 	String unexpectedStateWithStatus({required Object status}) => 'Offer is in an unexpected state (${status}). Please try again or contact support.';
+
+	/// en: 'Offer has invalid status.'
 	String get invalidStatus => 'Offer has invalid status.';
+
+	/// en: 'Error: Could not identify offer to cancel.'
 	String get couldNotIdentify => 'Error: Could not identify offer to cancel.';
+
+	/// en: 'Offer cannot be cancelled in current state (${status}).'
 	String cannotBeCancelled({required Object status}) => 'Offer cannot be cancelled in current state (${status}).';
+
+	/// en: 'Failed to cancel offer: ${details}'
 	String failedToCancel({required Object details}) => 'Failed to cancel offer: ${details}';
+
+	/// en: 'Error: Lost active offer details.'
 	String get activeDetailsLost => 'Error: Lost active offer details.';
+
+	/// en: 'Error checking active offers: ${details}'
 	String checkingActive({required Object details}) => 'Error checking active offers: ${details}';
+
+	/// en: 'Error loading finished offers: ${details}'
 	String loadingFinished({required Object details}) => 'Error loading finished offers: ${details}';
+
+	/// en: 'Cannot resume offer in state: ${status}'
 	String cannotResume({required Object status}) => 'Cannot resume offer in state: ${status}';
+
+	/// en: 'Cannot resume taker offer in state: ${status}'
 	String cannotResumeTaker({required Object status}) => 'Cannot resume taker offer in state: ${status}';
+
+	/// en: 'Error resuming offer: ${details}'
 	String resuming({required Object details}) => 'Error resuming offer: ${details}';
+
+	/// en: 'Maker public key not found'
 	String get makerPublicKeyNotFound => 'Maker public key not found';
+
+	/// en: 'Taker public key not found.'
 	String get takerPublicKeyNotFound => 'Taker public key not found.';
 }
 
@@ -488,6 +680,8 @@ class TranslationsReservationsActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Cancel reservation'
 	String get cancel => 'Cancel reservation';
 }
 
@@ -498,6 +692,8 @@ class TranslationsReservationsFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Reservation cancelled.'
 	String get cancelled => 'Reservation cancelled.';
 }
 
@@ -508,10 +704,20 @@ class TranslationsReservationsErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Failed to cancel reservation: ${error}'
 	String cancelling({required Object error}) => 'Failed to cancel reservation: ${error}';
+
+	/// en: 'Failed to reserve offer: ${details}'
 	String failedToReserve({required Object details}) => 'Failed to reserve offer: ${details}';
+
+	/// en: 'Failed to reserve offer (no timestamp).'
 	String get failedNoTimestamp => 'Failed to reserve offer (no timestamp).';
+
+	/// en: 'Offer reservation timestamp missing.'
 	String get timestampMissing => 'Offer reservation timestamp missing.';
+
+	/// en: 'Offer is no longer in reserved state (${status}).'
 	String notReserved({required Object status}) => 'Offer is no longer in reserved state (${status}).';
 }
 
@@ -522,9 +728,17 @@ class TranslationsExchangeLabelsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Enter amount (PLN) to pay:'
 	String get enterAmount => 'Enter amount (PLN) to pay:';
+
+	/// en: '≈ ${sats} satoshi'
 	String equivalent({required Object sats}) => '≈ ${sats} satoshi';
+
+	/// en: 'Average PLN/BTC rate ≈ ${rate}'
 	String rate({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
+
+	/// en: 'Min/Max: ${minAmount}-${maxAmount} ${currency}'
 	String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 }
 
@@ -535,6 +749,8 @@ class TranslationsExchangeFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Fetching exchange rate...'
 	String get fetching => 'Fetching exchange rate...';
 }
 
@@ -545,11 +761,23 @@ class TranslationsExchangeErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Failed to fetch exchange rate.'
 	String get fetchingRate => 'Failed to fetch exchange rate.';
+
+	/// en: 'Invalid number format'
 	String get invalidFormat => 'Invalid number format';
+
+	/// en: 'Amount must be positive'
 	String get mustBePositive => 'Amount must be positive';
+
+	/// en: 'Invalid fee percentage'
 	String get invalidFeePercentage => 'Invalid fee percentage';
+
+	/// en: 'Amount is too low. Minimum is ${minAmount} ${currency}.'
 	String tooLowFiat({required Object minAmount, required Object currency}) => 'Amount is too low. Minimum is ${minAmount} ${currency}.';
+
+	/// en: 'Amount is too high. Maximum is ${maxAmount} ${currency}.'
 	String tooHighFiat({required Object maxAmount, required Object currency}) => 'Amount is too high. Maximum is ${maxAmount} ${currency}.';
 }
 
@@ -560,6 +788,8 @@ class TranslationsMakerRoleSelectionEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'PAY with Lightning'
 	String get button => 'PAY with Lightning';
 }
 
@@ -581,7 +811,10 @@ class TranslationsMakerPayInvoiceEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Pay this Hold invoice:'
 	String get title => 'Pay this Hold invoice:';
+
 	late final TranslationsMakerPayInvoiceActionsEn actions = TranslationsMakerPayInvoiceActionsEn.internal(_root);
 	late final TranslationsMakerPayInvoiceFeedbackEn feedback = TranslationsMakerPayInvoiceFeedbackEn.internal(_root);
 	late final TranslationsMakerPayInvoiceErrorsEn errors = TranslationsMakerPayInvoiceErrorsEn.internal(_root);
@@ -594,15 +827,35 @@ class TranslationsMakerWaitTakerEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Waiting for a Taker to reserve your offer...'
 	String get message => 'Waiting for a Taker to reserve your offer...';
+
+	/// en: 'Waiting for taker: ${time}'
 	String progressLabel({required Object time}) => 'Waiting for taker: ${time}';
+
+	/// en: 'Error: Lost active offer details.'
 	String get errorActiveOfferDetailsLost => 'Error: Lost active offer details.';
+
+	/// en: 'Error: Failed to retrieve BLIK code.'
 	String get errorFailedToRetrieveBlik => 'Error: Failed to retrieve BLIK code.';
+
+	/// en: 'Error retrieving BLIK code: ${details}'
 	String errorRetrievingBlik({required Object details}) => 'Error retrieving BLIK code: ${details}';
+
+	/// en: 'Offer is no longer available (Status: ${status}).'
 	String offerNoLongerAvailable({required Object status}) => 'Offer is no longer available (Status: ${status}).';
+
+	/// en: 'Error: Could not identify offer to cancel.'
 	String get errorCouldNotIdentifyOffer => 'Error: Could not identify offer to cancel.';
+
+	/// en: 'Offer cannot be cancelled in current state (${status}).'
 	String offerCannotBeCancelled({required Object status}) => 'Offer cannot be cancelled in current state (${status}).';
+
+	/// en: 'Offer cancelled successfully.'
 	String get offerCancelledSuccessfully => 'Offer cancelled successfully.';
+
+	/// en: 'Failed to cancel offer: ${details}'
 	String failedToCancelOffer({required Object details}) => 'Failed to cancel offer: ${details}';
 }
 
@@ -613,9 +866,17 @@ class TranslationsMakerWaitForBlikEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Waiting for BLIK'
 	String get title => 'Waiting for BLIK';
+
+	/// en: 'Waiting for Taker to provide BLIK code.'
 	String get message => 'Waiting for Taker to provide BLIK code.';
+
+	/// en: 'Taker has ${seconds} seconds to provide BLIK code.'
 	String timeLimitWithSeconds({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
+
+	/// en: 'Reserved: ${seconds} s left'
 	String progressLabel({required Object seconds}) => 'Reserved: ${seconds} s left';
 }
 
@@ -626,9 +887,16 @@ class TranslationsMakerConfirmPaymentEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'BLIK code received!'
 	String get title => 'BLIK code received!';
+
+	/// en: 'Retrieving BLIK code...'
 	String get retrieving => 'Retrieving BLIK code...';
+
+	/// en: 'Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.'
 	String get instructions => 'Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.';
+
 	late final TranslationsMakerConfirmPaymentActionsEn actions = TranslationsMakerConfirmPaymentActionsEn.internal(_root);
 	late final TranslationsMakerConfirmPaymentFeedbackEn feedback = TranslationsMakerConfirmPaymentFeedbackEn.internal(_root);
 	late final TranslationsMakerConfirmPaymentErrorsEn errors = TranslationsMakerConfirmPaymentErrorsEn.internal(_root);
@@ -641,7 +909,11 @@ class TranslationsMakerInvalidBlikEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Invalid BLIK Code'
 	String get title => 'Invalid BLIK Code';
+
+	/// en: 'You marked the BLIK code as invalid. Waiting for taker to provide new code or start dispute.'
 	String get info => 'You marked the BLIK code as invalid. Waiting for taker to provide new code or start dispute.';
 }
 
@@ -652,10 +924,19 @@ class TranslationsMakerConflictEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Offer Conflict'
 	String get title => 'Offer Conflict';
+
+	/// en: 'Offer Conflict Reported'
 	String get headline => 'Offer Conflict Reported';
+
+	/// en: 'You marked the BLIK code as invalid, but the Taker reported a conflict, indicating they believe the payment was successful.'
 	String get body => 'You marked the BLIK code as invalid, but the Taker reported a conflict, indicating they believe the payment was successful.';
+
+	/// en: 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.'
 	String get instructions => 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.';
+
 	late final TranslationsMakerConflictActionsEn actions = TranslationsMakerConflictActionsEn.internal(_root);
 	late final TranslationsMakerConflictDisputeDialogEn disputeDialog = TranslationsMakerConflictDisputeDialogEn.internal(_root);
 	late final TranslationsMakerConflictFeedbackEn feedback = TranslationsMakerConflictFeedbackEn.internal(_root);
@@ -669,9 +950,17 @@ class TranslationsMakerSuccessEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Offer completed'
 	String get title => 'Offer completed';
+
+	/// en: 'Payment confirmed!'
 	String get headline => 'Payment confirmed!';
+
+	/// en: 'Taker has been paid.'
 	String get subtitle => 'Taker has been paid.';
+
+	/// en: 'Offer details:'
 	String get detailsTitle => 'Offer details:';
 }
 
@@ -682,6 +971,8 @@ class TranslationsTakerRoleSelectionEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'SELL BLIK code for satoshi'
 	String get button => 'SELL BLIK code for satoshi';
 }
 
@@ -692,10 +983,19 @@ class TranslationsTakerSubmitBlikEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Enter 6-digit BLIK code:'
 	String get title => 'Enter 6-digit BLIK code:';
+
+	/// en: 'BLIK Code'
 	String get label => 'BLIK Code';
+
+	/// en: 'Enter BLIK within: ${seconds} s'
 	String timeLimit({required Object seconds}) => 'Enter BLIK within: ${seconds} s';
+
+	/// en: 'Time to enter BLIK code has expired.'
 	String get timeExpired => 'Time to enter BLIK code has expired.';
+
 	late final TranslationsTakerSubmitBlikActionsEn actions = TranslationsTakerSubmitBlikActionsEn.internal(_root);
 	late final TranslationsTakerSubmitBlikFeedbackEn feedback = TranslationsTakerSubmitBlikFeedbackEn.internal(_root);
 	late final TranslationsTakerSubmitBlikValidationEn validation = TranslationsTakerSubmitBlikValidationEn.internal(_root);
@@ -709,14 +1009,31 @@ class TranslationsTakerWaitConfirmationEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Waiting for Maker'
 	String get title => 'Waiting for Maker';
+
+	/// en: 'Offer status: ${status}'
 	String statusLabel({required Object status}) => 'Offer status: ${status}';
+
+	/// en: 'Waiting for Maker confirmation: ${seconds} s'
 	String waitingMaker({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';
+
+	/// en: 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s'
 	String waitingMakerConfirmation({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
+
+	/// en: 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}'
 	String importantNotice({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
+
+	/// en: 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.'
 	String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
+
+	/// en: 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.'
 	String get instructions => 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
+
+	/// en: 'Navigated home.'
 	String get navigatedHome => 'Navigated home.';
+
 	late final TranslationsTakerWaitConfirmationFeedbackEn feedback = TranslationsTakerWaitConfirmationFeedbackEn.internal(_root);
 	late final TranslationsTakerWaitConfirmationErrorsEn errors = TranslationsTakerWaitConfirmationErrorsEn.internal(_root);
 }
@@ -728,8 +1045,13 @@ class TranslationsTakerPaymentProcessEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Payment Process'
 	String get title => 'Payment Process';
+
+	/// en: 'Waiting for offer status update...'
 	String get waitingForOfferUpdate => 'Waiting for offer status update...';
+
 	late final TranslationsTakerPaymentProcessStatesEn states = TranslationsTakerPaymentProcessStatesEn.internal(_root);
 	late final TranslationsTakerPaymentProcessStepsEn steps = TranslationsTakerPaymentProcessStepsEn.internal(_root);
 	late final TranslationsTakerPaymentProcessErrorsEn errors = TranslationsTakerPaymentProcessErrorsEn.internal(_root);
@@ -744,8 +1066,13 @@ class TranslationsTakerPaymentFailedEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Payment Failed'
 	String get title => 'Payment Failed';
+
+	/// en: 'Please provide a new Lightning invoice for ${netAmount} satoshi'
 	String instructions({required Object netAmount}) => 'Please provide a new Lightning invoice for ${netAmount} satoshi';
+
 	late final TranslationsTakerPaymentFailedFormEn form = TranslationsTakerPaymentFailedFormEn.internal(_root);
 	late final TranslationsTakerPaymentFailedActionsEn actions = TranslationsTakerPaymentFailedActionsEn.internal(_root);
 	late final TranslationsTakerPaymentFailedErrorsEn errors = TranslationsTakerPaymentFailedErrorsEn.internal(_root);
@@ -760,8 +1087,13 @@ class TranslationsTakerPaymentSuccessEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Payment Successful'
 	String get title => 'Payment Successful';
+
+	/// en: 'Your payment has been processed successfully.'
 	String get message => 'Your payment has been processed successfully.';
+
 	late final TranslationsTakerPaymentSuccessActionsEn actions = TranslationsTakerPaymentSuccessActionsEn.internal(_root);
 }
 
@@ -772,9 +1104,16 @@ class TranslationsTakerInvalidBlikEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Invalid BLIK Code'
 	String get title => 'Invalid BLIK Code';
+
+	/// en: 'Maker Rejected BLIK Code'
 	String get message => 'Maker Rejected BLIK Code';
+
+	/// en: 'The offer maker indicated that the BLIK code you provided was invalid or didn't work. What would you like to do?'
 	String get explanation => 'The offer maker indicated that the BLIK code you provided was invalid or didn\'t work. What would you like to do?';
+
 	late final TranslationsTakerInvalidBlikActionsEn actions = TranslationsTakerInvalidBlikActionsEn.internal(_root);
 	late final TranslationsTakerInvalidBlikFeedbackEn feedback = TranslationsTakerInvalidBlikFeedbackEn.internal(_root);
 	late final TranslationsTakerInvalidBlikErrorsEn errors = TranslationsTakerInvalidBlikErrorsEn.internal(_root);
@@ -787,10 +1126,19 @@ class TranslationsTakerConflictEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Offer Conflict'
 	String get title => 'Offer Conflict';
+
+	/// en: 'Offer Conflict Reported'
 	String get headline => 'Offer Conflict Reported';
+
+	/// en: 'The Maker marked the BLIK code as invalid, but you reported a conflict, indicating you believe the payment was successful.'
 	String get body => 'The Maker marked the BLIK code as invalid, but you reported a conflict, indicating you believe the payment was successful.';
+
+	/// en: 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.'
 	String get instructions => 'Wait for the coordinator to review the situation. You may be asked for more details. Check back later or contact support if needed.';
+
 	late final TranslationsTakerConflictActionsEn actions = TranslationsTakerConflictActionsEn.internal(_root);
 	late final TranslationsTakerConflictFeedbackEn feedback = TranslationsTakerConflictFeedbackEn.internal(_root);
 	late final TranslationsTakerConflictErrorsEn errors = TranslationsTakerConflictErrorsEn.internal(_root);
@@ -803,6 +1151,8 @@ class TranslationsBlikInstructionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Once the Maker enters the BLIK code, you will need to confirm the payment in your banking app. Ensure the amount is correct before confirming.'
 	String get taker => 'Once the Maker enters the BLIK code, you will need to confirm the payment in your banking app. Ensure the amount is correct before confirming.';
 }
 
@@ -813,7 +1163,11 @@ class TranslationsHomeNotificationsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Get notified about new orders via SimpleX'
 	String get simplex => 'Get notified about new orders via SimpleX';
+
+	/// en: 'Get notified about new orders via Element'
 	String get element => 'Get notified about new orders via Element';
 }
 
@@ -824,9 +1178,16 @@ class TranslationsHomeStatisticsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Recent Transactions'
 	String get title => 'Recent Transactions';
+
+	/// en: 'All: ${count} transactions Avg wait for BLIK: ${avgBlikTime} Avg completion time: ${avgPaidTime}'
 	String lifetimeCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
+
+	/// en: 'Last 7d: ${count} transactions Avg wait for BLIK: ${avgBlikTime} Avg completion time: ${avgPaidTime}'
 	String last7DaysCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
+
 	late final TranslationsHomeStatisticsErrorsEn errors = TranslationsHomeStatisticsErrorsEn.internal(_root);
 }
 
@@ -837,6 +1198,8 @@ class TranslationsGenerateNewKeyButtonsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Generate'
 	String get generate => 'Generate';
 }
 
@@ -847,7 +1210,11 @@ class TranslationsGenerateNewKeyErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'You cannot generate a new Neko while you have an active offer.'
 	String get activeOffer => 'You cannot generate a new Neko while you have an active offer.';
+
+	/// en: 'Failed to generate new Neko'
 	String get failed => 'Failed to generate new Neko';
 }
 
@@ -858,6 +1225,8 @@ class TranslationsGenerateNewKeyFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'New Neko generated successfully!'
 	String get success => 'New Neko generated successfully!';
 }
 
@@ -868,6 +1237,8 @@ class TranslationsBackupFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Private key copied to clipboard!'
 	String get copied => 'Private key copied to clipboard!';
 }
 
@@ -878,6 +1249,8 @@ class TranslationsRestoreLabelsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Private Key'
 	String get privateKey => 'Private Key';
 }
 
@@ -888,6 +1261,8 @@ class TranslationsRestoreButtonsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Restore'
 	String get restore => 'Restore';
 }
 
@@ -898,7 +1273,11 @@ class TranslationsRestoreErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Must be a 64-character hex string.'
 	String get invalidKey => 'Must be a 64-character hex string.';
+
+	/// en: 'Restore failed'
 	String get failed => 'Restore failed';
 }
 
@@ -909,6 +1288,8 @@ class TranslationsRestoreFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Neko restored successfully! App will restart.'
 	String get success => 'Neko restored successfully! App will restart.';
 }
 
@@ -919,11 +1300,23 @@ class TranslationsSystemErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'An unexpected error occurred. Please try again.'
 	String get generic => 'An unexpected error occurred. Please try again.';
+
+	/// en: 'Error loading timeout configuration.'
 	String get loadingTimeoutConfig => 'Error loading timeout configuration.';
+
+	/// en: 'Error loading coordinator configuration. Please try again.'
 	String get loadingCoordinatorConfig => 'Error loading coordinator configuration. Please try again.';
+
+	/// en: 'Your public key is not available. Cannot proceed.'
 	String get noPublicKey => 'Your public key is not available. Cannot proceed.';
+
+	/// en: 'Internal error: Offer details are incomplete. Please try again.'
 	String get internalOfferIncomplete => 'Internal error: Offer details are incomplete. Please try again.';
+
+	/// en: 'Error loading your public key. Please restart the app.'
 	String get loadingPublicKey => 'Error loading your public key. Please restart the app.';
 }
 
@@ -934,6 +1327,8 @@ class TranslationsSystemBlikEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'BLIK code copied to clipboard'
 	String get copied => 'BLIK code copied to clipboard';
 }
 
@@ -944,6 +1339,8 @@ class TranslationsMakerAmountFormActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Generate Invoice'
 	String get generateInvoice => 'Generate Invoice';
 }
 
@@ -954,7 +1351,11 @@ class TranslationsMakerAmountFormErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error initiating offer: ${details}'
 	String initiating({required Object details}) => 'Error initiating offer: ${details}';
+
+	/// en: 'Error: Public key not yet loaded.'
 	String get publicKeyNotLoaded => 'Error: Public key not yet loaded.';
 }
 
@@ -965,7 +1366,11 @@ class TranslationsMakerPayInvoiceActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Copy Invoice'
 	String get copy => 'Copy Invoice';
+
+	/// en: 'Pay in Wallet'
 	String get payInWallet => 'Pay in Wallet';
 }
 
@@ -976,7 +1381,11 @@ class TranslationsMakerPayInvoiceFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Invoice copied to clipboard!'
 	String get copied => 'Invoice copied to clipboard!';
+
+	/// en: 'Waiting for payment confirmation...'
 	String get waitingConfirmation => 'Waiting for payment confirmation...';
 }
 
@@ -987,9 +1396,17 @@ class TranslationsMakerPayInvoiceErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Could not open Lightning app for invoice.'
 	String get couldNotOpenApp => 'Could not open Lightning app for invoice.';
+
+	/// en: 'Error opening Lightning app: ${details}'
 	String openingApp({required Object details}) => 'Error opening Lightning app: ${details}';
+
+	/// en: 'Public key is not available.'
 	String get publicKeyNotAvailable => 'Public key is not available.';
+
+	/// en: 'Could not fetch active offer details. It may have expired.'
 	String get couldNotFetchActive => 'Could not fetch active offer details. It may have expired.';
 }
 
@@ -1000,7 +1417,11 @@ class TranslationsMakerConfirmPaymentActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Confirm successful payment'
 	String get confirm => 'Confirm successful payment';
+
+	/// en: 'Invalid BLIK Code'
 	String get markInvalid => 'Invalid BLIK Code';
 }
 
@@ -1011,8 +1432,14 @@ class TranslationsMakerConfirmPaymentFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Maker confirmed payment.'
 	String get confirmed => 'Maker confirmed payment.';
+
+	/// en: 'Payment confirmed! Taker will receive funds.'
 	String get confirmedTakerPaid => 'Payment confirmed! Taker will receive funds.';
+
+	/// en: 'Confirming: ${seconds} s left'
 	String progressLabel({required Object seconds}) => 'Confirming: ${seconds} s left';
 }
 
@@ -1023,14 +1450,32 @@ class TranslationsMakerConfirmPaymentErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error: Failed to retrieve BLIK code.'
 	String get failedToRetrieve => 'Error: Failed to retrieve BLIK code.';
+
+	/// en: 'Error retrieving BLIK code: ${details}'
 	String retrieving({required Object details}) => 'Error retrieving BLIK code: ${details}';
+
+	/// en: 'Error: Missing payment hash or public key.'
 	String get missingHashOrKey => 'Error: Missing payment hash or public key.';
+
+	/// en: 'Offer is not in correct state for confirmation (Status: ${status})'
 	String incorrectState({required Object status}) => 'Offer is not in correct state for confirmation (Status: ${status})';
+
+	/// en: 'Error confirming payment: ${details}'
 	String confirming({required Object details}) => 'Error confirming payment: ${details}';
+
+	/// en: 'Error: Received invalid offer state.'
 	String get invalidState => 'Error: Received invalid offer state.';
+
+	/// en: 'Internal error: Incomplete offer details.'
 	String get internalIncomplete => 'Internal error: Incomplete offer details.';
+
+	/// en: 'Offer is no longer awaiting confirmation (Status: ${status}).'
 	String notAwaitingConfirmation({required Object status}) => 'Offer is no longer awaiting confirmation (Status: ${status}).';
+
+	/// en: 'Received unexpected offer status from server.'
 	String get unexpectedStatus => 'Received unexpected offer status from server.';
 }
 
@@ -1041,9 +1486,17 @@ class TranslationsMakerConflictActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Back to Home'
 	String get back => 'Back to Home';
+
+	/// en: 'My mistake, confirm BLIK payment success'
 	String get confirmPayment => 'My mistake, confirm BLIK payment success';
+
+	/// en: 'Blik payment did NOT succeed, OPEN DISPUTE'
 	String get openDispute => 'Blik payment did NOT succeed, OPEN DISPUTE';
+
+	/// en: 'Submit Dispute'
 	String get submitDispute => 'Submit Dispute';
 }
 
@@ -1054,9 +1507,16 @@ class TranslationsMakerConflictDisputeDialogEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Open dispute?'
 	String get title => 'Open dispute?';
+
+	/// en: 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.'
 	String get content => 'Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.';
+
+	/// en: 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee. The hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved. If the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus fees). Make sure you have a Lightning address configured.'
 	String get contentDetailed => 'Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus fees). Make sure you have a Lightning address configured.';
+
 	late final TranslationsMakerConflictDisputeDialogActionsEn actions = TranslationsMakerConflictDisputeDialogActionsEn.internal(_root);
 }
 
@@ -1067,6 +1527,8 @@ class TranslationsMakerConflictFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Dispute successfully opened. Coordinator will review.'
 	String get disputeOpenedSuccess => 'Dispute successfully opened. Coordinator will review.';
 }
 
@@ -1077,6 +1539,8 @@ class TranslationsMakerConflictErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error opening dispute: ${error}'
 	String openingDispute({required Object error}) => 'Error opening dispute: ${error}';
 }
 
@@ -1087,6 +1551,8 @@ class TranslationsTakerSubmitBlikActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Submit BLIK'
 	String get submit => 'Submit BLIK';
 }
 
@@ -1097,6 +1563,8 @@ class TranslationsTakerSubmitBlikFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Pasted BLIK code.'
 	String get pasted => 'Pasted BLIK code.';
 }
 
@@ -1107,6 +1575,8 @@ class TranslationsTakerSubmitBlikValidationEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Enter a valid 6-digit BLIK code.'
 	String get invalidFormat => 'Enter a valid 6-digit BLIK code.';
 }
 
@@ -1117,11 +1587,23 @@ class TranslationsTakerSubmitBlikErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error submitting BLIK code: ${details}'
 	String submitting({required Object details}) => 'Error submitting BLIK code: ${details}';
+
+	/// en: 'Clipboard does not contain a valid 6-digit BLIK code.'
 	String get clipboardInvalid => 'Clipboard does not contain a valid 6-digit BLIK code.';
+
+	/// en: 'Error: Offer state has changed.'
 	String get stateChanged => 'Error: Offer state has changed.';
+
+	/// en: 'Error: Offer state is no longer valid.'
 	String get stateNotValid => 'Error: Offer state is no longer valid.';
+
+	/// en: 'Fetched active offer ID (${fetchedId}) does not match initial offer ID (${initialId}). State mismatch?'
 	String fetchedIdMismatch({required Object fetchedId, required Object initialId}) => 'Fetched active offer ID (${fetchedId}) does not match initial offer ID (${initialId}). State mismatch?';
+
+	/// en: 'Offer payment hash missing after fetch.'
 	String get paymentHashMissing => 'Offer payment hash missing after fetch.';
 }
 
@@ -1132,7 +1614,11 @@ class TranslationsTakerWaitConfirmationFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Maker confirmed payment.'
 	String get makerConfirmed => 'Maker confirmed payment.';
+
+	/// en: 'Payment successful! You will receive funds shortly.'
 	String get paymentSuccessful => 'Payment successful! You will receive funds shortly.';
 }
 
@@ -1143,6 +1629,8 @@ class TranslationsTakerWaitConfirmationErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Received an offer with an invalid state for this screen. Resetting.'
 	String get invalidOfferStateReceived => 'Received an offer with an invalid state for this screen. Resetting.';
 }
 
@@ -1153,10 +1641,20 @@ class TranslationsTakerPaymentProcessStatesEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Preparing to send payment...'
 	String get preparing => 'Preparing to send payment...';
+
+	/// en: 'Sending payment...'
 	String get sending => 'Sending payment...';
+
+	/// en: 'Payment received!'
 	String get received => 'Payment received!';
+
+	/// en: 'Payment failed'
 	String get failed => 'Payment failed';
+
+	/// en: 'Waiting for offer update...'
 	String get waitingUpdate => 'Waiting for offer update...';
 }
 
@@ -1167,10 +1665,20 @@ class TranslationsTakerPaymentProcessStepsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Maker confirmed BLIK payment'
 	String get makerConfirmedBlik => 'Maker confirmed BLIK payment';
+
+	/// en: 'Maker's hold invoice settled'
 	String get makerInvoiceSettled => 'Maker\'s hold invoice settled';
+
+	/// en: 'Paying your Lightning invoice'
 	String get payingTakerInvoice => 'Paying your Lightning invoice';
+
+	/// en: 'Your Lightning invoice paid'
 	String get takerInvoicePaid => 'Your Lightning invoice paid';
+
+	/// en: 'Payment to your invoice failed'
 	String get takerPaymentFailed => 'Payment to your invoice failed';
 }
 
@@ -1181,15 +1689,35 @@ class TranslationsTakerPaymentProcessErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error sending payment: ${details}'
 	String sending({required Object details}) => 'Error sending payment: ${details}';
+
+	/// en: 'Offer not confirmed by Maker.'
 	String get notConfirmed => 'Offer not confirmed by Maker.';
+
+	/// en: 'Offer expired.'
 	String get expired => 'Offer expired.';
+
+	/// en: 'Offer cancelled.'
 	String get cancelled => 'Offer cancelled.';
+
+	/// en: 'Offer payment failed.'
 	String get paymentFailed => 'Offer payment failed.';
+
+	/// en: 'Unknown offer error.'
 	String get unknown => 'Unknown offer error.';
+
+	/// en: 'The payment to your Lightning invoice failed. Please go to the failure details screen to provide a new invoice or investigate.'
 	String get takerPaymentFailed => 'The payment to your Lightning invoice failed. Please go to the failure details screen to provide a new invoice or investigate.';
+
+	/// en: 'Error: Cannot fetch your public key.'
 	String get noPublicKey => 'Error: Cannot fetch your public key.';
+
+	/// en: 'Error loading your data'
 	String get loadingPublicKey => 'Error loading your data';
+
+	/// en: 'Error: Missing payment details.'
 	String get missingPaymentHash => 'Error: Missing payment details.';
 }
 
@@ -1200,6 +1728,8 @@ class TranslationsTakerPaymentProcessLoadingEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Loading your data...'
 	String get publicKey => 'Loading your data...';
 }
 
@@ -1210,6 +1740,8 @@ class TranslationsTakerPaymentProcessActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Go to Failure Details'
 	String get goToFailureDetails => 'Go to Failure Details';
 }
 
@@ -1220,7 +1752,11 @@ class TranslationsTakerPaymentFailedFormEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'New Lightning invoice'
 	String get newInvoiceLabel => 'New Lightning invoice';
+
+	/// en: 'Enter your BOLT11 invoice'
 	String get newInvoiceHint => 'Enter your BOLT11 invoice';
 }
 
@@ -1231,6 +1767,8 @@ class TranslationsTakerPaymentFailedActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Submit New Invoice'
 	String get retryPayment => 'Submit New Invoice';
 }
 
@@ -1241,9 +1779,17 @@ class TranslationsTakerPaymentFailedErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Please enter a valid invoice'
 	String get enterValidInvoice => 'Please enter a valid invoice';
+
+	/// en: 'Error updating invoice: ${details}'
 	String updatingInvoice({required Object details}) => 'Error updating invoice: ${details}';
+
+	/// en: 'Payment retry failed. Please check the invoice or try again later.'
 	String get paymentRetryFailed => 'Payment retry failed. Please check the invoice or try again later.';
+
+	/// en: 'Taker public key not found.'
 	String get takerPublicKeyNotFound => 'Taker public key not found.';
 }
 
@@ -1254,6 +1800,8 @@ class TranslationsTakerPaymentFailedLoadingEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Processing your payment retry...'
 	String get processingPayment => 'Processing your payment retry...';
 }
 
@@ -1264,7 +1812,11 @@ class TranslationsTakerPaymentFailedSuccessEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Payment Successful'
 	String get title => 'Payment Successful';
+
+	/// en: 'Your payment has been processed successfully.'
 	String get message => 'Your payment has been processed successfully.';
 }
 
@@ -1275,6 +1827,8 @@ class TranslationsTakerPaymentSuccessActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Go to home'
 	String get goHome => 'Go to home';
 }
 
@@ -1285,8 +1839,14 @@ class TranslationsTakerInvalidBlikActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'I DID NOT PAY, reserve offer again and send new BLIK code'
 	String get retry => 'I DID NOT PAY, reserve offer again and send new BLIK code';
+
+	/// en: 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!'
 	String get reportConflict => 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!';
+
+	/// en: 'Return to home'
 	String get returnHome => 'Return to home';
 }
 
@@ -1297,6 +1857,8 @@ class TranslationsTakerInvalidBlikFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Conflict reported. Coordinator will review.'
 	String get conflictReportedSuccess => 'Conflict reported. Coordinator will review.';
 }
 
@@ -1307,7 +1869,11 @@ class TranslationsTakerInvalidBlikErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Failed to reserve offer again'
 	String get reservationFailed => 'Failed to reserve offer again';
+
+	/// en: 'Error reporting conflict: ${details}'
 	String conflictReport({required Object details}) => 'Error reporting conflict: ${details}';
 }
 
@@ -1318,6 +1884,8 @@ class TranslationsTakerConflictActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Back to Home'
 	String get back => 'Back to Home';
 }
 
@@ -1328,6 +1896,8 @@ class TranslationsTakerConflictFeedbackEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Conflict reported. Coordinator will review.'
 	String get reported => 'Conflict reported. Coordinator will review.';
 }
 
@@ -1338,6 +1908,8 @@ class TranslationsTakerConflictErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error reporting conflict: ${details}'
 	String reporting({required Object details}) => 'Error reporting conflict: ${details}';
 }
 
@@ -1348,6 +1920,8 @@ class TranslationsHomeStatisticsErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error loading statistics: ${error}'
 	String loading({required Object error}) => 'Error loading statistics: ${error}';
 }
 
@@ -1358,7 +1932,11 @@ class TranslationsMakerConflictDisputeDialogActionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Open Dispute'
 	String get confirm => 'Open Dispute';
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 }
 
