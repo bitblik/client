@@ -41,9 +41,7 @@ class DiscoveredCoordinatorsNotifier
   DiscoveredCoordinatorsNotifier(this._ref)
     : super(const AsyncValue.loading()) {
     _ref.read(keyServiceProvider);
-    _loadCoordinators();
     _startDiscovery();
-    _startPeriodicRefresh();
   }
 
   void _startPeriodicRefresh() {
@@ -61,14 +59,15 @@ class DiscoveredCoordinatorsNotifier
   Future<void> _loadCoordinators() async {
     try {
       final apiService = _ref.read(apiServiceProvider);
-      final coordinators = apiService.discoveredCoordinators;
+      final coordinators = await apiService.coordinatorsStream.first;
+      state = AsyncValue.data(coordinators);
 
       // Cache coordinator info for all discovered coordinators
       for (final coordinator in coordinators) {
-        apiService.checkCoordinatorHealth(coordinator.pubkey);
+        await apiService.checkCoordinatorHealth(coordinator.pubkey);
       }
-
-      state = AsyncValue.data(coordinators);
+      final healthyCheckedCoordinators = await apiService.coordinatorsStream.first;
+      state = AsyncValue.data(healthyCheckedCoordinators);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -80,6 +79,7 @@ class DiscoveredCoordinatorsNotifier
       await apiService.startCoordinatorDiscovery();
       // After starting discovery, refresh the coordinators
       await _loadCoordinators();
+      _startPeriodicRefresh();
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
