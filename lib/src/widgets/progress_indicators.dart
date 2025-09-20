@@ -89,7 +89,6 @@ class _FundedOfferProgressIndicatorState
   Future<void> _triggerRefresh() async {
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     }
   }
 
@@ -239,7 +238,6 @@ class _ReservationProgressIndicatorState
     print("[ReservationProgress] Timer expired. Refreshing providers.");
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     } else {
       print("[ReservationProgress] Widget disposed before refresh.");
     }
@@ -373,7 +371,6 @@ class _BlikConfirmationProgressIndicatorState
     print("[BlikConfirmProgress] Timer expired. Refreshing providers.");
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     } else {
       print("[BlikConfirmProgress] Widget disposed before refresh.");
     }

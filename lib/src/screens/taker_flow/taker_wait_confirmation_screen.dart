@@ -102,9 +102,9 @@ class _TakerWaitConfirmationScreenState
     }
   }
 
-  void _resetToOfferList(String message) {
+  Future<void> _resetToOfferList(String message) async {
     _confirmationTimer?.cancel();
-    ref.read(activeOfferProvider.notifier).state = null;
+    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(errorProvider.notifier).state = null;
     _timersInitialized = false;
 
@@ -131,7 +131,72 @@ class _TakerWaitConfirmationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final publicKeyAsyncValue = ref.watch(publicKeyProvider);
+    // Watch the active offer provider to get real-time status updates
+    final offer = ref.watch(activeOfferProvider);
+
+    // Use addPostFrameCallback to handle navigation after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (offer == null) {
+        print("[TakerWaitConfirmation] Active offer is null. Resetting.");
+        _resetToOfferList(t.offers.status.cancelledOrExpired);
+        return;
+      }
+
+      final currentStatusEnum = offer.statusEnum;
+
+      if (currentStatusEnum == OfferStatus.makerConfirmed ||
+          currentStatusEnum == OfferStatus.settled ||
+          currentStatusEnum == OfferStatus.payingTaker ||
+          currentStatusEnum == OfferStatus.takerPaid) {
+        print(
+          "[TakerWaitConfirmation] Status is $currentStatusEnum. Navigating to process screen.",
+        );
+        // final paymentHash = offer.holdInvoicePaymentHash;
+        // if (paymentHash != null) {
+        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
+          _confirmationTimer?.cancel();
+          context.go("/paying-taker");
+        // } else {
+        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        // }
+      } else if (currentStatusEnum == OfferStatus.invalidBlik) {
+        _confirmationTimer?.cancel();
+        context.go('/taker-invalid-blik', extra: offer);
+      } else if (currentStatusEnum == OfferStatus.conflict) {
+        _confirmationTimer?.cancel();
+        context.go('/taker-conflict', extra: offer.id);
+      } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
+        // final paymentHash = offer.holdInvoicePaymentHash;
+        // if (paymentHash != null) {
+        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
+          _confirmationTimer?.cancel();
+          context.go('/paying-taker');
+        // } else {
+        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
+        // }
+      } else if (currentStatusEnum != OfferStatus.blikReceived &&
+          currentStatusEnum != OfferStatus.blikSentToMaker) {
+        _resetToOfferList(
+          t.offers.errors.unexpectedStateWithStatus(
+            status: currentStatusEnum.name,
+          ),
+        );
+      }
+    });
+
+    if (offer == null) {
+      // Show a loading indicator while waiting for the offer or resetting
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // Initialize timer if not already done
+    if (!_timersInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _initializeOrUpdateCountdownTimer(offer);
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -147,201 +212,7 @@ class _TakerWaitConfirmationScreenState
           ),
         ],
       ),
-      body: publicKeyAsyncValue.when(
-        data: (publicKey) {
-          if (publicKey == null) {
-            return Center(child: Text(t.system.errors.noPublicKey));
-          }
-          final offerAsyncValue = ref.watch(
-            pollingMyActiveOfferProvider(publicKey),
-          );
-
-          return offerAsyncValue.when(
-            data: (offer) {
-              if (offer == null) {
-                return const Center(
-                  child: CircularProgressIndicator(key: Key("resetting_null")),
-                );
-                print(
-                  "[TakerWaitConfirmation build] Polling provider returned null offer. Resetting.",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _resetToOfferList(t.offers.status.cancelledOrExpired);
-                  }
-                });
-              }
-
-              final currentStatusEnum = offer.statusEnum;
-
-              if (currentStatusEnum == OfferStatus.makerConfirmed ||
-                  currentStatusEnum == OfferStatus.settled ||
-                  currentStatusEnum == OfferStatus.payingTaker ||
-                  currentStatusEnum == OfferStatus.takerPaid) {
-                print(
-                  "[TakerWaitConfirmation build] Status is $currentStatusEnum. Navigating to process screen.",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    final paymentHash = offer.holdInvoicePaymentHash;
-                    if (paymentHash != null) {
-                      ref.read(paymentHashProvider.notifier).state =
-                          paymentHash;
-                      _confirmationTimer?.cancel();
-                      context.go("/paying-taker");
-                    } else {
-                      print(
-                        "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen. Resetting.",
-                      );
-                      _resetToOfferList(
-                        t.system.errors.internalOfferIncomplete,
-                      );
-                    }
-                  }
-                });
-                return const Center(
-                  child: CircularProgressIndicator(key: Key("navigating_pay")),
-                );
-              } else if (currentStatusEnum == OfferStatus.invalidBlik) {
-                print(
-                  "[TakerWaitConfirmation build] Status is invalidBlik. Navigating to invalid BLIK screen.",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _confirmationTimer?.cancel();
-                    context.go('/taker-invalid-blik', extra: offer);
-                  }
-                });
-                return const Center(
-                  child: CircularProgressIndicator(
-                    key: Key("navigating_invalid_blik"),
-                  ),
-                );
-              } else if (currentStatusEnum == OfferStatus.conflict) {
-                print(
-                  "[TakerWaitConfirmation build] Status is conflict. Navigating to conflict screen.",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _confirmationTimer?.cancel();
-                    context.go('/taker-conflict', extra: offer.id);
-                  }
-                });
-                return const Center(
-                  child: CircularProgressIndicator(
-                    key: Key("navigating_conflict"),
-                  ),
-                );
-              } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
-                print(
-                  "[TakerWaitConfirmation build] Status is takerPaymentFailed. Navigating to process screen (to show failure).",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _confirmationTimer?.cancel();
-                    final paymentHash = offer.holdInvoicePaymentHash;
-                    if (paymentHash != null) {
-                      ref.read(paymentHashProvider.notifier).state =
-                          paymentHash;
-                      context.go('/paying-taker');
-                    } else {
-                      print(
-                        "[TakerWaitConfirmation build] CRITICAL: Payment hash is null before navigating to process screen for failure. Resetting.",
-                      );
-                      _resetToOfferList(
-                        t.system.errors.internalOfferIncomplete,
-                      );
-                    }
-                  }
-                });
-                return const Center(
-                  child: CircularProgressIndicator(key: Key("navigating_fail")),
-                );
-              } else if (currentStatusEnum != OfferStatus.blikReceived &&
-                  currentStatusEnum != OfferStatus.blikSentToMaker) {
-                print(
-                  "[TakerWaitConfirmation build] Offer status ($currentStatusEnum) invalid for waiting screen. Resetting.",
-                );
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _resetToOfferList(
-                      t.offers.errors.unexpectedStateWithStatus(
-                        status: currentStatusEnum.name,
-                      ),
-                    );
-                  }
-                });
-                return const Center(
-                  child: CircularProgressIndicator(
-                    key: Key("resetting_invalid"),
-                  ),
-                );
-              }
-
-              if (!_timersInitialized) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) _initializeOrUpdateCountdownTimer(offer);
-                });
-              }
-
-              return _buildWaitingContent(context, offer);
-            },
-            loading:
-                () => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: 16),
-                      Text(t.offers.display.loadingDetails),
-                    ],
-                  ),
-                ),
-            error:
-                (error, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error,
-                        color: Theme.of(context).colorScheme.error,
-                        size: 50,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(t.offers.errors.loading(details: error.toString())),
-                    ],
-                  ),
-                ),
-          );
-        },
-        loading:
-            () => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(t.system.loadingPublicKey),
-                ],
-              ),
-            ),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 50,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(t.system.errors.loadingPublicKey),
-                  Text(error.toString()),
-                ],
-              ),
-            ),
-      ),
+      body: _buildWaitingContent(context, offer),
     );
   }
 

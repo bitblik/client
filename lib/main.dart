@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform; // Import Platform
+
+import 'package:app_links/app_links.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_confirm_payment_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
@@ -8,32 +11,39 @@ import 'package:bitblik/src/screens/maker_flow/maker_wait_taker_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
-import 'dart:io' show Platform; // Import Platform
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/nips/nip19/nip19.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'i18n/gen/strings.g.dart'; // Import Slang from new path
-import 'src/providers/providers.dart';
-import 'src/providers/locale_provider.dart'; // Import locale provider
-import 'src/screens/role_selection_screen.dart';
-import 'src/screens/maker_flow/maker_amount_form.dart';
-import 'src/screens/offer_list_screen.dart';
 import 'src/models/offer.dart'; // Needed for OfferStatus enum
+import 'src/providers/providers.dart';
+import 'src/screens/faq_screen.dart'; // Import the FAQ screen
+import 'src/screens/maker_flow/maker_amount_form.dart';
+import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
+import 'src/screens/offer_details_screen.dart';
+import 'src/screens/offer_list_screen.dart';
+import 'src/screens/role_selection_screen.dart';
+import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
-import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
-import 'src/screens/maker_flow/maker_conflict_screen.dart'; // Import the maker conflict screen
-import 'src/screens/faq_screen.dart'; // Import the FAQ screen
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
-import 'package:app_links/app_links.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
+final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+late AppLocale appLocale;
 
-// Create a GoRouter provider for navigation
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     debugLogDiagnostics: true,
@@ -47,6 +57,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/offers',
         builder: (context, state) => const AppScaffold(body: OfferListScreen()),
+      ),
+      GoRoute(
+        path: '/offers/:id',
+        builder: (context, state) {
+          final offerId = state.pathParameters['id'];
+          if (offerId == null) {
+            // Or redirect to an error page
+            return const AppScaffold(
+              body: Center(child: Text('No offer ID provided.')),
+            );
+          }
+          return AppScaffold(body: OfferDetailsScreen(offerId: offerId));
+        },
       ),
       GoRoute(
         path: '/create',
@@ -194,8 +217,22 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 Future<void> main() async {
+  // Initialize FFI for desktop platforms
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+  usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
-  LocaleSettings.useDeviceLocale(); // Initialize Slang with device locale
+  String? localeString = await asyncPrefs.getString('app_locale');
+  if (localeString != null) {
+    appLocale = localeString == 'pl' ? AppLocale.pl : AppLocale.en;
+  } else {
+    appLocale = AppLocaleUtils.findDeviceLocale();
+  }
+  LocaleSettings.setLocale(appLocale);
   runApp(
     TranslationProvider(
       // Wrap with TranslationProvider
@@ -219,6 +256,36 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
+    try {
+      ref.read(keyServiceProvider);
+      ref.read(apiServiceProvider);
+
+      print(
+        '🚀 App initialized: API service and coordinator discovery started',
+      );
+    } catch (e) {
+      print('❌ Error during app initialization: $e');
+    }
+
+    // Initialize API service and start coordinator discovery
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await ref.read(initializedApiServiceProvider.future);
+
+        // Start coordinator discovery
+        // ref.read(coordinatorDiscoveryProvider);
+
+        // Initialize the offer status subscription manager
+        ref.read(offerStatusSubscriptionManagerProvider);
+
+        print(
+          '🚀 App initialized: API service and coordinator discovery started',
+        );
+      } catch (e) {
+        print('❌ Error during app initialization: $e');
+      }
+    });
+
     // Only listen for deep links on Android/iOS, not web
     if (!kIsWeb) {
       _sub = _appLinks.uriLinkStream.listen(
@@ -229,7 +296,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             final fragment = uri.fragment;
             final router = ref.read(routerProvider);
             if (path == '/offers' || fragment == '/offers') {
-              router.go('/offers');
+              kIsWeb ? router.go('/offers') : router.push('/offers');
             }
           }
         },
@@ -249,27 +316,17 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final locale = ref.watch(localeProvider); // Watch the locale provider
-
-    // Update Slang locale when provider changes
-    if (locale != null &&
-        LocaleSettings.currentLocale.languageCode != locale.languageCode) {
-      final appLocale =
-          locale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
-      LocaleSettings.setLocale(appLocale);
-    }
+    final t = Translations.of(context);
 
     return MaterialApp.router(
-      title: t.app.title, // Use Slang for title
+      title: t.app.title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      locale: LocaleSettings.currentLocale.flutterLocale, // Use Slang locale
-      supportedLocales:
-          AppLocaleUtils.supportedLocales, // Use Slang supported locales
-      localizationsDelegates:
-          GlobalMaterialLocalizations.delegates, // Use Slang delegates
+      locale: appLocale.flutterLocale,
+      supportedLocales: AppLocaleUtils.supportedLocales,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: router,
     );
   }
@@ -287,13 +344,11 @@ class AppScaffold extends ConsumerStatefulWidget {
 }
 
 class _AppScaffoldState extends ConsumerState<AppScaffold> {
-  Timer? _activeOfferRefreshTimer;
   String? _clientVersion;
 
   @override
   void initState() {
     super.initState();
-    _startActiveOfferRefreshTimer();
     _loadVersion();
   }
 
@@ -308,36 +363,275 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
   @override
   void dispose() {
-    _activeOfferRefreshTimer?.cancel();
     super.dispose();
   }
 
-  void _startActiveOfferRefreshTimer() {
-    _activeOfferRefreshTimer?.cancel();
-    // Refresh immediately first time after a short delay
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        print("[AppScaffold] Initial refresh of active offer.");
-        ref.invalidate(initialActiveOfferProvider);
-      }
-    });
-    // Then refresh periodically (e.g., every 1 seconds)
-    _activeOfferRefreshTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) {
-      if (mounted) {
-        // print("[AppScaffold] Periodic refresh of active offer.");
-        ref.invalidate(initialActiveOfferProvider);
-      } else {
-        timer.cancel(); // Stop timer if widget is disposed
-      }
-    });
+  void _showNekoInfoDialog(String pubKey) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.nekoInfo.title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(t.nekoInfo.description),
+              SizedBox(height: 20),
+              SelectableText(Nip19.encodePubKey(pubKey)),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showGenerateNewKeyDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final activeOffer = ref.read(activeOfferProvider);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.generateNewKey.title),
+          content: Text(
+            activeOffer != null
+                ? t.generateNewKey.errors.activeOffer
+                : t.generateNewKey.description,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            if (activeOffer == null)
+              TextButton(
+                child: Text(t.generateNewKey.buttons.generate),
+                onPressed: () async {
+                  try {
+                    await keyService.generateNewKeyPair();
+
+                    // Clear the active offer when restoring a new key
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(null);
+
+                    // Invalidate providers to force re-initialization
+                    ref.invalidate(keyServiceProvider);
+                    ref.invalidate(apiServiceProvider);
+                    ref.invalidate(initializedApiServiceProvider);
+                    ref.invalidate(publicKeyProvider);
+                    ref.invalidate(coordinatorDiscoveryProvider);
+
+                    // Show loading indicator
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
+                    );
+
+                    // Re-initialize services
+                    await ref.read(initializedApiServiceProvider.future);
+                    ref.read(coordinatorDiscoveryProvider);
+
+                    Navigator.of(context).pop(); // Close loading dialog
+                    Navigator.of(context).pop(); // Close generate key dialog
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t.generateNewKey.feedback.success),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  // --- Backup and Restore Dialogs ---
+
+  void _showBackupDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final privateKey = keyService.privateKeyHex;
+    if (privateKey == null) return;
+
+    bool isRevealed = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(t.backup.title),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(t.backup.description),
+                    const SizedBox(height: 16),
+                    SelectableText(
+                      isRevealed
+                          ? Nip19.encodePrivateKey(privateKey)
+                          : '****************************************************************',
+                      style: const TextStyle(fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton.icon(
+                  icon: Icon(
+                    isRevealed ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  label: Text(
+                    isRevealed
+                        ? t.common.buttons.hide
+                        : t.common.buttons.reveal,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isRevealed = !isRevealed;
+                    });
+                  },
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.copy),
+                  label: Text(t.common.buttons.copy),
+                  onPressed: () {
+                    Clipboard.setData(
+                      ClipboardData(text: Nip19.encodePrivateKey(privateKey)),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.backup.feedback.copied)),
+                    );
+                  },
+                ),
+                TextButton(
+                  child: Text(t.common.buttons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showRestoreDialog() {
+    final keyService = ref.read(keyServiceProvider);
+    final TextEditingController privateKeyController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.restore.title),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: privateKeyController,
+              decoration: InputDecoration(
+                labelText: t.restore.labels.privateKey,
+                hintText: 'e.g., nsec1...',
+              ),
+              validator: (value) {
+                if (value == null || !Nip19.isPrivateKey(value)) {
+                  return t.restore.errors.invalidKey;
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.common.buttons.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(t.restore.buttons.restore),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    String pKey = Nip19.decode(privateKeyController.text);
+                    await keyService.savePrivateKey(pKey);
+
+                    // Clear the active offer when restoring a new key
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(null);
+
+                    // Invalidate providers to force re-initialization
+                    ref.invalidate(keyServiceProvider);
+                    ref.invalidate(apiServiceProvider);
+                    ref.invalidate(initializedApiServiceProvider);
+                    ref.invalidate(publicKeyProvider);
+                    ref.invalidate(coordinatorDiscoveryProvider);
+
+                    // Show loading indicator
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
+                    );
+
+                    // Re-initialize services
+                    await ref.read(initializedApiServiceProvider.future);
+                    ref.read(coordinatorDiscoveryProvider);
+
+                    Navigator.of(context).pop(); // Close loading dialog
+                    Navigator.of(context).pop(); // Close restore dialog
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.restore.feedback.success)),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.restore.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final publicKeyAsync = ref.watch(publicKeyProvider);
-    final appRole = ref.watch(appRoleProvider); // This line needs to be active
     final String currentPath = GoRouterState.of(context).uri.toString();
 
     Widget appBarTitle;
@@ -349,17 +643,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       appBarTitle = MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: () {
-            // Reset relevant state providers
-            ref.read(appRoleProvider.notifier).state = AppRole.none;
-            ref.read(activeOfferProvider.notifier).state = null;
+          onTap: () async {
+            // Reset relevant state providers (but keep active offer)
             ref.read(holdInvoiceProvider.notifier).state = null;
             ref.read(paymentHashProvider.notifier).state = null;
             ref.read(receivedBlikCodeProvider.notifier).state = null;
             ref.read(errorProvider.notifier).state = null;
             ref.read(isLoadingProvider.notifier).state = false;
             ref.invalidate(availableOffersProvider);
-            ref.invalidate(initialActiveOfferProvider);
             context.go('/');
           },
           child: Row(
@@ -368,7 +659,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               Text(t.app.title),
               const SizedBox(width: 4),
               Text(
-                _clientVersion != null ? 'alpha v$_clientVersion' : 'alpha',
+                _clientVersion != null ? 'v$_clientVersion beta' : 'beta',
                 style: const TextStyle(fontSize: 10, color: Colors.black45),
               ),
             ],
@@ -393,18 +684,25 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ), // Consider Theme.of(context).appBarTheme.backgroundColor or similar
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: DropdownButton<AppLocale>(
-              // Use AppLocale from Slang
-              value: LocaleSettings.currentLocale, // Use Slang current locale
+              value: appLocale,
               icon: const Icon(Icons.language),
               underline: const SizedBox.shrink(),
-              onChanged: (AppLocale? newLocale) {
+              onChanged: (AppLocale? newLocale) async {
                 if (newLocale != null) {
-                  LocaleSettings.setLocale(newLocale); // Set Slang locale
-                  ref
-                      .read(localeProvider.notifier)
-                      .setLocale(
-                        newLocale.flutterLocale,
-                      ); // Update Riverpod provider
+                  await asyncPrefs.setString(
+                    'app_locale',
+                    newLocale.languageCode,
+                  );
+                  // LocaleSettings.setLocale(newLocale); // Set Slang locale
+                  // ref.read(localeProvider.notifier).setLocale(newLocale.flutterLocale); // Update Riverpod provider
+                  if (LocaleSettings.currentLocale.languageCode !=
+                      newLocale.languageCode) {
+                    appLocale =
+                        newLocale.languageCode == 'pl'
+                            ? AppLocale.pl
+                            : AppLocale.en;
+                    LocaleSettings.setLocale(appLocale);
+                  }
                 }
               },
               items:
@@ -435,17 +733,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             IconButton(
               icon: const Icon(Icons.home),
               tooltip: t.common.buttons.goHome, // Use Slang for tooltip
-              onPressed: () {
-                // Reset relevant state providers
-                ref.read(appRoleProvider.notifier).state = AppRole.none;
-                ref.read(activeOfferProvider.notifier).state = null;
+              onPressed: () async {
+                // Reset relevant state providers (but keep active offer)
                 ref.read(holdInvoiceProvider.notifier).state = null;
                 ref.read(paymentHashProvider.notifier).state = null;
                 ref.read(receivedBlikCodeProvider.notifier).state = null;
                 ref.read(errorProvider.notifier).state = null;
                 ref.read(isLoadingProvider.notifier).state = false;
                 ref.invalidate(availableOffersProvider);
-                ref.invalidate(initialActiveOfferProvider);
 
                 // Navigate to home
                 context.go('/');
@@ -456,12 +751,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             icon: const Icon(Icons.help_outline),
             tooltip: 'FAQ', // Consider localizing: t.common.buttons.faq
             onPressed: () {
-              context.push(FaqScreen.routeName);
+              kIsWeb
+                  ? context.go(FaqScreen.routeName)
+                  : context.push(FaqScreen.routeName);
             },
           ),
         ],
       ),
-      body: _buildBody(appRole, widget.body),
+      body: _buildBody(widget.body),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -491,7 +788,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           }
                         }
                       },
-                      child: Icon(Icons.android, size: 32, color: Colors.green),
+                      child: Image.asset(
+                        'assets/apk.png',
+                        width: 100,
+                        height: 31,
+                        fit: BoxFit.contain,
+                      ),
+                      //  Icon(Icons.android, size: 32, color: Colors.green),
                     ),
                     const SizedBox(width: 16),
                     InkWell(
@@ -513,10 +816,54 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               data:
                   (publicKey) =>
                       publicKey != null
-                          ? SelectableText(
-                            'Your PubKey: $publicKey', // This can remain hardcoded or be added to Slang if needed
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
+                          ? MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () => _showNekoInfoDialog(publicKey),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
+                                  // const SizedBox(width: 4),
+                                  CachedNetworkImage(
+                                    imageUrl:
+                                        'https://robohash.org/$publicKey?set=set4',
+                                    placeholder:
+                                        (context, url) =>
+                                            const CircularProgressIndicator(),
+                                    errorWidget:
+                                        (context, url, error) =>
+                                            const Icon(Icons.error),
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.backup),
+                                    tooltip: 'Backup Neko',
+                                    onPressed: _showBackupDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.restore),
+                                    tooltip: 'Restore Neko',
+                                    onPressed: _showRestoreDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.refresh),
+                                    tooltip: 'Generate New Neko',
+                                    onPressed: _showGenerateNewKeyDialog,
+                                  ),
+                                ],
+                              ),
+                            ),
                           )
                           : const SizedBox.shrink(),
               loading:
@@ -580,36 +927,37 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   }
 
   // Body builder that handles both direct routes and role-based content
-  Widget _buildBody(AppRole role, Widget directChild) {
+  Widget _buildBody(Widget directChild) {
     // If we're displaying a direct route's content, show that
     if (directChild is! RoleSelectionScreen) {
       return directChild;
     }
 
     // Otherwise, use the role-based logic for default screens
-    switch (role) {
-      case AppRole.maker:
-        return const MakerAmountForm();
-      case AppRole.taker:
-        final activeOffer = ref.watch(activeOfferProvider);
-        if (activeOffer == null) {
-          return const OfferListScreen();
-        } else {
-          if (activeOffer.status == OfferStatus.reserved.name) {
-            return TakerSubmitBlikScreen(initialOffer: activeOffer);
-          } else if (activeOffer.status == OfferStatus.blikReceived.name ||
-              activeOffer.status == OfferStatus.blikSentToMaker.name ||
-              activeOffer.status == OfferStatus.makerConfirmed.name) {
-            return TakerWaitConfirmationScreen(offer: activeOffer);
-          } else {
-            print(
-              "[AppScaffold] Taker role active but offer status (${activeOffer.status}) not suitable for flow screens. Showing OfferListScreen.",
-            );
-            return const OfferListScreen();
-          }
-        }
-      case AppRole.none:
-        return const RoleSelectionScreen();
-    }
+    // switch (role) {
+    //   case AppRole.maker:
+    //     return const MakerAmountForm();
+    //   case AppRole.taker:
+    //     final activeOffer = ref.watch(activeOfferProvider);
+    //     if (activeOffer == null) {
+    //       return const OfferListScreen();
+    //     } else {
+    //       if (activeOffer.status == OfferStatus.reserved.name) {
+    //         return TakerSubmitBlikScreen(initialOffer: activeOffer);
+    //       } else if (activeOffer.status == OfferStatus.blikReceived.name ||
+    //           activeOffer.status == OfferStatus.blikSentToMaker.name ||
+    //           activeOffer.status == OfferStatus.makerConfirmed.name) {
+    //         return TakerWaitConfirmationScreen(offer: activeOffer);
+    //       } else {
+    //         print(
+    //           "[AppScaffold] Taker role active but offer status (${activeOffer.status}) not suitable for flow screens. Showing OfferListScreen.",
+    //         );
+    //         return const OfferListScreen();
+    //       }
+    //     }
+    //   case AppRole.none:
+    //     return const RoleSelectionScreen();
+    // }
+    return const RoleSelectionScreen();
   }
 }

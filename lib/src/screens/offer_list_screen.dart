@@ -25,9 +25,6 @@ class OfferListScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferListScreenState extends ConsumerState<OfferListScreen> {
-  Timer? _refreshTimer;
-
-  bool _timerActive = false;
   bool _requestedFocus = false;
   String? _validationError;
   bool _hasValidatedInitialAddress = false;
@@ -49,7 +46,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     super.initState();
     _hasValidatedInitialAddress = false;
     _isValidating = false;
-    _loadCoordinatorConfig();
+    // _loadCoordinatorConfig();
   }
 
   Future<void> _loadCoordinatorConfig() async {
@@ -60,9 +57,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      final offer = ref.read(activeOfferProvider);
+      final coordinatorPubkey = offer?.coordinatorPubkey;
+      if (coordinatorPubkey == null)
+        throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+        coordinatorPubkey,
+      );
+      if (coordinatorInfo == null)
+        throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
-
       setState(() {
         _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
@@ -84,56 +88,28 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _addressFocusNode.dispose();
     super.dispose();
   }
 
-  void _startRefreshTimer() {
-    if (_timerActive) return;
-    _timerActive = true;
-    _refreshTimer?.cancel();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
-      }
-    });
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (mounted) {
-        print("[OfferListScreen] Periodic refresh.");
-        ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  void _stopRefreshTimer() {
-    _refreshTimer?.cancel();
-    _timerActive = false;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final router = GoRouter.of(context);
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
+    final t = Translations.of(context);
 
     final offersAsyncValue = ref.watch(availableOffersProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
-    final myActiveOfferAsyncValue = ref.watch(initialActiveOfferProvider);
+    final myActiveOffer = ref.watch(activeOfferProvider);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: lightningAddressAsync.when(
         loading: () {
-          _stopRefreshTimer();
           return const Center(child: CircularProgressIndicator());
         },
         error: (e, s) {
-          _stopRefreshTimer();
-
           return Center(
             child: Text(
               t.lightningAddress.errors.loading(details: e.toString()),
@@ -160,8 +136,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
           }
 
           if (lightningAddress == null || lightningAddress.isEmpty) {
-            _stopRefreshTimer();
-
             // Only request focus the first time after widget is mounted and input is shown
             if (_requestedFocus && _addressFocusNode.hasFocus) {
               // do nothing, already focused
@@ -289,7 +263,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
           // Lightning address exists, show offers list as before
           _requestedFocus = false;
-          _startRefreshTimer();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -510,7 +483,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: InkWell(
                   onTap: () async {
                     final Uri url = Uri.parse(
-                      'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
+                      //'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
+                      'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2F-FjYjoPVW323UWnxJ-ICEIvlUY0vnuRM%23%2F%3Fv%3D1-4%26dh%3DMCowBQYDK2VuAyEAX-eUfNzP4E_n0BkC-5A7iqHrchhcDC23FopK4JPXm3Q%253D%26q%3Dc%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22pG-_A9dIAhbdz8ZTTpbNdQ%3D%3D%22%7D'
                     );
                     await launchUrl(url);
                   },
@@ -539,7 +513,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: InkWell(
                   onTap: () async {
                     final Uri url = Uri.parse(
-                      'https://matrix.to/#/#bitblik-offers:matrix.org',
+                      // 'https://matrix.to/#/#bitblik-offers:matrix.org',
+                      'https://matrix.to/#/#test-bitblik-offers:matrix.org'
                     );
                     await launchUrl(url);
                   },
@@ -605,12 +580,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                   "[OfferListScreen] Manual refresh triggered.",
                                 );
                                 ref.invalidate(availableOffersProvider);
-                                ref.invalidate(initialActiveOfferProvider);
+                                ref.invalidate(activeOfferProvider);
                                 await ref.read(availableOffersProvider.future);
                               },
                               child: ListView.builder(
                                 itemCount: activeOffers.length,
-                                itemBuilder: (context, index) {
+                                itemBuilder: (innerContext, index) {
                                   final offer = activeOffers[index];
                                   final bool isFunded =
                                       offer.status == OfferStatus.funded.name;
@@ -626,7 +601,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     trailingWidget = ElevatedButton(
                                       onPressed: publicKeyAsyncValue.maybeWhen(
                                         data:
-                                            (publicKey) => () async {
+                                            (publicKey) => () {
                                               if (publicKey == null) {
                                                 return;
                                               }
@@ -648,89 +623,101 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     ),
                                               );
                                               try {
-                                                final DateTime?
-                                                reservationTimestamp =
-                                                    await apiService
-                                                        .reserveOffer(
-                                                          offer.id,
-                                                          takerId,
+                                                // final DateTime?  =
+                                                apiService
+                                                    .reserveOffer(
+                                                      offer.id,
+                                                      takerId,
+                                                      offer.coordinatorPubkey,
+                                                    )
+                                                    .then((
+                                                      reservationTimestamp,
+                                                    ) {
+                                                      if (reservationTimestamp !=
+                                                          null) {
+                                                        final Offer
+                                                        updatedOffer = Offer(
+                                                          id: offer.id,
+                                                          amountSats:
+                                                              offer.amountSats,
+                                                          takerFees:
+                                                              offer.takerFees,
+                                                          makerFees:
+                                                              offer.makerFees,
+                                                          fiatCurrency:
+                                                              offer
+                                                                  .fiatCurrency,
+                                                          fiatAmount:
+                                                              offer.fiatAmount,
+                                                          status:
+                                                              OfferStatus
+                                                                  .reserved
+                                                                  .name,
+                                                          coordinatorPubkey:
+                                                              offer
+                                                                  .coordinatorPubkey,
+                                                          createdAt:
+                                                              offer.createdAt,
+                                                          makerPubkey:
+                                                              offer.makerPubkey,
+                                                          takerPubkey: takerId,
+                                                          reservedAt:
+                                                              reservationTimestamp,
+                                                          blikReceivedAt:
+                                                              offer
+                                                                  .blikReceivedAt,
+                                                          blikCode:
+                                                              offer.blikCode,
+                                                          holdInvoicePaymentHash:
+                                                              offer
+                                                                  .holdInvoicePaymentHash,
                                                         );
 
-                                                if (reservationTimestamp !=
-                                                    null) {
-                                                  final Offer
-                                                  updatedOffer = Offer(
-                                                    id: offer.id,
-                                                    amountSats:
-                                                        offer.amountSats,
-                                                    takerFees: offer.takerFees,
-                                                    makerFees: offer.makerFees,
-                                                    fiatCurrency:
-                                                        offer.fiatCurrency,
-                                                    fiatAmount:
-                                                        offer.fiatAmount,
-                                                    status:
-                                                        OfferStatus
-                                                            .reserved
-                                                            .name,
-                                                    createdAt: offer.createdAt,
-                                                    makerPubkey:
-                                                        offer.makerPubkey,
-                                                    takerPubkey: takerId,
-                                                    reservedAt:
-                                                        reservationTimestamp,
-                                                    blikReceivedAt:
-                                                        offer.blikReceivedAt,
-                                                    blikCode: offer.blikCode,
-                                                    holdInvoicePaymentHash:
-                                                        offer
-                                                            .holdInvoicePaymentHash,
-                                                  );
+                                                        ref
+                                                            .read(
+                                                              activeOfferProvider
+                                                                  .notifier,
+                                                            )
+                                                            .setActiveOffer(
+                                                              updatedOffer,
+                                                            );
 
-                                                  ref
-                                                      .read(
-                                                        activeOfferProvider
-                                                            .notifier,
-                                                      )
-                                                      .state = updatedOffer;
-                                                  ref
-                                                      .read(
-                                                        appRoleProvider
-                                                            .notifier,
-                                                      )
-                                                      .state = AppRole.taker;
-
-                                                  context.go(
-                                                    "/submit-blik",
-                                                    extra: updatedOffer,
-                                                  );
-                                                } else {
-                                                  Navigator.of(context).pop();
-                                                  ref
-                                                      .read(
-                                                        errorProvider.notifier,
-                                                      )
-                                                      .state = t
-                                                          .reservations
-                                                          .errors
-                                                          .failedNoTimestamp;
-                                                  if (scaffoldMessenger
-                                                      .mounted) {
-                                                    scaffoldMessenger.showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          t
-                                                              .reservations
-                                                              .errors
-                                                              .failedNoTimestamp,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }
-                                                  ref.invalidate(
-                                                    availableOffersProvider,
-                                                  );
-                                                }
+                                                        router.go(
+                                                          "/submit-blik",
+                                                          extra: updatedOffer,
+                                                        );
+                                                      } else {
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                        ref
+                                                            .read(
+                                                              errorProvider
+                                                                  .notifier,
+                                                            )
+                                                            .state = t
+                                                                .reservations
+                                                                .errors
+                                                                .failedNoTimestamp;
+                                                        if (scaffoldMessenger
+                                                            .mounted) {
+                                                          scaffoldMessenger
+                                                              .showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    t
+                                                                        .reservations
+                                                                        .errors
+                                                                        .failedNoTimestamp,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                        }
+                                                        ref.invalidate(
+                                                          availableOffersProvider,
+                                                        );
+                                                      }
+                                                    });
                                               } catch (e) {
                                                 if (Navigator.of(
                                                   context,
@@ -768,113 +755,81 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       child: Text(t.offers.actions.take),
                                     );
                                   } else if (isReserved || isBlikReceived) {
-                                    trailingWidget = myActiveOfferAsyncValue.when(
-                                      data: (myOffer) {
-                                        if (myOffer != null &&
-                                            offer.id == myOffer.id) {
-                                          return ElevatedButton(
-                                            child: Text(
-                                              t.offers.actions.resume,
-                                            ),
-                                            onPressed: () {
-                                              ref
-                                                  .read(
-                                                    activeOfferProvider
-                                                        .notifier,
-                                                  )
-                                                  .state = myOffer;
-                                              ref
-                                                  .read(
-                                                    appRoleProvider.notifier,
-                                                  )
-                                                  .state = AppRole.taker;
+                                    if (myActiveOffer != null &&
+                                        offer.id == myActiveOffer.id) {
+                                      trailingWidget = ElevatedButton(
+                                        child: Text(t.offers.actions.resume),
+                                        onPressed: () {
+                                          ref
+                                              .read(
+                                                activeOfferProvider.notifier,
+                                              )
+                                              .setActiveOffer(myActiveOffer);
 
-                                              // Determine which screen to navigate to based on status
-                                              Widget destinationScreen;
-                                              if (myOffer.status ==
-                                                  OfferStatus.reserved.name) {
-                                                destinationScreen =
-                                                    TakerSubmitBlikScreen(
-                                                      initialOffer: myOffer,
-                                                    );
-                                              } else if (myOffer.status ==
-                                                      OfferStatus
-                                                          .blikReceived
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .blikSentToMaker
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .makerConfirmed
-                                                          .name) {
-                                                destinationScreen =
-                                                    TakerWaitConfirmationScreen(
-                                                      offer: myOffer,
-                                                    );
-                                              } else {
-                                                print(
-                                                  "[OfferListScreen] Error: Resuming offer in unexpected state: ${myOffer.status}",
+                                          // Determine which screen to navigate to based on status
+                                          Widget destinationScreen;
+                                          if (myActiveOffer.status ==
+                                              OfferStatus.reserved.name) {
+                                            destinationScreen =
+                                                TakerSubmitBlikScreen(
+                                                  initialOffer: myActiveOffer,
                                                 );
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      t
-                                                          .offers
-                                                          .errors
-                                                          .unexpectedState,
-                                                    ),
-                                                  ),
+                                          } else if (myActiveOffer.status ==
+                                                  OfferStatus
+                                                      .blikReceived
+                                                      .name ||
+                                              myActiveOffer.status ==
+                                                  OfferStatus
+                                                      .blikSentToMaker
+                                                      .name ||
+                                              myActiveOffer.status ==
+                                                  OfferStatus
+                                                      .makerConfirmed
+                                                      .name) {
+                                            destinationScreen =
+                                                TakerWaitConfirmationScreen(
+                                                  offer: myActiveOffer,
                                                 );
-                                                return;
-                                              }
-
-                                              Navigator.of(
-                                                context,
-                                                rootNavigator: true,
-                                              ).push(
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (context) =>
-                                                          destinationScreen,
+                                          } else {
+                                            print(
+                                              "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer.status}",
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  t
+                                                      .offers
+                                                      .errors
+                                                      .unexpectedState,
                                                 ),
-                                              );
-                                            },
-                                          );
-                                        } else {
-                                          return Text(
-                                            offer.status.toUpperCase(),
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          Navigator.of(
+                                            context,
+                                            rootNavigator: true,
+                                          ).push(
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      destinationScreen,
                                             ),
                                           );
-                                        }
-                                      },
-                                      loading:
-                                          () => const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                      error: (e, s) {
-                                        print(
-                                          "Error loading myActiveOffer: $e",
-                                        );
-                                        return Text(
-                                          offer.status.toUpperCase(),
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                    );
+                                        },
+                                      );
+                                    } else {
+                                      trailingWidget = Text(
+                                        offer.status.toUpperCase(),
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }
                                   } else {
                                     trailingWidget = Text(
                                       offer.status.toUpperCase(),
@@ -889,24 +844,31 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
                                   return Column(
                                     children: [
-                                      Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 5.0,
-                                        ),
-                                        child: ListTile(
-                                          title: Text(
-                                            t.offers.details.amountWithCurrency(
-                                              amount: formatDouble(
-                                                offer.fiatAmount ?? 0.0,
-                                              ),
-                                              currency: offer.fiatCurrency,
+                                      InkWell(
+                                        onTap: () {
+                                          context.go('/offers/${offer.id}');
+                                        },
+                                        child: Card(
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 5.0,
+                                          ),
+                                          child: ListTile(
+                                            title: Text(
+                                              t.offers.details
+                                                  .amountWithCurrency(
+                                                    amount: formatDouble(
+                                                      offer.fiatAmount ?? 0.0,
+                                                    ),
+                                                    currency:
+                                                        offer.fiatCurrency,
+                                                  ),
                                             ),
+                                            subtitle: Text(
+                                              '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
+                                            ),
+                                            isThreeLine: true,
+                                            trailing: trailingWidget,
                                           ),
-                                          subtitle: Text(
-                                            '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
-                                          ),
-                                          isThreeLine: true,
-                                          trailing: trailingWidget,
                                         ),
                                       ),
                                       if (isFunded)
@@ -1001,7 +963,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     );
                   },
                   loading:
-                      () => const Center(child: CircularProgressIndicator()),
+                      () =>
+                          Container(), //const Center(child: CircularProgressIndicator()),
                   error:
                       (error, stackTrace) => Center(
                         child: Column(

@@ -256,7 +256,7 @@ maker:
     disputeDialog:
       title: Otworzyć spór?
       content: Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co zajmie czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura hold zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.
-      contentDetailed: "Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning."
+      contentDetailed: "Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty). Upewnij się, że masz skonfigurowany adres Lightning."
       actions:
         confirm: Otwórz Spór
         cancel: Anuluj
@@ -420,6 +420,45 @@ taker:
 blik:
   instructions:
     taker: "Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem."
+
+# =============================================================================
+# KEY MANAGEMENT
+# =============================================================================
+nekoInfo:
+  title: Czym jest Neko?
+  description: "Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty."
+
+generateNewKey:
+  title: Wygeneruj nowe Neko
+  description: Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.
+  buttons:
+    generate: Generuj
+  errors:
+    activeOffer: Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.
+    failed: "Nie udało się wygenerować nowego Neko"
+  feedback:
+    success: Nowe Neko wygenerowane pomyślnie!
+
+# =============================================================================
+# BACKUP AND RESTORE
+# =============================================================================
+backup:
+  title: Zarchiwizuj Neko
+  description: To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.
+  feedback:
+    copied: Klucz prywatny skopiowany do schowka!
+
+restore:
+  title: Przywróć Neko
+  labels:
+    privateKey: Klucz prywatny
+  buttons:
+    restore: Przywróć
+  errors:
+    invalidKey: Musi to być 64-znakowy ciąg szesnastkowy.
+    failed: "Przywracanie nie powiodło się"
+  feedback:
+    success: Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.
 
 # =============================================================================
 # HOME SCREEN / OFFER LIST

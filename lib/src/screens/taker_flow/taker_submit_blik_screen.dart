@@ -10,7 +10,6 @@ import '../../models/offer.dart';
 import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
-import '../../services/api_service.dart'; // Added
 
 // --- BlikInputProgressIndicator Widget ---
 class BlikInputProgressIndicator extends StatefulWidget {
@@ -173,13 +172,19 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       // Fetch CoordinatorInfo first
       try {
-        _coordinatorInfo = await apiService.getCoordinatorInfo();
+        final offer = widget.initialOffer;
+        final coordinatorPubkey = offer?.coordinatorPubkey;
+        if (coordinatorPubkey != null) {
+          _coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+            coordinatorPubkey,
+          );
+        }
         if (_coordinatorInfo != null) {
           _maxBlikInputTime = Duration(
             seconds: _coordinatorInfo!.reservationSeconds,
           );
         } else {
-          // Fallback if coordinator info is somehow null, though getCoordinatorInfo should throw
+          // Fallback if coordinator info is somehow null
           _maxBlikInputTime = const Duration(seconds: 20); // Default fallback
           print(
             "[TakerSubmitBlikScreen] Warning: CoordinatorInfo was null, using default timeout.",
@@ -233,7 +238,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
       // --- End Validation ---
 
-      ref.read(activeOfferProvider.notifier).state = fullOffer;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
       print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
       // Ensure _maxBlikInputTime is set before starting timer
@@ -306,18 +311,18 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
   }
 
-  void _handleBlikInputTimeout() {
+  Future<void> _handleBlikInputTimeout() async {
     _blikInputTimer?.cancel();
     if (mounted) {
       print("[TakerSubmitBlikScreen] BLIK input timer expired.");
-      ref.read(activeOfferProvider.notifier).state = null;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
       _resetToOfferList(t.taker.submitBlik.timeExpired);
     }
   }
 
-  void _resetToOfferList(String message) {
+  Future<void> _resetToOfferList(String message) async {
     _blikInputTimer?.cancel();
-    ref.read(activeOfferProvider.notifier).state = null;
+    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(errorProvider.notifier).state = null;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
     Navigator.maybeOf(context);
@@ -408,7 +413,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   Future<void> _submitBlik() async {
     _blikInputTimer?.cancel();
 
-    final offer = ref.read(activeOfferProvider);
+    final offer = widget.initialOffer;
     final blikCode = _blikController.text;
     final takerId = ref.read(publicKeyProvider).value;
     final keyService = ref.read(keyServiceProvider);
@@ -461,6 +466,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         takerId: takerId,
         blikCode: blikCode,
         takerLightningAddress: lnAddress,
+        coordinatorPubkey: offer.coordinatorPubkey,
       );
 
       final updatedOffer = offer.copyWith(
@@ -468,7 +474,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         blikReceivedAt: DateTime.now(),
         blikCode: blikCode,
       );
-      ref.read(activeOfferProvider.notifier).state = updatedOffer;
+      await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
       print(
         "[TakerSubmitBlikScreen] BLIK submitted. Navigating to WaitConfirmation.",
@@ -656,7 +662,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                         ref.read(errorProvider.notifier).state = null;
                         try {
                           final apiService = ref.read(apiServiceProvider);
-                          await apiService.cancelReservation(offer.id, takerId);
+                          await apiService.cancelReservation(
+                            offer.id,
+                            takerId,
+                            offer.coordinatorPubkey,
+                          );
                           if (mounted) {
                             _resetToOfferList(
                               t.reservations.feedback.cancelled,

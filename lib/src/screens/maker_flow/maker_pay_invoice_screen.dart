@@ -34,7 +34,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     try {
       checkWeblnSupport((supported) {
-        print("!!!!!!!!!!!!!!! isWallet: $isWallet, supported: $supported");
+        // print("!!!!!!!!!!!!!!! isWallet: $isWallet, supported: $supported");
         if (mounted) {
           setState(() {
             isWallet = supported;
@@ -42,87 +42,60 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
         }
       });
     } catch (e) {
-      print("!!!!catch $e");
-
+      // print("!!!!catch $e");
     }
-    // Start polling immediately when this screen is shown
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _startPollingInvoiceStatus();
-      }
-    });
+    // No longer need to start polling - will use subscription instead
   }
 
   @override
   void dispose() {
-    _statusPollTimer?.cancel(); // Cancel timer on dispose
     super.dispose();
   }
 
-  // --- Polling Logic ---
-  void _startPollingInvoiceStatus() {
-    _statusPollTimer?.cancel(); // Cancel existing timer
-    final paymentHash = ref.read(
-      paymentHashProvider,
-    ); // Read, don't watch in timer callback
-    if (paymentHash == null || !mounted) return;
+  // --- Status Update Handler ---
+  void _handleStatusUpdate(OfferStatus? status) async {
+    if (status == null || !mounted) return;
 
-    print(
-      '[MakerPayInvoiceScreen] Starting polling for payment hash: $paymentHash',
-    );
-    _statusPollTimer = Timer.periodic(const Duration(seconds: 1), (
-      timer,
-    ) async {
-      // Check mounted at the beginning of the callback
-      if (!mounted) {
-        timer.cancel();
-        return;
+    print('[MakerPayInvoiceScreen] Status update received: $status');
+
+    final publicKey = ref.read(publicKeyProvider).value;
+    if (publicKey == null) {
+      throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
+    }
+
+    final apiService = ref.read(apiServiceProvider);
+    final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+    final offer = ref.read(activeOfferProvider);
+
+    if (fullOfferData == null || offer == null) {
+      throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
+    }
+
+    Map<String, dynamic> json = offer.toJson();
+
+    json['id'] = fullOfferData['id'];
+    json['status'] = fullOfferData['status'];
+    json['created_at'] = fullOfferData['created_at'];
+    json['fiat_amount'] = fullOfferData['fiat_amount'];
+    json['fiat_currency'] = fullOfferData['fiat_currency'];
+    json['amount_sats'] = fullOfferData['amount_sats'];
+    json['maker_fees'] = fullOfferData['maker_fees'];
+
+    final updatedOffer = Offer.fromJson(json);
+    await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
+
+    if (status.index >= OfferStatus.funded.index) {
+      print(
+        '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
+      );
+      if (mounted) {
+        context.go("/wait-taker");
       }
-      final apiService = ref.read(apiServiceProvider); // Use read inside timer
-      try {
-        final status = await apiService.getOfferStatus(paymentHash);
-        // print('[MakerPayInvoiceScreen] Poll result for $paymentHash: $status');
-        if (status != null && status != 'pending_creation') {
-          final offerStatus = OfferStatus.values.byName(status);
-          if (offerStatus.index >= OfferStatus.funded.index) {
-            print(
-              '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
-            );
-            _statusPollTimer?.cancel(); // Stop polling
-            final publicKey = ref.read(publicKeyProvider).value;
-            if (publicKey == null) {
-              throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
-            }
-
-            final fullOfferData = await apiService.getMyActiveOffer(publicKey);
-
-            if (fullOfferData == null) {
-              throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
-            }
-
-            final fullOffer = Offer.fromJson(fullOfferData);
-
-            ref.read(activeOfferProvider.notifier).state = fullOffer;
-
-            if (mounted) {
-              context.go("/wait-taker");
-            }
-          } else {
-            if (mounted) {
-              setState(() {});
-            }
-          }
-        } else {
-          if (mounted) {
-            setState(() {});
-          }
-        }
-      } catch (e) {
-        print('[MakerPayInvoiceScreen] Error polling offer status: $e');
-        // Optionally set error state via provider if needed
-        // ref.read(errorProvider.notifier).state = 'Polling failed: $e';
-      }
-    });
+    } else {
+      print(
+        '[MakerPayInvoiceScreen] Offer status: $status. No action needed yet.',
+      );
+    }
   }
 
   // --- Intent/URL Launching ---
@@ -142,7 +115,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     final link = 'lightning:$invoice';
     try {
-      if (Platform.isAndroid) {
+      if (!kIsWeb && Platform.isAndroid) {
         final intent = AndroidIntent(
           action: 'action_view',
           data: link,
@@ -182,9 +155,19 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final holdInvoice = ref.watch(
-      holdInvoiceProvider,
-    );
+    final offer = ref.watch(activeOfferProvider);
+
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        _handleStatusUpdate(next.statusEnum);
+      }
+    });
+
+    final holdInvoiceFromProvider = ref.watch(holdInvoiceProvider);
+    // Get hold invoice from either provider or active offer
+    final holdInvoice = holdInvoiceFromProvider ?? offer?.holdInvoice;
+
     // WebLN auto-pay logic
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
       print("isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment");
@@ -197,23 +180,37 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
             }
           })
           .catchError((e) {
-            // if (mounted) {
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(
-            //       content: Text('WebLN payment failed: $e'),
-            //     ), // Can be localized if needed
-            //   );
-            // }
+            // Handle error if needed
           });
     }
 
     // Add Scaffold wrapper
     return Builder(
-      // Use Builder to get context below Scaffold if needed for SnackBar
       builder: (context) {
         if (holdInvoice == null) {
-          // Should not happen if navigation is correct, but handle defensively
-          return Center(child: Text(t.offers.errors.detailsMissing));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  t.offers.errors.detailsMissing,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Hold invoice not available for this offer.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.go('/'),
+                  child: Text(t.common.buttons.goHome),
+                ),
+              ],
+            ),
+          );
         }
 
         return Padding(
@@ -229,57 +226,48 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 15),
-                // Amount info: sats, fiat, fee
                 Builder(
                   builder: (context) {
-                    final offer = ref.watch(activeOfferProvider);
                     if (offer == null) return const SizedBox.shrink();
                     final sats = offer.amountSats;
                     final fiat = offer.fiatAmount ?? 0.0;
-                    final coordinatorInfoAsync = ref.watch(
-                      coordinatorInfoProvider,
-                    );
+                    final apiService = ref.watch(apiServiceProvider);
+                    final coordinatorInfo =
+                        offer.coordinatorPubkey != null
+                            ? apiService.getCoordinatorInfoByPubkey(
+                              offer.coordinatorPubkey!,
+                            )
+                            : null;
                     String formatFiat(double value) => value.toStringAsFixed(
                       value.truncateToDouble() == value ? 0 : 2,
                     );
-                    return coordinatorInfoAsync.when(
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, st) => const SizedBox.shrink(),
-                      data: (coordinatorInfo) {
-                        final feePct = coordinatorInfo.makerFee;
-                        final feeFiat = fiat * feePct / 100;
-                        final totalFiat = fiat + feeFiat;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "$sats sats", // This can be localized if needed: t.offers.details.amount(amount: sats.toString())
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              // This complex string can be localized if needed
-                              "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[700],
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        );
-                      },
+                    if (coordinatorInfo == null) return const SizedBox.shrink();
+                    final feePct = coordinatorInfo.makerFee;
+                    final feeFiat = fiat * feePct / 100;
+                    final totalFiat = fiat + feeFiat;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$sats sats",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[700], fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     );
                   },
                 ),
                 const SizedBox(height: 15),
-                // Display QR Code (tappable)
                 Center(
                   child: GestureDetector(
                     onTap: () => _launchLightningUrl(holdInvoice),
@@ -287,20 +275,21 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                       data: holdInvoice.toUpperCase(),
                       version: QrVersions.auto,
                       size: 300.0,
-                      backgroundColor: Colors.white, // Ensure QR is visible
+                      backgroundColor: Colors.white,
                     ),
                   ),
                 ),
                 const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.account_balance_wallet), // Or another appropriate icon
+                      icon: const Icon(Icons.account_balance_wallet),
                       label: Text(t.maker.payInvoice.actions.payInWallet),
                       onPressed: () => _launchLightningUrl(holdInvoice),
                     ),
-                    const SizedBox(width: 8), // Spacing between buttons
                     ElevatedButton.icon(
                       icon: const Icon(Icons.copy),
                       label: Text(t.maker.payInvoice.actions.copy),
@@ -313,10 +302,23 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                         );
                       },
                     ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.cancel),
+                      label: Text(t.common.buttons.cancel),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        await ref
+                            .read(activeOfferProvider.notifier)
+                            .setActiveOffer(null);
+                        context.go('/');
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(height: 25),
-                // Polling status indicator
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -330,7 +332,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                   ],
                 ),
                 const SizedBox(height: 15),
-                // Display Invoice String (selectable and tappable)
                 InkWell(
                   onTap: () => _launchLightningUrl(holdInvoice),
                   child: Padding(
@@ -341,7 +342,6 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),

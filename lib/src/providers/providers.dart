@@ -5,119 +5,173 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/coordinator_info.dart';
 import '../models/offer.dart'; // OfferStatus is in here
 // ignore_for_file: depend_on_referenced_packages
-import '../services/api_service.dart';
+import '../services/api_service_nostr.dart';
+import '../services/nostr_service.dart'; // Import DiscoveredCoordinator
 import '../services/key_service.dart'; // Import KeyService
-// Remove import of main.dart
+import '../services/offer_db_service.dart';
 
-// Provider for the ApiService instance
-final apiServiceProvider = Provider<ApiService>((ref) {
-  return ApiService();
-});
-
-/// Global provider for coordinator info
-final coordinatorInfoProvider = FutureProvider<CoordinatorInfo>((ref) async {
-  final apiService = ref.watch(apiServiceProvider);
-  return apiService.getCoordinatorInfo();
-});
-
-// Provider for fetching the list of available offers
-// Using FutureProvider to handle async loading and errors
-final availableOffersProvider = FutureProvider<List<Offer>>((ref) async {
-  final apiService = ref.watch(apiServiceProvider);
-  return apiService.listAvailableOffers();
-});
-
-// Provider to hold the currently selected/active offer (if any)
-// Using StateProvider as it will change based on user interaction
-final activeOfferProvider = StateProvider<Offer?>((ref) => null);
-
-// Provider to hold the generated hold invoice for the Maker
-final holdInvoiceProvider = StateProvider<String?>((ref) => null);
-
-// Provider to hold the payment hash for the Maker's offer
-final paymentHashProvider = StateProvider<String?>((ref) => null);
-
-// Provider to manage the current role (Maker/Taker) or view state
-enum AppRole { none, maker, taker }
-
-final appRoleProvider = StateProvider<AppRole>((ref) => AppRole.none);
-
-// Provider to manage loading states for specific actions
-final isLoadingProvider = StateProvider<bool>((ref) => false);
-
-// Provider to hold the BLIK code received by the Maker
-final receivedBlikCodeProvider = StateProvider<String?>((ref) => null);
-
-// Provider to hold error messages for display in the UI
-final errorProvider = StateProvider<String?>((ref) => null);
-
-// --- Key Service Providers ---
-
-// Provider that creates and initializes the KeyService instance
 final keyServiceProvider = Provider<KeyService>((ref) {
   final service = KeyService();
   return service;
 });
 
-// Provider to expose the public key hex.
-final publicKeyProvider = FutureProvider<String?>((ref) async {
-  final keyService = ref.watch(keyServiceProvider);
-  await keyService.init(); // Ensure KeyService is initialized
-  return keyService.publicKeyHex; // Return the public key
+final apiServiceProvider = Provider<ApiServiceNostr>((ref) {
+  final keyService = ref.read(keyServiceProvider);
+  return ApiServiceNostr(keyService);
 });
 
-// Provider to check for an existing active offer for the current user on startup
-final initialActiveOfferProvider = FutureProvider<Offer?>((ref) async {
-  final publicKey = await ref.watch(publicKeyProvider.future);
-  if (publicKey == null) {
-    return null; // No public key, no active offer
-  }
+final initializedApiServiceProvider = FutureProvider<ApiServiceNostr>((
+  ref,
+) async {
   final apiService = ref.watch(apiServiceProvider);
-  final offerData = await apiService.getMyActiveOffer(publicKey);
+  await apiService.init();
+  return apiService;
+});
 
-  if (offerData != null) {
-    // print("[DEBUG] my-active-offer response: $offerData");
+final discoveredCoordinatorsProvider = StateNotifierProvider<
+  DiscoveredCoordinatorsNotifier,
+  AsyncValue<List<DiscoveredCoordinator>>
+>((ref) => DiscoveredCoordinatorsNotifier(ref));
+
+class DiscoveredCoordinatorsNotifier
+    extends StateNotifier<AsyncValue<List<DiscoveredCoordinator>>> {
+  final Ref _ref;
+  Timer? _refreshTimer;
+
+  DiscoveredCoordinatorsNotifier(this._ref)
+    : super(const AsyncValue.loading()) {
+    _ref.read(keyServiceProvider);
+    _startDiscovery();
+  }
+
+  void _startPeriodicRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      _loadCoordinators();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadCoordinators() async {
     try {
-      // Helper to safely parse DateTime directly inside constructor call
-      DateTime? parseOptionalDateTime(String? dateString) {
-        return dateString != null ? DateTime.parse(dateString) : null;
-      }
+      final apiService = _ref.read(apiServiceProvider);
+      final coordinators = await apiService.coordinatorsStream.first;
+      state = AsyncValue.data(coordinators);
 
-      // Pass all fields directly to the constructor
-      return Offer(
-        id: offerData['id'] as String,
-        amountSats: offerData['amount_sats'] as int,
-        makerFees: offerData['maker_fees'] as int, // Renamed key and field
-        fiatAmount: offerData['fiat_amount'] ?? 0,
-        fiatCurrency: offerData['fiat_currency'] ?? '',
-        status: offerData['status'] as String,
-        createdAt: DateTime.parse(offerData['created_at'] as String),
-        makerPubkey:
-            offerData['maker_pubkey'] as String? ??
-            '', // Assuming non-null from backend for active offers
-        takerPubkey: offerData['taker_pubkey'] as String?,
-        takerLightningAddress: offerData['taker_lightning_address'] as String?,
-        reservedAt: parseOptionalDateTime(offerData['reserved_at'] as String?),
-        blikReceivedAt: parseOptionalDateTime(
-          offerData['blik_received_at'] as String?,
-        ),
-        holdInvoicePaymentHash:
-            offerData['hold_invoice_payment_hash'] as String?,
-      );
-    } catch (e) {
-      print("Error parsing active offer data: $e");
-      print("Received data: $offerData"); // Log received data on error
-      return null;
+      // Cache coordinator info for all discovered coordinators
+      for (final coordinator in coordinators) {
+        await apiService.checkCoordinatorHealth(coordinator.pubkey);
+      }
+      final healthyCheckedCoordinators = await apiService.coordinatorsStream.first;
+      state = AsyncValue.data(healthyCheckedCoordinators);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
-  return null;
+
+  Future<void> _startDiscovery() async {
+    try {
+      final apiService = _ref.read(apiServiceProvider);
+      await apiService.startCoordinatorDiscovery();
+      // After starting discovery, refresh the coordinators
+      await _loadCoordinators();
+      _startPeriodicRefresh();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> refresh() async {
+    await _loadCoordinators();
+  }
+}
+
+/// Provider to start coordinator discovery
+final coordinatorDiscoveryProvider = FutureProvider<void>((ref) async {
+  final apiService = ref.watch(apiServiceProvider);
+  await apiService.startCoordinatorDiscovery();
 });
+
+/// Provider for coordinator info by pubkey
+final coordinatorInfoByPubkeyProvider =
+    Provider.family<CoordinatorInfo?, String>((ref, pubkey) {
+      final apiService = ref.watch(apiServiceProvider);
+      return apiService.getCoordinatorInfoByPubkey(pubkey);
+    });
+
+// Only initialize the Nostr offer subscription once (global for the app lifetime)
+final offersSubscriptionInitializer = FutureProvider<void>((ref) async {
+  final apiService = ref.watch(apiServiceProvider);
+  await apiService.startOfferSubscription();
+});
+
+final offers = <Offer>[];
+
+// Provider for real-time list of available offers from Nostr subscription
+final availableOffersProvider = StreamProvider<List<Offer>>((ref) async* {
+  // Depend on single global initializer
+  await ref.watch(offersSubscriptionInitializer.future);
+  final apiService = ref.watch(apiServiceProvider);
+  await for (final offer in apiService.offersStream) {
+    offers.removeWhere((o) => o.id == offer.id);
+    if (offer.status == 'funded' || offer.status == 'reserved') {
+      offers.add(offer);
+    }
+    yield List<Offer>.from(offers.reversed);
+  }
+});
+
+// Provider to hold the currently selected/active offer (if any)
+final activeOfferProvider = StateNotifierProvider<ActiveOfferNotifier, Offer?>(
+  (ref) => ActiveOfferNotifier(),
+);
+
+class ActiveOfferNotifier extends StateNotifier<Offer?> {
+  ActiveOfferNotifier() : super(null) {
+    _loadActiveOffer();
+  }
+
+  Future<void> _loadActiveOffer() async {
+    final offer = await OfferDbService().getActiveOffer();
+    state = offer;
+  }
+
+  Future<void> setActiveOffer(Offer? offer) async {
+    if (offer != null) {
+      print('[ActiveOfferNotifier] Setting active offer: ${offer.toJson()}');
+      await OfferDbService().upsertActiveOffer(offer);
+    } else {
+      print('[ActiveOfferNotifier] Clearing active offer');
+      await OfferDbService().deleteActiveOffer();
+    }
+    state = offer;
+  }
+
+  void updateOfferStatus(OfferStatusUpdate update) {
+    if (state != null) {
+      final updatedOffer = state!.copyWith(
+        status: update.status,
+        reservedAt: update.reservedAt,
+      );
+      setActiveOffer(updatedOffer);
+    }
+  }
+
+  /// Force a database reset (useful for development when schema changes are made)
+  Future<void> resetDatabase() async {
+    await OfferDbService().resetDatabase();
+    state = null;
+  }
+}
 
 /// Provider to expose the stored Lightning Address
 final lightningAddressProvider = FutureProvider<String?>((ref) async {
   final keyService = ref.watch(keyServiceProvider);
   // Ensure KeyService is initialized (which loads keys) before getting address
-  await keyService.init();
   return keyService.getLightningAddress();
 });
 
@@ -144,152 +198,102 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
 // - Current step in the Maker/Taker flow
 // - Timers (e.g., for reservation expiry) - requires more complex state logic
 
-// Provider that polls the user's active offer status every second
-final pollingMyActiveOfferProvider = StreamProvider.autoDispose.family<
-  Offer?, // Yields the Offer object or null
-  String // Takes userPubkey as parameter
->((ref, userPubkey) async* {
-  final apiService = ref.watch(apiServiceProvider);
+/// This provider manages the lifecycle of the offer status subscription.
+/// It should be initialized once in the app's lifecycle, for example in main.dart,
+/// to ensure it's always running and can react to changes in the active offer.
+final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
+  StreamSubscription? statusSubscription;
 
-  Offer? parseOfferData(Map<String, dynamic>? offerData) {
-    if (offerData == null) return null;
-    try {
-      DateTime? parseOptionalDateTime(String? dateString) {
-        return dateString != null ? DateTime.parse(dateString) : null;
-      }
+  ref.listen<Offer?>(activeOfferProvider, (previous, current) {
+    // If there's an existing subscription, cancel it.
+    statusSubscription?.cancel();
 
-      return Offer(
-        id: offerData['id'] as String,
-        amountSats: offerData['amount_sats'] as int,
-        makerFees: offerData['maker_fees'] as int,
-        fiatAmount: offerData['fiat_amount'] ?? 0,
-        fiatCurrency: offerData['fiat_currency'] ?? '',
-        status: offerData['status'] as String,
-        createdAt: DateTime.parse(offerData['created_at'] as String),
-        makerPubkey: offerData['maker_pubkey'] as String? ?? '',
-        takerPubkey: offerData['taker_pubkey'] as String?,
-        takerLightningAddress: offerData['taker_lightning_address'] as String?,
-        reservedAt: parseOptionalDateTime(offerData['reserved_at'] as String?),
-        blikReceivedAt: parseOptionalDateTime(
-          offerData['blik_received_at'] as String?,
-        ),
-        holdInvoicePaymentHash:
-            offerData['hold_invoice_payment_hash'] as String?,
-        // Add other fields if needed from the API response
+    if (current != null) {
+      print(
+        "[SubscriptionManager] Active offer changed to ${current.id}. Starting new status subscription.",
       );
-    } catch (e) {
-      print("Error parsing active offer data during polling: $e");
-      print("Received data: $offerData");
-      return null;
-    }
-  }
+      final apiService = ref.read(apiServiceProvider);
+      final activeOfferNotifier = ref.read(activeOfferProvider.notifier);
 
-  // Initial fetch
-  try {
-    final initialOfferData = await apiService.getMyActiveOffer(userPubkey);
-    final initialOffer = parseOfferData(initialOfferData);
-    yield initialOffer;
-    if (initialOffer == null) {
-      print("No active offer found initially for $userPubkey.");
-      // Keep polling even if no initial offer, user might create/take one
-    }
-  } catch (e) {
-    print("Error fetching initial active offer for $userPubkey: $e");
-    yield null; // Yield null on error
-  }
+      // Start the subscription for the new active offer.
+      apiService.startOfferStatusSubscription(
+        current.coordinatorPubkey,
+        current.takerPubkey ?? current.makerPubkey,
+      );
 
-  // Periodic fetch every second
-  await for (final _ in Stream.periodic(const Duration(seconds: 3))) {
-    try {
-      final currentOfferData = await apiService.getMyActiveOffer(userPubkey);
-      final currentOffer = parseOfferData(currentOfferData);
-      yield currentOffer;
+      // Listen to the stream for status updates.
+      statusSubscription = apiService.offerStatusStream.listen((statusUpdate) {
+        // Ensure the update is for the current active offer.
+        if (statusUpdate.offerId == current.id ||
+            statusUpdate.paymentHash == current.holdInvoicePaymentHash) {
+          OfferStatus? newStatus;
+          try {
+            newStatus = OfferStatus.values.byName(statusUpdate.status);
+          } catch (e) {
+            print("Error parsing status string '${statusUpdate.status}': $e");
+          }
 
-      // Stop polling ONLY if the offer reaches a *final* state for the TAKER flow
-      // We might want to keep polling if it's just 'funded' or 'reserved'
-      if (currentOffer != null &&
-          (currentOffer.status == OfferStatus.takerPaid.name ||
-              currentOffer.status == OfferStatus.takerPaymentFailed.name ||
-              currentOffer.status == OfferStatus.expired.name ||
-              currentOffer.status == OfferStatus.cancelled.name)) {
-        print(
-          "Offer ${currentOffer.id} reached final state: ${currentOffer.status}. Stopping poll for $userPubkey.",
-        );
-        break; // Exit the stream loop
-      }
-      // If currentOffer is null, it means no active offer, keep polling
-    } catch (e) {
-      print("Error polling active offer for $userPubkey: $e");
-      // Decide how to handle polling errors, e.g., yield last known state or null
-      // For now, we yield null and stop, but could keep polling
-      yield null;
-      break;
+          if (newStatus != null) {
+            print(
+              "Offer ${current.id} status updated to: $newStatus. Updating active offer provider.",
+            );
+            activeOfferNotifier.updateOfferStatus(statusUpdate);
+          }
+        }
+      });
+    } else {
+      print(
+        "[SubscriptionManager] Active offer cleared. Subscription stopped.",
+      );
     }
-  }
+  }, fireImmediately: true); // fireImmediately to handle initial state
 });
 
-/// Provider that polls the offer status using its payment hash.
-final pollingOfferStatusProvider = StreamProvider.autoDispose.family<
-  OfferStatus?, // Yields the OfferStatus enum or null
-  String // Takes paymentHash as parameter
->((ref, paymentHash) async* {
-  final apiService = ref.watch(apiServiceProvider);
-
-  OfferStatus? parseStatus(String? statusString) {
-    if (statusString == null) return null;
-    try {
-      return OfferStatus.values.byName(statusString);
-    } catch (e) {
-      print("Error parsing status string '$statusString': $e");
-      return null;
-    }
-  }
-
-  // Initial fetch
-  try {
-    final initialStatusString = await apiService.getOfferStatus(paymentHash);
-    final initialStatus = parseStatus(initialStatusString);
-    yield initialStatus;
-    if (initialStatus == null) {
-      print("No initial status found for paymentHash $paymentHash.");
-      // Stop polling if no initial status? Or keep polling? Let's keep polling for now.
-    }
-  } catch (e) {
-    print("Error fetching initial status for $paymentHash: $e");
-    yield null; // Yield null on error
-  }
-
-  // Periodic fetch every second
-  await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
-    try {
-      final currentStatusString = await apiService.getOfferStatus(paymentHash);
-      final currentStatus = parseStatus(currentStatusString);
-      yield currentStatus;
-
-      // Stop polling on final states
-      if (currentStatus == OfferStatus.takerPaid ||
-          currentStatus == OfferStatus.takerPaymentFailed ||
-          currentStatus == OfferStatus.expired ||
-          currentStatus == OfferStatus.cancelled) {
-        print(
-          "Offer $paymentHash reached final state: $currentStatus. Stopping status poll.",
-        );
-        break; // Exit the stream loop
-      }
-    } catch (e) {
-      print("Error polling status for $paymentHash: $e");
-      yield null; // Yield null on error and stop polling
-      break;
-    }
-  }
+// Provider for fetching a single offer's details.
+// It's a family provider because it depends on an external parameter (the offer ID).
+final offerDetailsProvider = FutureProvider.family<Offer?, String>((
+  ref,
+  offerId,
+) async {
+  // First, ensure that the API service is fully initialized.
+  final apiService = await ref.watch(initializedApiServiceProvider.future);
+  // Trigger coordinator discovery
+  ref.watch(discoveredCoordinatorsProvider);
+  // Then, fetch the specific offer.
+  return apiService.getOffer(offerId);
 });
-
-// offerDetailsProvider REMOVED as per user feedback
 
 // Provider for fetching successful offers statistics
 final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
   final apiService = ref.watch(apiServiceProvider);
-  return apiService.getSuccessfulOffersStats();
+  return {}; //apiService.getSuccessfulOffersStats();
 });
+
+// Provider to expose the public key hex.
+final publicKeyProvider = FutureProvider<String?>((ref) async {
+  final keyService = ref.watch(keyServiceProvider);
+  await keyService.init(); // Ensure KeyService is initialized
+  return keyService.publicKeyHex; // Return the public key
+});
+
+// Provider to hold the generated hold invoice for the Maker
+final holdInvoiceProvider = StateProvider<String?>((ref) => null);
+
+// Provider to hold the payment hash for the Maker's offer
+final paymentHashProvider = StateProvider<String?>((ref) => null);
+
+// Provider to manage the current role (Maker/Taker) or view state
+// enum AppRole { none, maker, taker }
+
+// final appRoleProvider = StateProvider<AppRole>((ref) => AppRole.none);
+
+// Provider to manage loading states for specific actions
+final isLoadingProvider = StateProvider<bool>((ref) => false);
+
+// Provider to hold the BLIK code received by the Maker
+final receivedBlikCodeProvider = StateProvider<String?>((ref) => null);
+
+// Provider to hold error messages for display in the UI
+final errorProvider = StateProvider<String?>((ref) => null);

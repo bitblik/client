@@ -28,7 +28,7 @@ class _MakerConfirmPaymentScreenState
     final makerId = ref.read(publicKeyProvider).value;
     if (offer == null || makerId == null) return;
     final apiService = ref.read(apiServiceProvider);
-    final blikCode = await apiService.getBlikCodeForMaker(offer.id, makerId);
+    final blikCode = await apiService.getBlikCodeForMaker(offer.id, makerId, offer.coordinatorPubkey);
     if (blikCode != null) {
       ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
     }
@@ -58,21 +58,21 @@ class _MakerConfirmPaymentScreenState
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      final offerStatus = await apiService.getOfferStatus(paymentHash);
-      if (offerStatus == null ||
-          (offerStatus != OfferStatus.blikReceived.name &&
-              offerStatus != OfferStatus.blikSentToMaker.name)) {
-        throw Exception(
-          t.maker.confirmPayment.errors.incorrectState(
-            status: offerStatus ?? 'null',
-          ), // Use Slang t
-        );
-      }
+      // final offerStatus = await apiService.getOfferStatus(paymentHash, offer.coordinatorPubkey);
+      // if (offerStatus == null ||
+      //     (offerStatus != OfferStatus.blikReceived.name &&
+      //         offerStatus != OfferStatus.blikSentToMaker.name)) {
+      //   throw Exception(
+      //     t.maker.confirmPayment.errors.incorrectState(
+      //       status: offerStatus ?? 'null',
+      //     ), // Use Slang t
+      //   );
+      // }
 
       print(
         "[MakerConfirmPaymentScreen] Confirming payment for offer $offerId by maker $makerId",
       );
-      await apiService.confirmMakerPayment(offerId, makerId);
+      await apiService.confirmMakerPayment(offerId, makerId, offer.coordinatorPubkey);
 
       final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
       if (scaffoldMessenger != null) {
@@ -113,7 +113,7 @@ class _MakerConfirmPaymentScreenState
       print(
         "[MakerConfirmPaymentScreen] Marking BLIK invalid for offer ${offer.id} by maker $makerId",
       );
-      await apiService.markBlikInvalid(offer.id, makerId);
+      await apiService.markBlikInvalid(offer.id, makerId, offer.coordinatorPubkey);
 
       if (context.mounted) {
         context.go('/maker-invalid-blik', extra: offer);
