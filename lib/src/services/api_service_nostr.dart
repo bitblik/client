@@ -422,7 +422,6 @@ class ApiServiceNostr {
   Stream<OfferStatusUpdate> get offerStatusStream =>
       _nostrService.offerStatusStream;
 
-  /// Get discovered coordinators stream
   Stream<List<DiscoveredCoordinator>> get coordinatorsStream =>
       _nostrService.coordinatorsStream;
 

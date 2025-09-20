@@ -95,7 +95,7 @@ class CoordinatorSelector extends ConsumerWidget {
                                 ),
                               const Spacer(),
                               IconButton(
-                                icon: Image.asset('assets/nostr.png', width: 22, height: 22),
+                                icon: Image.asset('assets/nostr.png', width: 32, height: 32),
                                 tooltip: 'View Nostr profile',
                                 onPressed:
                                     (coordinator.responsive == false || coordinator.responsive == null)
