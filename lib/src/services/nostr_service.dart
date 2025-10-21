@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:logger/logger.dart' as lib_logger;
 import 'package:ndk/ndk.dart';
 import 'package:ndk/shared/nips/nip44/nip44.dart';
+import 'package:ndk_rust_verifier/data_layer/repositories/verifiers/rust_event_verifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/coordinator_info.dart';
@@ -194,7 +195,7 @@ class NostrService {
     _ndk = Ndk(
       NdkConfig(
         cache: MemCacheManager(),
-        eventVerifier: Bip340EventVerifier(),
+        eventVerifier: RustEventVerifier(),
         bootstrapRelays: _relayUrls,
         logLevel: lib_logger.Level.info,
       ),
