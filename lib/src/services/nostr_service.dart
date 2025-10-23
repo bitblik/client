@@ -197,7 +197,7 @@ class NostrService {
         cache: MemCacheManager(),
         eventVerifier: RustEventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: lib_logger.Level.info,
+        logLevel: lib_logger.Level.debug,
       ),
     );
 
@@ -858,18 +858,20 @@ class NostrService {
 
     final filter = Filter(
       kinds: [KIND_COORDINATOR_INFO],
-      since:
-          DateTime.now()
-              .subtract(const Duration(hours: 24))
-              .millisecondsSinceEpoch ~/
-          1000,
+      // since:
+      //     DateTime.now()
+      //         .subtract(const Duration(hours: 24))
+      //         .millisecondsSinceEpoch ~/
+      //     1000,
     );
 
     final response = _ndk.requests.query(
       name: "coordinator-discovery",
       filters: [filter],
     );
-    response.stream.listen(_handleCoordinatorInfoEvent);
+    await for (final event in response.stream) {
+      _handleCoordinatorInfoEvent(event);
+    }
     print('🔍 Started coordinator discovery');
   }
 
@@ -952,7 +954,7 @@ class NostrService {
       _offerStatusController.stream;
 
   /// Handle incoming coordinator info events
-  void _handleCoordinatorInfoEvent(Nip01Event event) {
+  void  _handleCoordinatorInfoEvent(Nip01Event event) {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
       _discoveredCoordinators[coordinator.pubkey] = coordinator;

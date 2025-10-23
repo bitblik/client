@@ -81,14 +81,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.0"
-  ascii_qr:
-    dependency: transitive
-    description:
-      name: ascii_qr
-      sha256: "2046e400a0fa4ea0de5df44c87b992cdd1f76403bb15e64513b89263598750ae"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   async:
     dependency: transitive
     description:
@@ -269,10 +261,10 @@ packages:
     dependency: transitive
     description:
       name: elliptic
-      sha256: "0c303d810603953a65dc39c4c542fb7538defd9e212403c54c266140819523b6"
+      sha256: "67931d408faa353bdebac9f7a1df0c3f6f828f4e8439cdf084573cd1601a2f4b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.11"
+    version: "0.3.12"
   equatable:
     dependency: transitive
     description:
@@ -633,18 +625,18 @@ packages:
     dependency: "direct main"
     description:
       name: ndk
-      sha256: bcd3e71541212bf19b2f7e0f879ff02d9c6f4f1fc507b111e36b29fdb39cb1d0
+      sha256: e5fec6de8926ed9c7a4cac5fdf24aed363e14e04ea41b51535f48d6bef65cd30
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.2-dev.0+1"
+    version: "0.6.0-dev.0"
   ndk_rust_verifier:
     dependency: "direct main"
     description:
       name: ndk_rust_verifier
-      sha256: "269fd9b30f23c41449a3e31bc79bd43f9c05efbfb06ab7e27143da926ffda334"
+      sha256: f3ad9a62e942c3ae4f30c27bcb5399657c04d6688553967dc267879907b58796
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.2-dev.0+1"
+    version: "0.4.2-dev.5"
   octo_image:
     dependency: transitive
     description:
