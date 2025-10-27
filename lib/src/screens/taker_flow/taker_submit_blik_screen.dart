@@ -236,6 +236,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
       // --- End Validation ---
 
+      // TODO is this really not necessary? then we don't need to getMyActiveOffer
       // await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
       print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
