@@ -393,8 +393,8 @@ class ApiServiceNostr {
   }
 
   /// Start coordinator discovery
-  Future<void> startCoordinatorDiscovery() async {
-    await _nostrService.startCoordinatorDiscovery();
+  Future<List<DiscoveredCoordinator>> startCoordinatorDiscovery() async {
+    return await _nostrService.startCoordinatorDiscovery();
   }
 
   /// Start coordinator discovery
@@ -421,9 +421,6 @@ class ApiServiceNostr {
   /// Get stream of offer status updates
   Stream<OfferStatusUpdate> get offerStatusStream =>
       _nostrService.offerStatusStream;
-
-  Stream<List<DiscoveredCoordinator>> get coordinatorsStream =>
-      _nostrService.coordinatorsStream;
 
   /// Get discovered coordinators list
   List<DiscoveredCoordinator> get discoveredCoordinators =>

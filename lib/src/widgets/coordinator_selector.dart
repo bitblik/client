@@ -97,13 +97,10 @@ class CoordinatorSelector extends ConsumerWidget {
                               IconButton(
                                 icon: Image.asset('assets/nostr.png', width: 32, height: 32),
                                 tooltip: 'View Nostr profile',
-                                onPressed:
-                                    (coordinator.responsive == false || coordinator.responsive == null)
-                                        ? null
-                                        : () async {
-                                          final url = 'https://njump.me/${Nip19.encodePubKey(coordinator.pubkey)}';
-                                          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                        },
+                                onPressed: () async {
+                                  final url = 'https://njump.me/${Nip19.encodePubKey(coordinator.pubkey)}';
+                                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                },
                               ),
                               if (selectedCoordinator?.pubkey == coordinator.pubkey)
                                 Icon(Icons.check, color: Theme.of(context).primaryColor),
@@ -153,67 +150,125 @@ class CoordinatorSelector extends ConsumerWidget {
     final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
     final selectedCoordinator = this.selectedCoordinator;
 
-    if (selectedCoordinator != null) {
-      // Compose details for min/max PLN and maker fee
-      final rate = fiatExchangeRate ?? 1.0;
-      final minPln = (selectedCoordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
-      final maxPln = (selectedCoordinator.maxAmountSats / 100000000.0 * rate).toStringAsFixed(2);
-      final feePct = selectedCoordinator.makerFee.toStringAsFixed(2);
-      return GestureDetector(
-        onTap: () => _showCoordinatorPicker(context, ref),
-        child: Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    (selectedCoordinator.icon != null && selectedCoordinator.icon!.isNotEmpty)
-                        ? (selectedCoordinator.icon!.startsWith('http')
-                            ? Image.network(selectedCoordinator.icon!, width: 32, height: 32)
-                            : Image.asset(selectedCoordinator.icon!, width: 32, height: 32))
-                        : const Icon(Icons.account_circle, size: 32),
-                    const SizedBox(width: 8),
-                    Text(
-                      selectedCoordinator.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    const Spacer(),
-                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Wrap(
-                  spacing: 12,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (selectedCoordinator.version.isNotEmpty)
-                      Text(
-                        'v${selectedCoordinator.version}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                      ),
-                    Text('Min/Max: $minPln-$maxPln PLN', style: Theme.of(context).textTheme.bodySmall),
-                    Text(
-                      '$feePct% fee',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.blueGrey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    } else {
+    // Handle loading state
+    if (coordinatorsAsync is AsyncLoading) {
       return Center(
         child: ElevatedButton.icon(
-          icon: const Icon(Icons.hub),
-          label: Text('Choose Coordinator'),
+          icon: const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          label: Text('Loading Coordinators...'),
+          onPressed: null, // Disabled while loading
+        ),
+      );
+    }
+
+    // Handle error state
+    if (coordinatorsAsync is AsyncError) {
+      return Center(
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.error_outline),
+          label: Text('Error Loading Coordinators'),
           onPressed: () => _showCoordinatorPicker(context, ref),
         ),
       );
     }
+
+    // Handle data state
+    if (coordinatorsAsync is AsyncData<List<DiscoveredCoordinator>>) {
+      final coordinators = coordinatorsAsync.value;
+
+      // If no coordinator is selected but we have coordinators, use the first one
+      final displayCoordinator = selectedCoordinator ?? (coordinators.isNotEmpty ? coordinators.first : null);
+
+      // Auto-select the first coordinator if none is selected
+      if (selectedCoordinator == null && coordinators.isNotEmpty && onCoordinatorSelected != null) {
+        // Use WidgetsBinding to call the callback after the current build is complete
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onCoordinatorSelected!(coordinators.first);
+        });
+      }
+
+      if (displayCoordinator != null) {
+        // Compose details for min/max PLN and maker fee
+        final rate = fiatExchangeRate ?? 1.0;
+        final minPln = (displayCoordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
+        final maxPln = (displayCoordinator.maxAmountSats / 100000000.0 * rate).toStringAsFixed(2);
+        final feePct = displayCoordinator.makerFee.toStringAsFixed(2);
+        return GestureDetector(
+          onTap: () => _showCoordinatorPicker(context, ref),
+          child: Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      (displayCoordinator.icon != null && displayCoordinator.icon!.isNotEmpty)
+                          ? (displayCoordinator.icon!.startsWith('http')
+                          ? Image.network(displayCoordinator.icon!, width: 32, height: 32)
+                          : Image.asset(displayCoordinator.icon!, width: 32, height: 32))
+                          : const Icon(Icons.account_circle, size: 32),
+                      const SizedBox(width: 8),
+                      Text(
+                        displayCoordinator.name,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Wrap(
+                    spacing: 12,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (displayCoordinator.version.isNotEmpty)
+                        Text(
+                          'v${displayCoordinator.version}',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.grey),
+                        ),
+                      Text('Min/Max: $minPln-$maxPln PLN', style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodySmall),
+                      Text(
+                        '$feePct% fee',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Colors.blueGrey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    // Fallback - show choose coordinator button
+    return Center(
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.hub),
+        label: Text('Choose Coordinator'),
+        onPressed: () => _showCoordinatorPicker(context, ref),
+      ),
+    );
   }
 }

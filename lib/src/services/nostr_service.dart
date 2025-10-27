@@ -58,7 +58,7 @@ class DiscoveredCoordinator {
   final List<String> currencies;
   final String version;
   final DateTime lastSeen;
-  final bool? responsive;
+  bool? responsive;
 
   DiscoveredCoordinator({
     required this.pubkey,
@@ -153,8 +153,6 @@ class NostrService {
 
   // Discovered coordinators
   final Map<String, DiscoveredCoordinator> _discoveredCoordinators = {};
-  final StreamController<List<DiscoveredCoordinator>> _coordinatorsController =
-      StreamController<List<DiscoveredCoordinator>>.broadcast();
   final StreamController<OfferStatusUpdate> _offerStatusController =
       StreamController<OfferStatusUpdate>.broadcast();
   late StreamController<Offer> _offerStreamController;
@@ -194,10 +192,11 @@ class NostrService {
     // Initialize NDK with bootstrap relays config
     _ndk = Ndk(
       NdkConfig(
+        engine: NdkEngine.JIT,
         cache: MemCacheManager(),
-        eventVerifier: RustEventVerifier(),
+        eventVerifier: RustEventVerifier(),//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: lib_logger.Level.debug,
+        logLevel: lib_logger.Level.trace,
       ),
     );
 
@@ -212,19 +211,19 @@ class NostrService {
       throw Exception('KeyService not initialized');
     }
 
+    int since = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final filter = Filter(
       kinds: [KIND_COORDINATOR_RESPONSE],
       pTags: [_keyService.publicKeyHex!], // Events tagged to our pubkey
-      since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      since: since,
     );
 
-    final response = _ndk.requests.subscription(
+    _responseSubscription = _ndk.requests.subscription(
       name: "client-responses",
       filters: [filter],
     );
-    _responseSubscription = response;
 
-    response.stream.listen(_handleResponseEvent);
+    _responseSubscription!.stream.listen(_handleResponseEvent);
     print('👂 Subscribed to coordinator responses');
   }
 
@@ -851,7 +850,7 @@ class NostrService {
   // --- Coordinator Discovery Methods ---
 
   /// Start discovering coordinators on the network
-  Future<void> startCoordinatorDiscovery() async {
+  Future<List<DiscoveredCoordinator>> startCoordinatorDiscovery() async {
     if (!_isInitialized) {
       await init();
     }
@@ -872,7 +871,7 @@ class NostrService {
     await for (final event in response.stream) {
       _handleCoordinatorInfoEvent(event);
     }
-    print('🔍 Started coordinator discovery');
+    return discoveredCoordinators;
   }
 
   /// Start listening for offer status updates
@@ -962,13 +961,11 @@ class NostrService {
       // Cache coordinator info immediately when discovered
       final coordinatorInfo = coordinator.toCoordinatorInfo();
       _coordinatorInfoCache[coordinator.pubkey] = coordinatorInfo;
-      // Notify listeners immediately with newly discovered
-      _coordinatorsController.add(_discoveredCoordinators.values.toList());
       print(
         '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
       );
       // Check health via get_info after discovery (don't await)
-      checkCoordinatorHealth(coordinatorPubkey);
+      // checkCoordinatorHealth(coordinatorPubkey);
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
     }
@@ -995,29 +992,26 @@ class NostrService {
 
   void _markCoordinatorResponsive(String pubkey, bool responsive) {
     if (_discoveredCoordinators.containsKey(pubkey)) {
-      final c = _discoveredCoordinators[pubkey]!;
-      _discoveredCoordinators[pubkey] = DiscoveredCoordinator(
-        pubkey: c.pubkey,
-        name: c.name,
-        icon: c.icon,
-        minAmountSats: c.minAmountSats,
-        maxAmountSats: c.maxAmountSats,
-        makerFee: c.makerFee,
-        takerFee: c.takerFee,
-        reservationSeconds: c.reservationSeconds,
-        currencies: c.currencies,
-        version: c.version,
-        lastSeen: c.lastSeen,
-        responsive: responsive,
-      );
+      _discoveredCoordinators[pubkey]!.responsive = responsive;
+      // final c = _discoveredCoordinators[pubkey]!;
+      // _discoveredCoordinators[pubkey] = DiscoveredCoordinator(
+      //   pubkey: c.pubkey,
+      //   name: c.name,
+      //   icon: c.icon,
+      //   minAmountSats: c.minAmountSats,
+      //   maxAmountSats: c.maxAmountSats,
+      //   makerFee: c.makerFee,
+      //   takerFee: c.takerFee,
+      //   reservationSeconds: c.reservationSeconds,
+      //   currencies: c.currencies,
+      //   version: c.version,
+      //   lastSeen: c.lastSeen,
+      //   responsive: responsive,
+      // );
       // Update listeners
-      _coordinatorsController.add(_discoveredCoordinators.values.toList());
+      // _coordinatorsController.add(_discoveredCoordinators.values.toList());
     }
   }
-
-  /// Get stream of discovered coordinators
-  Stream<List<DiscoveredCoordinator>> get coordinatorsStream =>
-      _coordinatorsController.stream;
 
   /// Get current list of discovered coordinators
   List<DiscoveredCoordinator> get discoveredCoordinators =>
@@ -1051,7 +1045,6 @@ class NostrService {
       await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
     }
     _pendingRequests.clear();
-    await _coordinatorsController.close();
     await _offerStatusController.close();
     await _offerStreamController.close();
     await _ndk.destroy();

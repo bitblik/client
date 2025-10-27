@@ -19,6 +19,7 @@ class MakerAmountForm extends ConsumerStatefulWidget {
 
 class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   final _fiatController = TextEditingController();
+  final _amountFocusNode = FocusNode(); // Add FocusNode for amount input
   double? _satsEquivalent;
   double? _rate;
   String? _amountErrorText;
@@ -36,12 +37,20 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
     super.initState();
     _fiatController.addListener(_validateAndRecalculate);
     _loadInitialData();
+
+    // Auto-focus the amount input field when screen is created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _amountFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     _fiatController.removeListener(_validateAndRecalculate);
     _fiatController.dispose();
+    _amountFocusNode.dispose(); // Dispose the FocusNode
     super.dispose();
   }
 
@@ -241,6 +250,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             ),
             const SizedBox(height: 8),
             TextField(
+              focusNode: _amountFocusNode,
               controller: _fiatController,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,

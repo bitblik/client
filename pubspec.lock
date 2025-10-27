@@ -624,18 +624,16 @@ packages:
   ndk:
     dependency: "direct main"
     description:
-      name: ndk
-      sha256: e5fec6de8926ed9c7a4cac5fdf24aed363e14e04ea41b51535f48d6bef65cd30
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../ndk/packages/ndk"
+      relative: true
+    source: path
     version: "0.6.0-dev.0"
   ndk_rust_verifier:
     dependency: "direct main"
     description:
-      name: ndk_rust_verifier
-      sha256: f3ad9a62e942c3ae4f30c27bcb5399657c04d6688553967dc267879907b58796
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../ndk/packages/rust_verifier"
+      relative: true
+    source: path
     version: "0.4.2-dev.5"
   octo_image:
     dependency: transitive
