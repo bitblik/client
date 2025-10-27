@@ -274,7 +274,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     child: QrImageView(
                       data: holdInvoice.toUpperCase(),
                       version: QrVersions.auto,
-                      size: 300.0,
+                      size: 200.0,
                       backgroundColor: Colors.white,
                     ),
                   ),
