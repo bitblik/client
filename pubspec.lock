@@ -624,16 +624,20 @@ packages:
   ndk:
     dependency: "direct main"
     description:
-      path: "../../ndk/packages/ndk"
-      relative: true
-    source: path
+      path: "packages/ndk"
+      ref: "3307438137fde2ec28e8f0697f5c6f4fe37943a4"
+      resolved-ref: "3307438137fde2ec28e8f0697f5c6f4fe37943a4"
+      url: "https://github.com/relaystr/ndk.git"
+    source: git
     version: "0.6.0-dev.0"
   ndk_rust_verifier:
     dependency: "direct main"
     description:
-      path: "../../ndk/packages/rust_verifier"
-      relative: true
-    source: path
+      path: "packages/rust_verifier"
+      ref: temp-ndk-git
+      resolved-ref: eb1a45eb358632708d55fd54b10b644f5ac0cfd3
+      url: "https://github.com/relaystr/ndk.git"
+    source: git
     version: "0.4.2-dev.5"
   octo_image:
     dependency: transitive

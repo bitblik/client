@@ -47,19 +47,19 @@ dependencies:
   flutter_secure_storage: ^9.2.4 # For secure key storage (Updated to latest)
 #  ndk: 0.6.0-dev.0
   ndk:
-    path: ../../ndk/packages/ndk
-#    git:
-#      url: https://github.com/relaystr/ndk.git
-#      path: packages/ndk
-#      ref: 3307438137fde2ec28e8f0697f5c6f4fe37943a4
+#    path: ../../ndk/packages/ndk
+    git:
+      url: https://github.com/relaystr/ndk.git
+      path: packages/ndk
+      ref: 3307438137fde2ec28e8f0697f5c6f4fe37943a4
 #      ref: master
 # ndk_rust_verifier: 0.4.2-dev.5
   ndk_rust_verifier:
-    path: ../../ndk/packages/rust_verifier
-#    git:
-#      url: https://github.com/relaystr/ndk.git
-#      ref: 3307438137fde2ec28e8f0697f5c6f4fe37943a4
-#      path: packages/rust_verifier
+#    path: ../../ndk/packages/rust_verifier
+    git:
+      url: https://github.com/relaystr/ndk.git
+      ref: temp-ndk-git
+      path: packages/rust_verifier
 #      ref: master
   url_launcher: ^6.3.1 # For launching URLs/Intents
   android_intent_plus: ^5.3.0
