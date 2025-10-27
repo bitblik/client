@@ -94,12 +94,89 @@ final coordinatorDiscoveryProvider = FutureProvider<void>((ref) async {
   await apiService.startCoordinatorDiscovery();
 });
 
-/// Provider for coordinator info by pubkey
+/// Enhanced provider for coordinator info by pubkey that ensures discovery is triggered
+/// and coordinator info is available as fast as possible.
+/// 
+/// This provider:
+/// 1. First checks the cache for immediate access to coordinator info
+/// 2. Ensures coordinator discovery is running by watching discoveredCoordinatorsProvider
+/// 3. Handles loading, error, and success states properly
+/// 4. Provides fallback mechanisms if coordinator is not found after discovery
 final coordinatorInfoByPubkeyProvider =
-    Provider.family<CoordinatorInfo?, String>((ref, pubkey) {
-      final apiService = ref.watch(apiServiceProvider);
-      return apiService.getCoordinatorInfoByPubkey(pubkey);
-    });
+AsyncNotifierProvider.family<CoordinatorInfoNotifier, CoordinatorInfo?, String>(
+  CoordinatorInfoNotifier.new,
+    );
+
+/// Notifier that manages coordinator info fetching with proper discovery integration
+class CoordinatorInfoNotifier extends FamilyAsyncNotifier<CoordinatorInfo?, String> {
+  @override
+  Future<CoordinatorInfo?> build(String pubkey) async {
+    final apiService = ref.watch(apiServiceProvider);
+
+    // First, try to get coordinator info from cache for immediate access
+    var coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
+    if (coordinatorInfo != null) {
+      return coordinatorInfo;
+    }
+
+    // If not in cache, ensure discovery is running by watching the discoveredCoordinatorsProvider
+    // This triggers coordinator discovery if not already running
+    final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
+
+    await coordinatorsAsync.when(
+      data: (coordinators) async {
+        // Discovery has completed, check again for the coordinator
+        coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
+        if (coordinatorInfo == null) {
+          // If still not found, try triggering discovery again and wait briefly
+          try {
+            await apiService.startCoordinatorDiscovery();
+            await Future.delayed(const Duration(milliseconds: 500));
+            coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
+          } catch (e) {
+            print('Error during coordinator discovery for $pubkey: $e');
+          }
+        }
+      },
+      loading: () async {
+        // Discovery is still in progress, wait a moment and try again
+        await Future.delayed(const Duration(milliseconds: 200));
+        coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
+      },
+      error: (error, stack) async {
+        print('Error in coordinator discovery: $error');
+        // Still try to get from cache even if discovery failed
+        coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
+      },
+    );
+
+    return coordinatorInfo;
+  }
+
+  /// Force refresh coordinator info for this pubkey
+  Future<void> refresh() async {
+    final apiService = ref.read(apiServiceProvider);
+    try {
+      await apiService.startCoordinatorDiscovery();
+      await Future.delayed(const Duration(milliseconds: 500));
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(arg);
+      state = AsyncValue.data(coordinatorInfo);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+/// Helper provider to get reservation duration for a coordinator.
+/// Returns Duration based on coordinator's reservationSeconds, or null if coordinator info unavailable.
+final coordinatorReservationDurationProvider =
+Provider.family<Duration?, String>((ref, coordinatorPubkey) {
+  final coordinatorInfoAsync = ref.watch(coordinatorInfoByPubkeyProvider(coordinatorPubkey));
+  return coordinatorInfoAsync.maybeWhen(
+    data: (info) => info != null ? Duration(seconds: info.reservationSeconds) : null,
+    orElse: () => null,
+  );
+});
 
 // Only initialize the Nostr offer subscription once (global for the app lifetime)
 final offersSubscriptionInitializer = FutureProvider<void>((ref) async {

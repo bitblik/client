@@ -5,6 +5,7 @@ import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../i18n/gen/strings.g.dart';
+import '../models/coordinator_info.dart';
 import '../models/offer.dart';
 import '../providers/providers.dart';
 import '../widgets/progress_indicators.dart';
@@ -19,8 +20,6 @@ class OfferDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
-  Duration? _reservationDuration;
-
   @override
   Widget build(BuildContext context) {
     final offerAsyncValue = ref.watch(offerDetailsProvider(widget.offerId));
@@ -39,7 +38,11 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
             return Center(child: Text(t.offers.errors.notFound));
           }
 
-          final coordinatorInfo = ref.watch(coordinatorInfoByPubkeyProvider(offer.coordinatorPubkey));
+          // Use the enhanced coordinator info provider
+          final coordinatorInfoAsync = ref.watch(coordinatorInfoByPubkeyProvider(offer.coordinatorPubkey));
+          // Use the helper provider for reservation duration
+          final reservationDuration = ref.watch(coordinatorReservationDurationProvider(offer.coordinatorPubkey));
+
           final bool isFunded = offer.status == OfferStatus.funded.name;
           final bool isReserved = offer.status == OfferStatus.reserved.name;
           final bool isBlikReceived =
@@ -168,53 +171,140 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Builder(
-                            builder: (context) {
-                              if (coordinatorInfo == null) {
-                                return const CircularProgressIndicator();
-                              }
-                              return Row(
-                                children: [
-                                  if (coordinatorInfo.icon != null &&
-                                      coordinatorInfo.icon!.isNotEmpty)
-                                    CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        coordinatorInfo.icon!,
+                          // Use AsyncValue.when to handle the coordinator info loading states
+                          coordinatorInfoAsync.when(
+                            loading: () =>
+                            const Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                SizedBox(width: 8),
+                                Text('Loading coordinator info...'),
+                              ],
+                            ),
+                            error: (error, stack) =>
+                                Row(
+                                  children: [
+                                    const Icon(Icons.account_circle, size: 40),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Unknown Coordinator',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Error: ${error.toString()}',
+                                            style: const TextStyle(fontSize: 12, color: Colors.red),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          coordinatorInfo.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                    IconButton(
+                                      icon: Image.asset(
+                                        'assets/nostr.png',
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                      onPressed: () async {
+                                        final url = Uri.parse(
+                                          'https://njump.me/${Nip19.encodePubKey(offer.coordinatorPubkey)}',
+                                        );
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                            data: (coordinatorInfo) {
+                              if (coordinatorInfo != null) {
+                                return Row(
+                                  children: [
+                                    if (coordinatorInfo.icon != null &&
+                                        coordinatorInfo.icon!.isNotEmpty)
+                                      CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          coordinatorInfo.icon!,
+                                        ),
+                                      ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            coordinatorInfo.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          '${coordinatorInfo.version} | Taker Fee: ${coordinatorInfo.takerFee}%',
-                                        ),
-                                      ],
+                                          Text(
+                                            '${coordinatorInfo.version ?? 'Unknown'} | Taker Fee: ${coordinatorInfo
+                                                .takerFee}%',
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: Image.asset(
-                                      'assets/nostr.png',
-                                      width: 32,
-                                      height: 32,
+                                    IconButton(
+                                      icon: Image.asset(
+                                        'assets/nostr.png',
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                      onPressed: () async {
+                                        final url = Uri.parse(
+                                          'https://njump.me/${Nip19.encodePubKey(offer.coordinatorPubkey)}',
+                                        );
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      },
                                     ),
-                                    onPressed: () async {
-                                      final url = Uri.parse(
-                                        'https://njump.me/${Nip19.encodePubKey(offer.coordinatorPubkey)}',
-                                      );
-                                      await launchUrl(url, mode: LaunchMode.externalApplication);
-                                    },
-                                  ),
-                                ],
-                              );
+                                  ],
+                                );
+                              } else {
+                                // Fallback: show basic coordinator info from pubkey
+                                return Row(
+                                  children: [
+                                    const Icon(Icons.account_circle, size: 40),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Unknown Coordinator',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Pubkey: ${offer.coordinatorPubkey.substring(0, 16)}...',
+                                            style: const TextStyle(fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Image.asset(
+                                        'assets/nostr.png',
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                      onPressed: () async {
+                                        final url = Uri.parse(
+                                          'https://njump.me/${Nip19.encodePubKey(offer.coordinatorPubkey)}',
+                                        );
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
                             },
                           ),
                           const Divider(height: 32),
@@ -253,13 +343,13 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                     ),
                   if (isReserved &&
                       offer.reservedAt != null &&
-                      _reservationDuration != null)
+                      reservationDuration != null)
                     ReservationProgressIndicator(
                       key: ValueKey(
-                        'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
+                        'progress_res_${offer.id}_${reservationDuration.inSeconds}',
                       ),
                       reservedAt: offer.reservedAt!,
-                      maxDuration: _reservationDuration!,
+                      maxDuration: reservationDuration,
                     ),
                   if (isBlikReceived && offer.blikReceivedAt != null)
                     BlikConfirmationProgressIndicator(
