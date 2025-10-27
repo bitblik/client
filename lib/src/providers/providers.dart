@@ -45,7 +45,7 @@ class DiscoveredCoordinatorsNotifier
   }
 
   void _startPeriodicRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 300), (timer) {
       _loadCoordinators();
     });
   }

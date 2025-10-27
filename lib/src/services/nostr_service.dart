@@ -953,7 +953,7 @@ class NostrService {
       _offerStatusController.stream;
 
   /// Handle incoming coordinator info events
-  void  _handleCoordinatorInfoEvent(Nip01Event event) {
+  void _handleCoordinatorInfoEvent(Nip01Event event) {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
       _discoveredCoordinators[coordinator.pubkey] = coordinator;
@@ -990,6 +990,7 @@ class NostrService {
     }
   }
 
+
   void _markCoordinatorResponsive(String pubkey, bool responsive) {
     if (_discoveredCoordinators.containsKey(pubkey)) {
       _discoveredCoordinators[pubkey]!.responsive = responsive;
@@ -1014,8 +1015,26 @@ class NostrService {
   }
 
   /// Get current list of discovered coordinators
-  List<DiscoveredCoordinator> get discoveredCoordinators =>
-      _discoveredCoordinators.values.toList();
+  List<DiscoveredCoordinator> get discoveredCoordinators {
+    final coordinators = _discoveredCoordinators.values.toList();
+
+    // Sort by responsive status (true first), then by name
+    coordinators.sort((a, b) {
+      // Handle null responsive values - treat null as false
+      final aResponsive = a.responsive ?? false;
+      final bResponsive = b.responsive ?? false;
+
+      // First sort by responsive status (true first)
+      if (aResponsive != bResponsive) {
+        return aResponsive ? -1 : 1; // responsive coordinators come first
+      }
+
+      // If responsive status is the same, sort by name alphabetically
+      return a.name.compareTo(b.name);
+    });
+
+    return coordinators;
+  }
 
   /// Update relay configuration
   Future<void> updateRelayConfig(List<String> relayUrls) async {

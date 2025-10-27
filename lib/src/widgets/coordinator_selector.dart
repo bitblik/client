@@ -180,16 +180,20 @@ class CoordinatorSelector extends ConsumerWidget {
     if (coordinatorsAsync is AsyncData<List<DiscoveredCoordinator>>) {
       final coordinators = coordinatorsAsync.value;
 
-      // If no coordinator is selected but we have coordinators, use the first one
-      final displayCoordinator = selectedCoordinator ?? (coordinators.isNotEmpty ? coordinators.first : null);
+      // Find the first responsive coordinator for auto-selection
+      final responsiveCoordinators = coordinators.where((c) => c.responsive == true).toList();
+      final firstResponsiveCoordinator = responsiveCoordinators.isNotEmpty ? responsiveCoordinators.first : null;
 
-      // Auto-select the first coordinator if none is selected
-      if (selectedCoordinator == null && coordinators.isNotEmpty && onCoordinatorSelected != null) {
+      // Auto-select the first responsive coordinator if none is selected
+      if (selectedCoordinator == null && firstResponsiveCoordinator != null && onCoordinatorSelected != null) {
         // Use WidgetsBinding to call the callback after the current build is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          onCoordinatorSelected!(coordinators.first);
+          onCoordinatorSelected!(firstResponsiveCoordinator);
         });
       }
+
+      // Use selected coordinator if available, otherwise use the first responsive one
+      final displayCoordinator = selectedCoordinator ?? firstResponsiveCoordinator;
 
       if (displayCoordinator != null) {
         // Compose details for min/max PLN and maker fee
@@ -262,7 +266,7 @@ class CoordinatorSelector extends ConsumerWidget {
       }
     }
 
-    // Fallback - show choose coordinator button
+    // Fallback - show choose coordinator button (when no responsive coordinators available)
     return Center(
       child: ElevatedButton.icon(
         icon: const Icon(Icons.hub),
