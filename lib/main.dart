@@ -372,13 +372,25 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       builder: (context) {
         return AlertDialog(
           title: Text(t.nekoInfo.title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(t.nekoInfo.description),
-              SizedBox(height: 20),
-              SelectableText(Nip19.encodePubKey(pubKey)),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Display bigger neko avatar at the top
+                CachedNetworkImage(
+                  imageUrl: 'https://robohash.org/$pubKey?set=set4',
+                  placeholder: (context, url) => const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  width: 150,
+                  // Bigger size compared to the 32x32 in the footer
+                  height: 150,
+                ),
+                const SizedBox(height: 20),
+                Text(t.nekoInfo.description),
+                const SizedBox(height: 20),
+                SelectableText(Nip19.encodePubKey(pubKey)),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
