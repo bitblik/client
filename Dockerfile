@@ -23,7 +23,7 @@ RUN flutter config --enable-web
 # Example using build-arg:
 # ARG API_BASE_URL=http://localhost:8080
 # RUN flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
-RUN flutter build web --release --no-web-resources-cdn
+RUN flutter build web --release --no-web-resources-cdn --web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp
 
 # Stage 2: Serve the built web application using Nginx
 FROM nginx:stable-alpine
