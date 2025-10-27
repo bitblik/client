@@ -126,7 +126,7 @@ class NostrService {
 
   static const List<String> _defaultRelayUrls = [
     // 'wss://relay.damus.io',
-    'wss://relay.primal.net',
+    // 'wss://relay.primal.net',
     'wss://relay.mostro.network',
   ];
 
@@ -595,25 +595,25 @@ class NostrService {
   }
 
   /// GET /my-active-offer - This will now query all coordinators
-  Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey) async {
+  Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey, String coordinatorPubkey) async {
     if (!_isInitialized) {
       await init();
     }
 
-    final coordinators = _discoveredCoordinators.values.toList();
-    if (coordinators.isEmpty) {
-      print("No coordinators discovered, cannot get active offer.");
-      return null;
-    }
+    // final coordinators = _discoveredCoordinators.values.toList();
+    // if (coordinators.isEmpty) {
+    //   print("No coordinators discovered, cannot get active offer.");
+    //   return null;
+    // }
 
-    for (final coordinator in coordinators) {
+    // for (final coordinator in coordinators) {
       try {
         final request = NostrRequest(method: 'get_my_active_offer', params: {});
-        final response = await sendRequest(request, coordinator.pubkey);
+        final response = await sendRequest(request, coordinatorPubkey);
         final result = _handleResponse(response, (result) {
           if (result.isEmpty) return null;
           // Add coordinator pubkey to the result
-          result['coordinator_pubkey'] = coordinator.pubkey;
+          result['coordinator_pubkey'] = coordinatorPubkey;
           return result;
         });
         if (result != null) {
@@ -622,10 +622,10 @@ class NostrService {
       } catch (e) {
         // Continue to the next coordinator if one fails
         print(
-          "Error getting active offer from coordinator ${coordinator.pubkey}: $e",
+          "Error getting active offer from coordinator ${coordinatorPubkey}: $e",
         );
       }
-    }
+    // }
     return null; // No active offer found on any coordinator
   }
 
@@ -953,7 +953,7 @@ class NostrService {
       _offerStatusController.stream;
 
   /// Handle incoming coordinator info events
-  void _handleCoordinatorInfoEvent(Nip01Event event) {
+  void  _handleCoordinatorInfoEvent(Nip01Event event) {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
       _discoveredCoordinators[coordinator.pubkey] = coordinator;
@@ -990,7 +990,6 @@ class NostrService {
     }
   }
 
-
   void _markCoordinatorResponsive(String pubkey, bool responsive) {
     if (_discoveredCoordinators.containsKey(pubkey)) {
       _discoveredCoordinators[pubkey]!.responsive = responsive;
@@ -1015,26 +1014,8 @@ class NostrService {
   }
 
   /// Get current list of discovered coordinators
-  List<DiscoveredCoordinator> get discoveredCoordinators {
-    final coordinators = _discoveredCoordinators.values.toList();
-
-    // Sort by responsive status (true first), then by name
-    coordinators.sort((a, b) {
-      // Handle null responsive values - treat null as false
-      final aResponsive = a.responsive ?? false;
-      final bResponsive = b.responsive ?? false;
-
-      // First sort by responsive status (true first)
-      if (aResponsive != bResponsive) {
-        return aResponsive ? -1 : 1; // responsive coordinators come first
-      }
-
-      // If responsive status is the same, sort by name alphabetically
-      return a.name.compareTo(b.name);
-    });
-
-    return coordinators;
-  }
+  List<DiscoveredCoordinator> get discoveredCoordinators =>
+      _discoveredCoordinators.values.toList();
 
   /// Update relay configuration
   Future<void> updateRelayConfig(List<String> relayUrls) async {

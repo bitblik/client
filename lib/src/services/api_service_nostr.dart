@@ -255,9 +255,9 @@ class ApiServiceNostr {
     }
   }
 
-  Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey) async {
+  Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey, String coordinatorPubkey) async {
     try {
-      return await _nostrService.getMyActiveOffer(userPubkey);
+      return await _nostrService.getMyActiveOffer(userPubkey, coordinatorPubkey);
     } catch (e) {
       print('Error calling getMyActiveOffer: $e');
       return null;

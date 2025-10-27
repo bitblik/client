@@ -53,7 +53,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   }
 
   // --- Status Update Handler ---
-  void _handleStatusUpdate(OfferStatus? status) async {
+  void _handleStatusUpdate(OfferStatus? status, String coordinatorPubkey) async {
     if (status == null || !mounted) return;
 
     print('[MakerPayInvoiceScreen] Status update received: $status');
@@ -64,7 +64,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     }
 
     final apiService = ref.read(apiServiceProvider);
-    final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+    final fullOfferData = await apiService.getMyActiveOffer(publicKey, coordinatorPubkey);
     final offer = ref.read(activeOfferProvider);
 
     if (fullOfferData == null || offer == null) {
@@ -160,7 +160,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     // Listen to the active offer provider for status changes
     ref.listen<Offer?>(activeOfferProvider, (previous, next) {
       if (next != null) {
-        _handleStatusUpdate(next.statusEnum);
+        _handleStatusUpdate(next.statusEnum, next.coordinatorPubkey);
       }
     });
 

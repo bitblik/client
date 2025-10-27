@@ -115,7 +115,11 @@ class OfferDbService {
     final db = await database;
     final maps = await db.query('active_offer', limit: 1, orderBy: 'created_at DESC');
     if (maps.isNotEmpty) {
-      return Offer.fromJson(maps.first);
+      try {
+        return Offer.fromJson(maps.first);
+      } catch (e) {
+        print('could not parse offer from json: $e');
+      }
     }
     return null;
   }

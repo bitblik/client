@@ -36,7 +36,7 @@ class Offer {
   final DateTime? reservedAt;
   final DateTime? blikReceivedAt;
   final String? blikCode;
-  final String? holdInvoicePaymentHash;
+  String? holdInvoicePaymentHash;
   final String? holdInvoice; // The actual bolt11 invoice string
   // Added fields based on DB schema that might be useful
   final String? takerLightningAddress;

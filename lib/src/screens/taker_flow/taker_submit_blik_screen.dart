@@ -173,12 +173,10 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       // Fetch CoordinatorInfo first
       try {
         final offer = widget.initialOffer;
-        final coordinatorPubkey = offer?.coordinatorPubkey;
-        if (coordinatorPubkey != null) {
-          _coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
-            coordinatorPubkey,
-          );
-        }
+        final coordinatorPubkey = offer.coordinatorPubkey;
+        _coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+          coordinatorPubkey,
+        );
         if (_coordinatorInfo != null) {
           _maxBlikInputTime = Duration(
             seconds: _coordinatorInfo!.reservationSeconds,
@@ -205,7 +203,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         throw Exception(t.taker.paymentProcess.errors.noPublicKey);
       }
 
-      final fullOfferData = await apiService.getMyActiveOffer(publicKey);
+      final fullOfferData = await apiService.getMyActiveOffer(publicKey, widget.initialOffer.coordinatorPubkey);
 
       if (!mounted) return;
 
@@ -238,7 +236,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       }
       // --- End Validation ---
 
-      await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
+      // await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
       print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
       // Ensure _maxBlikInputTime is set before starting timer
