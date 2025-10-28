@@ -216,9 +216,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await ref.read(initializedApiServiceProvider.future);
-
-        // Start coordinator discovery
-        // ref.read(coordinatorDiscoveryProvider);
+        final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
 
         // Initialize the offer status subscription manager
         ref.read(offerStatusSubscriptionManagerProvider);
@@ -367,7 +365,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     ref.invalidate(apiServiceProvider);
                     ref.invalidate(initializedApiServiceProvider);
                     ref.invalidate(publicKeyProvider);
-                    ref.invalidate(coordinatorDiscoveryProvider);
 
                     // Show loading indicator
                     showDialog(
@@ -378,7 +375,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
                     // Re-initialize services
                     await ref.read(initializedApiServiceProvider.future);
-                    ref.read(coordinatorDiscoveryProvider);
 
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close generate key dialog
@@ -507,7 +503,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     ref.invalidate(apiServiceProvider);
                     ref.invalidate(initializedApiServiceProvider);
                     ref.invalidate(publicKeyProvider);
-                    ref.invalidate(coordinatorDiscoveryProvider);
 
                     // Show loading indicator
                     showDialog(
@@ -518,7 +513,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
                     // Re-initialize services
                     await ref.read(initializedApiServiceProvider.future);
-                    ref.read(coordinatorDiscoveryProvider);
 
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close restore dialog

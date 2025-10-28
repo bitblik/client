@@ -17,7 +17,11 @@ final keyServiceProvider = Provider<KeyService>((ref) {
 
 final apiServiceProvider = Provider<ApiServiceNostr>((ref) {
   final keyService = ref.read(keyServiceProvider);
-  return ApiServiceNostr(keyService);
+  final apiService = ApiServiceNostr(keyService);
+  ref.onDispose(() {
+    apiService.dispose();
+  });
+  return apiService;
 });
 
 final initializedApiServiceProvider = FutureProvider<ApiServiceNostr>((
@@ -40,13 +44,19 @@ class DiscoveredCoordinatorsNotifier
 
   DiscoveredCoordinatorsNotifier(this._ref)
     : super(const AsyncValue.loading()) {
-    _ref.read(keyServiceProvider);
     _startDiscovery();
   }
 
   void _startPeriodicRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 3000), (timer) {
-      _loadCoordinators();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
+      try {
+        // Use initialized API service for periodic refresh
+        final apiService = await _ref.read(initializedApiServiceProvider.future);
+        await apiService.startCoordinatorDiscovery();
+        await _loadCoordinators();
+      } catch (e) {
+        print('Error during periodic coordinator refresh: $e');
+      }
     });
   }
 
@@ -58,7 +68,8 @@ class DiscoveredCoordinatorsNotifier
 
   Future<void> _loadCoordinators() async {
     try {
-      final apiService = _ref.read(apiServiceProvider);
+      // Use initialized API service to ensure KeyService is ready
+      final apiService = await _ref.read(initializedApiServiceProvider.future);
       final coordinators = apiService.discoveredCoordinators;
 
       print('🔍 Provider: Loading ${coordinators.length} coordinators for health check');
@@ -74,7 +85,7 @@ class DiscoveredCoordinatorsNotifier
 
       // Wait for all health checks to complete (with timeout)
       try {
-        await Future.wait(healthCheckFutures).timeout(const Duration(seconds: 10));
+        await Future.wait(healthCheckFutures).timeout(const Duration(seconds: 20));
         print('🔍 Provider: All health checks completed');
       } catch (e) {
         print('Some health checks timed out or failed: $e');
@@ -90,30 +101,31 @@ class DiscoveredCoordinatorsNotifier
 
       state = AsyncValue.data(updatedCoordinators);
     } catch (e, stack) {
+      print('Error in _loadCoordinators: $e');
       state = AsyncValue.error(e, stack);
     }
   }
 
   Future<void> _startDiscovery() async {
     try {
-      final apiService = _ref.read(apiServiceProvider);
+      state = const AsyncValue.loading();
+      print('🔍 Provider: Starting coordinator discovery, waiting for API service initialization...');
+
+      // Wait for API service to be fully initialized (this ensures KeyService is ready)
+      final apiService = await _ref.read(initializedApiServiceProvider.future);
+      print('🔍 Provider: API service initialized, starting coordinator discovery...');
+
       await apiService.startCoordinatorDiscovery();
-      // After starting discovery, refresh the coordinators
+
+      // After starting discovery, start periodic refresh and load coordinators
       _startPeriodicRefresh();
-      state = AsyncValue.loading();
       await _loadCoordinators();
     } catch (e, stack) {
+      print('Error in _startDiscovery: $e');
       state = AsyncValue.error(e, stack);
     }
   }
-
 }
-
-/// Provider to start coordinator discovery
-final coordinatorDiscoveryProvider = FutureProvider<void>((ref) async {
-  final apiService = ref.watch(apiServiceProvider);
-  await apiService.startCoordinatorDiscovery();
-});
 
 /// Enhanced provider for coordinator info by pubkey that ensures discovery is triggered
 /// and coordinator info is available as fast as possible.
@@ -132,7 +144,8 @@ AsyncNotifierProvider.family<CoordinatorInfoNotifier, CoordinatorInfo?, String>(
 class CoordinatorInfoNotifier extends FamilyAsyncNotifier<CoordinatorInfo?, String> {
   @override
   Future<CoordinatorInfo?> build(String pubkey) async {
-    final apiService = ref.watch(apiServiceProvider);
+    // Wait for API service to be fully initialized (ensures KeyService is ready)
+    final apiService = await ref.watch(initializedApiServiceProvider.future);
 
     // First, try to get coordinator info from cache for immediate access
     var coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
@@ -176,8 +189,8 @@ class CoordinatorInfoNotifier extends FamilyAsyncNotifier<CoordinatorInfo?, Stri
 
   /// Force refresh coordinator info for this pubkey
   Future<void> refresh() async {
-    final apiService = ref.read(apiServiceProvider);
     try {
+      final apiService = await ref.read(initializedApiServiceProvider.future);
       await apiService.startCoordinatorDiscovery();
       await Future.delayed(const Duration(milliseconds: 500));
       final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(arg);
@@ -272,20 +285,43 @@ final lightningAddressProvider = FutureProvider<String?>((ref) async {
 });
 
 /// Provider for finished (takerPaid, <24h) offers for the current user (taker)
+/// This provider waits for discovered coordinators before loading finished offers
 final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
   final publicKey = await ref.watch(publicKeyProvider.future);
   if (publicKey == null) return [];
-  final apiService = ref.watch(apiServiceProvider);
-  final offersData = await apiService.getMyFinishedOffers(publicKey);
-  final now = DateTime.now().toUtc();
 
-  return offersData.where((offer) {
-    if (offer.status == 'takerPaid') {
-      final paidAt = offer.takerPaidAt;
-      return paidAt != null && now.difference(paidAt.toUtc()).inHours < 24;
-    }
-    return false;
-  }).toList();
+  // Wait for discovered coordinators to be available
+  final coordinatorsAsync = ref.read(discoveredCoordinatorsProvider);
+  return await coordinatorsAsync.when(
+    data: (coordinators) async {
+      // Only proceed if we have discovered coordinators
+      if (coordinators.isEmpty) {
+        print('No coordinators discovered yet, returning empty finished offers list');
+        return <Offer>[];
+      }
+
+      print('Found ${coordinators.length} coordinators, loading finished offers');
+      // Use initialized API service to ensure KeyService is ready
+      final apiService = await ref.read(initializedApiServiceProvider.future);
+      final offersData = await apiService.getMyFinishedOffers(publicKey);
+      final now = DateTime.now().toUtc();
+
+      return offersData.where((offer) {
+        if (offer.status == 'takerPaid') {
+          final paidAt = offer.takerPaidAt;
+          return paidAt != null && now
+              .difference(paidAt.toUtc())
+              .inHours < 24;
+        }
+        return false;
+      }).toList();
+    },
+    loading: () => <Offer>[], // Return empty list while loading coordinators
+    error: (error, stack) {
+      print('Error loading coordinators for finished offers: $error');
+      return <Offer>[]; // Return empty list on error
+    },
+  );
 });
 
 // You might add more providers here as needed for:

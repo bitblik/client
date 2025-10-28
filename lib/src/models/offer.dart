@@ -181,8 +181,7 @@ class Offer {
         json['maker_pubkey'],
         'unknown_maker',
       ), // Default if 'maker_pubkey' is null or not a string
-      coordinatorPubkey:
-          json['coordinator_pubkey'] as String, // Added coordinator pubkey
+      coordinatorPubkey: safeString(json['coordinator_pubkey'], 'unknown_coordinator'), // Added coordinator pubkey
       takerPubkey: json['taker_pubkey'] as String?, // Already nullable
       reservedAt: parseOptionalDateTime(json['reserved_at'] as int?),
       blikReceivedAt: parseOptionalDateTime(

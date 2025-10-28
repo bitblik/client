@@ -127,7 +127,7 @@ class NostrService {
   static const List<String> _defaultRelayUrls = [
     // 'wss://relay.damus.io',
     'wss://relay.primal.net',
-    'wss://relay.mostro.network',
+    // 'wss://relay.mostro.network',
   ];
 
   // Event kinds (matching coordinator)
@@ -192,7 +192,6 @@ class NostrService {
     // Initialize NDK with bootstrap relays config
     _ndk = Ndk(
       NdkConfig(
-        engine: NdkEngine.JIT,
         cache: MemCacheManager(),
         eventVerifier: RustEventVerifier(),//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
@@ -399,7 +398,7 @@ class NostrService {
         "#f": ["PLN"],
         //        "#s": ['pending'],
         "#y": ["Bitblik"],
-        "#pm": ["BLIK"],
+        // "#pm": ["BLIK"],
       },
       since:
           DateTime.now()
@@ -600,32 +599,24 @@ class NostrService {
       await init();
     }
 
-    // final coordinators = _discoveredCoordinators.values.toList();
-    // if (coordinators.isEmpty) {
-    //   print("No coordinators discovered, cannot get active offer.");
-    //   return null;
-    // }
-
-    // for (final coordinator in coordinators) {
-      try {
-        final request = NostrRequest(method: 'get_my_active_offer', params: {});
-        final response = await sendRequest(request, coordinatorPubkey);
-        final result = _handleResponse(response, (result) {
-          if (result.isEmpty) return null;
-          // Add coordinator pubkey to the result
-          result['coordinator_pubkey'] = coordinatorPubkey;
-          return result;
-        });
-        if (result != null) {
-          return result; // Return the first active offer found
-        }
-      } catch (e) {
-        // Continue to the next coordinator if one fails
-        print(
-          "Error getting active offer from coordinator ${coordinatorPubkey}: $e",
-        );
+    try {
+      final request = NostrRequest(method: 'get_my_active_offer', params: {});
+      final response = await sendRequest(request, coordinatorPubkey);
+      final result = _handleResponse(response, (result) {
+        if (result.isEmpty) return null;
+        // Add coordinator pubkey to the result
+        result['coordinator_pubkey'] = coordinatorPubkey;
+        return result;
+      });
+      if (result != null) {
+        return result; // Return the first active offer found
       }
-    // }
+    } catch (e) {
+      // Continue to the next coordinator if one fails
+      print(
+        "Error getting active offer from coordinator ${coordinatorPubkey}: $e",
+      );
+    }
     return null; // No active offer found on any coordinator
   }
 

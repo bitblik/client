@@ -101,34 +101,6 @@ class RoleSelectionScreen extends ConsumerWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // // Header with logo and title
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          //   child: Row(
-          //     children: [
-          //       // Logo
-          //       Image.asset(
-          //         'assets/logo.png',
-          //         width: 48,
-          //         height: 48,
-          //       ),
-          //       const SizedBox(width: 16),
-          //       // Title
-          //       Text(
-          //         'BitBlikaaa',
-          //         style: Theme
-          //             .of(context)
-          //             .textTheme
-          //             .headlineMedium
-          //             ?.copyWith(
-          //           fontWeight: FontWeight.bold,
-          //           color: Colors.black87,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-
           // Main content area
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -409,15 +381,55 @@ class RoleSelectionScreen extends ConsumerWidget {
   Widget _buildFinishedOffersSection(BuildContext context, WidgetRef ref, Translations t) {
     return Consumer(
       builder: (context, ref, _) {
+        final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
         final finishedAsync = ref.watch(finishedOffersProvider);
-        return finishedAsync.when(
+
+        return coordinatorsAsync.when(
           loading: () =>
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 32.0),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Discovering coordinators...'),
+                ],
+              ),
+            ),
           ),
           error: (err, stack) =>
               Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32.0),
+                child: Text(
+                  'Error discovering coordinators: ${err.toString()}',
+                  style: TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          data: (coordinators) {
+            // If no coordinators found, don't show anything
+            if (coordinators.isEmpty) {
+              return const SizedBox();
+            }
+
+            // Now check finished offers
+            return finishedAsync.when(
+              loading: () =>
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Loading finished offers...'),
+                    ],
+                  ),
+                ),
+              ),
+              error: (err, stack) =>
+                  Padding(
                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                 child: Text(
                   t.offers.errors.loadingFinished(details: err.toString()),
@@ -425,29 +437,27 @@ class RoleSelectionScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-          data: (finishedOffers) {
-            if (finishedOffers.isEmpty) return const SizedBox();
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                Text(
-                  t.offers.display.finishedOffersWithTime,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ...finishedOffers.map(
-                      (offer) =>
-                      Card(
+              data: (finishedOffers) {
+                if (finishedOffers.isEmpty) return const SizedBox();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 30),
+                    Text(
+                      t.offers.display.finishedOffersWithTime,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ...finishedOffers.map(
+                          (offer) =>
+                          Card(
                         elevation: 1,
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
@@ -466,8 +476,10 @@ class RoleSelectionScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             );
           },
         );
