@@ -160,6 +160,10 @@ class NostrService {
   // Coordinator info cache by pubkey
   final Map<String, CoordinatorInfo> _coordinatorInfoCache = {};
 
+  List<String> kWhitelistCoordinatorPubKeys = [
+    "c6e5e031989223dd63e6ed49f0905a19a92ed86e0754721d6071133a9340bf7e",
+  ];
+
   NostrService(this._keyService) {
     _offerStreamController = StreamController<Offer>.broadcast();
   }
@@ -1042,16 +1046,18 @@ class NostrService {
   void  _handleCoordinatorInfoEvent(Nip01Event event) {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
-      _discoveredCoordinators[coordinator.pubkey] = coordinator;
-      final coordinatorPubkey = coordinator.pubkey;
-      // Cache coordinator info immediately when discovered
-      final coordinatorInfo = coordinator.toCoordinatorInfo();
-      _coordinatorInfoCache[coordinator.pubkey] = coordinatorInfo;
-      print(
-        '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
-      );
-      // Check health via get_info after discovery (don't await)
-      // checkCoordinatorHealth(coordinatorPubkey);
+      if (kWhitelistCoordinatorPubKeys.contains(coordinator.pubkey)) {
+        _discoveredCoordinators[coordinator.pubkey] = coordinator;
+        final coordinatorPubkey = coordinator.pubkey;
+        // Cache coordinator info immediately when discovered
+        final coordinatorInfo = coordinator.toCoordinatorInfo();
+        _coordinatorInfoCache[coordinator.pubkey] = coordinatorInfo;
+        print(
+          '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
+        );
+        // Check health via get_info after discovery (don't await)
+        // checkCoordinatorHealth(coordinatorPubkey);
+      }
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
     }
