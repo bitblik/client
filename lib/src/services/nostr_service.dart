@@ -798,12 +798,40 @@ class NostrService {
     final coordinators = _discoveredCoordinators.values.toList();
     if (coordinators.isEmpty) {
       print("No coordinators discovered, cannot get stats.");
-      return {'total_sats': 0, 'total_offers': 0, 'offers': <Offer>[]};
+      return {
+        'total_sats': 0,
+        'total_offers': 0,
+        'offers': <Offer>[],
+        'stats': {
+          'lifetime': {
+            'avg_time_blik_received_to_created_seconds': null,
+            'avg_time_taker_paid_to_created_seconds': null,
+            'count': 0,
+          },
+          'last_7_days': {
+            'avg_time_blik_received_to_created_seconds': null,
+            'avg_time_taker_paid_to_created_seconds': null,
+            'count': 0,
+          }
+        }
+      };
     }
 
     int totalSats = 0;
     int totalOffers = 0;
     final allOffers = <Offer>[];
+
+    // For aggregating stats
+    int lifetimeCount = 0;
+    int last7DaysCount = 0;
+    double lifetimeBlikTimeSum = 0;
+    double lifetimePaidTimeSum = 0;
+    double last7DaysBlikTimeSum = 0;
+    double last7DaysPaidTimeSum = 0;
+    int lifetimeBlikTimeValidEntries = 0;
+    int lifetimePaidTimeValidEntries = 0;
+    int last7DaysBlikTimeValidEntries = 0;
+    int last7DaysPaidTimeValidEntries = 0;
 
     for (final coordinator in coordinators) {
       try {
@@ -821,20 +849,87 @@ class NostrService {
           return result;
         });
 
+        // Aggregate basic totals
         totalSats += (stats['total_sats'] as num?)?.toInt() ?? 0;
         totalOffers += (stats['total_offers'] as num?)?.toInt() ?? 0;
         if (stats['offers'] is List<Offer>) {
           allOffers.addAll(stats['offers']);
+        }
+
+        // Aggregate nested stats if present
+        if (stats.containsKey('stats') && stats['stats'] is Map<String, dynamic>) {
+          final nestedStats = stats['stats'] as Map<String, dynamic>;
+
+          // Process lifetime stats
+          if (nestedStats.containsKey('lifetime') && nestedStats['lifetime'] is Map<String, dynamic>) {
+            final lifetimeStats = nestedStats['lifetime'] as Map<String, dynamic>;
+            final count = (lifetimeStats['count'] as num?)?.toInt() ?? 0;
+            lifetimeCount += count;
+
+            final blikTime = lifetimeStats['avg_time_blik_received_to_created_seconds'] as num?;
+            if (blikTime != null && count > 0) {
+              lifetimeBlikTimeSum += blikTime.toDouble() * count;
+              lifetimeBlikTimeValidEntries += count;
+            }
+
+            final paidTime = lifetimeStats['avg_time_taker_paid_to_created_seconds'] as num?;
+            if (paidTime != null && count > 0) {
+              lifetimePaidTimeSum += paidTime.toDouble() * count;
+              lifetimePaidTimeValidEntries += count;
+            }
+          }
+
+          // Process last_7_days stats
+          if (nestedStats.containsKey('last_7_days') && nestedStats['last_7_days'] is Map<String, dynamic>) {
+            final last7DaysStats = nestedStats['last_7_days'] as Map<String, dynamic>;
+            final count = (last7DaysStats['count'] as num?)?.toInt() ?? 0;
+            last7DaysCount += count;
+
+            final blikTime = last7DaysStats['avg_time_blik_received_to_created_seconds'] as num?;
+            if (blikTime != null && count > 0) {
+              last7DaysBlikTimeSum += blikTime.toDouble() * count;
+              last7DaysBlikTimeValidEntries += count;
+            }
+
+            final paidTime = last7DaysStats['avg_time_taker_paid_to_created_seconds'] as num?;
+            if (paidTime != null && count > 0) {
+              last7DaysPaidTimeSum += paidTime.toDouble() * count;
+              last7DaysPaidTimeValidEntries += count;
+            }
+          }
         }
       } catch (e) {
         print("Error getting stats from coordinator ${coordinator.pubkey}: $e");
       }
     }
 
+    // Sort offers by creation date (most recent first)
+    allOffers.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
     return {
       'total_sats': totalSats,
       'total_offers': totalOffers,
       'offers': allOffers,
+      'stats': {
+        'lifetime': {
+          'avg_time_blik_received_to_created_seconds': lifetimeBlikTimeValidEntries > 0
+              ? (lifetimeBlikTimeSum / lifetimeBlikTimeValidEntries).round()
+              : null,
+          'avg_time_taker_paid_to_created_seconds': lifetimePaidTimeValidEntries > 0
+              ? (lifetimePaidTimeSum / lifetimePaidTimeValidEntries).round()
+              : null,
+          'count': lifetimeCount,
+        },
+        'last_7_days': {
+          'avg_time_blik_received_to_created_seconds': last7DaysBlikTimeValidEntries > 0
+              ? (last7DaysBlikTimeSum / last7DaysBlikTimeValidEntries).round()
+              : null,
+          'avg_time_taker_paid_to_created_seconds': last7DaysPaidTimeValidEntries > 0
+              ? (last7DaysPaidTimeSum / last7DaysPaidTimeValidEntries).round()
+              : null,
+          'count': last7DaysCount,
+        }
+      }
     };
   }
 

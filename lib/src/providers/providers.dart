@@ -400,7 +400,7 @@ final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
   final apiService = ref.watch(apiServiceProvider);
-  return {}; //apiService.getSuccessfulOffersStats();
+  return apiService.getSuccessfulOffersStats();
 });
 
 // Provider to expose the public key hex.

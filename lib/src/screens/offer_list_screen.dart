@@ -12,6 +12,7 @@ import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
 import '../utils/ln.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
+import 'offer_details_screen.dart'; // Import OfferDetailsScreen
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
 
@@ -1115,66 +1116,78 @@ Widget _buildStatsSection(
                         itemCount: recentOffers.length,
                         itemBuilder: (context, index) {
                           final offer = recentOffers[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 2.0,
-                              horizontal: 0,
-                            ), // less margin
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 4.0,
-                              ), // less padding
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Amount and currency
-                                  Text(
-                                    t.offers.details.amountWithCurrency(
-                                      amount: formatDouble(
-                                        offer.fiatAmount ?? 0.0,
-                                      ),
-                                      currency: offer.fiatCurrency,
-                                    ),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context, rootNavigator: true).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      OfferDetailsScreen(
+                                        offerId: offer.id,
                                   ),
-                                  const SizedBox(width: 10),
-                                  // Date (now as time ago)
-                                  Text(
-                                    _formatTimeAgo(offer.createdAt.toLocal()),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  // Taken after (if available)
-                                  if (offer.timeToReserveSeconds != null)
+                                ),
+                              );
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 2.0,
+                                horizontal: 0,
+                              ), // less margin
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                  vertical: 4.0,
+                                ), // less padding
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Amount and currency
                                     Text(
-                                      t.offers.details.takenAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.timeToReserveSeconds,
+                                      t.offers.details.amountWithCurrency(
+                                        amount: formatDouble(
+                                          offer.fiatAmount ?? 0.0,
                                         ),
+                                        currency: offer.fiatCurrency,
                                       ),
-                                      style: const TextStyle(fontSize: 12),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  if (offer.timeToReserveSeconds != null)
-                                    const SizedBox(width: 8),
-                                  // Paid after (if available)
-                                  if (offer.totalCompletionTimeTakerSeconds !=
-                                      null)
+                                    const SizedBox(width: 10),
+                                    // Date (now as time ago)
                                     Text(
-                                      t.offers.details.paidAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.totalCompletionTimeTakerSeconds,
-                                        ),
+                                      _formatTimeAgo(offer.createdAt.toLocal()),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
                                       ),
-                                      style: const TextStyle(fontSize: 12),
                                     ),
-                                ],
+                                    const SizedBox(width: 10),
+                                    // Taken after (if available)
+                                    if (offer.timeToReserveSeconds != null)
+                                      Text(
+                                        t.offers.details.takenAfter(
+                                          duration: _formatDurationFromSeconds(
+                                            offer.timeToReserveSeconds,
+                                          ),
+                                        ),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    if (offer.timeToReserveSeconds != null)
+                                      const SizedBox(width: 8),
+                                    // Paid after (if available)
+                                    if (offer.totalCompletionTimeTakerSeconds !=
+                                        null)
+                                      Text(
+                                        t.offers.details.paidAfter(
+                                          duration: _formatDurationFromSeconds(
+                                            offer.totalCompletionTimeTakerSeconds,
+                                          ),
+                                        ),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
