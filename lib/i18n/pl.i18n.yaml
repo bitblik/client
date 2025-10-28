@@ -517,11 +517,11 @@ system:
 # =============================================================================
 landing:
   mainTitle: "Wymiana BLIK ⇄ bitcoin"
-  subtitle: "Płać lub sprzedawaj kod BLIK za Bitcoin"
+  subtitle: "Płać lub sprzedawaj kod BLIK za bitcoin"
   
   actions:
     payBlik: "Zapłać BLIK"
-    payBlikSubtitle: "używając Bitcoin"
+    payBlikSubtitle: "używając bitcoin"
     sellBlik: "Kup bitcoin"
     sellBlikSubtitle: "używając BLIK"
     howItWorks: "Jak to działa?"
