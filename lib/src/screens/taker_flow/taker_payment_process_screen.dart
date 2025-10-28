@@ -224,9 +224,7 @@ class _PaymentChecklist extends ConsumerWidget {
                   ref.read(receivedBlikCodeProvider.notifier).state = null;
                   ref.read(errorProvider.notifier).state = null;
                   ref.read(isLoadingProvider.notifier).state = false;
-                  ref.invalidate(
-                    availableOffersProvider,
-                  ); // Invalidate offer list
+                  ref.invalidate(availableOffersProvider);
                   context.go("/");
                 },
                 child: Text(t.common.buttons.done),
