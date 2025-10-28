@@ -521,8 +521,8 @@ class TranslationsOffersDisplayEn {
 	/// en: 'Your offer:'
 	String get yourOffer => 'Your offer:';
 
-	/// en: 'Selected offer:'
-	String get selectedOffer => 'Selected offer:';
+	/// en: 'Offer:'
+	String get selectedOffer => 'Offer:';
 
 	/// en: 'You have an active offer:'
 	String get activeOffer => 'You have an active offer:';
@@ -2096,7 +2096,7 @@ extension on Translations {
 			case 'lightningAddress.errors.saving': return ({required Object details}) => 'Error saving address: ${details}';
 			case 'lightningAddress.errors.loading': return ({required Object details}) => 'Error loading Lightning address: ${details}';
 			case 'offers.display.yourOffer': return 'Your offer:';
-			case 'offers.display.selectedOffer': return 'Selected offer:';
+			case 'offers.display.selectedOffer': return 'Offer:';
 			case 'offers.display.activeOffer': return 'You have an active offer:';
 			case 'offers.display.finishedOffers': return 'Finished offers';
 			case 'offers.display.finishedOffersWithTime': return 'Finished offers (last 24h):';

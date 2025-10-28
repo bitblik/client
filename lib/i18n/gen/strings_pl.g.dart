@@ -414,7 +414,7 @@ class _TranslationsOffersDisplayPl extends TranslationsOffersDisplayEn {
 
 	// Translations
 	@override String get yourOffer => 'Twoja oferta:';
-	@override String get selectedOffer => 'Wybrana oferta:';
+	@override String get selectedOffer => 'Oferta:';
 	@override String get activeOffer => 'Masz aktywną ofertę:';
 	@override String get finishedOffers => 'Zakończone oferty';
 	@override String get finishedOffersWithTime => 'Zakończone oferty (ostatnie 24h):';
@@ -1488,7 +1488,7 @@ extension on TranslationsPl {
 			case 'lightningAddress.errors.saving': return ({required Object details}) => 'Błąd podczas zapisywania adresu: ${details}';
 			case 'lightningAddress.errors.loading': return ({required Object details}) => 'Błąd podczas ładowania adresu Lightning: ${details}';
 			case 'offers.display.yourOffer': return 'Twoja oferta:';
-			case 'offers.display.selectedOffer': return 'Wybrana oferta:';
+			case 'offers.display.selectedOffer': return 'Oferta:';
 			case 'offers.display.activeOffer': return 'Masz aktywną ofertę:';
 			case 'offers.display.finishedOffers': return 'Zakończone oferty';
 			case 'offers.display.finishedOffersWithTime': return 'Zakończone oferty (ostatnie 24h):';
