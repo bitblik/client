@@ -274,7 +274,7 @@ class _TranslationsLandingPl extends TranslationsLandingEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get mainTitle => 'Wymiana BLIK ⇄ bitcoin';
+	@override String get mainTitle => 'Wymiana\n BLIK ⇄ bitcoin';
 	@override String get subtitle => 'Płać lub sprzedawaj kod BLIK za bitcoin';
 	@override late final _TranslationsLandingActionsPl actions = _TranslationsLandingActionsPl._(_root);
 }
@@ -1736,7 +1736,7 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
-			case 'landing.mainTitle': return 'Wymiana BLIK ⇄ bitcoin';
+			case 'landing.mainTitle': return 'Wymiana\n BLIK ⇄ bitcoin';
 			case 'landing.subtitle': return 'Płać lub sprzedawaj kod BLIK za bitcoin';
 			case 'landing.actions.payBlik': return 'Zapłać BLIK';
 			case 'landing.actions.payBlikSubtitle': return 'używając bitcoin';

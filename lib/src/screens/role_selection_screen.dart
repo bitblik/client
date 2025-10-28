@@ -106,7 +106,7 @@ class RoleSelectionScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 40),
 
                 // Main title
                 Text(
@@ -126,7 +126,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
 
                 // Subtitle
                 Text(
@@ -142,53 +142,64 @@ class RoleSelectionScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 80),
+                const SizedBox(height: 40),
 
                 // Action cards
                 Builder(
                   builder: (context) {
                     final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
+                    final screenWidth = MediaQuery
+                        .of(context)
+                        .size
+                        .width;
+                    final cardHeight = screenWidth > 600 ? 200.0 : 180.0; // Responsive height
 
                     return Row(
                       children: [
                         // Pay BLIK card (red)
                         Expanded(
-                          child: _buildActionCard(
-                            context: context,
-                            title: t.landing.actions.payBlik,
-                            subtitle: t.landing.actions.payBlikSubtitle,
-                            icon: Icons.flash_on,
-                            backgroundColor: const Color(0xFFE53E3E),
-                            textColor: Colors.white,
-                            isEnabled: !hasRealActiveOffer,
-                            onTap: () {
-                              if (kIsWeb) {
-                                context.go("/create");
-                              } else {
-                                context.push("/create");
-                              }
-                            },
+                          child: Container(
+                            height: cardHeight,
+                            child: _buildActionCard(
+                              context: context,
+                              title: t.landing.actions.payBlik,
+                              subtitle: t.landing.actions.payBlikSubtitle,
+                              icon: Icons.flash_on,
+                              backgroundColor: const Color(0xFFE53E3E),
+                              textColor: Colors.white,
+                              isEnabled: !hasRealActiveOffer,
+                              onTap: () {
+                                if (kIsWeb) {
+                                  context.go("/create");
+                                } else {
+                                  context.push("/create");
+                                }
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(width: 24),
                         // Sell BLIK card (white)
                         Expanded(
-                          child: _buildActionCard(
-                            context: context,
-                            title: t.landing.actions.sellBlik,
-                            subtitle: t.landing.actions.sellBlikSubtitle,
-                            icon: Icons.monetization_on_outlined,
-                            backgroundColor: Colors.white,
-                            textColor: const Color(0xFFE53E3E),
-                            borderColor: Colors.grey[300],
-                            isEnabled: !hasRealActiveOffer,
-                            onTap: () {
-                              if (kIsWeb) {
-                                context.go("/offers");
-                              } else {
-                                context.push("/offers");
-                              }
-                            },
+                          child: Container(
+                            height: cardHeight,
+                            child: _buildActionCard(
+                              context: context,
+                              title: t.landing.actions.sellBlik,
+                              subtitle: t.landing.actions.sellBlikSubtitle,
+                              icon: Icons.monetization_on_outlined,
+                              backgroundColor: Colors.white,
+                              textColor: const Color(0xFFE53E3E),
+                              borderColor: Colors.grey[300],
+                              isEnabled: !hasRealActiveOffer,
+                              onTap: () {
+                                if (kIsWeb) {
+                                  context.go("/offers");
+                                } else {
+                                  context.push("/offers");
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -196,7 +207,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   },
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 // FAQ link
                 TextButton(
@@ -253,49 +264,55 @@ class RoleSelectionScreen extends ConsumerWidget {
     required bool isEnabled,
     required VoidCallback onTap,
   }) {
-    return Container(
-      height: 200,
-      child: Material(
-        color: backgroundColor,
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: isEnabled ? onTap : null,
         borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: isEnabled ? onTap : null,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: borderColor != null ? Border.all(color: borderColor) : null,
-            ),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 48,
-                  color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
-                ),
-                const SizedBox(height: 16),
-                Text(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: borderColor != null ? Border.all(color: borderColor) : null,
+          ),
+          padding: const EdgeInsets.all(16), // Reduced from 24 to 16
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min, // Added to prevent overflow
+            children: [
+              Icon(
+                icon,
+                size: 44, // Reduced from 48 to 40
+                color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
+              ),
+              const SizedBox(height: 14), // Reduced from 16 to 12
+              Flexible( // Wrapped title in Flexible
+                child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22, // Reduced from 24 to 20
                     fontWeight: FontWeight.bold,
                     color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2, // Added max lines to prevent overflow
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Text(
+              ),
+              const SizedBox(height: 2), // Reduced from 4 to 2
+              Flexible( // Wrapped subtitle in Flexible
+                child: Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14, // Reduced from 16 to 14
                     color: textColor.withOpacity(isEnabled ? 0.8 : 0.4),
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2, // Added max lines to prevent overflow
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -324,6 +341,7 @@ class RoleSelectionScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         Card(
           elevation: 2,
+
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             subtitle: Column(

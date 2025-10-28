@@ -516,7 +516,7 @@ system:
 # MAIN LANDING PAGE
 # =============================================================================
 landing:
-  mainTitle: "Wymiana BLIK ⇄ bitcoin"
+  mainTitle: "Wymiana\n BLIK ⇄ bitcoin"
   subtitle: "Płać lub sprzedawaj kod BLIK za bitcoin"
   
   actions:

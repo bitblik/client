@@ -1438,8 +1438,8 @@ class TranslationsLandingActionsEn {
 	/// en: 'Buy bitcoin'
 	String get sellBlik => 'Buy bitcoin';
 
-	/// en: 'with BLIK code'
-	String get sellBlikSubtitle => 'with BLIK code';
+	/// en: 'with BLIK'
+	String get sellBlikSubtitle => 'with BLIK';
 
 	/// en: 'How it works?'
 	String get howItWorks => 'How it works?';
@@ -2349,7 +2349,7 @@ extension on Translations {
 			case 'landing.actions.payBlik': return 'Pay BLIK';
 			case 'landing.actions.payBlikSubtitle': return 'with bitcoin';
 			case 'landing.actions.sellBlik': return 'Buy bitcoin';
-			case 'landing.actions.sellBlikSubtitle': return 'with BLIK code';
+			case 'landing.actions.sellBlikSubtitle': return 'with BLIK';
 			case 'landing.actions.howItWorks': return 'How it works?';
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
