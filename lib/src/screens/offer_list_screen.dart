@@ -1118,14 +1118,7 @@ Widget _buildStatsSection(
                           final offer = recentOffers[index];
                           return InkWell(
                             onTap: () {
-                              Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      OfferDetailsScreen(
-                                        offerId: offer.id,
-                                  ),
-                                ),
-                              );
+                              context.push('/offers/${offer.id}');
                             },
                             child: Card(
                               margin: const EdgeInsets.symmetric(
