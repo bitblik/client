@@ -314,12 +314,12 @@ class NostrService {
 
       // Wait for response with timeout
       return await completer.future.timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 5),
         onTimeout: () {
           _pendingRequests.remove(requestId);
           throw TimeoutException(
             'Request timed out',
-            const Duration(seconds: 10),
+            const Duration(seconds: 5),
           );
         },
       );

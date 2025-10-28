@@ -291,7 +291,7 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
   if (publicKey == null) return [];
 
   // Wait for discovered coordinators to be available
-  final coordinatorsAsync = ref.read(discoveredCoordinatorsProvider);
+  final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
   return await coordinatorsAsync.when(
     data: (coordinators) async {
       // Only proceed if we have discovered coordinators

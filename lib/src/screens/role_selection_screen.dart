@@ -457,25 +457,31 @@ class RoleSelectionScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     ...finishedOffers.map(
                           (offer) =>
-                          Card(
-                        elevation: 1,
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: Text(
-                            t.offers.details.subtitleWithDate(
-                              sats: offer.amountSats,
-                              fee: offer.makerFees,
-                              status: offer.status,
-                              date: offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-',
+                          InkWell(
+                            onTap: () {
+                              context.push('/offers/${offer.id}');
+                            },
+                            child: Card(
+                              elevation: 1,
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                title: Text(
+                                  "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  t.offers.details.subtitleWithDate(
+                                    sats: offer.amountSats,
+                                    fee: offer.makerFees,
+                                    status: offer.status,
+                                    date: offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-',
+                                  ),
+                                ),
+                                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
                     ),
                   ],
                 );
