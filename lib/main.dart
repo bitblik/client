@@ -589,6 +589,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         automaticallyImplyLeading:
             (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
         title: appBarTitle,
+        // Add a divider at the bottom of the AppBar
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Divider(height: 1.0, thickness: 1.0),
+        ),
         actions: [
           // Language Switcher Dropdown
           DropdownButtonHideUnderline(
@@ -699,6 +704,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const Divider(),
+
             if (kIsWeb || !Platform.isAndroid)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
