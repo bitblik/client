@@ -515,7 +515,7 @@ landing:
     payBlik: "Pay BLIK"
     payBlikSubtitle: "with bitcoin"
     sellBlik: "Buy bitcoin"
-    sellBlikSubtitle: "selling BLIK"
+    sellBlikSubtitle: "with BLIK code"
     howItWorks: "How it works?"
 
 # =============================================================================

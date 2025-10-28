@@ -508,14 +508,14 @@ system:
 # MAIN LANDING PAGE
 # =============================================================================
 landing:
-  mainTitle: "Twój Most Bitcoin ⇄ BLIK"
+  mainTitle: "Wymiana BLIK ⇄ bitcoin"
   subtitle: "Płać lub sprzedawaj kod BLIK za Bitcoin"
   
   actions:
     payBlik: "Zapłać BLIK"
     payBlikSubtitle: "używając Bitcoin"
-    sellBlik: "Sprzedaj BLIK"
-    sellBlikSubtitle: "za Bitcoin"
+    sellBlik: "Kup bitcoin"
+    sellBlikSubtitle: "używając BLIK"
     howItWorks: "Jak to działa?"
 
 # =============================================================================

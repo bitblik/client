@@ -263,7 +263,7 @@ class _TranslationsLandingPl extends TranslationsLandingEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get mainTitle => 'Twój Most Bitcoin ⇄ BLIK';
+	@override String get mainTitle => 'Wymiana BLIK ⇄ bitcoin';
 	@override String get subtitle => 'Płać lub sprzedawaj kod BLIK za Bitcoin';
 	@override late final _TranslationsLandingActionsPl actions = _TranslationsLandingActionsPl._(_root);
 }
@@ -993,8 +993,8 @@ class _TranslationsLandingActionsPl extends TranslationsLandingActionsEn {
 	// Translations
 	@override String get payBlik => 'Zapłać BLIK';
 	@override String get payBlikSubtitle => 'używając Bitcoin';
-	@override String get sellBlik => 'Sprzedaj BLIK';
-	@override String get sellBlikSubtitle => 'za Bitcoin';
+	@override String get sellBlik => 'Kup bitcoin';
+	@override String get sellBlikSubtitle => 'używając BLIK';
 	@override String get howItWorks => 'Jak to działa?';
 }
 
@@ -1712,12 +1712,12 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
-			case 'landing.mainTitle': return 'Twój Most Bitcoin ⇄ BLIK';
+			case 'landing.mainTitle': return 'Wymiana BLIK ⇄ bitcoin';
 			case 'landing.subtitle': return 'Płać lub sprzedawaj kod BLIK za Bitcoin';
 			case 'landing.actions.payBlik': return 'Zapłać BLIK';
 			case 'landing.actions.payBlikSubtitle': return 'używając Bitcoin';
-			case 'landing.actions.sellBlik': return 'Sprzedaj BLIK';
-			case 'landing.actions.sellBlikSubtitle': return 'za Bitcoin';
+			case 'landing.actions.sellBlik': return 'Kup bitcoin';
+			case 'landing.actions.sellBlikSubtitle': return 'używając BLIK';
 			case 'landing.actions.howItWorks': return 'Jak to działa?';
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
