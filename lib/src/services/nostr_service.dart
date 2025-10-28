@@ -125,9 +125,9 @@ class NostrService {
   static const String _relayUrlsKey = 'relay_urls';
 
   static const List<String> _defaultRelayUrls = [
-    // 'wss://relay.damus.io',
+    'wss://relay.damus.io',
     'wss://relay.primal.net',
-    // 'wss://relay.mostro.network',
+    'wss://relay.mostro.network',
   ];
 
   // Event kinds (matching coordinator)
