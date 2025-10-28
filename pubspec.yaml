@@ -45,21 +45,21 @@ dependencies:
   qr_flutter: ^4.1.0 # For displaying QR codes
   bip340: ^0.3.0 # For secp256k1 key pair generation (alternative to dart_nostr)
   flutter_secure_storage: ^9.2.4 # For secure key storage (Updated to latest)
-#  ndk: 0.6.0-dev.0
-  ndk:
+  ndk: 0.6.0-dev.2
+#  ndk:
 #    path: ../../ndk/packages/ndk
-    git:
-      url: https://github.com/relaystr/ndk.git
-      path: packages/ndk
-      ref: f9bc035ce643b43d2c981fd3e66ccb66d7efadfc
+#    git:
+#      url: https://github.com/relaystr/ndk.git
+#      path: packages/ndk
+#      ref: f9bc035ce643b43d2c981fd3e66ccb66d7efadfc
 #      ref: master
-# ndk_rust_verifier: 0.4.2-dev.5
-  ndk_rust_verifier:
+  ndk_rust_verifier: 0.4.2-dev.7
+#  ndk_rust_verifier:
 #    path: ../../ndk/packages/rust_verifier
-    git:
-      url: https://github.com/relaystr/ndk.git
-      ref: 2714eef34f71a7dda95c749c15b7f58cfa9461cf
-      path: packages/rust_verifier
+#    git:
+#      url: https://github.com/relaystr/ndk.git
+#      ref: 2714eef34f71a7dda95c749c15b7f58cfa9461cf
+#      path: packages/rust_verifier
 #      ref: master
   url_launcher: ^6.3.1 # For launching URLs/Intents
   android_intent_plus: ^5.3.0

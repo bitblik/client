@@ -46,8 +46,9 @@ class CoordinatorSelector extends ConsumerWidget {
                     final isUnresponsive = coordinator.responsive == false;
                     final rate = fiatExchangeRate ?? 1.0;
                     final minPln = (coordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
-                    final maxPln = (coordinator.maxAmountSats / 100000000.0 * rate).toStringAsFixed(2);
+                    final maxPln = (coordinator.maxAmountSats / 100000000.0 * rate).floor().toString();
                     final feePct = coordinator.makerFee.toStringAsFixed(2);
+                    final t = Translations.of(context);
                     return ListTile(
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,9 +117,19 @@ class CoordinatorSelector extends ConsumerWidget {
                                   'v${coordinator.version}',
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                                 ),
-                              Text('Min/Max: $minPln-$maxPln PLN', style: Theme.of(context).textTheme.bodySmall),
                               Text(
-                                '$feePct% fee',
+                                t.coordinator.info.rangeDisplay(
+                                  minAmount: minPln,
+                                  maxAmount: maxPln,
+                                  currency: 'PLN',
+                                ),
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .bodySmall,
+                              ),
+                              Text(
+                                t.coordinator.info.feeDisplay(fee: feePct),
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.blueGrey),
                               ),
                             ],
@@ -180,23 +191,43 @@ class CoordinatorSelector extends ConsumerWidget {
     if (coordinatorsAsync is AsyncData<List<DiscoveredCoordinator>>) {
       final coordinators = coordinatorsAsync.value;
 
-      // If no coordinator is selected but we have coordinators, use the first one
-      final displayCoordinator = selectedCoordinator ?? (coordinators.isNotEmpty ? coordinators.first : null);
+      // Debug logging
+      print('🔍 CoordinatorSelector: Found ${coordinators.length} coordinators');
+      for (final coordinator in coordinators) {
+        print('  - ${coordinator.name}: responsive=${coordinator.responsive}');
+      }
 
-      // Auto-select the first coordinator if none is selected
-      if (selectedCoordinator == null && coordinators.isNotEmpty && onCoordinatorSelected != null) {
+      // Find the first responsive coordinator for auto-selection
+      final responsiveCoordinators = coordinators.where((c) => c.responsive == true).toList();
+      final firstResponsiveCoordinator = responsiveCoordinators.isNotEmpty ? responsiveCoordinators.first : null;
+
+      print('🔍 CoordinatorSelector: Found ${responsiveCoordinators.length} responsive coordinators');
+      if (firstResponsiveCoordinator != null) {
+        print('  - First responsive: ${firstResponsiveCoordinator.name}');
+      } else {
+        print('  - No responsive coordinators found');
+      }
+
+      // Auto-select the first responsive coordinator if none is selected
+      if (selectedCoordinator == null && firstResponsiveCoordinator != null && onCoordinatorSelected != null) {
+        print('🔍 CoordinatorSelector: Auto-selecting ${firstResponsiveCoordinator.name}');
         // Use WidgetsBinding to call the callback after the current build is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          onCoordinatorSelected!(coordinators.first);
+          onCoordinatorSelected!(firstResponsiveCoordinator);
         });
       }
+
+      // Use selected coordinator if available, otherwise use the first responsive one
+      final displayCoordinator = selectedCoordinator ?? firstResponsiveCoordinator;
+      print('🔍 CoordinatorSelector: Display coordinator: ${displayCoordinator?.name ?? 'none'}');
 
       if (displayCoordinator != null) {
         // Compose details for min/max PLN and maker fee
         final rate = fiatExchangeRate ?? 1.0;
         final minPln = (displayCoordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
-        final maxPln = (displayCoordinator.maxAmountSats / 100000000.0 * rate).toStringAsFixed(2);
+        final maxPln = (displayCoordinator.maxAmountSats / 100000000.0 * rate).floor().toString();
         final feePct = displayCoordinator.makerFee.toStringAsFixed(2);
+        final t = Translations.of(context);
         return GestureDetector(
           onTap: () => _showCoordinatorPicker(context, ref),
           child: Card(
@@ -240,12 +271,19 @@ class CoordinatorSelector extends ConsumerWidget {
                               .bodySmall
                               ?.copyWith(color: Colors.grey),
                         ),
-                      Text('Min/Max: $minPln-$maxPln PLN', style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodySmall),
                       Text(
-                        '$feePct% fee',
+                        t.coordinator.info.rangeDisplay(
+                          minAmount: minPln,
+                          maxAmount: maxPln,
+                          currency: 'PLN',
+                        ),
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodySmall,
+                      ),
+                      Text(
+                        t.coordinator.info.feeDisplay(fee: feePct),
                         style: Theme
                             .of(context)
                             .textTheme

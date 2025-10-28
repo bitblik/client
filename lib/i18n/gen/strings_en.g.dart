@@ -45,6 +45,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsOffersEn offers = TranslationsOffersEn.internal(_root);
 	late final TranslationsReservationsEn reservations = TranslationsReservationsEn.internal(_root);
 	late final TranslationsExchangeEn exchange = TranslationsExchangeEn.internal(_root);
+	late final TranslationsCoordinatorEn coordinator = TranslationsCoordinatorEn.internal(_root);
 	late final TranslationsMakerEn maker = TranslationsMakerEn.internal(_root);
 	late final TranslationsTakerEn taker = TranslationsTakerEn.internal(_root);
 	late final TranslationsBlikEn blik = TranslationsBlikEn.internal(_root);
@@ -137,6 +138,16 @@ class TranslationsExchangeEn {
 	late final TranslationsExchangeLabelsEn labels = TranslationsExchangeLabelsEn.internal(_root);
 	late final TranslationsExchangeFeedbackEn feedback = TranslationsExchangeFeedbackEn.internal(_root);
 	late final TranslationsExchangeErrorsEn errors = TranslationsExchangeErrorsEn.internal(_root);
+}
+
+// Path: coordinator
+class TranslationsCoordinatorEn {
+	TranslationsCoordinatorEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsCoordinatorInfoEn info = TranslationsCoordinatorInfoEn.internal(_root);
 }
 
 // Path: maker
@@ -764,9 +775,6 @@ class TranslationsExchangeLabelsEn {
 
 	/// en: 'Average PLN/BTC rate ≈ ${rate}'
 	String rate({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
-
-	/// en: 'Min/Max: ${minAmount}-${maxAmount} ${currency}'
-	String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 }
 
 // Path: exchange.feedback
@@ -806,6 +814,24 @@ class TranslationsExchangeErrorsEn {
 
 	/// en: 'Amount is too high. Maximum is ${maxAmount} ${currency}.'
 	String tooHighFiat({required Object maxAmount, required Object currency}) => 'Amount is too high. Maximum is ${maxAmount} ${currency}.';
+}
+
+// Path: coordinator.info
+class TranslationsCoordinatorInfoEn {
+	TranslationsCoordinatorInfoEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'fee'
+	String get fee => 'fee';
+
+	/// en: 'Amount: ${minAmount}-${maxAmount} ${currency}'
+	String rangeDisplay({required Object minAmount, required Object maxAmount, required Object currency}) => 'Amount: ${minAmount}-${maxAmount} ${currency}';
+
+	/// en: '${fee}% fee'
+	String feeDisplay({required Object fee}) => '${fee}% fee';
 }
 
 // Path: maker.roleSelection
@@ -1412,8 +1438,8 @@ class TranslationsLandingActionsEn {
 	/// en: 'Buy bitcoin'
 	String get sellBlik => 'Buy bitcoin';
 
-	/// en: 'selling BLIK'
-	String get sellBlikSubtitle => 'selling BLIK';
+	/// en: 'with BLIK code'
+	String get sellBlikSubtitle => 'with BLIK code';
 
 	/// en: 'How it works?'
 	String get howItWorks => 'How it works?';
@@ -2128,7 +2154,6 @@ extension on Translations {
 			case 'exchange.labels.enterAmount': return 'Enter amount (PLN) to pay:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
 			case 'exchange.labels.rate': return ({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
-			case 'exchange.labels.rangeHint': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 			case 'exchange.feedback.fetching': return 'Fetching exchange rate...';
 			case 'exchange.errors.fetchingRate': return 'Failed to fetch exchange rate.';
 			case 'exchange.errors.invalidFormat': return 'Invalid number format';
@@ -2136,6 +2161,9 @@ extension on Translations {
 			case 'exchange.errors.invalidFeePercentage': return 'Invalid fee percentage';
 			case 'exchange.errors.tooLowFiat': return ({required Object minAmount, required Object currency}) => 'Amount is too low. Minimum is ${minAmount} ${currency}.';
 			case 'exchange.errors.tooHighFiat': return ({required Object maxAmount, required Object currency}) => 'Amount is too high. Maximum is ${maxAmount} ${currency}.';
+			case 'coordinator.info.fee': return 'fee';
+			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Amount: ${minAmount}-${maxAmount} ${currency}';
+			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% fee';
 			case 'maker.roleSelection.button': return 'PAY with Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';
@@ -2321,7 +2349,7 @@ extension on Translations {
 			case 'landing.actions.payBlik': return 'Pay BLIK';
 			case 'landing.actions.payBlikSubtitle': return 'with bitcoin';
 			case 'landing.actions.sellBlik': return 'Buy bitcoin';
-			case 'landing.actions.sellBlikSubtitle': return 'selling BLIK';
+			case 'landing.actions.sellBlikSubtitle': return 'with BLIK code';
 			case 'landing.actions.howItWorks': return 'How it works?';
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';

@@ -44,6 +44,7 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsOffersPl offers = _TranslationsOffersPl._(_root);
 	@override late final _TranslationsReservationsPl reservations = _TranslationsReservationsPl._(_root);
 	@override late final _TranslationsExchangePl exchange = _TranslationsExchangePl._(_root);
+	@override late final _TranslationsCoordinatorPl coordinator = _TranslationsCoordinatorPl._(_root);
 	@override late final _TranslationsMakerPl maker = _TranslationsMakerPl._(_root);
 	@override late final _TranslationsTakerPl taker = _TranslationsTakerPl._(_root);
 	@override late final _TranslationsBlikPl blik = _TranslationsBlikPl._(_root);
@@ -132,6 +133,16 @@ class _TranslationsExchangePl extends TranslationsExchangeEn {
 	@override late final _TranslationsExchangeLabelsPl labels = _TranslationsExchangeLabelsPl._(_root);
 	@override late final _TranslationsExchangeFeedbackPl feedback = _TranslationsExchangeFeedbackPl._(_root);
 	@override late final _TranslationsExchangeErrorsPl errors = _TranslationsExchangeErrorsPl._(_root);
+}
+
+// Path: coordinator
+class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
+	_TranslationsCoordinatorPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
 }
 
 // Path: maker
@@ -421,11 +432,11 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	// Translations
 	@override String amount({required Object amount}) => 'Kwota: ${amount} satoshi';
 	@override String amountWithCurrency({required Object amount, required Object currency}) => '${amount} ${currency}';
-	@override String makerFee({required Object fee}) => 'Prowizja Maker: ${fee} satoshi';
-	@override String takerFee({required Object fee}) => 'Prowizja Taker: ${fee} satoshi';
-	@override String takerFeeWithStatus({required Object fee, required Object status}) => 'Prowizja Taker: ${fee} satoshi | Status: ${status}';
-	@override String subtitle({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}';
-	@override String subtitleWithDate({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}\nZapłacono: ${date}';
+	@override String makerFee({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
+	@override String takerFee({required Object fee}) => 'Opłata Taker: ${fee} satoshi';
+	@override String takerFeeWithStatus({required Object fee, required Object status}) => 'Opłata Taker: ${fee} satoshi | Status: ${status}';
+	@override String subtitle({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}';
+	@override String subtitleWithDate({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}\nZapłacono: ${date}';
 	@override String activeSubtitle({required Object status, required Object amount}) => 'Status: ${status}\nKwota: ${amount} satoshi';
 	@override String id({required Object id}) => 'ID Oferty: ${id}...';
 	@override String created({required Object dateTime}) => 'Utworzono: ${dateTime}';
@@ -542,7 +553,6 @@ class _TranslationsExchangeLabelsPl extends TranslationsExchangeLabelsEn {
 	@override String get enterAmount => 'Wprowadź kwotę (PLN) do zapłaty:';
 	@override String equivalent({required Object sats}) => '≈ ${sats} satoshi';
 	@override String rate({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
-	@override String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 }
 
 // Path: exchange.feedback
@@ -565,9 +575,21 @@ class _TranslationsExchangeErrorsPl extends TranslationsExchangeErrorsEn {
 	@override String get fetchingRate => 'Nie udało się pobrać kursu wymiany.';
 	@override String get invalidFormat => 'Nieprawidłowy format liczby';
 	@override String get mustBePositive => 'Kwota musi być dodatnia';
-	@override String get invalidFeePercentage => 'Nieprawidłowy procent prowizji';
+	@override String get invalidFeePercentage => 'Nieprawidłowy procent opłaty';
 	@override String tooLowFiat({required Object minAmount, required Object currency}) => 'Kwota jest za niska. Minimum to ${minAmount} ${currency}.';
 	@override String tooHighFiat({required Object maxAmount, required Object currency}) => 'Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}.';
+}
+
+// Path: coordinator.info
+class _TranslationsCoordinatorInfoPl extends TranslationsCoordinatorInfoEn {
+	_TranslationsCoordinatorInfoPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get fee => 'opłata';
+	@override String rangeDisplay({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
+	@override String feeDisplay({required Object fee}) => '${fee}% opłata';
 }
 
 // Path: maker.roleSelection
@@ -1475,11 +1497,11 @@ extension on TranslationsPl {
 			case 'offers.display.loadingDetails': return 'Ładowanie szczegółów oferty...';
 			case 'offers.details.amount': return ({required Object amount}) => 'Kwota: ${amount} satoshi';
 			case 'offers.details.amountWithCurrency': return ({required Object amount, required Object currency}) => '${amount} ${currency}';
-			case 'offers.details.makerFee': return ({required Object fee}) => 'Prowizja Maker: ${fee} satoshi';
-			case 'offers.details.takerFee': return ({required Object fee}) => 'Prowizja Taker: ${fee} satoshi';
-			case 'offers.details.takerFeeWithStatus': return ({required Object fee, required Object status}) => 'Prowizja Taker: ${fee} satoshi | Status: ${status}';
-			case 'offers.details.subtitle': return ({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}';
-			case 'offers.details.subtitleWithDate': return ({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}\nZapłacono: ${date}';
+			case 'offers.details.makerFee': return ({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
+			case 'offers.details.takerFee': return ({required Object fee}) => 'Opłata Taker: ${fee} satoshi';
+			case 'offers.details.takerFeeWithStatus': return ({required Object fee, required Object status}) => 'Opłata Taker: ${fee} satoshi | Status: ${status}';
+			case 'offers.details.subtitle': return ({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}';
+			case 'offers.details.subtitleWithDate': return ({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}\nZapłacono: ${date}';
 			case 'offers.details.activeSubtitle': return ({required Object status, required Object amount}) => 'Status: ${status}\nKwota: ${amount} satoshi';
 			case 'offers.details.id': return ({required Object id}) => 'ID Oferty: ${id}...';
 			case 'offers.details.created': return ({required Object dateTime}) => 'Utworzono: ${dateTime}';
@@ -1524,14 +1546,16 @@ extension on TranslationsPl {
 			case 'exchange.labels.enterAmount': return 'Wprowadź kwotę (PLN) do zapłaty:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
 			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
-			case 'exchange.labels.rangeHint': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
 			case 'exchange.feedback.fetching': return 'Pobieranie kursu wymiany...';
 			case 'exchange.errors.fetchingRate': return 'Nie udało się pobrać kursu wymiany.';
 			case 'exchange.errors.invalidFormat': return 'Nieprawidłowy format liczby';
 			case 'exchange.errors.mustBePositive': return 'Kwota musi być dodatnia';
-			case 'exchange.errors.invalidFeePercentage': return 'Nieprawidłowy procent prowizji';
+			case 'exchange.errors.invalidFeePercentage': return 'Nieprawidłowy procent opłaty';
 			case 'exchange.errors.tooLowFiat': return ({required Object minAmount, required Object currency}) => 'Kwota jest za niska. Minimum to ${minAmount} ${currency}.';
 			case 'exchange.errors.tooHighFiat': return ({required Object maxAmount, required Object currency}) => 'Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}.';
+			case 'coordinator.info.fee': return 'opłata';
+			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
+			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% opłata';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';

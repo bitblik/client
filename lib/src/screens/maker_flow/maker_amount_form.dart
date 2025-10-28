@@ -112,7 +112,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
           final maxAllowedFiat =
               (coordinatorInfo.maxAmountSats / 100000000.0) * _rate!;
           final minFiat = (minAllowedFiat * 100).ceil() / 100;
-          final maxFiat = (maxAllowedFiat * 100).floor() / 100;
+          final maxFiat = maxAllowedFiat.floor().toDouble(); // Round down to nearest integer
           if (parsedFiat < minFiat) {
             currentError = t.exchange.errors.tooLowFiat(
               minAmount: minFiat.toStringAsFixed(2),
@@ -120,7 +120,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             );
           } else if (parsedFiat > maxFiat) {
             currentError = t.exchange.errors.tooHighFiat(
-              maxAmount: maxFiat.toStringAsFixed(2),
+              maxAmount: maxFiat.toStringAsFixed(0),
               currency: "PLN",
             );
           } else {
@@ -298,10 +298,10 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                       (_selectedCoordinatorInfo!.maxAmountSats / 100000000.0) *
                       _rate!;
                   final minFiat = (minAllowedFiat * 100).ceil() / 100;
-                  final maxFiat = (maxAllowedFiat * 100).floor() / 100;
+                  final maxFiat = maxAllowedFiat.floor(); // Round down to nearest integer
                   setState(() {
                     _minFiatAmountStr = "$minFiat";
-                    _maxFiatAmountStr = "$maxFiat";
+                    _maxFiatAmountStr = "${maxFiat.toInt()}"; // Display as integer
                   });
                   _validateAndRecalculate();
                 }

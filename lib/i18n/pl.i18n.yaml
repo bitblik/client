@@ -83,11 +83,11 @@ offers:
   details:
     amount: "Kwota: ${amount} satoshi"
     amountWithCurrency: "${amount} ${currency}"
-    makerFee: "Prowizja Maker: ${fee} satoshi"
-    takerFee: "Prowizja Taker: ${fee} satoshi"
-    takerFeeWithStatus: "Prowizja Taker: ${fee} satoshi | Status: ${status}"
-    subtitle: "${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}"
-    subtitleWithDate: "${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}\nZapłacono: ${date}"
+    makerFee: "Opłata Maker: ${fee} satoshi"
+    takerFee: "Opłata Taker: ${fee} satoshi"
+    takerFeeWithStatus: "Opłata Taker: ${fee} satoshi | Status: ${status}"
+    subtitle: "${sats} + ${fee} (opłata) satoshi\nStatus: ${status}"
+    subtitleWithDate: "${sats} + ${fee} (opłata) satoshi\nStatus: ${status}\nZapłacono: ${date}"
     activeSubtitle: "Status: ${status}\nKwota: ${amount} satoshi"
     id: "ID Oferty: ${id}..."
     created: "Utworzono: ${dateTime}"
@@ -156,8 +156,7 @@ exchange:
     enterAmount: "Wprowadź kwotę (PLN) do zapłaty:"
     equivalent: "≈ ${sats} satoshi"
     rate: "Kurs śr. PLN/BTC ≈ ${rate}"
-    rangeHint: "Min/Max: ${minAmount}-${maxAmount} ${currency}"
-  
+
   feedback:
     fetching: Pobieranie kursu wymiany...
   
@@ -165,9 +164,18 @@ exchange:
     fetchingRate: Nie udało się pobrać kursu wymiany.
     invalidFormat: Nieprawidłowy format liczby
     mustBePositive: Kwota musi być dodatnia
-    invalidFeePercentage: Nieprawidłowy procent prowizji
+    invalidFeePercentage: Nieprawidłowy procent opłaty
     tooLowFiat: "Kwota jest za niska. Minimum to ${minAmount} ${currency}."
     tooHighFiat: "Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}."
+
+# =============================================================================
+# COORDINATOR INFORMATION
+# =============================================================================
+coordinator:
+  info:
+    fee: opłata
+    rangeDisplay: "Kwota: ${minAmount}-${maxAmount} ${currency}"
+    feeDisplay: "${fee}% opłata"
 
 # =============================================================================
 # MAKER FLOW

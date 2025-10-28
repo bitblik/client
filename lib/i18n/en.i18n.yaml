@@ -156,8 +156,7 @@ exchange:
     enterAmount: "Enter amount (PLN) to pay:"
     equivalent: "≈ ${sats} satoshi"
     rate: "Average PLN/BTC rate ≈ ${rate}"
-    rangeHint: "Min/Max: ${minAmount}-${maxAmount} ${currency}"
-  
+
   feedback:
     fetching: Fetching exchange rate...
   
@@ -168,6 +167,15 @@ exchange:
     invalidFeePercentage: Invalid fee percentage
     tooLowFiat: "Amount is too low. Minimum is ${minAmount} ${currency}."
     tooHighFiat: "Amount is too high. Maximum is ${maxAmount} ${currency}."
+
+# =============================================================================
+# COORDINATOR INFORMATION
+# =============================================================================
+coordinator:
+  info:
+    fee: "fee"
+    rangeDisplay: "Amount: ${minAmount}-${maxAmount} ${currency}"
+    feeDisplay: "${fee}% fee"
 
 # =============================================================================
 # MAKER FLOW

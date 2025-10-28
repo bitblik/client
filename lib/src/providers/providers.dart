@@ -60,14 +60,35 @@ class DiscoveredCoordinatorsNotifier
     try {
       final apiService = _ref.read(apiServiceProvider);
       final coordinators = apiService.discoveredCoordinators;
-      state = AsyncValue.data(coordinators);
 
-      // Cache coordinator info for all discovered coordinators
+      print('🔍 Provider: Loading ${coordinators.length} coordinators for health check');
+
+      // Don't set the state immediately - wait for health checks to complete
+
+      // Perform health checks for all discovered coordinators
+      final healthCheckFutures = <Future<void>>[];
       for (final coordinator in coordinators) {
-        await apiService.checkCoordinatorHealth(coordinator.pubkey);
+        print('🔍 Provider: Starting health check for ${coordinator.name}');
+        healthCheckFutures.add(apiService.checkCoordinatorHealth(coordinator.pubkey));
       }
-      // final healthyCheckedCoordinators = await apiService.coordinatorsStream.first;
-      state = AsyncValue.data(apiService.discoveredCoordinators);
+
+      // Wait for all health checks to complete (with timeout)
+      try {
+        await Future.wait(healthCheckFutures).timeout(const Duration(seconds: 10));
+        print('🔍 Provider: All health checks completed');
+      } catch (e) {
+        print('Some health checks timed out or failed: $e');
+        // Continue anyway - some coordinators may have been checked successfully
+      }
+
+      // Now get the updated list with health check results and set the state
+      final updatedCoordinators = apiService.discoveredCoordinators;
+      print('🔍 Provider: Final coordinator list (${updatedCoordinators.length}):');
+      for (final coordinator in updatedCoordinators) {
+        print('  - ${coordinator.name}: responsive=${coordinator.responsive}');
+      }
+
+      state = AsyncValue.data(updatedCoordinators);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

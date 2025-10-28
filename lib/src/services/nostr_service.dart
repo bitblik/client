@@ -1014,8 +1014,26 @@ class NostrService {
   }
 
   /// Get current list of discovered coordinators
-  List<DiscoveredCoordinator> get discoveredCoordinators =>
-      _discoveredCoordinators.values.toList();
+  List<DiscoveredCoordinator> get discoveredCoordinators {
+    final coordinators = _discoveredCoordinators.values.toList();
+
+    // Sort by responsive status (true first), then by name
+    coordinators.sort((a, b) {
+      // Handle null responsive values - treat null as false
+      final aResponsive = a.responsive ?? false;
+      final bResponsive = b.responsive ?? false;
+
+      // First sort by responsive status (true first)
+      if (aResponsive != bResponsive) {
+        return aResponsive ? -1 : 1; // responsive coordinators come first
+      }
+
+      // If responsive status is the same, sort by name alphabetically
+      return a.name.compareTo(b.name);
+    });
+
+    return coordinators;
+  }
 
   /// Update relay configuration
   Future<void> updateRelayConfig(List<String> relayUrls) async {
