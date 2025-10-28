@@ -106,7 +106,7 @@ class RoleSelectionScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 // Main title
                 Text(
@@ -142,7 +142,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 // Action cards
                 Builder(
@@ -207,7 +207,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   },
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 // FAQ link
                 TextButton(
