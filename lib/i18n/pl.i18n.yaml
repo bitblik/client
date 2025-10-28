@@ -16,6 +16,12 @@ common:
     retry: Spróbuj ponownie
     goHome: Wróć do strony głównej
     saveAndContinue: Zapisz i kontynuuj
+    reveal: Pokaż
+    hide: Ukryj
+    copy: Kopiuj
+    close: Zamknij
+    restore: Przywróć
+    faq: FAQ
   
   labels:
     amount: "Kwota (PLN)"
@@ -438,6 +444,8 @@ generateNewKey:
     failed: "Nie udało się wygenerować nowego Neko"
   feedback:
     success: Nowe Neko wygenerowane pomyślnie!
+  tooltips:
+    generate: Wygeneruj nowe Neko
 
 # =============================================================================
 # BACKUP AND RESTORE
@@ -447,6 +455,8 @@ backup:
   description: To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.
   feedback:
     copied: Klucz prywatny skopiowany do schowka!
+  tooltips:
+    backup: Zarchiwizuj Neko
 
 restore:
   title: Przywróć Neko
@@ -459,6 +469,8 @@ restore:
     failed: "Przywracanie nie powiodło się"
   feedback:
     success: Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.
+  tooltips:
+    restore: Przywróć Neko
 
 # =============================================================================
 # HOME SCREEN / OFFER LIST
@@ -491,3 +503,24 @@ system:
   
   blik:
     copied: Kod BLIK skopiowany do schowka
+
+# =============================================================================
+# MAIN LANDING PAGE
+# =============================================================================
+landing:
+  mainTitle: "Twój Most Bitcoin ⇄ BLIK"
+  subtitle: "Płać lub sprzedawaj kod BLIK za Bitcoin"
+  
+  actions:
+    payBlik: "Zapłać BLIK"
+    payBlikSubtitle: "używając Bitcoin"
+    sellBlik: "Sprzedaj BLIK"
+    sellBlikSubtitle: "za Bitcoin"
+    howItWorks: "Jak to działa?"
+
+# =============================================================================
+# FAQ
+# =============================================================================
+faq:
+  screenTitle: FAQ
+  tooltip: FAQ

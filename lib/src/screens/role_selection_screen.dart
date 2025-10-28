@@ -1,4 +1,4 @@
-// RoleSelectionScreen: Allows users to choose Maker or Taker role, or resume an active offer.
+// RoleSelectionScreen: Modern landing page with centralized design matching the provided layout
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../i18n/gen/strings.g.dart';
@@ -94,268 +94,457 @@ class RoleSelectionScreen extends ConsumerWidget {
     ref.watch(lightningAddressProvider);
     final t = Translations.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const SizedBox(height: 24),
-            Builder(
-              builder: (context) {
-                final currentPubKey = publicKeyAsync.value;
-                bool hasActiveOffer = activeOffer != null &&
-                    currentPubKey != null;
+    final currentPubKey = publicKeyAsync.value;
+    bool hasActiveOffer = activeOffer != null && currentPubKey != null;
+    final isTakerPaid = hasActiveOffer && activeOffer.status == OfferStatus.takerPaid.name;
 
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // // Header with logo and title
+          // Container(
+          //   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          //   child: Row(
+          //     children: [
+          //       // Logo
+          //       Image.asset(
+          //         'assets/logo.png',
+          //         width: 48,
+          //         height: 48,
+          //       ),
+          //       const SizedBox(width: 16),
+          //       // Title
+          //       Text(
+          //         'BitBlikaaa',
+          //         style: Theme
+          //             .of(context)
+          //             .textTheme
+          //             .headlineMedium
+          //             ?.copyWith(
+          //           fontWeight: FontWeight.bold,
+          //           color: Colors.black87,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
-                final isTakerPaid = hasActiveOffer &&
-                    activeOffer.status == OfferStatus.takerPaid.name;
-                final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ElevatedButton(
-                      onPressed: hasRealActiveOffer ? null : () {
-                        if (kIsWeb) {
-                          context.go("/create");
-                        } else {
-                          context.push("/create");
-                        }
-                      },
-                      child: Text(t.maker.roleSelection.button),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: hasRealActiveOffer ? null : () {
-                        if (kIsWeb) {
-                          context.go("/offers");
-                        } else {
-                          context.push("/offers");
-                        }
-                      },
-                      child: Text(t.taker.roleSelection.button),
-                    ),
-                    const SizedBox(height: 30),
-                    if (hasActiveOffer && !isTakerPaid) ...[
-                      const Divider(),
-                      const SizedBox(height: 15),
-                      Text(
-                        t.offers.display.activeOffer,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 10),
-                      Card(
-                        child: ListTile(
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${formatDouble(activeOffer!.fiatAmount)} ${activeOffer.fiatCurrency}",
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .titleMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                t.common.labels.status(
-                                    status: activeOffer.status),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              if (activeOffer.status ==
-                                      OfferStatus.takerPaymentFailed.name &&
-                                  activeOffer.takerLightningAddress != null &&
-                                  activeOffer.takerLightningAddress!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 6.0),
-                                  child: Text(
-                                    t.lightningAddress.labels.short(
-                                      address: activeOffer
-                                          .takerLightningAddress!,
-                                    ),
-                                    style: TextStyle(
-                                      color: Colors.blueGrey[700],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          trailing:
-                              (activeOffer.status == OfferStatus.takerPaid.name)
-                                  ? null
-                                  : const Icon(Icons.arrow_forward_ios),
-                          onTap:
-                              (activeOffer.status == OfferStatus.takerPaid.name)
-                                  ? null
-                                  : () {
-                                // ref
-                                //     .read(activeOfferProvider.notifier)
-                                //     .setActiveOffer(activeOffer);
-                                      if (activeOffer.holdInvoicePaymentHash !=
-                                          null) {
-                                        ref
-                                            .read(paymentHashProvider.notifier)
-                                            .state =
-                                        activeOffer.holdInvoicePaymentHash!;
-                                      }
-                                      final offerStatus = OfferStatus.values
-                                          .byName(activeOffer.status);
-                                      if (offerStatus ==
-                                          OfferStatus.blikReceived ||
-                                          offerStatus ==
-                                              OfferStatus.blikSentToMaker) {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (context) =>
-                                          const Center(
-                                              child: CircularProgressIndicator()),
-                                        );
-                                        try {
-                                          ref.read(apiServiceProvider);
-                                          if (currentPubKey == activeOffer.makerPubkey) {
-                                            if (kIsWeb) {
-                                              context.go('/confirm-blik');
-                                            } else {
-                                              context.push('/confirm-blik');
-                                            }
-                                          } else if (currentPubKey == activeOffer.takerPubkey) {
-                                            if (kIsWeb) {
-                                              context.go('/wait-confirmation', extra: activeOffer);
-                                            } else {
-                                              context.push('/wait-confirmation', extra: activeOffer);
-                                            }
-                                          }
-                                        } catch (e) {
-                                          Navigator.of(context).pop();
-                                          ScaffoldMessenger
-                                              .of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  t.offers.errors.resuming(
-                                                      details: e.toString())),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                          ref
-                                              .read(activeOfferProvider.notifier)
-                                              .setActiveOffer(null);
-                                        }
-                                      } else {
-                                        if (currentPubKey == activeOffer.makerPubkey) {
-                                          _navigateToMakerStep(
-                                              context, activeOffer);
-                                          } else if (currentPubKey == activeOffer.takerPubkey) {
-                                          _navigateToTakerStep(
-                                              context, activeOffer);
-                                          }
-                                      }
-                                  },
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
-            Consumer(
-              builder: (context, ref, _) {
-                final finishedAsync = ref.watch(finishedOffersProvider);
-                return finishedAsync.when(
-                  loading:
-                      () =>
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+          // Main content area
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 60),
+
+                // Main title
+                Text(
+                  t.landing.mainTitle,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headlineLarge
+                      ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    fontSize: MediaQuery
+                        .of(context)
+                        .size
+                        .width > 600 ? 48 : 32,
                   ),
-                  error:
-                      (err, stack) =>
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16.0,
-                        ),
-                        child: Text(
-                          t.offers.errors.loadingFinished(
-                            details: err.toString(),
-                          ),
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                  data: (finishedOffers) {
-                    if (finishedOffers.isEmpty) return const SizedBox();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Subtitle
+                Text(
+                  t.landing.subtitle,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w400,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 80),
+
+                // Action cards
+                Builder(
+                  builder: (context) {
+                    final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
+
+                    return Row(
                       children: [
-                        const Divider(),
-                        const SizedBox(height: 15),
-                        Text(
-                          t.offers.display.finishedOffersWithTime,
-                          style:
-                          Theme
-                              .of(context)
-                              .textTheme
-                              .titleMedium,
-                          textAlign: TextAlign.center,
+                        // Pay BLIK card (red)
+                        Expanded(
+                          child: _buildActionCard(
+                            context: context,
+                            title: t.landing.actions.payBlik,
+                            subtitle: t.landing.actions.payBlikSubtitle,
+                            icon: Icons.flash_on,
+                            backgroundColor: const Color(0xFFE53E3E),
+                            textColor: Colors.white,
+                            isEnabled: !hasRealActiveOffer,
+                            onTap: () {
+                              if (kIsWeb) {
+                                context.go("/create");
+                              } else {
+                                context.push("/create");
+                              }
+                            },
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        ...finishedOffers.map(
-                              (offer) =>
-                              Card(
-                                child: ListTile(
-                                  title: Text(
-                                    "${formatDouble(offer.fiatAmount)} ${offer
-                                        .fiatCurrency}",
-                              ),
-                              subtitle: Text(
-                                t.offers.details.subtitleWithDate(
-                                  sats: offer.amountSats,
-                                  fee: offer.makerFees,
-                                  status: offer.status,
-                                  date:
-                                  offer.takerPaidAt
-                                      ?.toLocal()
-                                      .toString()
-                                      .substring(0, 16) ??
-                                      '-',
-                                ),
-                              ),
-                            ),
+                        const SizedBox(width: 24),
+                        // Sell BLIK card (white)
+                        Expanded(
+                          child: _buildActionCard(
+                            context: context,
+                            title: t.landing.actions.sellBlik,
+                            subtitle: t.landing.actions.sellBlikSubtitle,
+                            icon: Icons.monetization_on_outlined,
+                            backgroundColor: Colors.white,
+                            textColor: const Color(0xFFE53E3E),
+                            borderColor: Colors.grey[300],
+                            isEnabled: !hasRealActiveOffer,
+                            onTap: () {
+                              if (kIsWeb) {
+                                context.go("/offers");
+                              } else {
+                                context.push("/offers");
+                              }
+                            },
                           ),
                         ),
                       ],
                     );
                   },
-                );
-              },
+                ),
+
+                const SizedBox(height: 40),
+
+                // FAQ link
+                TextButton(
+                  onPressed: () {
+                    context.push("/faq");
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.help_outline,
+                        size: 20,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.landing.actions.howItWorks,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
+                // Active offer section (if exists)
+                if (hasActiveOffer && !isTakerPaid) ...[
+                  const Divider(),
+                  const SizedBox(height: 30),
+                  _buildActiveOfferSection(context, ref, activeOffer!, currentPubKey, t),
+                ],
+
+                // Finished offers section
+                _buildFinishedOffersSection(context, ref, t),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color backgroundColor,
+    required Color textColor,
+    Color? borderColor,
+    required bool isEnabled,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      height: 200,
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: isEnabled ? onTap : null,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: borderColor != null ? Border.all(color: borderColor) : null,
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 48,
+                  color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor.withOpacity(isEnabled ? 0.8 : 0.4),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
-}
 
-String formatDouble(double value) {
-  // Check if the value is effectively a whole number
-  if (value == value.roundToDouble()) {
-    return value.toInt().toString();
-  } else {
-    // Format with up to 2 decimal places, removing trailing zeros
-    String asString = value.toStringAsFixed(2);
-    // Remove trailing zeros after decimal point
-    if (asString.contains('.')) {
-      asString = asString.replaceAll(RegExp(r'0+$'), '');
-      // Remove decimal point if it's the last character
-      if (asString.endsWith('.')) {
-        asString = asString.substring(0, asString.length - 1);
+  Widget _buildActiveOfferSection(BuildContext context,
+      WidgetRef ref,
+      Offer activeOffer,
+      String? currentPubKey,
+      Translations t,) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          t.offers.display.activeOffer,
+          style: Theme
+              .of(context)
+              .textTheme
+              .titleLarge
+              ?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        Card(
+          elevation: 2,
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}",
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t.common.labels.status(status: activeOffer.status),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyMedium,
+                ),
+                if (activeOffer.status == OfferStatus.takerPaymentFailed.name &&
+                    activeOffer.takerLightningAddress != null &&
+                    activeOffer.takerLightningAddress!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      t.lightningAddress.labels.short(
+                        address: activeOffer.takerLightningAddress!,
+                      ),
+                      style: TextStyle(
+                        color: Colors.blueGrey[700],
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            trailing: (activeOffer.status == OfferStatus.takerPaid.name)
+                ? null
+                : const Icon(Icons.arrow_forward_ios),
+            onTap: (activeOffer.status == OfferStatus.takerPaid.name)
+                ? null
+                : () {
+              _handleActiveOfferTap(context, ref, activeOffer, currentPubKey, t);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFinishedOffersSection(BuildContext context, WidgetRef ref, Translations t) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final finishedAsync = ref.watch(finishedOffersProvider);
+        return finishedAsync.when(
+          loading: () =>
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32.0),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (err, stack) =>
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32.0),
+                child: Text(
+                  t.offers.errors.loadingFinished(details: err.toString()),
+                  style: TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          data: (finishedOffers) {
+            if (finishedOffers.isEmpty) return const SizedBox();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 30),
+                const Divider(),
+                const SizedBox(height: 30),
+                Text(
+                  t.offers.display.finishedOffersWithTime,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ...finishedOffers.map(
+                      (offer) =>
+                      Card(
+                        elevation: 1,
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          title: Text(
+                            "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            t.offers.details.subtitleWithDate(
+                              sats: offer.amountSats,
+                              fee: offer.makerFees,
+                              status: offer.status,
+                              date: offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-',
+                            ),
+                          ),
+                        ),
+                      ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _handleActiveOfferTap(BuildContext context,
+      WidgetRef ref,
+      Offer activeOffer,
+      String? currentPubKey,
+      Translations t,) {
+    if (activeOffer.holdInvoicePaymentHash != null) {
+      ref
+          .read(paymentHashProvider.notifier)
+          .state = activeOffer.holdInvoicePaymentHash!;
+    }
+
+    final offerStatus = OfferStatus.values.byName(activeOffer.status);
+
+    if (offerStatus == OfferStatus.blikReceived || offerStatus == OfferStatus.blikSentToMaker) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      try {
+        ref.read(apiServiceProvider);
+        if (currentPubKey == activeOffer.makerPubkey) {
+          if (kIsWeb) {
+            context.go('/confirm-blik');
+          } else {
+            context.push('/confirm-blik');
+          }
+        } else if (currentPubKey == activeOffer.takerPubkey) {
+          if (kIsWeb) {
+            context.go('/wait-confirmation', extra: activeOffer);
+          } else {
+            context.push('/wait-confirmation', extra: activeOffer);
+          }
+        }
+      } catch (e) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.offers.errors.resuming(details: e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+        ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+      }
+    } else {
+      if (currentPubKey == activeOffer.makerPubkey) {
+        _navigateToMakerStep(context, activeOffer);
+      } else if (currentPubKey == activeOffer.takerPubkey) {
+        _navigateToTakerStep(context, activeOffer);
       }
     }
-    return asString;
+  }
+
+  String formatDouble(double value) {
+    // Check if the value is effectively a whole number
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    } else {
+      // Format with up to 2 decimal places, removing trailing zeros
+      String asString = value.toStringAsFixed(2);
+      // Remove trailing zeros after decimal point
+      if (asString.contains('.')) {
+        asString = asString.replaceAll(RegExp(r'0+$'), '');
+        // Remove decimal point if it's the last character
+        if (asString.endsWith('.')) {
+          asString = asString.substring(0, asString.length - 1);
+        }
+      }
+      return asString;
+    }
   }
 }

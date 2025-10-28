@@ -49,55 +49,24 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        builder:
-            (context, state) => const AppScaffold(body: RoleSelectionScreen()),
-      ),
-      GoRoute(
-        path: '/offers',
-        builder: (context, state) => const AppScaffold(body: OfferListScreen()),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const AppScaffold(body: RoleSelectionScreen())),
+      GoRoute(path: '/offers', builder: (context, state) => const AppScaffold(body: OfferListScreen())),
       GoRoute(
         path: '/offers/:id',
         builder: (context, state) {
           final offerId = state.pathParameters['id'];
           if (offerId == null) {
             // Or redirect to an error page
-            return const AppScaffold(
-              body: Center(child: Text('No offer ID provided.')),
-            );
+            return const AppScaffold(body: Center(child: Text('No offer ID provided.')));
           }
           return AppScaffold(body: OfferDetailsScreen(offerId: offerId));
         },
       ),
-      GoRoute(
-        path: '/create',
-        builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
-      ),
-      GoRoute(
-        path: '/pay',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerPayInvoiceScreen()),
-      ),
-      GoRoute(
-        path: '/wait-taker',
-        builder:
-            (context, state) => const AppScaffold(body: MakerWaitTakerScreen()),
-      ),
-      GoRoute(
-        path: '/wait-blik',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerWaitForBlikScreen()),
-      ),
-      GoRoute(
-        path: '/confirm-blik',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerConfirmPaymentScreen()),
-      ),
+      GoRoute(path: '/create', builder: (context, state) => const AppScaffold(body: MakerAmountForm())),
+      GoRoute(path: '/pay', builder: (context, state) => const AppScaffold(body: MakerPayInvoiceScreen())),
+      GoRoute(path: '/wait-taker', builder: (context, state) => const AppScaffold(body: MakerWaitTakerScreen())),
+      GoRoute(path: '/wait-blik', builder: (context, state) => const AppScaffold(body: MakerWaitForBlikScreen())),
+      GoRoute(path: '/confirm-blik', builder: (context, state) => const AppScaffold(body: MakerConfirmPaymentScreen())),
       GoRoute(
         path: '/maker-success',
         builder: (context, state) {
@@ -105,9 +74,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: MakerSuccessScreen(completedOffer: state.extra as Offer),
-            );
+            return AppScaffold(body: MakerSuccessScreen(completedOffer: state.extra as Offer));
           }
         },
       ),
@@ -119,9 +86,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer),
-            );
+            return AppScaffold(body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer));
           }
         },
       ),
@@ -132,9 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
-            );
+            return AppScaffold(body: TakerWaitConfirmationScreen(offer: state.extra as Offer));
           }
         },
       ),
@@ -145,17 +108,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: TakerPaymentFailedScreen(offer: state.extra as Offer),
-            );
+            return AppScaffold(body: TakerPaymentFailedScreen(offer: state.extra as Offer));
           }
         },
       ),
-      GoRoute(
-        path: '/paying-taker',
-        builder:
-            (context, state) => AppScaffold(body: TakerPaymentProcessScreen()),
-      ),
+      GoRoute(path: '/paying-taker', builder: (context, state) => AppScaffold(body: TakerPaymentProcessScreen())),
       GoRoute(
         path: '/taker-invalid-blik',
         builder: (context, state) {
@@ -163,19 +120,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: TakerInvalidBlikScreen(offer: state.extra as Offer),
-            );
+            return AppScaffold(body: TakerInvalidBlikScreen(offer: state.extra as Offer));
           }
         },
       ),
 
       GoRoute(
         path: '/taker-conflict',
-        builder:
-            (context, state) => AppScaffold(
-              body: TakerConflictScreen(offerId: state.extra as String),
-            ),
+        builder: (context, state) => AppScaffold(body: TakerConflictScreen(offerId: state.extra as String)),
       ),
       GoRoute(
         path: '/maker-invalid-blik',
@@ -184,9 +136,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: MakerInvalidBlikScreen(offer: state.extra as Offer),
-            );
+            return AppScaffold(body: MakerInvalidBlikScreen(offer: state.extra as Offer));
           }
         },
       ),
@@ -197,9 +147,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(
-              body: MakerConflictScreen(offer: state.extra as Offer),
-            );
+            return AppScaffold(body: MakerConflictScreen(offer: state.extra as Offer));
           }
         },
       ),
@@ -208,8 +156,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder:
             (context, state) => AppScaffold(
               body: const FaqScreen(),
-              pageTitle:
-                  "FAQ", // Temporarily hardcoded. Add t.faq.screenTitle to Slang and use it here.
+              pageTitle: t.faq.screenTitle,
             ),
       ),
     ],
@@ -260,9 +207,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       ref.read(keyServiceProvider);
       ref.read(apiServiceProvider);
 
-      print(
-        '🚀 App initialized: API service and coordinator discovery started',
-      );
+      print('🚀 App initialized: API service and coordinator discovery started');
     } catch (e) {
       print('❌ Error during app initialization: $e');
     }
@@ -278,9 +223,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         // Initialize the offer status subscription manager
         ref.read(offerStatusSubscriptionManagerProvider);
 
-        print(
-          '🚀 App initialized: API service and coordinator discovery started',
-        );
+        print('🚀 App initialized: API service and coordinator discovery started');
       } catch (e) {
         print('❌ Error during app initialization: $e');
       }
@@ -320,10 +263,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp.router(
       title: t.app.title,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
       locale: appLocale.flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -393,10 +333,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ),
           ),
           actions: <Widget>[
-            TextButton(
-              child: Text(t.common.buttons.close),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            TextButton(child: Text(t.common.buttons.close), onPressed: () => Navigator.of(context).pop()),
           ],
         );
       },
@@ -412,16 +349,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       builder: (context) {
         return AlertDialog(
           title: Text(t.generateNewKey.title),
-          content: Text(
-            activeOffer != null
-                ? t.generateNewKey.errors.activeOffer
-                : t.generateNewKey.description,
-          ),
+          content: Text(activeOffer != null ? t.generateNewKey.errors.activeOffer : t.generateNewKey.description),
           actions: <Widget>[
-            TextButton(
-              child: Text(t.common.buttons.cancel),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            TextButton(child: Text(t.common.buttons.cancel), onPressed: () => Navigator.of(context).pop()),
             if (activeOffer == null)
               TextButton(
                 child: Text(t.generateNewKey.buttons.generate),
@@ -430,9 +360,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.generateNewKeyPair();
 
                     // Clear the active offer when restoring a new key
-                    await ref
-                        .read(activeOfferProvider.notifier)
-                        .setActiveOffer(null);
+                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -445,9 +373,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder:
-                          (context) =>
-                              const Center(child: CircularProgressIndicator()),
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -457,19 +383,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close generate key dialog
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.generateNewKey.feedback.success),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(t.generateNewKey.feedback.success)));
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
-                        ),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('${t.generateNewKey.errors.failed}: ${e.toString()}')));
                   }
                 },
               ),
@@ -511,14 +431,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               ),
               actions: <Widget>[
                 TextButton.icon(
-                  icon: Icon(
-                    isRevealed ? Icons.visibility_off : Icons.visibility,
-                  ),
-                  label: Text(
-                    isRevealed
-                        ? t.common.buttons.hide
-                        : t.common.buttons.reveal,
-                  ),
+                  icon: Icon(isRevealed ? Icons.visibility_off : Icons.visibility),
+                  label: Text(isRevealed ? t.common.buttons.hide : t.common.buttons.reveal),
                   onPressed: () {
                     setState(() {
                       isRevealed = !isRevealed;
@@ -529,12 +443,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   icon: const Icon(Icons.copy),
                   label: Text(t.common.buttons.copy),
                   onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: Nip19.encodePrivateKey(privateKey)),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.backup.feedback.copied)),
-                    );
+                    Clipboard.setData(ClipboardData(text: Nip19.encodePrivateKey(privateKey)));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.backup.feedback.copied)));
                   },
                 ),
                 TextButton(
@@ -565,10 +475,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             key: formKey,
             child: TextFormField(
               controller: privateKeyController,
-              decoration: InputDecoration(
-                labelText: t.restore.labels.privateKey,
-                hintText: 'e.g., nsec1...',
-              ),
+              decoration: InputDecoration(labelText: t.restore.labels.privateKey, hintText: 'e.g., nsec1...'),
               validator: (value) {
                 if (value == null || !Nip19.isPrivateKey(value)) {
                   return t.restore.errors.invalidKey;
@@ -593,9 +500,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.savePrivateKey(pKey);
 
                     // Clear the active offer when restoring a new key
-                    await ref
-                        .read(activeOfferProvider.notifier)
-                        .setActiveOffer(null);
+                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -608,9 +513,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder:
-                          (context) =>
-                              const Center(child: CircularProgressIndicator()),
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -620,17 +523,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close restore dialog
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.restore.feedback.success)),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.restore.feedback.success)));
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${t.restore.errors.failed}: ${e.toString()}',
-                        ),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('${t.restore.errors.failed}: ${e.toString()}')));
                   }
                 }
               },
@@ -663,12 +560,19 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ref.read(errorProvider.notifier).state = null;
             ref.read(isLoadingProvider.notifier).state = false;
             ref.invalidate(availableOffersProvider);
+
+            // Navigate to home
             context.go('/');
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(t.app.title),
+              Text(
+                t.app.title,
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
               const SizedBox(width: 4),
               Text(
                 _clientVersion != null ? 'v$_clientVersion beta' : 'beta',
@@ -683,61 +587,81 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading:
-            (widget.pageTitle != null &&
-                widget
-                    .pageTitle!
-                    .isNotEmpty), // Show back button if pageTitle is present
+            (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
         title: appBarTitle,
         actions: [
           // Language Switcher Dropdown
-          Container(
-            color: Color(
-              0x00fef7ff,
-            ), // Consider Theme.of(context).appBarTheme.backgroundColor or similar
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          DropdownButtonHideUnderline(
             child: DropdownButton<AppLocale>(
               value: appLocale,
-              icon: const Icon(Icons.language),
-              underline: const SizedBox.shrink(),
+              icon: const SizedBox.shrink(),
+              // Hide the dropdown arrow
+              isDense: true,
+              selectedItemBuilder: (BuildContext context) {
+                // This controls what's shown when the dropdown is closed
+                return AppLocale.values.map<Widget>((AppLocale locale) {
+                  return Container(
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(minWidth: 48),
+                    child: const Icon(Icons.language, color: Colors.grey),
+                  );
+                }).toList();
+              },
               onChanged: (AppLocale? newLocale) async {
                 if (newLocale != null) {
                   await asyncPrefs.setString(
                     'app_locale',
                     newLocale.languageCode,
                   );
-                  // LocaleSettings.setLocale(newLocale); // Set Slang locale
-                  // ref.read(localeProvider.notifier).setLocale(newLocale.flutterLocale); // Update Riverpod provider
                   if (LocaleSettings.currentLocale.languageCode !=
                       newLocale.languageCode) {
                     appLocale =
-                        newLocale.languageCode == 'pl'
-                            ? AppLocale.pl
-                            : AppLocale.en;
+                    newLocale.languageCode == 'pl'
+                        ? AppLocale.pl
+                        : AppLocale.en;
                     LocaleSettings.setLocale(appLocale);
+                    // Force rebuild to update UI
+                    if (mounted) {
+                      setState(() {});
+                    }
                   }
                 }
               },
-              items:
-                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((
-                    AppLocale locale,
-                  ) {
-                    final String flagEmoji =
-                        locale.languageCode == 'en'
-                            ? '🇬🇧 '
-                            : locale.languageCode == 'pl'
-                            ? '🇵🇱 '
-                            : '';
-                    final String displayName =
-                        locale.languageCode == 'en'
-                            ? 'English'
-                            : locale.languageCode == 'pl'
-                            ? 'Polski'
-                            : locale.languageCode.toUpperCase();
-                    return DropdownMenuItem<AppLocale>(
-                      value: locale,
-                      child: Text(flagEmoji + displayName),
-                    );
-                  }).toList(),
+              items: AppLocale.values.map<DropdownMenuItem<AppLocale>>((AppLocale locale) {
+                final String flagEmoji =
+                locale.languageCode == 'en'
+                    ? '🇬🇧'
+                    : locale.languageCode == 'pl'
+                    ? '🇵🇱'
+                    : '';
+                final String displayName =
+                locale.languageCode == 'en'
+                    ? 'EN'
+                    : locale.languageCode == 'pl'
+                    ? 'PL'
+                    : locale.languageCode.toUpperCase();
+                return DropdownMenuItem<AppLocale>(
+                  value: locale,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        flagEmoji,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+
+                        child: Text(
+                          displayName,
+                          style: const TextStyle(fontSize: 14),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
           // Conditionally display Home icon if not on the main screen ('/')
@@ -761,11 +685,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           // Always display FAQ icon
           IconButton(
             icon: const Icon(Icons.help_outline),
-            tooltip: 'FAQ', // Consider localizing: t.common.buttons.faq
+            tooltip: t.faq.tooltip,
             onPressed: () {
-              kIsWeb
-                  ? context.go(FaqScreen.routeName)
-                  : context.push(FaqScreen.routeName);
+              kIsWeb ? context.go(FaqScreen.routeName) : context.push(FaqScreen.routeName);
             },
           ),
         ],
@@ -785,9 +707,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        final Uri url = Uri.parse(
-                          'https://github.com/bitblik/client/releases',
-                        );
+                        final Uri url = Uri.parse('https://github.com/bitblik/client/releases');
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
                         } else {
@@ -800,12 +720,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           }
                         }
                       },
-                      child: Image.asset(
-                        'assets/apk.png',
-                        width: 100,
-                        height: 31,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset('assets/apk.png', width: 100, height: 31, fit: BoxFit.contain),
                       //  Icon(Icons.android, size: 32, color: Colors.green),
                     ),
                     const SizedBox(width: 16),
@@ -814,124 +729,105 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                         final Uri url = Uri.parse('zapstore://app.bitblik');
                         await launchUrl(url);
                       },
-                      child: Image.asset(
-                        'assets/zapstore.png',
-                        width: 100,
-                        height: 31,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset('assets/zapstore.png', width: 100, height: 31, fit: BoxFit.contain),
                     ),
                   ],
                 ),
               ),
             publicKeyAsync.when(
-              data:
-                  (publicKey) =>
-                      publicKey != null
-                          ? MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () => _showNekoInfoDialog(publicKey),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
-                                  // const SizedBox(width: 4),
-                                  CachedNetworkImage(
-                                    imageUrl:
-                                        'https://robohash.org/$publicKey?set=set4',
-                                    placeholder:
-                                        (context, url) =>
-                                            const CircularProgressIndicator(),
-                                    errorWidget:
-                                        (context, url, error) =>
-                                            const Icon(Icons.error),
-                                    width: 32,
-                                    height: 32,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.backup),
-                                    tooltip: 'Backup Neko',
-                                    onPressed: _showBackupDialog,
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.restore),
-                                    tooltip: 'Restore Neko',
-                                    onPressed: _showRestoreDialog,
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.refresh),
-                                    tooltip: 'Generate New Neko',
-                                    onPressed: _showGenerateNewKeyDialog,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                          : const SizedBox.shrink(),
-              loading:
-                  () => const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+              data: (publicKey) =>
+              publicKey != null
+                  ? MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => _showNekoInfoDialog(publicKey),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
+                      // const SizedBox(width: 4),
+                      CachedNetworkImage(
+                        imageUrl: 'https://robohash.org/$publicKey?set=set4',
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        width: 32,
+                        height: 32,
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodySmall,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.backup),
+                        tooltip: t.backup.tooltips.backup,
+                        onPressed: _showBackupDialog,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.restore),
+                        tooltip: t.restore.tooltips.restore,
+                        onPressed: _showRestoreDialog,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        tooltip: t.generateNewKey.tooltips.generate,
+                        onPressed: _showGenerateNewKeyDialog,
+                      ),
+                    ],
                   ),
-              error:
-                  (err, stack) => Text(
+                ),
+              )
+                  : const SizedBox.shrink(),
+              loading: () =>
+              const Center(
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
+              error: (err, stack) =>
+                  Text(
                     'Error loading key: $err', // This can remain hardcoded or be added to Slang if needed
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.red),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
             ),
-            Consumer(
-              builder: (context, ref, _) {
-                final lightningAddressAsync = ref.watch(
-                  lightningAddressProvider,
-                );
-                return lightningAddressAsync.when(
-                  data:
-                      (address) =>
-                          address != null && address.isNotEmpty
-                              ? Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: SelectableText(
-                                  t.lightningAddress.labels.short(
-                                    address: address,
-                                  ), // Use Slang
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                              : const SizedBox.shrink(),
-                  loading: () => const SizedBox.shrink(),
-                  error:
-                      (err, stack) => Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          t.lightningAddress.errors.loading(
-                            details: err.toString(),
-                          ), // Use Slang
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                );
-              },
-            ),
+            // Consumer(
+            //   builder: (context, ref, _) {
+            //     final lightningAddressAsync = ref.watch(lightningAddressProvider);
+            //     return lightningAddressAsync.when(
+            //       data:
+            //           (address) =>
+            //               address != null && address.isNotEmpty
+            //                   ? Padding(
+            //                     padding: const EdgeInsets.only(top: 4.0),
+            //                     child: SelectableText(
+            //                       t.lightningAddress.labels.short(address: address), // Use Slang
+            //                       style: Theme.of(context).textTheme.bodySmall,
+            //                       textAlign: TextAlign.center,
+            //                     ),
+            //                   )
+            //                   : const SizedBox.shrink(),
+            //       loading: () => const SizedBox.shrink(),
+            //       error:
+            //           (err, stack) => Padding(
+            //             padding: const EdgeInsets.only(top: 4.0),
+            //             child: Text(
+            //               t.lightningAddress.errors.loading(details: err.toString()), // Use Slang
+            //               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red),
+            //               textAlign: TextAlign.center,
+            //             ),
+            //           ),
+            //     );
+            //   },
+            // ),
           ],
         ),
       ),

@@ -54,6 +54,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsBackupEn backup = TranslationsBackupEn.internal(_root);
 	late final TranslationsRestoreEn restore = TranslationsRestoreEn.internal(_root);
 	late final TranslationsSystemEn system = TranslationsSystemEn.internal(_root);
+	late final TranslationsLandingEn landing = TranslationsLandingEn.internal(_root);
+	late final TranslationsFaqEn faq = TranslationsFaqEn.internal(_root);
 }
 
 // Path: app
@@ -225,6 +227,7 @@ class TranslationsGenerateNewKeyEn {
 	late final TranslationsGenerateNewKeyButtonsEn buttons = TranslationsGenerateNewKeyButtonsEn.internal(_root);
 	late final TranslationsGenerateNewKeyErrorsEn errors = TranslationsGenerateNewKeyErrorsEn.internal(_root);
 	late final TranslationsGenerateNewKeyFeedbackEn feedback = TranslationsGenerateNewKeyFeedbackEn.internal(_root);
+	late final TranslationsGenerateNewKeyTooltipsEn tooltips = TranslationsGenerateNewKeyTooltipsEn.internal(_root);
 }
 
 // Path: backup
@@ -242,6 +245,7 @@ class TranslationsBackupEn {
 	String get description => 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
 
 	late final TranslationsBackupFeedbackEn feedback = TranslationsBackupFeedbackEn.internal(_root);
+	late final TranslationsBackupTooltipsEn tooltips = TranslationsBackupTooltipsEn.internal(_root);
 }
 
 // Path: restore
@@ -259,6 +263,7 @@ class TranslationsRestoreEn {
 	late final TranslationsRestoreButtonsEn buttons = TranslationsRestoreButtonsEn.internal(_root);
 	late final TranslationsRestoreErrorsEn errors = TranslationsRestoreErrorsEn.internal(_root);
 	late final TranslationsRestoreFeedbackEn feedback = TranslationsRestoreFeedbackEn.internal(_root);
+	late final TranslationsRestoreTooltipsEn tooltips = TranslationsRestoreTooltipsEn.internal(_root);
 }
 
 // Path: system
@@ -274,6 +279,38 @@ class TranslationsSystemEn {
 
 	late final TranslationsSystemErrorsEn errors = TranslationsSystemErrorsEn.internal(_root);
 	late final TranslationsSystemBlikEn blik = TranslationsSystemBlikEn.internal(_root);
+}
+
+// Path: landing
+class TranslationsLandingEn {
+	TranslationsLandingEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Your BLIK ⇄ bitcoin Bridge'
+	String get mainTitle => 'Your BLIK ⇄ bitcoin Bridge';
+
+	/// en: 'Pay for or sell your BLIK code with bitcoin'
+	String get subtitle => 'Pay for or sell your BLIK code with bitcoin';
+
+	late final TranslationsLandingActionsEn actions = TranslationsLandingActionsEn.internal(_root);
+}
+
+// Path: faq
+class TranslationsFaqEn {
+	TranslationsFaqEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'FAQ'
+	String get screenTitle => 'FAQ';
+
+	/// en: 'FAQ'
+	String get tooltip => 'FAQ';
 }
 
 // Path: common.buttons
@@ -316,6 +353,9 @@ class TranslationsCommonButtonsEn {
 
 	/// en: 'Restore'
 	String get restore => 'Restore';
+
+	/// en: 'FAQ'
+	String get faq => 'FAQ';
 }
 
 // Path: common.labels
@@ -1217,6 +1257,18 @@ class TranslationsGenerateNewKeyFeedbackEn {
 	String get success => 'New Neko generated successfully!';
 }
 
+// Path: generateNewKey.tooltips
+class TranslationsGenerateNewKeyTooltipsEn {
+	TranslationsGenerateNewKeyTooltipsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Generate New Neko'
+	String get generate => 'Generate New Neko';
+}
+
 // Path: backup.feedback
 class TranslationsBackupFeedbackEn {
 	TranslationsBackupFeedbackEn.internal(this._root);
@@ -1227,6 +1279,18 @@ class TranslationsBackupFeedbackEn {
 
 	/// en: 'Private key copied to clipboard!'
 	String get copied => 'Private key copied to clipboard!';
+}
+
+// Path: backup.tooltips
+class TranslationsBackupTooltipsEn {
+	TranslationsBackupTooltipsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Backup Neko'
+	String get backup => 'Backup Neko';
 }
 
 // Path: restore.labels
@@ -1280,6 +1344,18 @@ class TranslationsRestoreFeedbackEn {
 	String get success => 'Neko restored successfully! App will restart.';
 }
 
+// Path: restore.tooltips
+class TranslationsRestoreTooltipsEn {
+	TranslationsRestoreTooltipsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Restore Neko'
+	String get restore => 'Restore Neko';
+}
+
 // Path: system.errors
 class TranslationsSystemErrorsEn {
 	TranslationsSystemErrorsEn.internal(this._root);
@@ -1317,6 +1393,30 @@ class TranslationsSystemBlikEn {
 
 	/// en: 'BLIK code copied to clipboard'
 	String get copied => 'BLIK code copied to clipboard';
+}
+
+// Path: landing.actions
+class TranslationsLandingActionsEn {
+	TranslationsLandingActionsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Pay BLIK'
+	String get payBlik => 'Pay BLIK';
+
+	/// en: 'with bitcoin'
+	String get payBlikSubtitle => 'with bitcoin';
+
+	/// en: 'Buy bitcoin'
+	String get sellBlik => 'Buy bitcoin';
+
+	/// en: 'selling BLIK'
+	String get sellBlikSubtitle => 'selling BLIK';
+
+	/// en: 'How it works?'
+	String get howItWorks => 'How it works?';
 }
 
 // Path: maker.amountForm.actions
@@ -1945,6 +2045,7 @@ extension on Translations {
 			case 'common.buttons.copy': return 'Copy';
 			case 'common.buttons.close': return 'Close';
 			case 'common.buttons.restore': return 'Restore';
+			case 'common.buttons.faq': return 'FAQ';
 			case 'common.labels.amount': return 'Amount (PLN)';
 			case 'common.labels.status': return ({required Object status}) => 'Status: ${status}';
 			case 'common.labels.role': return ({required Object role}) => 'Role: ${role}';
@@ -2195,15 +2296,18 @@ extension on Translations {
 			case 'generateNewKey.errors.activeOffer': return 'You cannot generate a new Neko while you have an active offer.';
 			case 'generateNewKey.errors.failed': return 'Failed to generate new Neko';
 			case 'generateNewKey.feedback.success': return 'New Neko generated successfully!';
+			case 'generateNewKey.tooltips.generate': return 'Generate New Neko';
 			case 'backup.title': return 'Backup Neko';
 			case 'backup.description': return 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
 			case 'backup.feedback.copied': return 'Private key copied to clipboard!';
+			case 'backup.tooltips.backup': return 'Backup Neko';
 			case 'restore.title': return 'Restore Neko';
 			case 'restore.labels.privateKey': return 'Private Key';
 			case 'restore.buttons.restore': return 'Restore';
 			case 'restore.errors.invalidKey': return 'Must be a 64-character hex string.';
 			case 'restore.errors.failed': return 'Restore failed';
 			case 'restore.feedback.success': return 'Neko restored successfully! App will restart.';
+			case 'restore.tooltips.restore': return 'Restore Neko';
 			case 'system.loadingPublicKey': return 'Loading your public key...';
 			case 'system.errors.generic': return 'An unexpected error occurred. Please try again.';
 			case 'system.errors.loadingTimeoutConfig': return 'Error loading timeout configuration.';
@@ -2212,6 +2316,15 @@ extension on Translations {
 			case 'system.errors.internalOfferIncomplete': return 'Internal error: Offer details are incomplete. Please try again.';
 			case 'system.errors.loadingPublicKey': return 'Error loading your public key. Please restart the app.';
 			case 'system.blik.copied': return 'BLIK code copied to clipboard';
+			case 'landing.mainTitle': return 'Your BLIK ⇄ bitcoin Bridge';
+			case 'landing.subtitle': return 'Pay for or sell your BLIK code with bitcoin';
+			case 'landing.actions.payBlik': return 'Pay BLIK';
+			case 'landing.actions.payBlikSubtitle': return 'with bitcoin';
+			case 'landing.actions.sellBlik': return 'Buy bitcoin';
+			case 'landing.actions.sellBlikSubtitle': return 'selling BLIK';
+			case 'landing.actions.howItWorks': return 'How it works?';
+			case 'faq.screenTitle': return 'FAQ';
+			case 'faq.tooltip': return 'FAQ';
 			default: return null;
 		}
 	}

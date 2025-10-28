@@ -53,6 +53,8 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsRestorePl restore = _TranslationsRestorePl._(_root);
 	@override late final _TranslationsHomePl home = _TranslationsHomePl._(_root);
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
+	@override late final _TranslationsLandingPl landing = _TranslationsLandingPl._(_root);
+	@override late final _TranslationsFaqPl faq = _TranslationsFaqPl._(_root);
 }
 
 // Path: app
@@ -200,6 +202,7 @@ class _TranslationsGenerateNewKeyPl extends TranslationsGenerateNewKeyEn {
 	@override late final _TranslationsGenerateNewKeyButtonsPl buttons = _TranslationsGenerateNewKeyButtonsPl._(_root);
 	@override late final _TranslationsGenerateNewKeyErrorsPl errors = _TranslationsGenerateNewKeyErrorsPl._(_root);
 	@override late final _TranslationsGenerateNewKeyFeedbackPl feedback = _TranslationsGenerateNewKeyFeedbackPl._(_root);
+	@override late final _TranslationsGenerateNewKeyTooltipsPl tooltips = _TranslationsGenerateNewKeyTooltipsPl._(_root);
 }
 
 // Path: backup
@@ -212,6 +215,7 @@ class _TranslationsBackupPl extends TranslationsBackupEn {
 	@override String get title => 'Zarchiwizuj Neko';
 	@override String get description => 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
 	@override late final _TranslationsBackupFeedbackPl feedback = _TranslationsBackupFeedbackPl._(_root);
+	@override late final _TranslationsBackupTooltipsPl tooltips = _TranslationsBackupTooltipsPl._(_root);
 }
 
 // Path: restore
@@ -226,6 +230,7 @@ class _TranslationsRestorePl extends TranslationsRestoreEn {
 	@override late final _TranslationsRestoreButtonsPl buttons = _TranslationsRestoreButtonsPl._(_root);
 	@override late final _TranslationsRestoreErrorsPl errors = _TranslationsRestoreErrorsPl._(_root);
 	@override late final _TranslationsRestoreFeedbackPl feedback = _TranslationsRestoreFeedbackPl._(_root);
+	@override late final _TranslationsRestoreTooltipsPl tooltips = _TranslationsRestoreTooltipsPl._(_root);
 }
 
 // Path: home
@@ -251,6 +256,29 @@ class _TranslationsSystemPl extends TranslationsSystemEn {
 	@override late final _TranslationsSystemBlikPl blik = _TranslationsSystemBlikPl._(_root);
 }
 
+// Path: landing
+class _TranslationsLandingPl extends TranslationsLandingEn {
+	_TranslationsLandingPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get mainTitle => 'Twój Most Bitcoin ⇄ BLIK';
+	@override String get subtitle => 'Płać lub sprzedawaj kod BLIK za Bitcoin';
+	@override late final _TranslationsLandingActionsPl actions = _TranslationsLandingActionsPl._(_root);
+}
+
+// Path: faq
+class _TranslationsFaqPl extends TranslationsFaqEn {
+	_TranslationsFaqPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get screenTitle => 'FAQ';
+	@override String get tooltip => 'FAQ';
+}
+
 // Path: common.buttons
 class _TranslationsCommonButtonsPl extends TranslationsCommonButtonsEn {
 	_TranslationsCommonButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -264,6 +292,12 @@ class _TranslationsCommonButtonsPl extends TranslationsCommonButtonsEn {
 	@override String get retry => 'Spróbuj ponownie';
 	@override String get goHome => 'Wróć do strony głównej';
 	@override String get saveAndContinue => 'Zapisz i kontynuuj';
+	@override String get reveal => 'Pokaż';
+	@override String get hide => 'Ukryj';
+	@override String get copy => 'Kopiuj';
+	@override String get close => 'Zamknij';
+	@override String get restore => 'Przywróć';
+	@override String get faq => 'FAQ';
 }
 
 // Path: common.labels
@@ -820,6 +854,16 @@ class _TranslationsGenerateNewKeyFeedbackPl extends TranslationsGenerateNewKeyFe
 	@override String get success => 'Nowe Neko wygenerowane pomyślnie!';
 }
 
+// Path: generateNewKey.tooltips
+class _TranslationsGenerateNewKeyTooltipsPl extends TranslationsGenerateNewKeyTooltipsEn {
+	_TranslationsGenerateNewKeyTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get generate => 'Wygeneruj nowe Neko';
+}
+
 // Path: backup.feedback
 class _TranslationsBackupFeedbackPl extends TranslationsBackupFeedbackEn {
 	_TranslationsBackupFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -828,6 +872,16 @@ class _TranslationsBackupFeedbackPl extends TranslationsBackupFeedbackEn {
 
 	// Translations
 	@override String get copied => 'Klucz prywatny skopiowany do schowka!';
+}
+
+// Path: backup.tooltips
+class _TranslationsBackupTooltipsPl extends TranslationsBackupTooltipsEn {
+	_TranslationsBackupTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get backup => 'Zarchiwizuj Neko';
 }
 
 // Path: restore.labels
@@ -869,6 +923,16 @@ class _TranslationsRestoreFeedbackPl extends TranslationsRestoreFeedbackEn {
 
 	// Translations
 	@override String get success => 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
+}
+
+// Path: restore.tooltips
+class _TranslationsRestoreTooltipsPl extends TranslationsRestoreTooltipsEn {
+	_TranslationsRestoreTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get restore => 'Przywróć Neko';
 }
 
 // Path: home.notifications
@@ -918,6 +982,20 @@ class _TranslationsSystemBlikPl extends TranslationsSystemBlikEn {
 
 	// Translations
 	@override String get copied => 'Kod BLIK skopiowany do schowka';
+}
+
+// Path: landing.actions
+class _TranslationsLandingActionsPl extends TranslationsLandingActionsEn {
+	_TranslationsLandingActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get payBlik => 'Zapłać BLIK';
+	@override String get payBlikSubtitle => 'używając Bitcoin';
+	@override String get sellBlik => 'Sprzedaj BLIK';
+	@override String get sellBlikSubtitle => 'za Bitcoin';
+	@override String get howItWorks => 'Jak to działa?';
 }
 
 // Path: maker.amountForm.actions
@@ -1358,6 +1436,12 @@ extension on TranslationsPl {
 			case 'common.buttons.retry': return 'Spróbuj ponownie';
 			case 'common.buttons.goHome': return 'Wróć do strony głównej';
 			case 'common.buttons.saveAndContinue': return 'Zapisz i kontynuuj';
+			case 'common.buttons.reveal': return 'Pokaż';
+			case 'common.buttons.hide': return 'Ukryj';
+			case 'common.buttons.copy': return 'Kopiuj';
+			case 'common.buttons.close': return 'Zamknij';
+			case 'common.buttons.restore': return 'Przywróć';
+			case 'common.buttons.faq': return 'FAQ';
 			case 'common.labels.amount': return 'Kwota (PLN)';
 			case 'common.labels.status': return ({required Object status}) => 'Status: ${status}';
 			case 'common.labels.role': return ({required Object role}) => 'Rola: ${role}';
@@ -1602,15 +1686,18 @@ extension on TranslationsPl {
 			case 'generateNewKey.errors.activeOffer': return 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
 			case 'generateNewKey.errors.failed': return 'Nie udało się wygenerować nowego Neko';
 			case 'generateNewKey.feedback.success': return 'Nowe Neko wygenerowane pomyślnie!';
+			case 'generateNewKey.tooltips.generate': return 'Wygeneruj nowe Neko';
 			case 'backup.title': return 'Zarchiwizuj Neko';
 			case 'backup.description': return 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
 			case 'backup.feedback.copied': return 'Klucz prywatny skopiowany do schowka!';
+			case 'backup.tooltips.backup': return 'Zarchiwizuj Neko';
 			case 'restore.title': return 'Przywróć Neko';
 			case 'restore.labels.privateKey': return 'Klucz prywatny';
 			case 'restore.buttons.restore': return 'Przywróć';
 			case 'restore.errors.invalidKey': return 'Musi to być 64-znakowy ciąg szesnastkowy.';
 			case 'restore.errors.failed': return 'Przywracanie nie powiodło się';
 			case 'restore.feedback.success': return 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
+			case 'restore.tooltips.restore': return 'Przywróć Neko';
 			case 'home.notifications.simplex': return 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
 			case 'home.notifications.element': return 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
 			case 'home.statistics.title': return 'Ostatnie Transakcje';
@@ -1625,6 +1712,15 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
+			case 'landing.mainTitle': return 'Twój Most Bitcoin ⇄ BLIK';
+			case 'landing.subtitle': return 'Płać lub sprzedawaj kod BLIK za Bitcoin';
+			case 'landing.actions.payBlik': return 'Zapłać BLIK';
+			case 'landing.actions.payBlikSubtitle': return 'używając Bitcoin';
+			case 'landing.actions.sellBlik': return 'Sprzedaj BLIK';
+			case 'landing.actions.sellBlikSubtitle': return 'za Bitcoin';
+			case 'landing.actions.howItWorks': return 'Jak to działa?';
+			case 'faq.screenTitle': return 'FAQ';
+			case 'faq.tooltip': return 'FAQ';
 			default: return null;
 		}
 	}

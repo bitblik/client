@@ -198,7 +198,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
             ),
           );
       if (mounted) {
-        context.go("/pay");
+        context.push("/pay");
       }
     } catch (e) {
       ref.read(errorProvider.notifier).state = t.maker.amountForm.errors

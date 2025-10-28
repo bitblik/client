@@ -21,6 +21,7 @@ common:
     copy: Copy
     close: Close
     restore: Restore
+    faq: FAQ
   
   labels:
     amount: "Amount (PLN)"
@@ -459,6 +460,8 @@ generateNewKey:
     failed: "Failed to generate new Neko"
   feedback:
     success: New Neko generated successfully!
+  tooltips:
+    generate: Generate New Neko
 
 # =============================================================================
 # BACKUP AND RESTORE
@@ -468,6 +471,8 @@ backup:
   description: This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.
   feedback:
     copied: Private key copied to clipboard!
+  tooltips:
+    backup: Backup Neko
 
 restore:
   title: Restore Neko
@@ -480,6 +485,8 @@ restore:
     failed: "Restore failed"
   feedback:
     success: Neko restored successfully! App will restart.
+  tooltips:
+    restore: Restore Neko
 
 # =============================================================================
 # SYSTEM ERRORS AND CONFIGURATIONS
@@ -496,3 +503,24 @@ system:
   
   blik:
     copied: BLIK code copied to clipboard
+
+# =============================================================================
+# MAIN LANDING PAGE
+# =============================================================================
+landing:
+  mainTitle: "Your BLIK ⇄ bitcoin Bridge"
+  subtitle: "Pay for or sell your BLIK code with bitcoin"
+  
+  actions:
+    payBlik: "Pay BLIK"
+    payBlikSubtitle: "with bitcoin"
+    sellBlik: "Buy bitcoin"
+    sellBlikSubtitle: "selling BLIK"
+    howItWorks: "How it works?"
+
+# =============================================================================
+# FAQ
+# =============================================================================
+faq:
+  screenTitle: FAQ
+  tooltip: FAQ
