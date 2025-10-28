@@ -72,7 +72,7 @@ lightningAddress:
 offers:
   display:
     yourOffer: "Your offer:"
-    selectedOffer: "Selected offer:"
+    selectedOffer: "Offer:"
     activeOffer: "You have an active offer:"
     finishedOffers: Finished offers
     finishedOffersWithTime: "Finished offers (last 24h):"
