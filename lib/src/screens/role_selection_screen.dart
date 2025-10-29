@@ -212,7 +212,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                 // FAQ link
                 TextButton(
                   onPressed: () {
-                    context.push("/faq");
+                    if (kIsWeb) {
+                      context.go("/faq");
+                    } else {
+                      context.push("/faq");
+                    }
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -477,7 +481,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                           (offer) =>
                           InkWell(
                             onTap: () {
-                              context.push('/offers/${offer.id}');
+                              if (kIsWeb) {
+                                context.go('/offers/${offer.id}');
+                              } else {
+                                context.push('/offers/${offer.id}');
+                              }
                             },
                             child: Card(
                               elevation: 1,

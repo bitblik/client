@@ -1,5 +1,7 @@
 import 'dart:async'; // Import async for Timer
 
+import 'package:flutter/foundation.dart';
+
 import '../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1118,7 +1120,11 @@ Widget _buildStatsSection(
                           final offer = recentOffers[index];
                           return InkWell(
                             onTap: () {
-                              context.push('/offers/${offer.id}');
+                              if (kIsWeb) {
+                                context.go('/offers/${offer.id}');
+                              } else {
+                                context.push('/offers/${offer.id}');
+                              }
                             },
                             child: Card(
                               margin: const EdgeInsets.symmetric(
