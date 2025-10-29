@@ -16,7 +16,7 @@ final keyServiceProvider = Provider<KeyService>((ref) {
 });
 
 final apiServiceProvider = Provider<ApiServiceNostr>((ref) {
-  final keyService = ref.read(keyServiceProvider);
+  final keyService = ref.watch(keyServiceProvider);
   final apiService = ApiServiceNostr(keyService);
   ref.onDispose(() {
     apiService.dispose();
@@ -399,7 +399,27 @@ final offerDetailsProvider = FutureProvider.family<Offer?, String>((
 final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
-  final apiService = ref.watch(apiServiceProvider);
+  // Wait for API service to be fully initialized
+  final apiService = await ref.watch(initializedApiServiceProvider.future);
+
+  // Wait for coordinators to be discovered before fetching stats
+  final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
+  await coordinatorsAsync.when(
+    data: (coordinators) async {
+      // Coordinators are loaded, we can proceed
+      print('📊 Stats Provider: Found ${coordinators.length} coordinators for stats');
+    },
+    loading: () async {
+      // Wait a bit for coordinators to load
+      print('📊 Stats Provider: Waiting for coordinators to be discovered...');
+      await Future.delayed(const Duration(seconds: 2));
+    },
+    error: (error, stack) async {
+      print('📊 Stats Provider: Error loading coordinators: $error');
+    },
+  );
+
+  // Now fetch stats from the initialized service
   return apiService.getSuccessfulOffersStats();
 });
 

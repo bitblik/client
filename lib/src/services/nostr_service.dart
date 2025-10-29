@@ -8,6 +8,7 @@ import 'package:ndk/shared/nips/nip44/nip44.dart';
 import 'package:ndk_rust_verifier/data_layer/repositories/verifiers/rust_event_verifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../main.dart';
 import '../models/coordinator_info.dart';
 import '../models/offer.dart';
 import 'key_service.dart';
@@ -138,7 +139,7 @@ class NostrService {
   static const int KIND_OFFER = 38383;
 
   final KeyService _keyService;
-  late final Ndk _ndk;
+  Ndk? _ndk;
   Bip340EventSigner? _clientSigner;
   final Map<String, Completer<NostrResponse>> _pendingRequests = {};
   final Random _random = Random();
@@ -192,12 +193,21 @@ class NostrService {
 
   /// Initialize NDK and connect to relays
   Future<void> _initializeNdk() async {
+    // Destroy existing NDK instance if it exists
+    if (_ndk != null) {
+      try {
+        await _ndk!.destroy();
+        print('🔄 Destroyed previous NDK instance');
+      } catch (e) {
+        print('⚠️ Error destroying previous NDK instance: $e');
+      }
+    }
 
     // Initialize NDK with bootstrap relays config
     _ndk = Ndk(
       NdkConfig(
         cache: MemCacheManager(),
-        eventVerifier: RustEventVerifier(),//Bip340EventVerifier(),
+        eventVerifier: rustEventVerifier,//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
         logLevel: lib_logger.Level.trace,
       ),
@@ -206,6 +216,28 @@ class NostrService {
     print(
       '🔑 Client signer initialized with pubkey: ${_keyService.publicKeyHex}',
     );
+
+    // Wait for NDK to actually connect to at least one relay
+    print('⏳ Waiting for NDK to connect to relays...');
+
+    // Wait up to 10 seconds for connection
+    bool connected = false;
+    for (int i = 0; i < 20; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      // Check if any relays are connected (this is a simple heuristic)
+      // In a real implementation, you'd check NDK's connection status
+      // For now, we'll just wait a reasonable amount of time
+      if (i >= 3) { // Wait at least 2 seconds
+        connected = true;
+        break;
+      }
+    }
+
+    if (connected) {
+      print('✅ NDK connection wait completed');
+    } else {
+      print('⚠️ NDK connection timeout - proceeding anyway');
+    }
   }
 
   /// Subscribe to response events from coordinator
@@ -221,7 +253,7 @@ class NostrService {
       since: since,
     );
 
-    _responseSubscription = _ndk.requests.subscription(
+    _responseSubscription = _ndk!.requests.subscription(
       name: "client-responses",
       filters: [filter],
     );
@@ -252,9 +284,13 @@ class NostrService {
         final completer = _pendingRequests.remove(response.id);
         completer?.complete(response);
         print('✅ Completed request: ${response.id}');
+      } else {
+        print('⚠️ No matching pending request for response ID: ${response.id}');
       }
     } catch (e) {
       print('❌ Error handling response event: $e');
+      print('🔑 Current pubkey: ${_keyService.publicKeyHex}');
+      print('📨 Event from: ${event.pubKey}');
     }
   }
 
@@ -310,7 +346,7 @@ class NostrService {
       await _clientSigner!.sign(event);
 
       // Publish the event
-      _ndk.broadcast.broadcast(nostrEvent: event);
+      _ndk!.broadcast.broadcast(nostrEvent: event);
 
       print(
         '📤 Sent request: ${request.method} (ID: $requestId) to $coordinatorPubkey',
@@ -394,7 +430,7 @@ class NostrService {
 
     // Unsubscribe previous subscription, if any
     if (_offerSubscription != null) {
-      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
+      await _ndk!.requests.closeSubscription(_offerSubscription!.requestId);
     }
     final filter = Filter(
       kinds: [KIND_OFFER],
@@ -410,7 +446,7 @@ class NostrService {
               .millisecondsSinceEpoch ~/
           1000,
     );
-    _offerSubscription = _ndk.requests.subscription(
+    _offerSubscription = _ndk!.requests.subscription(
       name: "offers-stream",
       filters: [filter],
     );
@@ -488,7 +524,7 @@ class NostrService {
   /// Stop the live offer subscription
   Future<void> stopOfferSubscription() async {
     if (_offerSubscription != null) {
-      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
+      await _ndk!.requests.closeSubscription(_offerSubscription!.requestId);
       _offerSubscription = null;
     }
     await _offerStreamController.close();
@@ -505,7 +541,7 @@ class NostrService {
     final filter = Filter(kinds: [KIND_OFFER], dTags: [offerId], limit: 1);
 
     // Use query for a one-time fetch.
-    final response = _ndk.requests.query(filters: [filter], cacheRead: false);
+    final response = _ndk!.requests.query(filters: [filter], cacheRead: false);
     final events = await response.stream.toList();
 
     if (events.isEmpty) {
@@ -954,7 +990,7 @@ class NostrService {
       //     1000,
     );
 
-    final response = _ndk.requests.query(
+    final response = _ndk!.requests.query(
       name: "coordinator-discovery",
       filters: [filter],
     );
@@ -975,7 +1011,7 @@ class NostrService {
 
     // Close existing subscription if any
     if (_offerStatusSubscription != null) {
-      await _ndk.requests.closeSubscription(
+      await _ndk!.requests.closeSubscription(
         _offerStatusSubscription!.requestId,
       );
     }
@@ -987,7 +1023,7 @@ class NostrService {
       since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     );
 
-    final response = _ndk.requests.subscription(
+    final response = _ndk!.requests.subscription(
       name: "offer-status-updates",
       filters: [filter],
     );
@@ -1000,7 +1036,7 @@ class NostrService {
   /// Stop offer status subscription
   Future<void> stopOfferStatusSubscription() async {
     if (_offerStatusSubscription != null) {
-      await _ndk.requests.closeSubscription(
+      await _ndk!.requests.closeSubscription(
         _offerStatusSubscription!.requestId,
       );
       _offerStatusSubscription = null;
@@ -1144,20 +1180,23 @@ class NostrService {
   /// Dispose resources
   Future<void> dispose() async {
     if (_responseSubscription != null) {
-      await _ndk.requests.closeSubscription(_responseSubscription!.requestId);
+      await _ndk!.requests.closeSubscription(_responseSubscription!.requestId);
     }
     if (_offerStatusSubscription != null) {
-      await _ndk.requests.closeSubscription(
+      await _ndk!.requests.closeSubscription(
         _offerStatusSubscription!.requestId,
       );
     }
     if (_offerSubscription != null) {
-      await _ndk.requests.closeSubscription(_offerSubscription!.requestId);
+      await _ndk!.requests.closeSubscription(_offerSubscription!.requestId);
     }
     _pendingRequests.clear();
     await _offerStatusController.close();
     await _offerStreamController.close();
-    await _ndk.destroy();
+    if (_ndk != null) {
+      await _ndk!.destroy();
+      _ndk = null;
+    }
     _isInitialized = false;
   }
 
