@@ -39,6 +39,7 @@ import 'src/screens/role_selection_screen.dart';
 import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker conflict screen
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
+import 'src/utils/platform_detection.dart'; // Import our platform detection utility
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -704,7 +705,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           children: [
             const Divider(),
 
-            if (kIsWeb || !Platform.isAndroid)
+            // Show download icons only when on web browser running on Android
+            if (PlatformDetection.isWebAndroid)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(

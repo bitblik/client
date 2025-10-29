@@ -333,7 +333,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  "${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))} (${ApiServiceNostr.exchangeRateSourceNames.join(', ')})",
+                  "${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}\n(${ApiServiceNostr.exchangeRateSourceNames.join(', ')})",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),
