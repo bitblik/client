@@ -498,7 +498,7 @@ home:
     signal: Signal
   
   statistics:
-    title: Ostatnie Transakcje
+    title: Zakończone oferty
     lifetimeCompact: "Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}"
     last7DaysCompact: "Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}"
     

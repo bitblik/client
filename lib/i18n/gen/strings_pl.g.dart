@@ -984,7 +984,7 @@ class _TranslationsHomeStatisticsPl extends TranslationsHomeStatisticsEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Ostatnie Transakcje';
+	@override String get title => 'Zakończone oferty';
 	@override String lifetimeCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 	@override String last7DaysCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 	@override late final _TranslationsHomeStatisticsErrorsPl errors = _TranslationsHomeStatisticsErrorsPl._(_root);
@@ -1742,7 +1742,7 @@ extension on TranslationsPl {
 			case 'home.notifications.simplex': return 'SimpleX';
 			case 'home.notifications.element': return 'Element';
 			case 'home.notifications.signal': return 'Signal';
-			case 'home.statistics.title': return 'Ostatnie Transakcje';
+			case 'home.statistics.title': return 'Zakończone oferty';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Błąd ładowania statystyk: ${error}';

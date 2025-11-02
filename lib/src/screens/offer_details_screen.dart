@@ -8,6 +8,7 @@ import '../../i18n/gen/strings.g.dart';
 import '../models/coordinator_info.dart';
 import '../models/offer.dart';
 import '../providers/providers.dart';
+import '../widgets/lightning_address_widget.dart';
 import '../widgets/progress_indicators.dart';
 
 class OfferDetailsScreen extends ConsumerStatefulWidget {
@@ -24,9 +25,16 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
   Widget build(BuildContext context) {
     final offerAsyncValue = ref.watch(offerDetailsProvider(widget.offerId));
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
+    final lightningAddressAsync = ref.watch(lightningAddressProvider);
+    final keyService = ref.read(keyServiceProvider);
     final myActiveOffer = ref.watch(activeOfferProvider);
     final t = Translations.of(context);
     final router = GoRouter.of(context);
+
+    final hasLightningAddress = lightningAddressAsync.maybeWhen(
+      data: (address) => address != null && address.isNotEmpty,
+      orElse: () => false,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(t.offers.display.selectedOffer)),
@@ -56,6 +64,17 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                 data:
                     (publicKey) => () {
                       if (publicKey == null) return;
+
+                      // Check if lightning address is set
+                      if (!hasLightningAddress) {
+                        LightningAddressWidget.showLightningAddressRequiredDialog(
+                          context,
+                          ref,
+                          keyService,
+                          t,
+                        );
+                        return;
+                      }
 
                       final takerId = publicKey;
                       final apiService = ref.read(apiServiceProvider);
@@ -171,6 +190,27 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          _buildDetailRow(
+                            t.offers.details.amount(
+                              amount: offer.amountSats.toString(),
+                            ),
+                            '',
+                          ),
+                          _buildDetailRow(
+                            t.offers.details.amountWithCurrency(
+                              amount: offer.fiatAmount.toString(),
+                              currency: offer.fiatCurrency,
+                            ),
+                            '',
+                          ),
+                          _buildDetailRow(
+                            t.common.labels.status(status: offer.status),
+                            '',
+                          ),
+                          _buildDetailRow('Maker:', offer.makerPubkey),
+                          if (offer.takerPubkey != null)
+                            _buildDetailRow('Taker:', offer.takerPubkey!),
+                          const Divider(height: 32),
                           // Use AsyncValue.when to handle the coordinator info loading states
                           coordinatorInfoAsync.when(
                             loading: () =>
@@ -307,27 +347,13 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                               }
                             },
                           ),
-                          const Divider(height: 32),
-                          _buildDetailRow(
-                            t.offers.details.amount(
-                              amount: offer.amountSats.toString(),
+                          if (isFunded) ...[
+                            const Divider(height: 32),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: LightningAddressWidget(),
                             ),
-                            '',
-                          ),
-                          _buildDetailRow(
-                            t.offers.details.amountWithCurrency(
-                              amount: offer.fiatAmount.toString(),
-                              currency: offer.fiatCurrency,
-                            ),
-                            '',
-                          ),
-                          _buildDetailRow(
-                            t.common.labels.status(status: offer.status),
-                            '',
-                          ),
-                          _buildDetailRow('Maker:', offer.makerPubkey),
-                          if (offer.takerPubkey != null)
-                            _buildDetailRow('Taker:', offer.takerPubkey!),
+                          ],
                           if (trailingWidget != null) ...[
                             const SizedBox(height: 16),
                             Center(child: trailingWidget),

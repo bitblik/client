@@ -453,7 +453,7 @@ home:
     signal: Signal
   
   statistics:
-    title: Recent Transactions
+    title: Finished Offers
     lifetimeCompact: "All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
     last7DaysCompact: "Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
     

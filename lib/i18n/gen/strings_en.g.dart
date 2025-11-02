@@ -1259,8 +1259,8 @@ class TranslationsHomeStatisticsEn {
 
 	// Translations
 
-	/// en: 'Recent Transactions'
-	String get title => 'Recent Transactions';
+	/// en: 'Finished Offers'
+	String get title => 'Finished Offers';
 
 	/// en: 'All: ${count} transactions Avg wait for BLIK: ${avgBlikTime} Avg completion time: ${avgPaidTime}'
 	String lifetimeCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
@@ -2348,7 +2348,7 @@ extension on Translations {
 			case 'home.notifications.simplex': return 'SimpleX';
 			case 'home.notifications.element': return 'Element';
 			case 'home.notifications.signal': return 'Signal';
-			case 'home.statistics.title': return 'Recent Transactions';
+			case 'home.statistics.title': return 'Finished Offers';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Error loading statistics: ${error}';

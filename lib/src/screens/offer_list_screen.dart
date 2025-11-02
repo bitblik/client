@@ -12,9 +12,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/coordinator_info.dart'; // Added
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
-import '../utils/ln.dart';
+import '../widgets/lightning_address_widget.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
-import 'offer_details_screen.dart'; // Import OfferDetailsScreen
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
 
@@ -28,16 +27,6 @@ class OfferListScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferListScreenState extends ConsumerState<OfferListScreen> {
-  bool _requestedFocus = false;
-  String? _validationError;
-  bool _hasValidatedInitialAddress = false;
-  bool _isValidating = false;
-
-  // Persistent controller and form key for lightning address input
-  final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
-  final TextEditingController _addressController = TextEditingController();
-  final FocusNode _addressFocusNode = FocusNode();
-
   // For Coordinator Config
   CoordinatorInfo? _coordinatorInfo;
   Duration? _reservationDuration;
@@ -47,8 +36,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   @override
   void initState() {
     super.initState();
-    _hasValidatedInitialAddress = false;
-    _isValidating = false;
     // _loadCoordinatorConfig();
   }
 
@@ -89,11 +76,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _addressFocusNode.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,178 +88,31 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
     final myActiveOffer = ref.watch(activeOfferProvider);
 
+    final hasLightningAddress = lightningAddressAsync.maybeWhen(
+      data: (address) => address != null && address.isNotEmpty,
+      orElse: () => false,
+    );
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: lightningAddressAsync.when(
-        loading: () {
-          return const Center(child: CircularProgressIndicator());
-        },
-        error: (e, s) {
-          return Center(
-            child: Text(
-              t.lightningAddress.errors.loading(details: e.toString()),
-            ),
-          );
-        },
-        data: (lightningAddress) {
-          // Perform one-time validation when address is loaded
-          if (!_hasValidatedInitialAddress &&
-              lightningAddress != null &&
-              lightningAddress.isNotEmpty) {
-            _hasValidatedInitialAddress = true;
-            setState(() {
-              _isValidating = true;
-            });
-            validateLightningAddress(lightningAddress, t).then((error) {
-              if (mounted) {
-                setState(() {
-                  _validationError = error;
-                  _isValidating = false;
-                });
-              }
-            });
-          }
-
-          final hasLightningAddress =
-              lightningAddress != null && lightningAddress.isNotEmpty;
-
-          // Always show offers list
-          return Column(
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child:
-                    hasLightningAddress
-                        ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              t.lightningAddress.labels.receivingAddress,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            if (_isValidating)
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            else if (_validationError == null &&
-                                _hasValidatedInitialAddress)
-                              Tooltip(
-                                message: t.lightningAddress.feedback.valid,
-                                child: const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 14,
-                                ),
-                              )
-                            else if (_validationError != null)
-                              Tooltip(
-                                message: _validationError!,
-                                child: const Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                              ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                lightningAddress!,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.edit_outlined, size: 18),
-                              tooltip: t.lightningAddress.prompts.edit,
-                              iconSize: 18,
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(),
-                              onPressed: () async {
-                                await _showEditLightningAddressDialog(
-                                  context,
-                                  ref,
-                                  lightningAddress,
-                                  keyService,
-                                  t,
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, size: 18),
-                              tooltip: t.lightningAddress.prompts.delete,
-                              iconSize: 18,
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(),
-                              onPressed: () async {
-                                await _showDeleteLightningAddressDialog(
-                                  context,
-                                  ref,
-                                  keyService,
-                                  t,
-                                );
-                              },
-                            ),
-                          ],
-                        )
-                        : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.warning,
-                              color: Colors.orange,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                t.lightningAddress.prompts.enterToTakeOffer,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.orange,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle, size: 18),
-                              tooltip: t.lightningAddress.prompts.add,
-                              iconSize: 18,
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(),
-                              onPressed: () async {
-                                await _showEditLightningAddressDialog(
-                                  context,
-                                  ref,
-                                  null,
-                                  keyService,
-                                  t,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: LightningAddressWidget(),
               ),
-              // Notifications section
-              Column(
-                children: [
-                  Text(
-                    t.home.notifications.title,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
+              // Notifications section - only show when there are no offers
+              offersAsyncValue.maybeWhen(
+                data: (offers) => offers.isEmpty
+                    ? Column(
+                        children: [
+                          Text(
+                            t.home.notifications.title,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
                     alignment: WrapAlignment.center,
                     spacing: 16,
                     runSpacing: 8,
@@ -405,9 +240,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                            ],
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+                orElse: () => const SizedBox.shrink(),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -479,7 +317,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
 
                                               // Check if lightning address is set
                                               if (!hasLightningAddress) {
-                                                _showLightningAddressRequiredDialog(
+                                                LightningAddressWidget.showLightningAddressRequiredDialog(
                                                   context,
                                                   ref,
                                                   keyService,
@@ -728,7 +566,11 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          context.go('/offers/${offer.id}');
+                                          if (kIsWeb) {
+                                            context.go('/offers/${offer.id}');
+                                          } else {
+                                            context.push('/offers/${offer.id}');
+                                          }
                                         },
                                         child: Card(
                                           margin: const EdgeInsets.symmetric(
@@ -874,305 +716,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 ref.watch(successfulOffersStatsProvider),
               ),
             ],
-          );
-        },
-      ),
+          ),
     );
-  }
-
-  Future<void> _showEditLightningAddressDialog(
-    BuildContext context,
-    WidgetRef ref,
-    String? currentAddress,
-    dynamic keyService,
-    Translations t,
-  ) async {
-    final editController = TextEditingController(text: currentAddress);
-    final editFormKey = GlobalKey<FormState>();
-    final editFocusNode = FocusNode();
-    String? editValidationError;
-
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          editFocusNode.requestFocus();
-        });
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text(
-                currentAddress == null
-                    ? t.lightningAddress.prompts.add
-                    : t.lightningAddress.prompts.edit,
-              ),
-              content: Form(
-                key: editFormKey,
-                child: TextFormField(
-                  controller: editController,
-                  focusNode: editFocusNode,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: t.lightningAddress.labels.hint,
-                    labelText: t.lightningAddress.labels.address,
-                  ),
-                  validator: (value) {
-                    if (value == null ||
-                        value.isEmpty ||
-                        !value.contains('@')) {
-                      return t.lightningAddress.prompts.invalid;
-                    }
-                    // Return null here - async validation is handled separately
-                    return null;
-                  },
-                  onChanged: (value) async {
-                    if (value.isNotEmpty && value.contains('@')) {
-                      final error = await validateLightningAddress(value, t);
-                      setState(() {
-                        editValidationError = error;
-                      });
-                    } else {
-                      setState(() {
-                        editValidationError = null;
-                      });
-                    }
-                  },
-                  onFieldSubmitted: (value) async {
-                    print('[LN Address Dialog] onFieldSubmitted called with: $value');
-                    
-                    // First validate the form format
-                    if (!editFormKey.currentState!.validate()) {
-                      print('[LN Address Dialog] Form validation failed');
-                      return;
-                    }
-                    
-                    // Then perform async validation
-                    if (value.isNotEmpty && value.contains('@')) {
-                      print('[LN Address Dialog] Starting async validation...');
-                      try {
-                        final error = await validateLightningAddress(value, t);
-                        print('[LN Address Dialog] Validation result: ${error ?? "SUCCESS"}');
-                        if (!context.mounted) return;
-                        setState(() {
-                          editValidationError = error;
-                        });
-                        
-                        // If there's a validation error, show it and return
-                        if (error != null) {
-                          print('[LN Address Dialog] Validation failed, showing error');
-                          editFormKey.currentState!.validate();
-                          return;
-                        }
-                      } catch (e) {
-                        print('[LN Address Dialog] Validation threw exception: $e');
-                        if (!context.mounted) return;
-                        setState(() {
-                          editValidationError = t.lightningAddress.prompts.invalid;
-                        });
-                        editFormKey.currentState!.validate();
-                        return;
-                      }
-                    }
-                    
-                    // Save the address
-                    print('[LN Address Dialog] Attempting to save address...');
-                    try {
-                      await keyService.saveLightningAddress(
-                        editController.text,
-                      );
-                      print('[LN Address Dialog] Address saved successfully');
-                      if (!context.mounted) return;
-                      ref.invalidate(lightningAddressProvider);
-                      Navigator.of(context).pop(editController.text);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            currentAddress == null
-                                ? t.lightningAddress.feedback.saved
-                                : t.lightningAddress.feedback.updated,
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      print('[LN Address Dialog] Save failed: $e');
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            t.lightningAddress.errors.saving(
-                              details: e.toString(),
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(t.common.buttons.cancel),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    // First validate the form format
-                    if (!editFormKey.currentState!.validate()) {
-                      return;
-                    }
-                    
-                    // Then perform async validation
-                    final value = editController.text;
-                    if (value.isNotEmpty && value.contains('@')) {
-                      try {
-                        final error = await validateLightningAddress(value, t);
-                        if (!context.mounted) return;
-                        setState(() {
-                          editValidationError = error;
-                        });
-                        
-                        // If there's a validation error, show it and return
-                        if (error != null) {
-                          editFormKey.currentState!.validate();
-                          return;
-                        }
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        setState(() {
-                          editValidationError = t.lightningAddress.prompts.invalid;
-                        });
-                        editFormKey.currentState!.validate();
-                        return;
-                      }
-                    }
-                    
-                    // Save the address
-                    try {
-                      await keyService.saveLightningAddress(
-                        editController.text,
-                      );
-                      if (!context.mounted) return;
-                      ref.invalidate(lightningAddressProvider);
-                      Navigator.of(context).pop(editController.text);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            currentAddress == null
-                                ? t.lightningAddress.feedback.saved
-                                : t.lightningAddress.feedback.updated,
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            t.lightningAddress.errors.saving(
-                              details: e.toString(),
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text(t.common.buttons.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-    if (result != null && result != currentAddress) {
-      ref.invalidate(lightningAddressProvider);
-    }
-  }
-
-  void _showLightningAddressRequiredDialog(
-    BuildContext context,
-    WidgetRef ref,
-    dynamic keyService,
-    Translations t,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(t.lightningAddress.prompts.required),
-          content: Text(t.lightningAddress.prompts.enterToTakeOffer),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(t.common.buttons.cancel),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await _showEditLightningAddressDialog(
-                  context,
-                  ref,
-                  null,
-                  keyService,
-                  t,
-                );
-              },
-              child: Text(t.lightningAddress.prompts.add),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showDeleteLightningAddressDialog(
-    BuildContext context,
-    WidgetRef ref,
-    dynamic keyService,
-    Translations t,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(t.lightningAddress.prompts.delete),
-          content: Text(t.lightningAddress.prompts.confirmDelete),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(t.common.buttons.cancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text(t.lightningAddress.prompts.delete),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed == true) {
-      try {
-        await keyService.saveLightningAddress('');
-        ref.invalidate(lightningAddressProvider);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.lightningAddress.feedback.updated)),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                t.lightningAddress.errors.saving(details: e.toString()),
-              ),
-            ),
-          );
-        }
-      }
-    }
   }
 }
 
