@@ -368,6 +368,7 @@ class _TranslationsLightningAddressLabelsPl extends TranslationsLightningAddress
 	@override String get address => 'Adres Lightning';
 	@override String get hint => 'uzytkownik@domena.com';
 	@override String short({required Object address}) => 'Adres Lightning: ${address}';
+	@override String get receivingAddress => 'Twój adres odbiorczy:';
 }
 
 // Path: lightningAddress.prompts
@@ -381,6 +382,11 @@ class _TranslationsLightningAddressPromptsPl extends TranslationsLightningAddres
 	@override String get edit => 'Edytuj adres Lightning';
 	@override String get invalid => 'Wprowadź prawidłowy adres Lightning';
 	@override String get required => 'Adres Lightning jest wymagany.';
+	@override String get enterToTakeOffer => 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
+	@override String get missing => 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
+	@override String get add => 'Dodaj adres Lightning';
+	@override String get delete => 'Usuń adres Lightning';
+	@override String get confirmDelete => 'Czy na pewno chcesz usunąć swój adres Lightning?';
 }
 
 // Path: lightningAddress.feedback
@@ -964,8 +970,11 @@ class _TranslationsHomeNotificationsPl extends TranslationsHomeNotificationsEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get simplex => 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
-	@override String get element => 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
+	@override String get title => 'Otrzymuj powiadomienia o nowych ofertach przez:';
+	@override String get telegram => 'Telegram';
+	@override String get simplex => 'SimpleX';
+	@override String get element => 'Element';
+	@override String get signal => 'Signal';
 }
 
 // Path: home.statistics
@@ -1478,10 +1487,16 @@ extension on TranslationsPl {
 			case 'lightningAddress.labels.address': return 'Adres Lightning';
 			case 'lightningAddress.labels.hint': return 'uzytkownik@domena.com';
 			case 'lightningAddress.labels.short': return ({required Object address}) => 'Adres Lightning: ${address}';
+			case 'lightningAddress.labels.receivingAddress': return 'Twój adres odbiorczy:';
 			case 'lightningAddress.prompts.enter': return 'Wprowadź swój adres Lightning, aby kontynuować';
 			case 'lightningAddress.prompts.edit': return 'Edytuj adres Lightning';
 			case 'lightningAddress.prompts.invalid': return 'Wprowadź prawidłowy adres Lightning';
 			case 'lightningAddress.prompts.required': return 'Adres Lightning jest wymagany.';
+			case 'lightningAddress.prompts.enterToTakeOffer': return 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
+			case 'lightningAddress.prompts.missing': return 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
+			case 'lightningAddress.prompts.add': return 'Dodaj adres Lightning';
+			case 'lightningAddress.prompts.delete': return 'Usuń adres Lightning';
+			case 'lightningAddress.prompts.confirmDelete': return 'Czy na pewno chcesz usunąć swój adres Lightning?';
 			case 'lightningAddress.feedback.saved': return 'Adres Lightning zapisany!';
 			case 'lightningAddress.feedback.updated': return 'Adres Lightning zaktualizowany!';
 			case 'lightningAddress.feedback.valid': return 'Prawidłowy adres Lightning';
@@ -1722,8 +1737,11 @@ extension on TranslationsPl {
 			case 'restore.errors.failed': return 'Przywracanie nie powiodło się';
 			case 'restore.feedback.success': return 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
 			case 'restore.tooltips.restore': return 'Przywróć Neko';
-			case 'home.notifications.simplex': return 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
-			case 'home.notifications.element': return 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
+			case 'home.notifications.title': return 'Otrzymuj powiadomienia o nowych ofertach przez:';
+			case 'home.notifications.telegram': return 'Telegram';
+			case 'home.notifications.simplex': return 'SimpleX';
+			case 'home.notifications.element': return 'Element';
+			case 'home.notifications.signal': return 'Signal';
 			case 'home.statistics.title': return 'Ostatnie Transakcje';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';

@@ -607,7 +607,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   return Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 48),
-                    child: const Icon(Icons.language, color: Colors.grey),
+                    child: Image.asset(
+                      'assets/languages.png',
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
                   );
                 }).toList();
               },
@@ -672,6 +677,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           if (currentPath != '/')
             IconButton(
               icon: const Icon(Icons.home),
+              iconSize: 20,
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(),
               tooltip: t.common.buttons.goHome, // Use Slang for tooltip
               onPressed: () async {
                 // Reset relevant state providers (but keep active offer)
@@ -689,6 +697,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           // Always display FAQ icon
           IconButton(
             icon: const Icon(Icons.help_outline),
+            iconSize: 20,
+            padding: const EdgeInsets.all(8),
+            constraints: const BoxConstraints(),
             tooltip: t.faq.tooltip,
             onPressed: () {
               kIsWeb ? context.go(FaqScreen.routeName) : context.push(FaqScreen.routeName);

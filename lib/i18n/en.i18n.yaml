@@ -50,12 +50,18 @@ lightningAddress:
     address: Lightning Address
     hint: user@domain.com
     short: "Lightning Address: ${address}"
+    receivingAddress: "Your receiving address:"
   
   prompts:
     enter: Enter your Lightning address to continue
     edit: Edit Lightning address
     invalid: Enter a valid Lightning address
     required: Lightning address is required.
+    enterToTakeOffer: You must set a Lightning address to take an offer.
+    missing: Lightning address is missing. Please add one to be able to take offers.
+    add: Add Lightning Address
+    delete: Delete Lightning Address
+    confirmDelete: Are you sure you want to delete your Lightning address?
   
   feedback:
     saved: Lightning address saved!
@@ -440,8 +446,11 @@ blik:
 # =============================================================================
 home:
   notifications:
-    simplex: Get notified about new orders via SimpleX
-    element: Get notified about new orders via Element
+    title: "Get notified about new offers via:"
+    telegram: Telegram
+    simplex: SimpleX
+    element: Element
+    signal: Signal
   
   statistics:
     title: Recent Transactions

@@ -454,6 +454,9 @@ class TranslationsLightningAddressLabelsEn {
 
 	/// en: 'Lightning Address: ${address}'
 	String short({required Object address}) => 'Lightning Address: ${address}';
+
+	/// en: 'Your receiving address:'
+	String get receivingAddress => 'Your receiving address:';
 }
 
 // Path: lightningAddress.prompts
@@ -475,6 +478,21 @@ class TranslationsLightningAddressPromptsEn {
 
 	/// en: 'Lightning address is required.'
 	String get required => 'Lightning address is required.';
+
+	/// en: 'You must set a Lightning address to take an offer.'
+	String get enterToTakeOffer => 'You must set a Lightning address to take an offer.';
+
+	/// en: 'Lightning address is missing. Please add one to be able to take offers.'
+	String get missing => 'Lightning address is missing. Please add one to be able to take offers.';
+
+	/// en: 'Add Lightning Address'
+	String get add => 'Add Lightning Address';
+
+	/// en: 'Delete Lightning Address'
+	String get delete => 'Delete Lightning Address';
+
+	/// en: 'Are you sure you want to delete your Lightning address?'
+	String get confirmDelete => 'Are you sure you want to delete your Lightning address?';
 }
 
 // Path: lightningAddress.feedback
@@ -1217,11 +1235,20 @@ class TranslationsHomeNotificationsEn {
 
 	// Translations
 
-	/// en: 'Get notified about new orders via SimpleX'
-	String get simplex => 'Get notified about new orders via SimpleX';
+	/// en: 'Get notified about new offers via:'
+	String get title => 'Get notified about new offers via:';
 
-	/// en: 'Get notified about new orders via Element'
-	String get element => 'Get notified about new orders via Element';
+	/// en: 'Telegram'
+	String get telegram => 'Telegram';
+
+	/// en: 'SimpleX'
+	String get simplex => 'SimpleX';
+
+	/// en: 'Element'
+	String get element => 'Element';
+
+	/// en: 'Signal'
+	String get signal => 'Signal';
 }
 
 // Path: home.statistics
@@ -2086,10 +2113,16 @@ extension on Translations {
 			case 'lightningAddress.labels.address': return 'Lightning Address';
 			case 'lightningAddress.labels.hint': return 'user@domain.com';
 			case 'lightningAddress.labels.short': return ({required Object address}) => 'Lightning Address: ${address}';
+			case 'lightningAddress.labels.receivingAddress': return 'Your receiving address:';
 			case 'lightningAddress.prompts.enter': return 'Enter your Lightning address to continue';
 			case 'lightningAddress.prompts.edit': return 'Edit Lightning address';
 			case 'lightningAddress.prompts.invalid': return 'Enter a valid Lightning address';
 			case 'lightningAddress.prompts.required': return 'Lightning address is required.';
+			case 'lightningAddress.prompts.enterToTakeOffer': return 'You must set a Lightning address to take an offer.';
+			case 'lightningAddress.prompts.missing': return 'Lightning address is missing. Please add one to be able to take offers.';
+			case 'lightningAddress.prompts.add': return 'Add Lightning Address';
+			case 'lightningAddress.prompts.delete': return 'Delete Lightning Address';
+			case 'lightningAddress.prompts.confirmDelete': return 'Are you sure you want to delete your Lightning address?';
 			case 'lightningAddress.feedback.saved': return 'Lightning address saved!';
 			case 'lightningAddress.feedback.updated': return 'Lightning address updated!';
 			case 'lightningAddress.feedback.valid': return 'Valid Lightning address';
@@ -2310,8 +2343,11 @@ extension on Translations {
 			case 'taker.conflict.feedback.reported': return 'Conflict reported. Coordinator will review.';
 			case 'taker.conflict.errors.reporting': return ({required Object details}) => 'Error reporting conflict: ${details}';
 			case 'blik.instructions.taker': return 'Once the Maker enters the BLIK code, you will need to confirm the payment in your banking app. Ensure the amount is correct before confirming.';
-			case 'home.notifications.simplex': return 'Get notified about new orders via SimpleX';
-			case 'home.notifications.element': return 'Get notified about new orders via Element';
+			case 'home.notifications.title': return 'Get notified about new offers via:';
+			case 'home.notifications.telegram': return 'Telegram';
+			case 'home.notifications.simplex': return 'SimpleX';
+			case 'home.notifications.element': return 'Element';
+			case 'home.notifications.signal': return 'Signal';
 			case 'home.statistics.title': return 'Recent Transactions';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';

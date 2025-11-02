@@ -143,6 +143,9 @@ flutter:
     - assets/nostr.png
     - assets/apk.png
     - assets/zapstore.png
+    - assets/telegram.png
+    - assets/signal.png
+    - assets/languages.png
     - assets/faq/ # Add the new FAQ directory
 
   # An image asset can refer to one or more resolution-specific "variants", see

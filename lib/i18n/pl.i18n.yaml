@@ -50,12 +50,18 @@ lightningAddress:
     address: Adres Lightning
     hint: uzytkownik@domena.com
     short: "Adres Lightning: ${address}"
+    receivingAddress: "Twój adres odbiorczy:"
   
   prompts:
     enter: Wprowadź swój adres Lightning, aby kontynuować
     edit: Edytuj adres Lightning
     invalid: Wprowadź prawidłowy adres Lightning
     required: Adres Lightning jest wymagany.
+    enterToTakeOffer: Musisz ustawić adres Lightning, aby przyjąć ofertę.
+    missing: Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.
+    add: Dodaj adres Lightning
+    delete: Usuń adres Lightning
+    confirmDelete: Czy na pewno chcesz usunąć swój adres Lightning?
   
   feedback:
     saved: Adres Lightning zapisany!
@@ -485,8 +491,11 @@ restore:
 # =============================================================================
 home:
   notifications:
-    simplex: Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX
-    element: Otrzymuj powiadomienia o nowych zamówieniach przez Element
+    title: "Otrzymuj powiadomienia o nowych ofertach przez:"
+    telegram: Telegram
+    simplex: SimpleX
+    element: Element
+    signal: Signal
   
   statistics:
     title: Ostatnie Transakcje

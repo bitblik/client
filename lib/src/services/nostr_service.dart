@@ -213,6 +213,9 @@ class NostrService {
       ),
     );
 
+    _ndk!.connectivity.relayConnectivityChanges.listen((data) {
+      print(data);
+    });
     print(
       '🔑 Client signer initialized with pubkey: ${_keyService.publicKeyHex}',
     );
@@ -633,7 +636,7 @@ class NostrService {
     _handleResponse(response, (result) => null);
   }
 
-  /// GET /my-active-offer - This will now query all coordinators
+  /// GET /my-active-offer
   Future<Map<String, dynamic>?> getMyActiveOffer(String userPubkey, String coordinatorPubkey) async {
     if (!_isInitialized) {
       await init();
@@ -1011,9 +1014,7 @@ class NostrService {
 
     // Close existing subscription if any
     if (_offerStatusSubscription != null) {
-      await _ndk!.requests.closeSubscription(
-        _offerStatusSubscription!.requestId,
-      );
+      await stopOfferStatusSubscription();
     }
 
     final filter = Filter(
@@ -1023,17 +1024,15 @@ class NostrService {
       since: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     );
 
-    final response = _ndk!.requests.subscription(
+    _offerStatusSubscription = _ndk!.requests.subscription(
       name: "offer-status-updates",
       filters: [filter],
     );
-    _offerStatusSubscription = response;
 
-    response.stream.listen(_handleOfferStatusEvent);
+    _offerStatusSubscription!.stream.listen(_handleOfferStatusEvent);
     print('📊 Started offer status subscription for $userPubkey');
   }
 
-  /// Stop offer status subscription
   Future<void> stopOfferStatusSubscription() async {
     if (_offerStatusSubscription != null) {
       await _ndk!.requests.closeSubscription(

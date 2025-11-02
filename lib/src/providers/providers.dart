@@ -324,12 +324,6 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
   );
 });
 
-// You might add more providers here as needed for:
-// - Taker's submitted BLIK code
-// - Taker's Lightning Address
-// - Current step in the Maker/Taker flow
-// - Timers (e.g., for reservation expiry) - requires more complex state logic
-
 /// This provider manages the lifecycle of the offer status subscription.
 /// It should be initialized once in the app's lifecycle, for example in main.dart,
 /// to ensure it's always running and can react to changes in the active offer.

@@ -138,408 +138,276 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             });
           }
 
-          if (lightningAddress == null || lightningAddress.isEmpty) {
-            // Only request focus the first time after widget is mounted and input is shown
-            if (_requestedFocus && _addressFocusNode.hasFocus) {
-              // do nothing, already focused
-            } else if (!_requestedFocus) {
-              _requestedFocus = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && !_addressFocusNode.hasFocus) {
-                  _addressFocusNode.requestFocus();
-                }
-              });
-            }
+          final hasLightningAddress =
+              lightningAddress != null && lightningAddress.isNotEmpty;
 
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    t.lightningAddress.prompts.enter,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Form(
-                    key: _addressFormKey,
-                    child: TextFormField(
-                      controller: _addressController,
-                      focusNode: _addressFocusNode,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: t.lightningAddress.labels.hint,
-                        labelText: t.lightningAddress.labels.address,
-                        border: const OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return t.lightningAddress.prompts.invalid;
-                        }
-                        return _validationError;
-                      },
-                      onChanged: (value) async {
-                        if (value.isNotEmpty && value.contains('@')) {
-                          final error = await validateLightningAddress(
-                            value,
-                            t,
-                          );
-                          if (mounted) {
-                            setState(() {
-                              _validationError = error;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            _validationError = null;
-                          });
-                        }
-                      },
-                      onFieldSubmitted: (value) async {
-                        if (_addressFormKey.currentState!.validate() &&
-                            _validationError == null) {
-                          try {
-                            await keyService.saveLightningAddress(
-                              _addressController.text,
-                            );
-                            ref.invalidate(lightningAddressProvider);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.feedback.saved,
-                                ),
-                              ),
-                            );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.errors.saving(
-                                    details: e.toString(),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_addressFormKey.currentState!.validate() &&
-                          _validationError == null) {
-                        try {
-                          await keyService.saveLightningAddress(
-                            _addressController.text,
-                          );
-                          ref.invalidate(lightningAddressProvider);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(t.lightningAddress.feedback.saved),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                t.lightningAddress.errors.saving(
-                                  details: e.toString(),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: Text(t.common.buttons.saveAndContinue),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          // Lightning address exists, show offers list as before
-          _requestedFocus = false;
+          // Always show offers list
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_isValidating)
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else if (_validationError == null &&
-                        _hasValidatedInitialAddress)
-                      Tooltip(
-                        message: t.lightningAddress.feedback.valid,
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 20,
-                        ),
-                      )
-                    else if (_validationError != null)
-                      Tooltip(
-                        message: _validationError!,
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                      ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        lightningAddress,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: t.lightningAddress.prompts.edit,
-                      onPressed: () async {
-                        final editController = TextEditingController(
-                          text: lightningAddress,
-                        );
-                        final editFormKey = GlobalKey<FormState>();
-                        final editFocusNode = FocusNode();
-                        String? editValidationError;
-
-                        final result = await showDialog<String>(
-                          context: context,
-                          builder: (context) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              editFocusNode.requestFocus();
-                            });
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return AlertDialog(
-                                  title: Text(t.lightningAddress.prompts.edit),
-                                  content: Form(
-                                    key: editFormKey,
-                                    child: TextFormField(
-                                      controller: editController,
-                                      focusNode: editFocusNode,
-                                      keyboardType: TextInputType.emailAddress,
-                                      decoration: InputDecoration(
-                                        hintText:
-                                            t.lightningAddress.labels.hint,
-                                        labelText:
-                                            t.lightningAddress.labels.address,
-                                      ),
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty ||
-                                            !value.contains('@')) {
-                                          return t
-                                              .lightningAddress
-                                              .prompts
-                                              .invalid;
-                                        }
-                                        return editValidationError;
-                                      },
-                                      onChanged: (value) async {
-                                        if (value.isNotEmpty &&
-                                            value.contains('@')) {
-                                          final error =
-                                              await validateLightningAddress(
-                                                value,
-                                                t,
-                                              );
-                                          setState(() {
-                                            editValidationError = error;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            editValidationError = null;
-                                          });
-                                        }
-                                      },
-                                      onFieldSubmitted: (value) async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
-                                          try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
-                                                );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
-                                                      ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(),
-                                      child: Text(t.common.buttons.cancel),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
-                                          try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
-                                                );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
-                                                      ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                      child: Text(t.common.buttons.save),
-                                    ),
-                                  ],
+                child:
+                    hasLightningAddress
+                        ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              t.lightningAddress.labels.receivingAddress,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (_isValidating)
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            else if (_validationError == null &&
+                                _hasValidatedInitialAddress)
+                              Tooltip(
+                                message: t.lightningAddress.feedback.valid,
+                                child: const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 14,
+                                ),
+                              )
+                            else if (_validationError != null)
+                              Tooltip(
+                                message: _validationError!,
+                                child: const Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                lightningAddress!,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 18),
+                              tooltip: t.lightningAddress.prompts.edit,
+                              iconSize: 18,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                              onPressed: () async {
+                                await _showEditLightningAddressDialog(
+                                  context,
+                                  ref,
+                                  lightningAddress,
+                                  keyService,
+                                  t,
                                 );
                               },
-                            );
-                          },
-                        );
-                        if (result != null && result != lightningAddress) {
-                          ref.invalidate(lightningAddressProvider);
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, size: 18),
+                              tooltip: t.lightningAddress.prompts.delete,
+                              iconSize: 18,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                              onPressed: () async {
+                                await _showDeleteLightningAddressDialog(
+                                  context,
+                                  ref,
+                                  keyService,
+                                  t,
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                        : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.warning,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                t.lightningAddress.prompts.enterToTakeOffer,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.orange,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle, size: 18),
+                              tooltip: t.lightningAddress.prompts.add,
+                              iconSize: 18,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                              onPressed: () async {
+                                await _showEditLightningAddressDialog(
+                                  context,
+                                  ref,
+                                  null,
+                                  keyService,
+                                  t,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
               ),
-              Center(
-                child: InkWell(
-                  onTap: () async {
-                    final Uri url = Uri.parse(
-                      //'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
-                      'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2F-FjYjoPVW323UWnxJ-ICEIvlUY0vnuRM%23%2F%3Fv%3D1-4%26dh%3DMCowBQYDK2VuAyEAX-eUfNzP4E_n0BkC-5A7iqHrchhcDC23FopK4JPXm3Q%253D%26q%3Dc%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22pG-_A9dIAhbdz8ZTTpbNdQ%3D%3D%22%7D'
-                    );
-                    await launchUrl(url);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // Notifications section
+              Column(
+                children: [
+                  Text(
+                    t.home.notifications.title,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 16,
+                    runSpacing: 8,
                     children: [
-                      Image.asset('assets/simplex.png', height: 24, width: 24),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          t.home.notifications.simplex,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                          ),
+                      // Telegram
+                      InkWell(
+                        onTap: () async {
+                          final Uri url = Uri.parse(
+                            'https://t.me/+xSktv2JukXUxYmEx',
+                          );
+                          await launchUrl(url);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 23,
+                              height: 23,
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/telegram.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+                            Text(
+                              t.home.notifications.telegram,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Element
+                      InkWell(
+                        onTap: () async {
+                          final Uri url = Uri.parse(
+                            // 'https://matrix.to/#/#bitblik-offers:matrix.org',
+                            'https://matrix.to/#/#test-bitblik-offers:matrix.org',
+                          );
+                          await launchUrl(url);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 23,
+                              height: 23,
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/element.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              t.home.notifications.element,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // SimpleX
+                      InkWell(
+                        onTap: () async {
+                          final Uri url = Uri.parse(
+                            //'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
+                            'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2F-FjYjoPVW323UWnxJ-ICEIvlUY0vnuRM%23%2F%3Fv%3D1-4%26dh%3DMCowBQYDK2VuAyEAX-eUfNzP4E_n0BkC-5A7iqHrchhcDC23FopK4JPXm3Q%253D%26q%3Dc%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22pG-_A9dIAhbdz8ZTTpbNdQ%3D%3D%22%7D',
+                          );
+                          await launchUrl(url);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 23,
+                              height: 23,
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/simplex.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              t.home.notifications.simplex,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Signal
+                      InkWell(
+                        onTap: () async {
+                          final Uri url = Uri.parse(
+                            'https://signal.group/#CjQKIGcFyMrwHN1UPB57IhdkGmz23_64AhyIU5oBaZufe2hcEhCltosTHbc9ROywT0KETJbk',
+                          );
+                          await launchUrl(url);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 23,
+                              height: 23,
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/signal.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              t.home.notifications.signal,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Center(
-                child: InkWell(
-                  onTap: () async {
-                    final Uri url = Uri.parse(
-                      // 'https://matrix.to/#/#bitblik-offers:matrix.org',
-                      'https://matrix.to/#/#test-bitblik-offers:matrix.org'
-                    );
-                    await launchUrl(url);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset('assets/element.png', height: 24, width: 24),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          t.home.notifications.element,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -606,6 +474,17 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         data:
                                             (publicKey) => () {
                                               if (publicKey == null) {
+                                                return;
+                                              }
+
+                                              // Check if lightning address is set
+                                              if (!hasLightningAddress) {
+                                                _showLightningAddressRequiredDialog(
+                                                  context,
+                                                  ref,
+                                                  keyService,
+                                                  t,
+                                                );
                                                 return;
                                               }
 
@@ -1000,6 +879,249 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       ),
     );
   }
+
+  Future<void> _showEditLightningAddressDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String? currentAddress,
+    dynamic keyService,
+    Translations t,
+  ) async {
+    final editController = TextEditingController(text: currentAddress);
+    final editFormKey = GlobalKey<FormState>();
+    final editFocusNode = FocusNode();
+    String? editValidationError;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          editFocusNode.requestFocus();
+        });
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                currentAddress == null
+                    ? t.lightningAddress.prompts.add
+                    : t.lightningAddress.prompts.edit,
+              ),
+              content: Form(
+                key: editFormKey,
+                child: TextFormField(
+                  controller: editController,
+                  focusNode: editFocusNode,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: t.lightningAddress.labels.hint,
+                    labelText: t.lightningAddress.labels.address,
+                  ),
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
+                      return t.lightningAddress.prompts.invalid;
+                    }
+                    return editValidationError;
+                  },
+                  onChanged: (value) async {
+                    if (value.isNotEmpty && value.contains('@')) {
+                      final error = await validateLightningAddress(value, t);
+                      setState(() {
+                        editValidationError = error;
+                      });
+                    } else {
+                      setState(() {
+                        editValidationError = null;
+                      });
+                    }
+                  },
+                  onFieldSubmitted: (value) async {
+                    if (editFormKey.currentState!.validate() &&
+                        editValidationError == null) {
+                      try {
+                        await keyService.saveLightningAddress(
+                          editController.text,
+                        );
+                        ref.invalidate(lightningAddressProvider);
+                        Navigator.of(context).pop(editController.text);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              currentAddress == null
+                                  ? t.lightningAddress.feedback.saved
+                                  : t.lightningAddress.feedback.updated,
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              t.lightningAddress.errors.saving(
+                                details: e.toString(),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(t.common.buttons.cancel),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    // First validate the form format
+                    if (!editFormKey.currentState!.validate()) {
+                      return;
+                    }
+                    
+                    // Then perform async validation if not already done
+                    final value = editController.text;
+                    if (value.isNotEmpty && value.contains('@')) {
+                      final error = await validateLightningAddress(value, t);
+                      setState(() {
+                        editValidationError = error;
+                      });
+                    }
+                    
+                    // Check if there are any validation errors
+                    if (editValidationError != null) {
+                      editFormKey.currentState!.validate(); // Show error
+                      return;
+                    }
+                    
+                    // Save the address
+                    try {
+                      await keyService.saveLightningAddress(
+                        editController.text,
+                      );
+                      ref.invalidate(lightningAddressProvider);
+                      Navigator.of(context).pop(editController.text);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            currentAddress == null
+                                ? t.lightningAddress.feedback.saved
+                                : t.lightningAddress.feedback.updated,
+                          ),
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            t.lightningAddress.errors.saving(
+                              details: e.toString(),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(t.common.buttons.save),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (result != null && result != currentAddress) {
+      ref.invalidate(lightningAddressProvider);
+    }
+  }
+
+  void _showLightningAddressRequiredDialog(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic keyService,
+    Translations t,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.lightningAddress.prompts.required),
+          content: Text(t.lightningAddress.prompts.enterToTakeOffer),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(t.common.buttons.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _showEditLightningAddressDialog(
+                  context,
+                  ref,
+                  null,
+                  keyService,
+                  t,
+                );
+              },
+              child: Text(t.lightningAddress.prompts.add),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showDeleteLightningAddressDialog(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic keyService,
+    Translations t,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(t.lightningAddress.prompts.delete),
+          content: Text(t.lightningAddress.prompts.confirmDelete),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(t.common.buttons.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(t.lightningAddress.prompts.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      try {
+        await keyService.saveLightningAddress('');
+        ref.invalidate(lightningAddressProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.lightningAddress.feedback.updated)),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                t.lightningAddress.errors.saving(details: e.toString()),
+              ),
+            ),
+          );
+        }
+      }
+    }
+  }
 }
 
 String formatDouble(double value) {
@@ -1180,7 +1302,8 @@ Widget _buildStatsSection(
                                       Text(
                                         t.offers.details.paidAfter(
                                           duration: _formatDurationFromSeconds(
-                                            offer.totalCompletionTimeTakerSeconds,
+                                            offer
+                                                .totalCompletionTimeTakerSeconds,
                                           ),
                                         ),
                                         style: const TextStyle(fontSize: 12),
