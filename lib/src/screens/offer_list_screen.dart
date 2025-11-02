@@ -922,7 +922,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         !value.contains('@')) {
                       return t.lightningAddress.prompts.invalid;
                     }
-                    return editValidationError;
+                    // Return null here - async validation is handled separately
+                    return null;
                   },
                   onChanged: (value) async {
                     if (value.isNotEmpty && value.contains('@')) {
@@ -937,34 +938,73 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     }
                   },
                   onFieldSubmitted: (value) async {
-                    if (editFormKey.currentState!.validate() &&
-                        editValidationError == null) {
+                    print('[LN Address Dialog] onFieldSubmitted called with: $value');
+                    
+                    // First validate the form format
+                    if (!editFormKey.currentState!.validate()) {
+                      print('[LN Address Dialog] Form validation failed');
+                      return;
+                    }
+                    
+                    // Then perform async validation
+                    if (value.isNotEmpty && value.contains('@')) {
+                      print('[LN Address Dialog] Starting async validation...');
                       try {
-                        await keyService.saveLightningAddress(
-                          editController.text,
-                        );
-                        ref.invalidate(lightningAddressProvider);
-                        Navigator.of(context).pop(editController.text);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              currentAddress == null
-                                  ? t.lightningAddress.feedback.saved
-                                  : t.lightningAddress.feedback.updated,
-                            ),
-                          ),
-                        );
+                        final error = await validateLightningAddress(value, t);
+                        print('[LN Address Dialog] Validation result: ${error ?? "SUCCESS"}');
+                        if (!context.mounted) return;
+                        setState(() {
+                          editValidationError = error;
+                        });
+                        
+                        // If there's a validation error, show it and return
+                        if (error != null) {
+                          print('[LN Address Dialog] Validation failed, showing error');
+                          editFormKey.currentState!.validate();
+                          return;
+                        }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              t.lightningAddress.errors.saving(
-                                details: e.toString(),
-                              ),
+                        print('[LN Address Dialog] Validation threw exception: $e');
+                        if (!context.mounted) return;
+                        setState(() {
+                          editValidationError = t.lightningAddress.prompts.invalid;
+                        });
+                        editFormKey.currentState!.validate();
+                        return;
+                      }
+                    }
+                    
+                    // Save the address
+                    print('[LN Address Dialog] Attempting to save address...');
+                    try {
+                      await keyService.saveLightningAddress(
+                        editController.text,
+                      );
+                      print('[LN Address Dialog] Address saved successfully');
+                      if (!context.mounted) return;
+                      ref.invalidate(lightningAddressProvider);
+                      Navigator.of(context).pop(editController.text);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            currentAddress == null
+                                ? t.lightningAddress.feedback.saved
+                                : t.lightningAddress.feedback.updated,
+                          ),
+                        ),
+                      );
+                    } catch (e) {
+                      print('[LN Address Dialog] Save failed: $e');
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            t.lightningAddress.errors.saving(
+                              details: e.toString(),
                             ),
                           ),
-                        );
-                      }
+                        ),
+                      );
                     }
                   },
                 ),
@@ -981,19 +1021,29 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       return;
                     }
                     
-                    // Then perform async validation if not already done
+                    // Then perform async validation
                     final value = editController.text;
                     if (value.isNotEmpty && value.contains('@')) {
-                      final error = await validateLightningAddress(value, t);
-                      setState(() {
-                        editValidationError = error;
-                      });
-                    }
-                    
-                    // Check if there are any validation errors
-                    if (editValidationError != null) {
-                      editFormKey.currentState!.validate(); // Show error
-                      return;
+                      try {
+                        final error = await validateLightningAddress(value, t);
+                        if (!context.mounted) return;
+                        setState(() {
+                          editValidationError = error;
+                        });
+                        
+                        // If there's a validation error, show it and return
+                        if (error != null) {
+                          editFormKey.currentState!.validate();
+                          return;
+                        }
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        setState(() {
+                          editValidationError = t.lightningAddress.prompts.invalid;
+                        });
+                        editFormKey.currentState!.validate();
+                        return;
+                      }
                     }
                     
                     // Save the address
@@ -1001,6 +1051,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                       await keyService.saveLightningAddress(
                         editController.text,
                       );
+                      if (!context.mounted) return;
                       ref.invalidate(lightningAddressProvider);
                       Navigator.of(context).pop(editController.text);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1013,6 +1064,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         ),
                       );
                     } catch (e) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
