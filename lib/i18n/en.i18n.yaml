@@ -431,6 +431,7 @@ taker:
     
     actions:
       retry: I DID NOT PAY, reserve offer again and send new BLIK code
+      cancelReservation: I DID NOT PAY, cancel the reservation
       reportConflict: I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!
       returnHome: Return to home
     

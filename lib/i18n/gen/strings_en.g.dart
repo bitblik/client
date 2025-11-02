@@ -2046,6 +2046,9 @@ class TranslationsTakerInvalidBlikActionsEn {
 	/// en: 'I DID NOT PAY, reserve offer again and send new BLIK code'
 	String get retry => 'I DID NOT PAY, reserve offer again and send new BLIK code';
 
+	/// en: 'I DID NOT PAY, cancel the reservation'
+	String get cancelReservation => 'I DID NOT PAY, cancel the reservation';
+
 	/// en: 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!'
 	String get reportConflict => 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!';
 
@@ -2414,6 +2417,7 @@ extension on Translations {
 			case 'taker.invalidBlik.message': return 'Maker Rejected BLIK Code';
 			case 'taker.invalidBlik.explanation': return 'The offer maker indicated that the BLIK code you provided was invalid or didn\'t work. What would you like to do?';
 			case 'taker.invalidBlik.actions.retry': return 'I DID NOT PAY, reserve offer again and send new BLIK code';
+			case 'taker.invalidBlik.actions.cancelReservation': return 'I DID NOT PAY, cancel the reservation';
 			case 'taker.invalidBlik.actions.reportConflict': return 'I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!';
 			case 'taker.invalidBlik.actions.returnHome': return 'Return to home';
 			case 'taker.invalidBlik.feedback.conflictReportedSuccess': return 'Conflict reported. Coordinator will review.';

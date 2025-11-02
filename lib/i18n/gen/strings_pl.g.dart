@@ -1398,7 +1398,8 @@ class _TranslationsTakerInvalidBlikActionsPl extends TranslationsTakerInvalidBli
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get retry => 'NIE ZAPŁACIŁEM, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+	@override String get retry => 'NIE zapłaciłem, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+	@override String get cancelReservation => 'NIE zapłaciłem, anuluj rezerwację';
 	@override String get reportConflict => 'POTWIERDZIŁEM KOD BLIK I ZOSTAŁ OBCIĄŻONY Z MOJEGO KONTA BANKOWEGO, Zgłoś konflikt, spowoduje to SPÓR!';
 	@override String get returnHome => 'Wróć do strony głównej';
 }
@@ -1745,7 +1746,8 @@ extension on TranslationsPl {
 			case 'taker.invalidBlik.title': return 'Nieprawidłowy Kod BLIK';
 			case 'taker.invalidBlik.message': return 'Maker Odrzucił Kod BLIK';
 			case 'taker.invalidBlik.explanation': return 'Maker oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?';
-			case 'taker.invalidBlik.actions.retry': return 'NIE ZAPŁACIŁEM, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+			case 'taker.invalidBlik.actions.retry': return 'NIE zapłaciłem, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+			case 'taker.invalidBlik.actions.cancelReservation': return 'NIE zapłaciłem, anuluj rezerwację';
 			case 'taker.invalidBlik.actions.reportConflict': return 'POTWIERDZIŁEM KOD BLIK I ZOSTAŁ OBCIĄŻONY Z MOJEGO KONTA BANKOWEGO, Zgłoś konflikt, spowoduje to SPÓR!';
 			case 'taker.invalidBlik.actions.returnHome': return 'Wróć do strony głównej';
 			case 'taker.invalidBlik.feedback.conflictReportedSuccess': return 'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';

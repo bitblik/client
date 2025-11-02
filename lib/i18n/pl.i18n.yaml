@@ -430,7 +430,8 @@ taker:
     explanation: Maker oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?
     
     actions:
-      retry: NIE ZAPŁACIŁEM, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK
+      retry: NIE zapłaciłem, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK
+      cancelReservation: NIE zapłaciłem, anuluj rezerwację
       reportConflict: POTWIERDZIŁEM KOD BLIK I ZOSTAŁ OBCIĄŻONY Z MOJEGO KONTA BANKOWEGO, Zgłoś konflikt, spowoduje to SPÓR!
       returnHome: Wróć do strony głównej
     
