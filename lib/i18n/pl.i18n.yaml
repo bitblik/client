@@ -107,7 +107,7 @@ offers:
   actions:
     take: WEŹ
     takeOffer: Weź ofertę
-    resume: WZNÓW
+    resume: Wprowadź BLIK
     cancel: Anuluj ofertę
   
   status:

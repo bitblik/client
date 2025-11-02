@@ -107,7 +107,7 @@ offers:
   actions:
     take: TAKE
     takeOffer: Take Offer
-    resume: RESUME
+    resume: ENTER BLIK
     cancel: Cancel offer
   
   status:

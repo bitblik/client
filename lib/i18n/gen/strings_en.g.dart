@@ -626,8 +626,8 @@ class TranslationsOffersActionsEn {
 	/// en: 'Take Offer'
 	String get takeOffer => 'Take Offer';
 
-	/// en: 'RESUME'
-	String get resume => 'RESUME';
+	/// en: 'ENTER BLIK'
+	String get resume => 'ENTER BLIK';
 
 	/// en: 'Cancel offer'
 	String get cancel => 'Cancel offer';
@@ -2218,7 +2218,7 @@ extension on Translations {
 			case 'offers.details.coordinator': return 'Coordinator';
 			case 'offers.actions.take': return 'TAKE';
 			case 'offers.actions.takeOffer': return 'Take Offer';
-			case 'offers.actions.resume': return 'RESUME';
+			case 'offers.actions.resume': return 'ENTER BLIK';
 			case 'offers.actions.cancel': return 'Cancel offer';
 			case 'offers.status.created': return 'Created';
 			case 'offers.status.funded': return 'Funded';

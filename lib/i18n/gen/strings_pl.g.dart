@@ -455,7 +455,7 @@ class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 	// Translations
 	@override String get take => 'WEŹ';
 	@override String get takeOffer => 'Weź ofertę';
-	@override String get resume => 'WZNÓW';
+	@override String get resume => 'Wprowadź BLIK';
 	@override String get cancel => 'Anuluj ofertę';
 }
 
@@ -1550,7 +1550,7 @@ extension on TranslationsPl {
 			case 'offers.details.coordinator': return 'Koordynator';
 			case 'offers.actions.take': return 'WEŹ';
 			case 'offers.actions.takeOffer': return 'Weź ofertę';
-			case 'offers.actions.resume': return 'WZNÓW';
+			case 'offers.actions.resume': return 'Wprowadź BLIK';
 			case 'offers.actions.cancel': return 'Anuluj ofertę';
 			case 'offers.status.created': return 'Utworzona';
 			case 'offers.status.funded': return 'Sfinansowana';
