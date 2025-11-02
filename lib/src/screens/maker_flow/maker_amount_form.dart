@@ -17,7 +17,6 @@ class MakerAmountForm extends ConsumerStatefulWidget {
   @override
   ConsumerState<MakerAmountForm> createState() => _MakerAmountFormState();
 }
-
 class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
   final _fiatController = TextEditingController();
   final _amountFocusNode = FocusNode(); // Add FocusNode for amount input
@@ -32,6 +31,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
   String? _selectedCoordinatorPubkey; // Remember selected coordinator pubkey
   CoordinatorInfo? _selectedCoordinatorInfo;
+  bool _termsAccepted = false; // Track if terms of usage are accepted
 
   @override
   void initState() {
@@ -284,8 +284,14 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                             _selectedCoordinatorInfo!.reservationSeconds,
                         lastSeen:
                             DateTime.now(), // NOTE: could track lastSeen if important
+                        termsOfUsageNaddr: _selectedCoordinatorInfo!.termsOfUsageNaddr,
                       )
                       : null,
+              onTermsAcceptedChanged: (accepted) {
+                setState(() {
+                  _termsAccepted = accepted;
+                });
+              },
               onCoordinatorSelected: (coordinator) async {
                 setState(() {
                   _selectedCoordinatorPubkey = coordinator.pubkey;
@@ -350,7 +356,9 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                           publicKeyAsyncValue.isLoading ||
                           _amountErrorText != null ||
                           _fiatController.text.isEmpty ||
-                          _rate == null
+                          _rate == null ||
+                          (_selectedCoordinatorInfo?.termsOfUsageNaddr != null &&
+                              !_termsAccepted)
                       ? null
                       : () {
                         _initiateOffer();

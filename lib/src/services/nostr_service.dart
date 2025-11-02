@@ -61,6 +61,7 @@ class DiscoveredCoordinator {
   final String version;
   final DateTime lastSeen;
   bool? responsive;
+  final String? termsOfUsageNaddr;
 
   DiscoveredCoordinator({
     required this.pubkey,
@@ -75,6 +76,7 @@ class DiscoveredCoordinator {
     required this.version,
     required this.lastSeen,
     this.responsive,
+    this.termsOfUsageNaddr,
   });
 
   factory DiscoveredCoordinator.fromNostrEvent(Nip01Event event) {
@@ -101,6 +103,7 @@ class DiscoveredCoordinator {
       version: tags['version'] ?? '',
       lastSeen: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
       responsive: null,
+      termsOfUsageNaddr: tags['terms_of_usage_naddr'],
     );
   }
 
@@ -115,8 +118,8 @@ class DiscoveredCoordinator {
       reservationSeconds: reservationSeconds,
       currencies: currencies,
       nostrNpub: Nip19.encodePubKey(pubkey),
-      // Use the pubkey as nostrNpub
       version: version,
+      termsOfUsageNaddr: termsOfUsageNaddr,
     );
   }
 }

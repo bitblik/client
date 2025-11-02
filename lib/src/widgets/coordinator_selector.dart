@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ndk/shared/nips/nip19/nip19.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../i18n/gen/strings.g.dart';
 import '../providers/providers.dart';
 import '../services/nostr_service.dart';
 
-class CoordinatorSelector extends ConsumerWidget {
+class CoordinatorSelector extends ConsumerStatefulWidget {
   final DiscoveredCoordinator? selectedCoordinator;
   final Function(DiscoveredCoordinator)? onCoordinatorSelected;
   final bool showInfoOnly;
   final double? fiatExchangeRate;
+  final Function(bool)? onTermsAcceptedChanged;
 
   const CoordinatorSelector({
     super.key,
@@ -18,7 +20,68 @@ class CoordinatorSelector extends ConsumerWidget {
     this.onCoordinatorSelected,
     this.showInfoOnly = false,
     this.fiatExchangeRate,
+    this.onTermsAcceptedChanged,
   });
+
+  @override
+  ConsumerState<CoordinatorSelector> createState() => _CoordinatorSelectorState();
+}
+
+class _CoordinatorSelectorState extends ConsumerState<CoordinatorSelector> {
+  bool _termsAccepted = false;
+  bool _isLoadingTerms = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTermsAcceptance();
+  }
+
+  Future<void> _loadTermsAcceptance() async {
+    if (widget.selectedCoordinator?.termsOfUsageNaddr == null) {
+      setState(() {
+        _termsAccepted = false;
+        _isLoadingTerms = false;
+      });
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'terms_accepted_${widget.selectedCoordinator!.pubkey}';
+    final accepted = prefs.getBool(key) ?? false;
+
+    setState(() {
+      _termsAccepted = accepted;
+      _isLoadingTerms = false;
+    });
+    widget.onTermsAcceptedChanged?.call(accepted);
+  }
+
+  Future<void> _saveTermsAcceptance(bool accepted) async {
+    if (widget.selectedCoordinator?.termsOfUsageNaddr == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'terms_accepted_${widget.selectedCoordinator!.pubkey}';
+    await prefs.setBool(key, accepted);
+
+    setState(() {
+      _termsAccepted = accepted;
+    });
+    widget.onTermsAcceptedChanged?.call(accepted);
+  }
+
+  Future<void> _openTermsOfUsage(String naddr) async {
+    final url = 'https://njump.me/$naddr';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  void didUpdateWidget(CoordinatorSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedCoordinator?.pubkey != widget.selectedCoordinator?.pubkey) {
+      _loadTermsAcceptance();
+    }
+  }
 
   Widget _buildInfoChip(BuildContext context, IconData icon, String text, {Color? iconColor, Color? textColor}) {
     return Row(
@@ -31,7 +94,8 @@ class CoordinatorSelector extends ConsumerWidget {
     );
   }
 
-  Future<void> _showCoordinatorPicker(BuildContext context, WidgetRef ref) async {
+  Future<void> _showCoordinatorPicker(BuildContext context) async {
+    final t = Translations.of(context);
     final coordinatorsAsync = ref.read(discoveredCoordinatorsProvider);
     if (coordinatorsAsync is AsyncData<List<DiscoveredCoordinator>>) {
       final coordinators = coordinatorsAsync.value;
@@ -43,8 +107,7 @@ class CoordinatorSelector extends ConsumerWidget {
               shrinkWrap: true,
               children:
                   coordinators.map((coordinator) {
-                    final isUnresponsive = coordinator.responsive == false;
-                    final rate = fiatExchangeRate ?? 1.0;
+                    final rate = widget.fiatExchangeRate ?? 1.0;
                     final minPln = (coordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
                     final maxPln = (coordinator.maxAmountSats / 100000000.0 * rate).floor().toString();
                     final feePct = coordinator.makerFee.toStringAsFixed(2);
@@ -77,33 +140,33 @@ class CoordinatorSelector extends ConsumerWidget {
                                   child: Icon(Icons.check_circle, color: Colors.green, size: 18),
                                 ),
                               if (coordinator.responsive == false)
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 4.0),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4.0),
                                   child: Tooltip(
-                                    message: 'This coordinator is unresponsive',
+                                    message: t.coordinator.selector.unresponsive,
                                     preferBelow: false,
-                                    child: Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+                                    child: const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
                                   ),
                                 ),
                               if (coordinator.responsive == null)
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 4.0),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4.0),
                                   child: Tooltip(
-                                    message: 'Waiting for coordinator response',
+                                    message: t.coordinator.selector.waitingResponse,
                                     preferBelow: false,
-                                    child: Icon(Icons.help_outline, color: Colors.amber, size: 18),
+                                    child: const Icon(Icons.help_outline, color: Colors.amber, size: 18),
                                   ),
                                 ),
                               const Spacer(),
                               IconButton(
                                 icon: Image.asset('assets/nostr.png', width: 32, height: 32),
-                                tooltip: 'View Nostr profile',
+                                tooltip: t.coordinator.selector.viewNostrProfile,
                                 onPressed: () async {
                                   final url = 'https://njump.me/${Nip19.encodePubKey(coordinator.pubkey)}';
                                   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
                                 },
                               ),
-                              if (selectedCoordinator?.pubkey == coordinator.pubkey)
+                              if (widget.selectedCoordinator?.pubkey == coordinator.pubkey)
                                 Icon(Icons.check, color: Theme.of(context).primaryColor),
                             ],
                           ),
@@ -141,7 +204,7 @@ class CoordinatorSelector extends ConsumerWidget {
                               ? null
                               : () {
                                 Navigator.of(context).pop();
-                                onCoordinatorSelected?.call(coordinator);
+                                widget.onCoordinatorSelected?.call(coordinator);
                               },
                       tileColor:
                           (coordinator.responsive == false || coordinator.responsive == null)
@@ -157,9 +220,10 @@ class CoordinatorSelector extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
-    final selectedCoordinator = this.selectedCoordinator;
+    final selectedCoordinator = widget.selectedCoordinator;
 
     // Handle loading state
     if (coordinatorsAsync is AsyncLoading) {
@@ -170,7 +234,7 @@ class CoordinatorSelector extends ConsumerWidget {
             height: 20,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          label: Text('Loading Coordinators...'),
+          label: Text(t.coordinator.selector.loading),
           onPressed: null, // Disabled while loading
         ),
       );
@@ -181,8 +245,8 @@ class CoordinatorSelector extends ConsumerWidget {
       return Center(
         child: ElevatedButton.icon(
           icon: const Icon(Icons.error_outline),
-          label: Text('Error Loading Coordinators'),
-          onPressed: () => _showCoordinatorPicker(context, ref),
+          label: Text(t.coordinator.selector.errorLoading),
+          onPressed: () => _showCoordinatorPicker(context),
         ),
       );
     }
@@ -209,11 +273,11 @@ class CoordinatorSelector extends ConsumerWidget {
       }
 
       // Auto-select the first responsive coordinator if none is selected
-      if (selectedCoordinator == null && firstResponsiveCoordinator != null && onCoordinatorSelected != null) {
+      if (selectedCoordinator == null && firstResponsiveCoordinator != null && widget.onCoordinatorSelected != null) {
         print('🔍 CoordinatorSelector: Auto-selecting ${firstResponsiveCoordinator.name}');
         // Use WidgetsBinding to call the callback after the current build is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          onCoordinatorSelected!(firstResponsiveCoordinator);
+          widget.onCoordinatorSelected!(firstResponsiveCoordinator);
         });
       }
 
@@ -223,13 +287,13 @@ class CoordinatorSelector extends ConsumerWidget {
 
       if (displayCoordinator != null) {
         // Compose details for min/max PLN and maker fee
-        final rate = fiatExchangeRate ?? 1.0;
+        final rate = widget.fiatExchangeRate ?? 1.0;
         final minPln = (displayCoordinator.minAmountSats / 100000000.0 * rate).toStringAsFixed(2);
         final maxPln = (displayCoordinator.maxAmountSats / 100000000.0 * rate).floor().toString();
         final feePct = displayCoordinator.makerFee.toStringAsFixed(2);
         final t = Translations.of(context);
         return GestureDetector(
-          onTap: () => _showCoordinatorPicker(context, ref),
+          onTap: () => _showCoordinatorPicker(context),
           child: Card(
             elevation: 2,
             child: Padding(
@@ -292,6 +356,67 @@ class CoordinatorSelector extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  // Terms of Usage checkbox
+                  if (displayCoordinator.termsOfUsageNaddr != null && !widget.showInfoOnly) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        if (_isLoadingTerms)
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          Checkbox(
+                            value: _termsAccepted,
+                            onChanged: (bool? value) {
+                              _saveTermsAcceptance(value ?? false);
+                            },
+                          ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _openTermsOfUsage(
+                              displayCoordinator.termsOfUsageNaddr!,
+                            ),
+                            child: RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: t.coordinator.selector.termsAccept,
+                                  ),
+                                  TextSpan(
+                                    mouseCursor: SystemMouseCursors.click,
+                                    text: t.coordinator.selector.termsOfUsage,
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // IconButton(
+                        //   icon: const Icon(
+                        //     Icons.open_in_new,
+                        //     size: 18,
+                        //     color: Colors.blue,
+                        //   ),
+                        //   onPressed: () => _openTermsOfUsage(
+                        //     displayCoordinator.termsOfUsageNaddr!,
+                        //   ),
+                        //   padding: EdgeInsets.zero,
+                        //   constraints: const BoxConstraints(),
+                        // ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -304,8 +429,8 @@ class CoordinatorSelector extends ConsumerWidget {
     return Center(
       child: ElevatedButton.icon(
         icon: const Icon(Icons.hub),
-        label: Text('Choose Coordinator'),
-        onPressed: () => _showCoordinatorPicker(context, ref),
+        label: Text(t.coordinator.selector.choose),
+          onPressed: () => _showCoordinatorPicker(context),
       ),
     );
   }

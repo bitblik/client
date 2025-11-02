@@ -143,6 +143,7 @@ class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
 
 	// Translations
 	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
+	@override late final _TranslationsCoordinatorSelectorPl selector = _TranslationsCoordinatorSelectorPl._(_root);
 }
 
 // Path: maker
@@ -617,6 +618,23 @@ class _TranslationsCoordinatorInfoPl extends TranslationsCoordinatorInfoEn {
 	@override String get fee => 'opłata';
 	@override String rangeDisplay({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
 	@override String feeDisplay({required Object fee}) => '${fee}% opłata';
+}
+
+// Path: coordinator.selector
+class _TranslationsCoordinatorSelectorPl extends TranslationsCoordinatorSelectorEn {
+	_TranslationsCoordinatorSelectorPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get loading => 'Ładowanie koordynatorów...';
+	@override String get errorLoading => 'Błąd ładowania koordynatorów';
+	@override String get choose => 'Wybierz koordynatora';
+	@override String get viewNostrProfile => 'Zobacz profil Nostr';
+	@override String get unresponsive => 'Ten koordynator nie odpowiada';
+	@override String get waitingResponse => 'Oczekiwanie na odpowiedź koordynatora';
+	@override String get termsAccept => 'Akceptuję ';
+	@override String get termsOfUsage => 'Warunki użytkowania';
 }
 
 // Path: maker.roleSelection
@@ -1614,6 +1632,14 @@ extension on TranslationsPl {
 			case 'coordinator.info.fee': return 'opłata';
 			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
 			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% opłata';
+			case 'coordinator.selector.loading': return 'Ładowanie koordynatorów...';
+			case 'coordinator.selector.errorLoading': return 'Błąd ładowania koordynatorów';
+			case 'coordinator.selector.choose': return 'Wybierz koordynatora';
+			case 'coordinator.selector.viewNostrProfile': return 'Zobacz profil Nostr';
+			case 'coordinator.selector.unresponsive': return 'Ten koordynator nie odpowiada';
+			case 'coordinator.selector.waitingResponse': return 'Oczekiwanie na odpowiedź koordynatora';
+			case 'coordinator.selector.termsAccept': return 'Akceptuję ';
+			case 'coordinator.selector.termsOfUsage': return 'Warunki użytkowania';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';

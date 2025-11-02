@@ -204,6 +204,16 @@ coordinator:
     fee: "fee"
     rangeDisplay: "Amount: ${minAmount}-${maxAmount} ${currency}"
     feeDisplay: "${fee}% fee"
+  
+  selector:
+    loading: "Loading Coordinators..."
+    errorLoading: "Error Loading Coordinators"
+    choose: "Choose Coordinator"
+    viewNostrProfile: "View Nostr profile"
+    unresponsive: "This coordinator is unresponsive"
+    waitingResponse: "Waiting for coordinator response"
+    termsAccept: "I accept the "
+    termsOfUsage: "Terms of Usage"
 
 # =============================================================================
 # MAKER FLOW

@@ -204,6 +204,16 @@ coordinator:
     fee: opłata
     rangeDisplay: "Kwota: ${minAmount}-${maxAmount} ${currency}"
     feeDisplay: "${fee}% opłata"
+  
+  selector:
+    loading: "Ładowanie koordynatorów..."
+    errorLoading: "Błąd ładowania koordynatorów"
+    choose: "Wybierz koordynatora"
+    viewNostrProfile: "Zobacz profil Nostr"
+    unresponsive: "Ten koordynator nie odpowiada"
+    waitingResponse: "Oczekiwanie na odpowiedź koordynatora"
+    termsAccept: "Akceptuję "
+    termsOfUsage: "Warunki użytkowania"
 
 # =============================================================================
 # MAKER FLOW

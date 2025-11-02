@@ -655,6 +655,46 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                     coordInfo.currencies.join(', '),
                   ),
 
+                  // Terms of Usage link
+                  if (coordInfo.termsOfUsageNaddr != null) ...[
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () => _openTermsOfUsage(coordInfo.termsOfUsageNaddr!),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Terms of Usage',
+                            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          ),
+                          const SizedBox(width: 16),
+                          Flexible(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'View Terms',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.open_in_new,
+                                  size: 14,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   // Nostr profile button
                   if (coordInfo.nostrNpub != null) ...[
                     const SizedBox(height: 24),
@@ -804,6 +844,13 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
   void _openNostrProfile(String npub) async {
     // Use njump.me as a Nostr profile viewer (npub is already encoded in CoordinatorInfo)
     final url = 'https://njump.me/$npub';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  /// Opens the terms of usage (naddr) in a browser
+  void _openTermsOfUsage(String naddr) async {
+    // Use njump.me to view the naddr event
+    final url = 'https://njump.me/$naddr';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 }

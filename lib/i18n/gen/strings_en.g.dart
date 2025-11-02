@@ -148,6 +148,7 @@ class TranslationsCoordinatorEn {
 
 	// Translations
 	late final TranslationsCoordinatorInfoEn info = TranslationsCoordinatorInfoEn.internal(_root);
+	late final TranslationsCoordinatorSelectorEn selector = TranslationsCoordinatorSelectorEn.internal(_root);
 }
 
 // Path: maker
@@ -913,6 +914,39 @@ class TranslationsCoordinatorInfoEn {
 
 	/// en: '${fee}% fee'
 	String feeDisplay({required Object fee}) => '${fee}% fee';
+}
+
+// Path: coordinator.selector
+class TranslationsCoordinatorSelectorEn {
+	TranslationsCoordinatorSelectorEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Loading Coordinators...'
+	String get loading => 'Loading Coordinators...';
+
+	/// en: 'Error Loading Coordinators'
+	String get errorLoading => 'Error Loading Coordinators';
+
+	/// en: 'Choose Coordinator'
+	String get choose => 'Choose Coordinator';
+
+	/// en: 'View Nostr profile'
+	String get viewNostrProfile => 'View Nostr profile';
+
+	/// en: 'This coordinator is unresponsive'
+	String get unresponsive => 'This coordinator is unresponsive';
+
+	/// en: 'Waiting for coordinator response'
+	String get waitingResponse => 'Waiting for coordinator response';
+
+	/// en: 'I accept the '
+	String get termsAccept => 'I accept the ';
+
+	/// en: 'Terms of Usage'
+	String get termsOfUsage => 'Terms of Usage';
 }
 
 // Path: maker.roleSelection
@@ -2284,6 +2318,14 @@ extension on Translations {
 			case 'coordinator.info.fee': return 'fee';
 			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Amount: ${minAmount}-${maxAmount} ${currency}';
 			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% fee';
+			case 'coordinator.selector.loading': return 'Loading Coordinators...';
+			case 'coordinator.selector.errorLoading': return 'Error Loading Coordinators';
+			case 'coordinator.selector.choose': return 'Choose Coordinator';
+			case 'coordinator.selector.viewNostrProfile': return 'View Nostr profile';
+			case 'coordinator.selector.unresponsive': return 'This coordinator is unresponsive';
+			case 'coordinator.selector.waitingResponse': return 'Waiting for coordinator response';
+			case 'coordinator.selector.termsAccept': return 'I accept the ';
+			case 'coordinator.selector.termsOfUsage': return 'Terms of Usage';
 			case 'maker.roleSelection.button': return 'PAY with Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';
