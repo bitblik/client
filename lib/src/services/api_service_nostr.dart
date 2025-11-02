@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
+import 'package:ndk/ndk.dart';
 
 import '../models/coordinator_info.dart';
 import '../models/offer.dart';
@@ -428,6 +429,9 @@ class ApiServiceNostr {
 
   /// Get current relay URLs
   List<String> get relayUrls => _nostrService.relayUrls;
+
+  /// Get NDK instance (for connectivity management)
+  Ndk? get ndk => _nostrService.ndk;
 
   Stream<Offer> get offersStream => _nostrService.offersStream;
 

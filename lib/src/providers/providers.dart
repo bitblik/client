@@ -1,5 +1,6 @@
 import 'dart:async'; // For Stream.periodic
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/coordinator_info.dart';
@@ -48,10 +49,12 @@ class DiscoveredCoordinatorsNotifier
   }
 
   void _startPeriodicRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 600), (timer) async {
       try {
         // Use initialized API service for periodic refresh
-        final apiService = await _ref.read(initializedApiServiceProvider.future);
+        final apiService = await _ref.read(
+          initializedApiServiceProvider.future,
+        );
         await apiService.startCoordinatorDiscovery();
         await _loadCoordinators();
       } catch (e) {
@@ -72,7 +75,9 @@ class DiscoveredCoordinatorsNotifier
       final apiService = await _ref.read(initializedApiServiceProvider.future);
       final coordinators = apiService.discoveredCoordinators;
 
-      print('🔍 Provider: Loading ${coordinators.length} coordinators for health check');
+      print(
+        '🔍 Provider: Loading ${coordinators.length} coordinators for health check',
+      );
 
       // Don't set the state immediately - wait for health checks to complete
 
@@ -80,12 +85,16 @@ class DiscoveredCoordinatorsNotifier
       final healthCheckFutures = <Future<void>>[];
       for (final coordinator in coordinators) {
         print('🔍 Provider: Starting health check for ${coordinator.name}');
-        healthCheckFutures.add(apiService.checkCoordinatorHealth(coordinator.pubkey));
+        healthCheckFutures.add(
+          apiService.checkCoordinatorHealth(coordinator.pubkey),
+        );
       }
 
       // Wait for all health checks to complete (with timeout)
       try {
-        await Future.wait(healthCheckFutures).timeout(const Duration(seconds: 20));
+        await Future.wait(
+          healthCheckFutures,
+        ).timeout(const Duration(seconds: 20));
         print('🔍 Provider: All health checks completed');
       } catch (e) {
         print('Some health checks timed out or failed: $e');
@@ -94,7 +103,9 @@ class DiscoveredCoordinatorsNotifier
 
       // Now get the updated list with health check results and set the state
       final updatedCoordinators = apiService.discoveredCoordinators;
-      print('🔍 Provider: Final coordinator list (${updatedCoordinators.length}):');
+      print(
+        '🔍 Provider: Final coordinator list (${updatedCoordinators.length}):',
+      );
       for (final coordinator in updatedCoordinators) {
         print('  - ${coordinator.name}: responsive=${coordinator.responsive}');
       }
@@ -109,11 +120,15 @@ class DiscoveredCoordinatorsNotifier
   Future<void> _startDiscovery() async {
     try {
       state = const AsyncValue.loading();
-      print('🔍 Provider: Starting coordinator discovery, waiting for API service initialization...');
+      print(
+        '🔍 Provider: Starting coordinator discovery, waiting for API service initialization...',
+      );
 
       // Wait for API service to be fully initialized (this ensures KeyService is ready)
       final apiService = await _ref.read(initializedApiServiceProvider.future);
-      print('🔍 Provider: API service initialized, starting coordinator discovery...');
+      print(
+        '🔍 Provider: API service initialized, starting coordinator discovery...',
+      );
 
       await apiService.startCoordinatorDiscovery();
 
@@ -129,19 +144,21 @@ class DiscoveredCoordinatorsNotifier
 
 /// Enhanced provider for coordinator info by pubkey that ensures discovery is triggered
 /// and coordinator info is available as fast as possible.
-/// 
+///
 /// This provider:
 /// 1. First checks the cache for immediate access to coordinator info
 /// 2. Ensures coordinator discovery is running by watching discoveredCoordinatorsProvider
 /// 3. Handles loading, error, and success states properly
 /// 4. Provides fallback mechanisms if coordinator is not found after discovery
-final coordinatorInfoByPubkeyProvider =
-AsyncNotifierProvider.family<CoordinatorInfoNotifier, CoordinatorInfo?, String>(
-  CoordinatorInfoNotifier.new,
-    );
+final coordinatorInfoByPubkeyProvider = AsyncNotifierProvider.family<
+  CoordinatorInfoNotifier,
+  CoordinatorInfo?,
+  String
+>(CoordinatorInfoNotifier.new);
 
 /// Notifier that manages coordinator info fetching with proper discovery integration
-class CoordinatorInfoNotifier extends FamilyAsyncNotifier<CoordinatorInfo?, String> {
+class CoordinatorInfoNotifier
+    extends FamilyAsyncNotifier<CoordinatorInfo?, String> {
   @override
   Future<CoordinatorInfo?> build(String pubkey) async {
     // Wait for API service to be fully initialized (ensures KeyService is ready)
@@ -204,13 +221,19 @@ class CoordinatorInfoNotifier extends FamilyAsyncNotifier<CoordinatorInfo?, Stri
 /// Helper provider to get reservation duration for a coordinator.
 /// Returns Duration based on coordinator's reservationSeconds, or null if coordinator info unavailable.
 final coordinatorReservationDurationProvider =
-Provider.family<Duration?, String>((ref, coordinatorPubkey) {
-  final coordinatorInfoAsync = ref.watch(coordinatorInfoByPubkeyProvider(coordinatorPubkey));
-  return coordinatorInfoAsync.maybeWhen(
-    data: (info) => info != null ? Duration(seconds: info.reservationSeconds) : null,
-    orElse: () => null,
-  );
-});
+    Provider.family<Duration?, String>((ref, coordinatorPubkey) {
+      final coordinatorInfoAsync = ref.watch(
+        coordinatorInfoByPubkeyProvider(coordinatorPubkey),
+      );
+      return coordinatorInfoAsync.maybeWhen(
+        data:
+            (info) =>
+                info != null
+                    ? Duration(seconds: info.reservationSeconds)
+                    : null,
+        orElse: () => null,
+      );
+    });
 
 // Only initialize the Nostr offer subscription once (global for the app lifetime)
 final offersSubscriptionInitializer = FutureProvider<void>((ref) async {
@@ -303,11 +326,15 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
     data: (coordinators) async {
       // Only proceed if we have discovered coordinators
       if (coordinators.isEmpty) {
-        print('No coordinators discovered yet, returning empty finished offers list');
+        print(
+          'No coordinators discovered yet, returning empty finished offers list',
+        );
         return <Offer>[];
       }
 
-      print('Found ${coordinators.length} coordinators, loading finished offers');
+      print(
+        'Found ${coordinators.length} coordinators, loading finished offers',
+      );
       // Use initialized API service to ensure KeyService is ready
       final apiService = await ref.read(initializedApiServiceProvider.future);
       final offersData = await apiService.getMyFinishedOffers(publicKey);
@@ -316,9 +343,7 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
       return offersData.where((offer) {
         if (offer.status == 'takerPaid') {
           final paidAt = offer.takerPaidAt;
-          return paidAt != null && now
-              .difference(paidAt.toUtc())
-              .inHours < 24;
+          return paidAt != null && now.difference(paidAt.toUtc()).inHours < 24;
         }
         return false;
       }).toList();
@@ -341,11 +366,11 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
   ref.listen<Offer?>(activeOfferProvider, (previous, current) {
     // Only react to offer ID changes, not status changes, to avoid circular dependency
     final currentOfferId = current?.id;
-    
+
     // Check if this is just a status update for the same offer
     final previousOfferId = previous?.id;
-    if (currentOfferId != null && 
-        currentOfferId == previousOfferId && 
+    if (currentOfferId != null &&
+        currentOfferId == previousOfferId &&
         currentOfferId == _currentOfferId) {
       // Same offer, just status changed - don't restart subscription
       return;
@@ -423,7 +448,9 @@ final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   await coordinatorsAsync.when(
     data: (coordinators) async {
       // Coordinators are loaded, we can proceed
-      print('📊 Stats Provider: Found ${coordinators.length} coordinators for stats');
+      print(
+        '📊 Stats Provider: Found ${coordinators.length} coordinators for stats',
+      );
     },
     loading: () async {
       // Wait a bit for coordinators to load
@@ -465,3 +492,62 @@ final receivedBlikCodeProvider = StateProvider<String?>((ref) => null);
 
 // Provider to hold error messages for display in the UI
 final errorProvider = StateProvider<String?>((ref) => null);
+
+// Provider to access NDK instance for connectivity management
+final ndkProvider = Provider((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return apiService.ndk;
+});
+
+// Provider for app lifecycle management
+final appLifecycleProvider = Provider<AppLifecycleNotifier>((ref) {
+  // Pass the ref to the notifier
+  final notifier = AppLifecycleNotifier(ref);
+  notifier.initialize();
+  ref.onDispose(() {
+    notifier.dispose();
+  });
+  return notifier;
+});
+
+/// Notifier that handles app lifecycle changes and reconnects NDK when app resumes
+class AppLifecycleNotifier with WidgetsBindingObserver {
+  final Ref _ref;
+
+  AppLifecycleNotifier(this._ref);
+
+  AppLifecycleState _currentState = AppLifecycleState.resumed;
+
+  AppLifecycleState get currentState => _currentState;
+
+  void initialize() {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _currentState = state;
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        final ndkInstance = _ref.read(ndkProvider);
+        // faster reconnects
+        if (ndkInstance != null) {
+          ndkInstance.connectivity.tryReconnect();
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+}

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform; // Import Platform
 
 import 'package:app_links/app_links.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_confirm_payment_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/maker_flow/maker_pay_invoice_screen.dart';
@@ -46,6 +47,21 @@ final double kTakerFeePercentage = 0.5;
 final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 late AppLocale appLocale;
 final rustEventVerifier = RustEventVerifier();
+
+/// Listen to connectivity changes and reconnect NDK when connectivity is restored
+StreamSubscription<List<ConnectivityResult>> listenToConnectivityChanges(WidgetRef ref) {
+  return Connectivity().onConnectivityChanged
+      .skip(1) // do not fire on app startup
+      .listen((List<ConnectivityResult> result) {
+        if (result.any((e) => e == ConnectivityResult.none)) {
+          return;
+        }
+        final ndkInstance = ref.read(ndkProvider);
+        if (ndkInstance != null) {
+          ndkInstance.connectivity.tryReconnect();
+        }
+      });
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -156,11 +172,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: FaqScreen.routeName,
-        builder:
-            (context, state) => AppScaffold(
-              body: const FaqScreen(),
-              pageTitle: t.faq.screenTitle,
-            ),
+        builder: (context, state) => AppScaffold(body: const FaqScreen(), pageTitle: t.faq.screenTitle),
       ),
     ],
   );
@@ -201,6 +213,7 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> {
   StreamSubscription<Uri>? _sub;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   final AppLinks _appLinks = AppLinks();
 
   @override
@@ -219,10 +232,17 @@ class _MyAppState extends ConsumerState<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await ref.read(initializedApiServiceProvider.future);
-        final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
+        // Trigger coordinator discovery
+        ref.watch(discoveredCoordinatorsProvider);
 
         // Initialize the offer status subscription manager
         ref.read(offerStatusSubscriptionManagerProvider);
+
+        // Initialize app lifecycle provider (reconnects NDK when app resumes)
+        ref.read(appLifecycleProvider);
+
+        // Start listening to connectivity changes
+        _connectivitySubscription = listenToConnectivityChanges(ref);
 
         print('🚀 App initialized: API service and coordinator discovery started');
       } catch (e) {
@@ -254,6 +274,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void dispose() {
     _sub?.cancel();
+    _connectivitySubscription?.cancel();
     super.dispose();
   }
 
@@ -589,10 +610,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
         title: appBarTitle,
         // Add a divider at the bottom of the AppBar
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Divider(height: 1.0, thickness: 1.0),
-        ),
+        bottom: const PreferredSize(preferredSize: Size.fromHeight(1.0), child: Divider(height: 1.0, thickness: 1.0)),
         actions: [
           // Language Switcher Dropdown
           DropdownButtonHideUnderline(
@@ -607,27 +625,15 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   return Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 48),
-                    child: Image.asset(
-                      'assets/languages.png',
-                      width: 20,
-                      height: 20,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image.asset('assets/languages.png', width: 20, height: 20, fit: BoxFit.contain),
                   );
                 }).toList();
               },
               onChanged: (AppLocale? newLocale) async {
                 if (newLocale != null) {
-                  await asyncPrefs.setString(
-                    'app_locale',
-                    newLocale.languageCode,
-                  );
-                  if (LocaleSettings.currentLocale.languageCode !=
-                      newLocale.languageCode) {
-                    appLocale =
-                    newLocale.languageCode == 'pl'
-                        ? AppLocale.pl
-                        : AppLocale.en;
+                  await asyncPrefs.setString('app_locale', newLocale.languageCode);
+                  if (LocaleSettings.currentLocale.languageCode != newLocale.languageCode) {
+                    appLocale = newLocale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
                     LocaleSettings.setLocale(appLocale);
                     // Force rebuild to update UI
                     if (mounted) {
@@ -636,41 +642,38 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   }
                 }
               },
-              items: AppLocale.values.map<DropdownMenuItem<AppLocale>>((AppLocale locale) {
-                final String flagEmoji =
-                locale.languageCode == 'en'
-                    ? '🇬🇧'
-                    : locale.languageCode == 'pl'
-                    ? '🇵🇱'
-                    : '';
-                final String displayName =
-                locale.languageCode == 'en'
-                    ? 'EN'
-                    : locale.languageCode == 'pl'
-                    ? 'PL'
-                    : locale.languageCode.toUpperCase();
-                return DropdownMenuItem<AppLocale>(
-                  value: locale,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        flagEmoji,
-                        style: const TextStyle(fontSize: 14),
+              items:
+                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((AppLocale locale) {
+                    final String flagEmoji =
+                        locale.languageCode == 'en'
+                            ? '🇬🇧'
+                            : locale.languageCode == 'pl'
+                            ? '🇵🇱'
+                            : '';
+                    final String displayName =
+                        locale.languageCode == 'en'
+                            ? 'EN'
+                            : locale.languageCode == 'pl'
+                            ? 'PL'
+                            : locale.languageCode.toUpperCase();
+                    return DropdownMenuItem<AppLocale>(
+                      value: locale,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(flagEmoji, style: const TextStyle(fontSize: 14)),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              displayName,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
-                      Flexible(
-
-                        child: Text(
-                          displayName,
-                          style: const TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
             ),
           ),
           // Conditionally display Home icon if not on the main screen ('/')
@@ -680,7 +683,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               iconSize: 20,
               padding: const EdgeInsets.all(8),
               constraints: const BoxConstraints(),
-              tooltip: t.common.buttons.goHome, // Use Slang for tooltip
+              tooltip: t.common.buttons.goHome,
+              // Use Slang for tooltip
               onPressed: () async {
                 // Reset relevant state providers (but keep active offer)
                 ref.read(holdInvoiceProvider.notifier).state = null;
@@ -753,67 +757,61 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 ),
               ),
             publicKeyAsync.when(
-              data: (publicKey) =>
-              publicKey != null
-                  ? MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => _showNekoInfoDialog(publicKey),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
-                      // const SizedBox(width: 4),
-                      CachedNetworkImage(
-                        imageUrl: 'https://robohash.org/$publicKey?set=set4',
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        width: 32,
-                        height: 32,
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.backup),
-                        tooltip: t.backup.tooltips.backup,
-                        onPressed: _showBackupDialog,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.restore),
-                        tooltip: t.restore.tooltips.restore,
-                        onPressed: _showRestoreDialog,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        tooltip: t.generateNewKey.tooltips.generate,
-                        onPressed: _showGenerateNewKeyDialog,
-                      ),
-                    ],
+              data:
+                  (publicKey) =>
+                      publicKey != null
+                          ? MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () => _showNekoInfoDialog(publicKey),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
+                                  // const SizedBox(width: 4),
+                                  CachedNetworkImage(
+                                    imageUrl: 'https://robohash.org/$publicKey?set=set4',
+                                    placeholder: (context, url) => const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.backup),
+                                    tooltip: t.backup.tooltips.backup,
+                                    onPressed: _showBackupDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.restore),
+                                    tooltip: t.restore.tooltips.restore,
+                                    onPressed: _showRestoreDialog,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.refresh),
+                                    tooltip: t.generateNewKey.tooltips.generate,
+                                    onPressed: _showGenerateNewKeyDialog,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+              loading:
+                  () => const Center(
+                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
                   ),
-                ),
-              )
-                  : const SizedBox.shrink(),
-              loading: () =>
-              const Center(
-                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-              ),
-              error: (err, stack) =>
-                  Text(
+              error:
+                  (err, stack) => Text(
                     'Error loading key: $err', // This can remain hardcoded or be added to Slang if needed
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.red),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
             ),

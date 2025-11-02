@@ -127,8 +127,9 @@ class NostrService {
   static const String _relayUrlsKey = 'relay_urls';
 
   static const List<String> _defaultRelayUrls = [
-    'wss://relay.damus.io',
+    // 'wss://relay.damus.io',
     'wss://relay.primal.net',
+    // 'wss://nos.lol',
     'wss://relay.mostro.network',
   ];
 
@@ -214,9 +215,25 @@ class NostrService {
       ),
     );
 
-    _ndk!.connectivity.relayConnectivityChanges.listen((data) {
-      print(data);
-    });
+    // _ndk!.connectivity.relayConnectivityChanges.listen((data) {
+    //   print('🔗 Relay connectivity change: $data');
+    //   print('🔗 Connectivity data type: ${data.runtimeType}');
+    //
+    //   // Print detailed information if data has specific properties
+    //   try {
+    //     if (data is Map) {
+    //       final map = data as Map;
+    //       print('🔗 Connectivity map keys: ${map.keys}');
+    //       map.forEach((key, value) {
+    //         print('🔗   $key: $value');
+    //       });
+    //     } else {
+    //       print('🔗 Connectivity data toString: ${data.toString()}');
+    //     }
+    //   } catch (e) {
+    //     print('🔗 Error parsing connectivity data: $e');
+    //   }
+    // });
     print(
       '🔑 Client signer initialized with pubkey: ${_keyService.publicKeyHex}',
     );
@@ -1202,6 +1219,9 @@ class NostrService {
 
   /// Get current relay URLs
   List<String> get relayUrls => List.from(_relayUrls);
+
+  /// Get NDK instance (for connectivity management)
+  Ndk? get ndk => _ndk;
 }
 
 /// Data class for offer status updates received via Nostr
