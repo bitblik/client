@@ -27,7 +27,6 @@ class OfferListScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferListScreenState extends ConsumerState<OfferListScreen> {
-  // For Coordinator Config
   CoordinatorInfo? _coordinatorInfo;
   Duration? _reservationDuration;
   bool _isLoadingCoordinatorConfig = true;
@@ -281,7 +280,6 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     return Column(
                       children: [
                         // Active offers
-                        if (showActiveOffersList)
                           Expanded(
                             child: RefreshIndicator(
                               onRefresh: () async {
@@ -292,7 +290,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                 ref.invalidate(activeOfferProvider);
                                 await ref.read(availableOffersProvider.future);
                               },
-                              child: ListView.builder(
+                              child: (!showActiveOffersList)? Container() // TODO empty no offers placeholder
+                              : ListView.builder(
                                 itemCount: activeOffers.length,
                                 itemBuilder: (innerContext, index) {
                                   final offer = activeOffers[index];

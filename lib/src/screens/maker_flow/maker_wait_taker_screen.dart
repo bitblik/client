@@ -18,29 +18,18 @@ class MakerWaitTakerScreen extends ConsumerStatefulWidget {
 }
 
 class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
-  Timer? _statusCheckTimer;
   bool _isCancelling = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _startStatusCheckTimer();
-      }
-    });
     final offer = ref.read(activeOfferProvider);
     _handleStatusUpdate(offer?.statusEnum);
-    // Listen to the active offer provider for status changes
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void _startStatusCheckTimer({bool checkImmediately = false}) {
-    // No longer need timer - will use subscription instead
   }
 
   void _handleStatusUpdate(OfferStatus? status) async {
@@ -183,7 +172,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     final offer = ref.watch(activeOfferProvider);
 
     ref.listen<Offer?>(activeOfferProvider, (previous, next) {
-      if (next != null) {
+      if (next != null && mounted) {
         _handleStatusUpdate(next.statusEnum);
       }
     });

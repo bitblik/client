@@ -265,7 +265,7 @@ class _ReservationProgressIndicatorState
               child: LinearProgressIndicator(
                 value: _progress,
                 backgroundColor: Colors.grey[500],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),

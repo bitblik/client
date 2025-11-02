@@ -53,36 +53,42 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   }
 
   // --- Status Update Handler ---
-  void _handleStatusUpdate(OfferStatus? status, String coordinatorPubkey) async {
+  void _handleStatusUpdate(
+    OfferStatus? status,
+    String coordinatorPubkey,
+  ) async {
     if (status == null || !mounted) return;
 
     print('[MakerPayInvoiceScreen] Status update received: $status');
 
-    final publicKey = ref.read(publicKeyProvider).value;
-    if (publicKey == null) {
-      throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
-    }
+    // final publicKey = ref.read(publicKeyProvider).value;
+    // if (publicKey == null) {
+    //   throw Exception(t.maker.payInvoice.errors.publicKeyNotAvailable);
+    // }
+    //
+    // final apiService = ref.read(apiServiceProvider);
+    // final fullOfferData = await apiService.getMyActiveOffer(
+    //   publicKey,
+    //   coordinatorPubkey,
+    // );
+    // final offer = ref.read(activeOfferProvider);
+    //
+    // if (fullOfferData == null || offer == null) {
+    //   throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
+    // }
 
-    final apiService = ref.read(apiServiceProvider);
-    final fullOfferData = await apiService.getMyActiveOffer(publicKey, coordinatorPubkey);
-    final offer = ref.read(activeOfferProvider);
-
-    if (fullOfferData == null || offer == null) {
-      throw Exception(t.maker.payInvoice.errors.couldNotFetchActive);
-    }
-
-    Map<String, dynamic> json = offer.toJson();
-
-    json['id'] = fullOfferData['id'];
-    json['status'] = fullOfferData['status'];
-    json['created_at'] = fullOfferData['created_at'];
-    json['fiat_amount'] = fullOfferData['fiat_amount'];
-    json['fiat_currency'] = fullOfferData['fiat_currency'];
-    json['amount_sats'] = fullOfferData['amount_sats'];
-    json['maker_fees'] = fullOfferData['maker_fees'];
-
-    final updatedOffer = Offer.fromJson(json);
-    await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
+    // Map<String, dynamic> json = offer.toJson();
+    //
+    // json['id'] = fullOfferData['id'];
+    // json['status'] = fullOfferData['status'];
+    // json['created_at'] = fullOfferData['created_at'];
+    // json['fiat_amount'] = fullOfferData['fiat_amount'];
+    // json['fiat_currency'] = fullOfferData['fiat_currency'];
+    // json['amount_sats'] = fullOfferData['amount_sats'];
+    // json['maker_fees'] = fullOfferData['maker_fees'];
+    //
+    // final updatedOffer = Offer.fromJson(json);
+    // await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
     if (status.index >= OfferStatus.funded.index) {
       print(
@@ -159,7 +165,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     // Listen to the active offer provider for status changes
     ref.listen<Offer?>(activeOfferProvider, (previous, next) {
-      if (next != null) {
+      if (next != null && mounted) {
         _handleStatusUpdate(next.statusEnum, next.coordinatorPubkey);
       }
     });

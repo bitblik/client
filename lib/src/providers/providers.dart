@@ -260,13 +260,20 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
     state = offer;
   }
 
+  /// Update only the status of the current offer without triggering the subscription manager.
+  /// This method updates the database and state directly to avoid circular dependencies.
   void updateOfferStatus(OfferStatusUpdate update) {
     if (state != null) {
       final updatedOffer = state!.copyWith(
+        id: update.offerId,
         status: update.status,
         reservedAt: update.reservedAt,
       );
-      setActiveOffer(updatedOffer);
+      // Update DB directly without going through setActiveOffer to avoid triggering listener
+      OfferDbService().upsertActiveOffer(updatedOffer);
+      // Update state directly - this will trigger UI updates but won't retrigger
+      // the subscription manager since we check for ID changes in the listener
+      state = updatedOffer;
     }
   }
 
@@ -329,9 +336,23 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
 /// to ensure it's always running and can react to changes in the active offer.
 final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
   StreamSubscription? statusSubscription;
+  String? _currentOfferId;
 
   ref.listen<Offer?>(activeOfferProvider, (previous, current) {
-    // If there's an existing subscription, cancel it.
+    // Only react to offer ID changes, not status changes, to avoid circular dependency
+    final currentOfferId = current?.id;
+    
+    // Check if this is just a status update for the same offer
+    final previousOfferId = previous?.id;
+    if (currentOfferId != null && 
+        currentOfferId == previousOfferId && 
+        currentOfferId == _currentOfferId) {
+      // Same offer, just status changed - don't restart subscription
+      return;
+    }
+
+    // Offer ID changed, offer was cleared, or initial setup - update subscription
+    _currentOfferId = currentOfferId;
     statusSubscription?.cancel();
 
     if (current != null) {
@@ -371,6 +392,7 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
       print(
         "[SubscriptionManager] Active offer cleared. Subscription stopped.",
       );
+      _currentOfferId = null;
     }
   }, fireImmediately: true); // fireImmediately to handle initial state
 });
