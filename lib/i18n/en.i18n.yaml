@@ -76,7 +76,7 @@ lightningAddress:
 # OFFERS AND TRANSACTIONS
 # =============================================================================
 offers:
-  display:
+  details:
     yourOffer: "Your offer:"
     selectedOffer: "Offer:"
     activeOffer: "You have an active offer:"
@@ -86,7 +86,6 @@ offers:
     noSuccessfulTrades: No successful trades.
     loadingDetails: "Loading offer details..." # Used by taker.paymentProcess & taker.waitConfirmation
   
-  details:
     amount: "Amount: ${amount} satoshi"
     amountWithCurrency: "${amount} ${currency}"
     makerFee: "Maker fee: ${fee} satoshi"
@@ -99,13 +98,36 @@ offers:
     created: "Created: ${dateTime}"
     takenAfter: "Taken after: ${duration}"
     paidAfter: "Paid after: ${duration}"
+    exchangeRate: "Exchange Rate"
+    takerFeeLabel: "Taker fee"
+    statusLabel: "Status"
+    youllReceive: "You'll receive"
+    coordinator: "Coordinator"
   
   actions:
     take: TAKE
+    takeOffer: Take Offer
     resume: RESUME
     cancel: Cancel offer
   
   status:
+    created: "Created"
+    funded: "Funded"
+    expired: "Expired"
+    cancelled: "Cancelled"
+    reserved: "Reserved"
+    blikReceived: "BLIK Sent"
+    blikSentToMaker: "BLIK Received"
+    invalidBlik: "Invalid BLIK"
+    conflict: "Conflict"
+    dispute: "Dispute"
+    makerConfirmed: "Confirmed"
+    settled: "Settled"
+    payingTaker: "Paying Taker"
+    takerPaymentFailed: "Payment Failed"
+    takerPaid: "Taker Paid"
+    
+  statusMessages:
     reserved: Offer reserved by Taker!
     cancelled: Offer cancelled successfully.
     cancelledOrExpired: Offer has been cancelled or expired. # Used by taker.waitConfirmation
@@ -161,7 +183,7 @@ exchange:
   labels:
     enterAmount: "Enter amount (PLN) to pay:"
     equivalent: "≈ ${sats} satoshi"
-    rate: "Average PLN/BTC rate ≈ ${rate}"
+    rate: "Exchange rate ≈ ${rate} PLN/BTC"
 
   feedback:
     fetching: Fetching exchange rate...

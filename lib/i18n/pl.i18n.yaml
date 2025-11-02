@@ -76,7 +76,7 @@ lightningAddress:
 # OFFERS AND TRANSACTIONS
 # =============================================================================
 offers:
-  display:
+  details:
     yourOffer: "Twoja oferta:"
     selectedOffer: "Oferta:"
     activeOffer: "Masz aktywną ofertę:"
@@ -86,7 +86,6 @@ offers:
     noSuccessfulTrades: Brak udanych transakcji.
     loadingDetails: "Ładowanie szczegółów oferty..." # Używane przez taker.paymentProcess & taker.waitConfirmation
   
-  details:
     amount: "Kwota: ${amount} satoshi"
     amountWithCurrency: "${amount} ${currency}"
     makerFee: "Opłata Maker: ${fee} satoshi"
@@ -99,13 +98,36 @@ offers:
     created: "Utworzono: ${dateTime}"
     takenAfter: "Przyjęto po: ${duration}"
     paidAfter: "Zapłacono po: ${duration}"
+    exchangeRate: "Kurs wymiany"
+    takerFeeLabel: "Opłata"
+    statusLabel: "Status"
+    youllReceive: "Otrzymasz"
+    coordinator: "Koordynator"
   
   actions:
     take: WEŹ
+    takeOffer: Weź ofertę
     resume: WZNÓW
     cancel: Anuluj ofertę
   
   status:
+    created: "Utworzona"
+    funded: "Sfinansowana"
+    expired: "Wygasła"
+    cancelled: "Anulowana"
+    reserved: "Zarezerwowana"
+    blikReceived: "BLIK wysłany"
+    blikSentToMaker: "Otrzymano BLIK"
+    invalidBlik: "Nieprawidłowy BLIK"
+    conflict: "Konflikt"
+    dispute: "Spór"
+    makerConfirmed: "Potwierdzona"
+    settled: "Rozliczona"
+    payingTaker: "Płacenie Takera"
+    takerPaymentFailed: "Płatność Takera nieudana"
+    takerPaid: "Zapłacony"
+    
+  statusMessages:
     reserved: Oferta zarezerwowana przez Takera!
     cancelled: Oferta anulowana pomyślnie.
     cancelledOrExpired: Oferta została anulowana lub wygasła. # Używane przez taker.waitConfirmation
@@ -161,7 +183,7 @@ exchange:
   labels:
     enterAmount: "Wprowadź kwotę (PLN) do zapłaty:"
     equivalent: "≈ ${sats} satoshi"
-    rate: "Kurs śr. PLN/BTC ≈ ${rate}"
+    rate: "Kurs wymiany ≈ ${rate} PLN/BTC"
 
   feedback:
     fetching: Pobieranie kursu wymiany...

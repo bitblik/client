@@ -140,7 +140,7 @@ class _TakerWaitConfirmationScreenState
 
       if (offer == null) {
         print("[TakerWaitConfirmation] Active offer is null. Resetting.");
-        _resetToOfferList(t.offers.status.cancelledOrExpired);
+        _resetToOfferList(t.offers.status.cancelled);
         return;
       }
 

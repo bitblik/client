@@ -332,7 +332,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          t.offers.display.activeOffer,
+          t.offers.details.activeOffer,
           style: Theme
               .of(context)
               .textTheme
@@ -466,7 +466,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   children: [
                     const SizedBox(height: 30),
                     Text(
-                      t.offers.display.finishedOffersWithTime,
+                      t.offers.details.finishedOffersWithTime,
                       style: Theme
                           .of(context)
                           .textTheme

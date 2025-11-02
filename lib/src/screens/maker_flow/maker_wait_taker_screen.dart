@@ -197,7 +197,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           children: <Widget>[
             if (offer != null) ...[
               Text(
-                t.offers.display.yourOffer, // Changed to common key
+                t.offers.details.yourOffer, // Changed to common key
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),

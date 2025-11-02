@@ -2,6 +2,7 @@ import 'package:bitblik/src/services/api_service_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../i18n/gen/strings.g.dart';
 import '../../models/coordinator_info.dart';
@@ -333,7 +334,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  "${t.exchange.labels.rate(rate: _rate!.toStringAsFixed(0))}\n(${ApiServiceNostr.exchangeRateSourceNames.join(', ')})",
+                  "${t.exchange.labels.rate(rate: _formatNumber(_rate!.round()))}\n(${ApiServiceNostr.exchangeRateSourceNames.join(', ')})",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),
@@ -363,5 +364,11 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
         ),
       ),
     );
+  }
+
+  /// Formats a number with spaces as thousand separators
+  String _formatNumber(int number) {
+    final formatter = NumberFormat('#,###', 'en_US');
+    return formatter.format(number).replaceAll(',', ' ');
   }
 }

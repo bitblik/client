@@ -548,13 +548,17 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     }
 
     // --- Main UI Build ---
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.taker.submitBlik.title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
             if (errorMessage != null) ...[
               Text(
                 errorMessage,
@@ -564,7 +568,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
               const SizedBox(height: 10),
             ],
             Text(
-              t.offers.display.selectedOffer,
+              t.offers.details.selectedOffer,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Card(
@@ -687,7 +691,8 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                       },
               child: Text(t.reservations.actions.cancel),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

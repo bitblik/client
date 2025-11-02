@@ -103,10 +103,10 @@ class _TranslationsOffersPl extends TranslationsOffersEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsOffersDisplayPl display = _TranslationsOffersDisplayPl._(_root);
 	@override late final _TranslationsOffersDetailsPl details = _TranslationsOffersDetailsPl._(_root);
 	@override late final _TranslationsOffersActionsPl actions = _TranslationsOffersActionsPl._(_root);
 	@override late final _TranslationsOffersStatusPl status = _TranslationsOffersStatusPl._(_root);
+	@override late final _TranslationsOffersStatusMessagesPl statusMessages = _TranslationsOffersStatusMessagesPl._(_root);
 	@override late final _TranslationsOffersProgressPl progress = _TranslationsOffersProgressPl._(_root);
 	@override late final _TranslationsOffersErrorsPl errors = _TranslationsOffersErrorsPl._(_root);
 }
@@ -412,9 +412,9 @@ class _TranslationsLightningAddressErrorsPl extends TranslationsLightningAddress
 	@override String loading({required Object details}) => 'Błąd podczas ładowania adresu Lightning: ${details}';
 }
 
-// Path: offers.display
-class _TranslationsOffersDisplayPl extends TranslationsOffersDisplayEn {
-	_TranslationsOffersDisplayPl._(TranslationsPl root) : this._root = root, super.internal(root);
+// Path: offers.details
+class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
+	_TranslationsOffersDetailsPl._(TranslationsPl root) : this._root = root, super.internal(root);
 
 	final TranslationsPl _root; // ignore: unused_field
 
@@ -427,15 +427,6 @@ class _TranslationsOffersDisplayPl extends TranslationsOffersDisplayEn {
 	@override String get noAvailable => 'Brak dostępnych ofert.';
 	@override String get noSuccessfulTrades => 'Brak udanych transakcji.';
 	@override String get loadingDetails => 'Ładowanie szczegółów oferty...';
-}
-
-// Path: offers.details
-class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
-	_TranslationsOffersDetailsPl._(TranslationsPl root) : this._root = root, super.internal(root);
-
-	final TranslationsPl _root; // ignore: unused_field
-
-	// Translations
 	@override String amount({required Object amount}) => 'Kwota: ${amount} satoshi';
 	@override String amountWithCurrency({required Object amount, required Object currency}) => '${amount} ${currency}';
 	@override String makerFee({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
@@ -448,6 +439,11 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	@override String created({required Object dateTime}) => 'Utworzono: ${dateTime}';
 	@override String takenAfter({required Object duration}) => 'Przyjęto po: ${duration}';
 	@override String paidAfter({required Object duration}) => 'Zapłacono po: ${duration}';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get takerFeeLabel => 'Opłata';
+	@override String get statusLabel => 'Status';
+	@override String get youllReceive => 'Otrzymasz';
+	@override String get coordinator => 'Koordynator';
 }
 
 // Path: offers.actions
@@ -458,6 +454,7 @@ class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 
 	// Translations
 	@override String get take => 'WEŹ';
+	@override String get takeOffer => 'Weź ofertę';
 	@override String get resume => 'WZNÓW';
 	@override String get cancel => 'Anuluj ofertę';
 }
@@ -465,6 +462,30 @@ class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 // Path: offers.status
 class _TranslationsOffersStatusPl extends TranslationsOffersStatusEn {
 	_TranslationsOffersStatusPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get created => 'Utworzona';
+	@override String get funded => 'Sfinansowana';
+	@override String get expired => 'Wygasła';
+	@override String get cancelled => 'Anulowana';
+	@override String get reserved => 'Zarezerwowana';
+	@override String get blikReceived => 'BLIK wysłany';
+	@override String get blikSentToMaker => 'Otrzymano BLIK';
+	@override String get invalidBlik => 'Nieprawidłowy BLIK';
+	@override String get conflict => 'Konflikt';
+	@override String get dispute => 'Spór';
+	@override String get makerConfirmed => 'Potwierdzona';
+	@override String get settled => 'Rozliczona';
+	@override String get payingTaker => 'Płacenie Takera';
+	@override String get takerPaymentFailed => 'Płatność Takera nieudana';
+	@override String get takerPaid => 'Zapłacony';
+}
+
+// Path: offers.statusMessages
+class _TranslationsOffersStatusMessagesPl extends TranslationsOffersStatusMessagesEn {
+	_TranslationsOffersStatusMessagesPl._(TranslationsPl root) : this._root = root, super.internal(root);
 
 	final TranslationsPl _root; // ignore: unused_field
 
@@ -558,7 +579,7 @@ class _TranslationsExchangeLabelsPl extends TranslationsExchangeLabelsEn {
 	// Translations
 	@override String get enterAmount => 'Wprowadź kwotę (PLN) do zapłaty:';
 	@override String equivalent({required Object sats}) => '≈ ${sats} satoshi';
-	@override String rate({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
+	@override String rate({required Object rate}) => 'Kurs wymiany ≈ ${rate} PLN/BTC';
 }
 
 // Path: exchange.feedback
@@ -1502,14 +1523,14 @@ extension on TranslationsPl {
 			case 'lightningAddress.feedback.valid': return 'Prawidłowy adres Lightning';
 			case 'lightningAddress.errors.saving': return ({required Object details}) => 'Błąd podczas zapisywania adresu: ${details}';
 			case 'lightningAddress.errors.loading': return ({required Object details}) => 'Błąd podczas ładowania adresu Lightning: ${details}';
-			case 'offers.display.yourOffer': return 'Twoja oferta:';
-			case 'offers.display.selectedOffer': return 'Oferta:';
-			case 'offers.display.activeOffer': return 'Masz aktywną ofertę:';
-			case 'offers.display.finishedOffers': return 'Zakończone oferty';
-			case 'offers.display.finishedOffersWithTime': return 'Zakończone oferty (ostatnie 24h):';
-			case 'offers.display.noAvailable': return 'Brak dostępnych ofert.';
-			case 'offers.display.noSuccessfulTrades': return 'Brak udanych transakcji.';
-			case 'offers.display.loadingDetails': return 'Ładowanie szczegółów oferty...';
+			case 'offers.details.yourOffer': return 'Twoja oferta:';
+			case 'offers.details.selectedOffer': return 'Oferta:';
+			case 'offers.details.activeOffer': return 'Masz aktywną ofertę:';
+			case 'offers.details.finishedOffers': return 'Zakończone oferty';
+			case 'offers.details.finishedOffersWithTime': return 'Zakończone oferty (ostatnie 24h):';
+			case 'offers.details.noAvailable': return 'Brak dostępnych ofert.';
+			case 'offers.details.noSuccessfulTrades': return 'Brak udanych transakcji.';
+			case 'offers.details.loadingDetails': return 'Ładowanie szczegółów oferty...';
 			case 'offers.details.amount': return ({required Object amount}) => 'Kwota: ${amount} satoshi';
 			case 'offers.details.amountWithCurrency': return ({required Object amount, required Object currency}) => '${amount} ${currency}';
 			case 'offers.details.makerFee': return ({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
@@ -1522,13 +1543,34 @@ extension on TranslationsPl {
 			case 'offers.details.created': return ({required Object dateTime}) => 'Utworzono: ${dateTime}';
 			case 'offers.details.takenAfter': return ({required Object duration}) => 'Przyjęto po: ${duration}';
 			case 'offers.details.paidAfter': return ({required Object duration}) => 'Zapłacono po: ${duration}';
+			case 'offers.details.exchangeRate': return 'Kurs wymiany';
+			case 'offers.details.takerFeeLabel': return 'Opłata';
+			case 'offers.details.statusLabel': return 'Status';
+			case 'offers.details.youllReceive': return 'Otrzymasz';
+			case 'offers.details.coordinator': return 'Koordynator';
 			case 'offers.actions.take': return 'WEŹ';
+			case 'offers.actions.takeOffer': return 'Weź ofertę';
 			case 'offers.actions.resume': return 'WZNÓW';
 			case 'offers.actions.cancel': return 'Anuluj ofertę';
-			case 'offers.status.reserved': return 'Oferta zarezerwowana przez Takera!';
-			case 'offers.status.cancelled': return 'Oferta anulowana pomyślnie.';
-			case 'offers.status.cancelledOrExpired': return 'Oferta została anulowana lub wygasła.';
-			case 'offers.status.noLongerAvailable': return ({required Object status}) => 'Oferta nie jest już dostępna (Status: ${status}).';
+			case 'offers.status.created': return 'Utworzona';
+			case 'offers.status.funded': return 'Sfinansowana';
+			case 'offers.status.expired': return 'Wygasła';
+			case 'offers.status.cancelled': return 'Anulowana';
+			case 'offers.status.reserved': return 'Zarezerwowana';
+			case 'offers.status.blikReceived': return 'BLIK wysłany';
+			case 'offers.status.blikSentToMaker': return 'Otrzymano BLIK';
+			case 'offers.status.invalidBlik': return 'Nieprawidłowy BLIK';
+			case 'offers.status.conflict': return 'Konflikt';
+			case 'offers.status.dispute': return 'Spór';
+			case 'offers.status.makerConfirmed': return 'Potwierdzona';
+			case 'offers.status.settled': return 'Rozliczona';
+			case 'offers.status.payingTaker': return 'Płacenie Takera';
+			case 'offers.status.takerPaymentFailed': return 'Płatność Takera nieudana';
+			case 'offers.status.takerPaid': return 'Zapłacony';
+			case 'offers.statusMessages.reserved': return 'Oferta zarezerwowana przez Takera!';
+			case 'offers.statusMessages.cancelled': return 'Oferta anulowana pomyślnie.';
+			case 'offers.statusMessages.cancelledOrExpired': return 'Oferta została anulowana lub wygasła.';
+			case 'offers.statusMessages.noLongerAvailable': return ({required Object status}) => 'Oferta nie jest już dostępna (Status: ${status}).';
 			case 'offers.progress.waitingForTaker': return ({required Object time}) => 'Oczekiwanie na takera: ${time}';
 			case 'offers.progress.reserved': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'offers.progress.confirming': return ({required Object seconds}) => 'Potwierdzanie: ${seconds} s pozostało';
@@ -1560,7 +1602,7 @@ extension on TranslationsPl {
 			case 'reservations.errors.notReserved': return ({required Object status}) => 'Oferta nie jest już w stanie zarezerwowanym (${status}).';
 			case 'exchange.labels.enterAmount': return 'Wprowadź kwotę (PLN) do zapłaty:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
-			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
+			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs wymiany ≈ ${rate} PLN/BTC';
 			case 'exchange.feedback.fetching': return 'Pobieranie kursu wymiany...';
 			case 'exchange.errors.fetchingRate': return 'Nie udało się pobrać kursu wymiany.';
 			case 'exchange.errors.invalidFormat': return 'Nieprawidłowy format liczby';

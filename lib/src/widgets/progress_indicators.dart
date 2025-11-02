@@ -105,17 +105,21 @@ class _FundedOfferProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[400],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.waitingForTaker(time: _formatMMSS(_remainingSeconds)),
@@ -250,17 +254,21 @@ class _ReservationProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[500], // Darker background
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.reserved(seconds: _remainingSeconds),
@@ -383,17 +391,21 @@ class _BlikConfirmationProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.confirming(seconds: _remainingSeconds),

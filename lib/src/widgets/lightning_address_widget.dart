@@ -378,6 +378,44 @@ class _LightningAddressWidgetState
             ],
           );
         } else {
+          return Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: [
+              const Icon(
+                Icons.warning,
+                color: Colors.orange,
+                size: 20,
+              ),
+              Text(
+                t.lightningAddress.prompts.enterToTakeOffer,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.orange,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              IconButton(
+                icon: const Icon(Icons.add_circle, size: 18),
+                tooltip: t.lightningAddress.prompts.add,
+                iconSize: 18,
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+                onPressed: () async {
+                  await _showEditLightningAddressDialog(
+                    context,
+                    ref,
+                    null,
+                    keyService,
+                    t,
+                  );
+                },
+              ),
+            ],
+          );
+
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

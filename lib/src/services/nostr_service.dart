@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:logger/logger.dart' as lib_logger;
 import 'package:ndk/ndk.dart';
+import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:ndk/shared/nips/nip44/nip44.dart';
 import 'package:ndk_rust_verifier/data_layer/repositories/verifiers/rust_event_verifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,7 +114,7 @@ class DiscoveredCoordinator {
       takerFee: takerFee,
       reservationSeconds: reservationSeconds,
       currencies: currencies,
-      nostrNpub: pubkey,
+      nostrNpub: Nip19.encodePubKey(pubkey),
       // Use the pubkey as nostrNpub
       version: version,
     );

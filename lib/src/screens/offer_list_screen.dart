@@ -252,7 +252,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 child: offersAsyncValue.when(
                   data: (offers) {
                     if (offers.isEmpty) {
-                      return Center(child: Text(t.offers.display.noAvailable));
+                      return Center(child: Text(t.offers.details.noAvailable));
                     }
                     // Separate finished offers
                     final finishedStatuses = [
@@ -635,7 +635,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  t.offers.display.finishedOffers,
+                                  t.offers.details.finishedOffers,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -825,7 +825,7 @@ Widget _buildStatsSection(
                 if (recentOffers.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(t.offers.display.noSuccessfulTrades),
+                    child: Text(t.offers.details.noSuccessfulTrades),
                   )
                 else
                   SizedBox(

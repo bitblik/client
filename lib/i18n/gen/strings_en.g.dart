@@ -108,10 +108,10 @@ class TranslationsOffersEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsOffersDisplayEn display = TranslationsOffersDisplayEn.internal(_root);
 	late final TranslationsOffersDetailsEn details = TranslationsOffersDetailsEn.internal(_root);
 	late final TranslationsOffersActionsEn actions = TranslationsOffersActionsEn.internal(_root);
 	late final TranslationsOffersStatusEn status = TranslationsOffersStatusEn.internal(_root);
+	late final TranslationsOffersStatusMessagesEn statusMessages = TranslationsOffersStatusMessagesEn.internal(_root);
 	late final TranslationsOffersProgressEn progress = TranslationsOffersProgressEn.internal(_root);
 	late final TranslationsOffersErrorsEn errors = TranslationsOffersErrorsEn.internal(_root);
 }
@@ -528,9 +528,9 @@ class TranslationsLightningAddressErrorsEn {
 	String loading({required Object details}) => 'Error loading Lightning address: ${details}';
 }
 
-// Path: offers.display
-class TranslationsOffersDisplayEn {
-	TranslationsOffersDisplayEn.internal(this._root);
+// Path: offers.details
+class TranslationsOffersDetailsEn {
+	TranslationsOffersDetailsEn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -559,15 +559,6 @@ class TranslationsOffersDisplayEn {
 
 	/// en: 'Loading offer details...'
 	String get loadingDetails => 'Loading offer details...';
-}
-
-// Path: offers.details
-class TranslationsOffersDetailsEn {
-	TranslationsOffersDetailsEn.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
 
 	/// en: 'Amount: ${amount} satoshi'
 	String amount({required Object amount}) => 'Amount: ${amount} satoshi';
@@ -604,6 +595,21 @@ class TranslationsOffersDetailsEn {
 
 	/// en: 'Paid after: ${duration}'
 	String paidAfter({required Object duration}) => 'Paid after: ${duration}';
+
+	/// en: 'Exchange Rate'
+	String get exchangeRate => 'Exchange Rate';
+
+	/// en: 'Taker fee'
+	String get takerFeeLabel => 'Taker fee';
+
+	/// en: 'Status'
+	String get statusLabel => 'Status';
+
+	/// en: 'You'll receive'
+	String get youllReceive => 'You\'ll receive';
+
+	/// en: 'Coordinator'
+	String get coordinator => 'Coordinator';
 }
 
 // Path: offers.actions
@@ -617,6 +623,9 @@ class TranslationsOffersActionsEn {
 	/// en: 'TAKE'
 	String get take => 'TAKE';
 
+	/// en: 'Take Offer'
+	String get takeOffer => 'Take Offer';
+
 	/// en: 'RESUME'
 	String get resume => 'RESUME';
 
@@ -627,6 +636,60 @@ class TranslationsOffersActionsEn {
 // Path: offers.status
 class TranslationsOffersStatusEn {
 	TranslationsOffersStatusEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Created'
+	String get created => 'Created';
+
+	/// en: 'Funded'
+	String get funded => 'Funded';
+
+	/// en: 'Expired'
+	String get expired => 'Expired';
+
+	/// en: 'Cancelled'
+	String get cancelled => 'Cancelled';
+
+	/// en: 'Reserved'
+	String get reserved => 'Reserved';
+
+	/// en: 'BLIK Sent'
+	String get blikReceived => 'BLIK Sent';
+
+	/// en: 'BLIK Received'
+	String get blikSentToMaker => 'BLIK Received';
+
+	/// en: 'Invalid BLIK'
+	String get invalidBlik => 'Invalid BLIK';
+
+	/// en: 'Conflict'
+	String get conflict => 'Conflict';
+
+	/// en: 'Dispute'
+	String get dispute => 'Dispute';
+
+	/// en: 'Confirmed'
+	String get makerConfirmed => 'Confirmed';
+
+	/// en: 'Settled'
+	String get settled => 'Settled';
+
+	/// en: 'Paying Taker'
+	String get payingTaker => 'Paying Taker';
+
+	/// en: 'Payment Failed'
+	String get takerPaymentFailed => 'Payment Failed';
+
+	/// en: 'Taker Paid'
+	String get takerPaid => 'Taker Paid';
+}
+
+// Path: offers.statusMessages
+class TranslationsOffersStatusMessagesEn {
+	TranslationsOffersStatusMessagesEn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -791,8 +854,8 @@ class TranslationsExchangeLabelsEn {
 	/// en: '≈ ${sats} satoshi'
 	String equivalent({required Object sats}) => '≈ ${sats} satoshi';
 
-	/// en: 'Average PLN/BTC rate ≈ ${rate}'
-	String rate({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
+	/// en: 'Exchange rate ≈ ${rate} PLN/BTC'
+	String rate({required Object rate}) => 'Exchange rate ≈ ${rate} PLN/BTC';
 }
 
 // Path: exchange.feedback
@@ -2128,14 +2191,14 @@ extension on Translations {
 			case 'lightningAddress.feedback.valid': return 'Valid Lightning address';
 			case 'lightningAddress.errors.saving': return ({required Object details}) => 'Error saving address: ${details}';
 			case 'lightningAddress.errors.loading': return ({required Object details}) => 'Error loading Lightning address: ${details}';
-			case 'offers.display.yourOffer': return 'Your offer:';
-			case 'offers.display.selectedOffer': return 'Offer:';
-			case 'offers.display.activeOffer': return 'You have an active offer:';
-			case 'offers.display.finishedOffers': return 'Finished offers';
-			case 'offers.display.finishedOffersWithTime': return 'Finished offers (last 24h):';
-			case 'offers.display.noAvailable': return 'No available offers.';
-			case 'offers.display.noSuccessfulTrades': return 'No successful trades.';
-			case 'offers.display.loadingDetails': return 'Loading offer details...';
+			case 'offers.details.yourOffer': return 'Your offer:';
+			case 'offers.details.selectedOffer': return 'Offer:';
+			case 'offers.details.activeOffer': return 'You have an active offer:';
+			case 'offers.details.finishedOffers': return 'Finished offers';
+			case 'offers.details.finishedOffersWithTime': return 'Finished offers (last 24h):';
+			case 'offers.details.noAvailable': return 'No available offers.';
+			case 'offers.details.noSuccessfulTrades': return 'No successful trades.';
+			case 'offers.details.loadingDetails': return 'Loading offer details...';
 			case 'offers.details.amount': return ({required Object amount}) => 'Amount: ${amount} satoshi';
 			case 'offers.details.amountWithCurrency': return ({required Object amount, required Object currency}) => '${amount} ${currency}';
 			case 'offers.details.makerFee': return ({required Object fee}) => 'Maker fee: ${fee} satoshi';
@@ -2148,13 +2211,34 @@ extension on Translations {
 			case 'offers.details.created': return ({required Object dateTime}) => 'Created: ${dateTime}';
 			case 'offers.details.takenAfter': return ({required Object duration}) => 'Taken after: ${duration}';
 			case 'offers.details.paidAfter': return ({required Object duration}) => 'Paid after: ${duration}';
+			case 'offers.details.exchangeRate': return 'Exchange Rate';
+			case 'offers.details.takerFeeLabel': return 'Taker fee';
+			case 'offers.details.statusLabel': return 'Status';
+			case 'offers.details.youllReceive': return 'You\'ll receive';
+			case 'offers.details.coordinator': return 'Coordinator';
 			case 'offers.actions.take': return 'TAKE';
+			case 'offers.actions.takeOffer': return 'Take Offer';
 			case 'offers.actions.resume': return 'RESUME';
 			case 'offers.actions.cancel': return 'Cancel offer';
-			case 'offers.status.reserved': return 'Offer reserved by Taker!';
-			case 'offers.status.cancelled': return 'Offer cancelled successfully.';
-			case 'offers.status.cancelledOrExpired': return 'Offer has been cancelled or expired.';
-			case 'offers.status.noLongerAvailable': return ({required Object status}) => 'Offer is no longer available (Status: ${status}).';
+			case 'offers.status.created': return 'Created';
+			case 'offers.status.funded': return 'Funded';
+			case 'offers.status.expired': return 'Expired';
+			case 'offers.status.cancelled': return 'Cancelled';
+			case 'offers.status.reserved': return 'Reserved';
+			case 'offers.status.blikReceived': return 'BLIK Sent';
+			case 'offers.status.blikSentToMaker': return 'BLIK Received';
+			case 'offers.status.invalidBlik': return 'Invalid BLIK';
+			case 'offers.status.conflict': return 'Conflict';
+			case 'offers.status.dispute': return 'Dispute';
+			case 'offers.status.makerConfirmed': return 'Confirmed';
+			case 'offers.status.settled': return 'Settled';
+			case 'offers.status.payingTaker': return 'Paying Taker';
+			case 'offers.status.takerPaymentFailed': return 'Payment Failed';
+			case 'offers.status.takerPaid': return 'Taker Paid';
+			case 'offers.statusMessages.reserved': return 'Offer reserved by Taker!';
+			case 'offers.statusMessages.cancelled': return 'Offer cancelled successfully.';
+			case 'offers.statusMessages.cancelledOrExpired': return 'Offer has been cancelled or expired.';
+			case 'offers.statusMessages.noLongerAvailable': return ({required Object status}) => 'Offer is no longer available (Status: ${status}).';
 			case 'offers.progress.waitingForTaker': return ({required Object time}) => 'Waiting for taker: ${time}';
 			case 'offers.progress.reserved': return ({required Object seconds}) => 'Reserved: ${seconds} s left';
 			case 'offers.progress.confirming': return ({required Object seconds}) => 'Confirming: ${seconds} s left';
@@ -2186,7 +2270,7 @@ extension on Translations {
 			case 'reservations.errors.notReserved': return ({required Object status}) => 'Offer is no longer in reserved state (${status}).';
 			case 'exchange.labels.enterAmount': return 'Enter amount (PLN) to pay:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
-			case 'exchange.labels.rate': return ({required Object rate}) => 'Average PLN/BTC rate ≈ ${rate}';
+			case 'exchange.labels.rate': return ({required Object rate}) => 'Exchange rate ≈ ${rate} PLN/BTC';
 			case 'exchange.feedback.fetching': return 'Fetching exchange rate...';
 			case 'exchange.errors.fetchingRate': return 'Failed to fetch exchange rate.';
 			case 'exchange.errors.invalidFormat': return 'Invalid number format';
