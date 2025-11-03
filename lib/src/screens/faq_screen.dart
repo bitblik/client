@@ -6,6 +6,7 @@ import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../i18n/gen/strings.g.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:go_router/go_router.dart';
 
 class FaqScreen extends ConsumerStatefulWidget {
   const FaqScreen({super.key});
@@ -109,41 +110,81 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
   Widget build(BuildContext context) {
     // final t = Translations.of(context); // Access translations if needed for other parts
 
+    Widget backButton = Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/');
+          }
+        },
+        tooltip: 'Back',
+      ),
+    );
+
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Column(
+        children: [
+          backButton,
+          const Expanded(child: Center(child: CircularProgressIndicator())),
+        ],
+      );
     }
 
     if (_error.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            _error,
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
+      return Column(
+        children: [
+          backButton,
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _error,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
     if (_htmlContent == null) {
-      return const Center(child: Text('No FAQ content available.'));
+      return Column(
+        children: [
+          backButton,
+          const Expanded(child: Center(child: Text('No FAQ content available.'))),
+        ],
+      );
     }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0), // Apply padding to SingleChildScrollView
-      child: Html(
-        data: _htmlContent!,
-        onLinkTap: (url, attributes, element) {
-          if (url != null) {
-            launchUrlString(url);
-          }
-        },
-        // You can customize styles using the style parameter for flutter_html
-        // style: {
-        //   "h1": Style(textAlign: TextAlign.center),
-        //   // Add more styles as needed
-        // },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Back arrow button at the top
+          backButton,
+          // FAQ content
+          Html(
+            data: _htmlContent!,
+            onLinkTap: (url, attributes, element) {
+              if (url != null) {
+                launchUrlString(url);
+              }
+            },
+            // You can customize styles using the style parameter for flutter_html
+            // style: {
+            //   "h1": Style(textAlign: TextAlign.center),
+            //   // Add more styles as needed
+            // },
+          ),
+        ],
       ),
     );
   }

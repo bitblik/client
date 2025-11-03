@@ -49,7 +49,9 @@ late AppLocale appLocale;
 final rustEventVerifier = RustEventVerifier();
 
 /// Listen to connectivity changes and reconnect NDK when connectivity is restored
-StreamSubscription<List<ConnectivityResult>> listenToConnectivityChanges(WidgetRef ref) {
+StreamSubscription<List<ConnectivityResult>> listenToConnectivityChanges(
+  WidgetRef ref,
+) {
   return Connectivity().onConnectivityChanged
       .skip(1) // do not fire on app startup
       .listen((List<ConnectivityResult> result) {
@@ -68,24 +70,55 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     initialLocation: '/',
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const AppScaffold(body: RoleSelectionScreen())),
-      GoRoute(path: '/offers', builder: (context, state) => const AppScaffold(body: OfferListScreen())),
+      GoRoute(
+        path: '/',
+        builder:
+            (context, state) => const AppScaffold(body: RoleSelectionScreen()),
+      ),
+      GoRoute(
+        path: '/offers',
+        builder: (context, state) => const AppScaffold(body: OfferListScreen()),
+      ),
       GoRoute(
         path: '/offers/:id',
         builder: (context, state) {
           final offerId = state.pathParameters['id'];
           if (offerId == null) {
             // Or redirect to an error page
-            return const AppScaffold(body: Center(child: Text('No offer ID provided.')));
+            return const AppScaffold(
+              body: Center(child: Text('No offer ID provided.')),
+            );
           }
           return AppScaffold(body: OfferDetailsScreen(offerId: offerId));
         },
       ),
-      GoRoute(path: '/create', builder: (context, state) => const AppScaffold(body: MakerAmountForm())),
-      GoRoute(path: '/pay', builder: (context, state) => const AppScaffold(body: MakerPayInvoiceScreen())),
-      GoRoute(path: '/wait-taker', builder: (context, state) => const AppScaffold(body: MakerWaitTakerScreen())),
-      GoRoute(path: '/wait-blik', builder: (context, state) => const AppScaffold(body: MakerWaitForBlikScreen())),
-      GoRoute(path: '/confirm-blik', builder: (context, state) => const AppScaffold(body: MakerConfirmPaymentScreen())),
+      GoRoute(
+        path: '/create',
+        builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
+      ),
+      GoRoute(
+        path: '/pay',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: MakerPayInvoiceScreen()),
+      ),
+      GoRoute(
+        path: '/wait-taker',
+        builder:
+            (context, state) => const AppScaffold(body: MakerWaitTakerScreen()),
+      ),
+      GoRoute(
+        path: '/wait-blik',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: MakerWaitForBlikScreen()),
+      ),
+      GoRoute(
+        path: '/confirm-blik',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: MakerConfirmPaymentScreen()),
+      ),
       GoRoute(
         path: '/maker-success',
         builder: (context, state) {
@@ -93,7 +126,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: MakerSuccessScreen(completedOffer: state.extra as Offer));
+            return AppScaffold(
+              body: MakerSuccessScreen(completedOffer: state.extra as Offer),
+            );
           }
         },
       ),
@@ -105,7 +140,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer));
+            return AppScaffold(
+              body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer),
+            );
           }
         },
       ),
@@ -116,7 +153,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: TakerWaitConfirmationScreen(offer: state.extra as Offer));
+            return AppScaffold(
+              body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
+            );
           }
         },
       ),
@@ -127,11 +166,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: TakerPaymentFailedScreen(offer: state.extra as Offer));
+            return AppScaffold(
+              body: TakerPaymentFailedScreen(offer: state.extra as Offer),
+            );
           }
         },
       ),
-      GoRoute(path: '/paying-taker', builder: (context, state) => AppScaffold(body: TakerPaymentProcessScreen())),
+      GoRoute(
+        path: '/paying-taker',
+        builder:
+            (context, state) => AppScaffold(body: TakerPaymentProcessScreen()),
+      ),
       GoRoute(
         path: '/taker-invalid-blik',
         builder: (context, state) {
@@ -139,14 +184,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: TakerInvalidBlikScreen(offer: state.extra as Offer));
+            return AppScaffold(
+              body: TakerInvalidBlikScreen(offer: state.extra as Offer),
+            );
           }
         },
       ),
 
       GoRoute(
         path: '/taker-conflict',
-        builder: (context, state) => AppScaffold(body: TakerConflictScreen(offerId: state.extra as String)),
+        builder:
+            (context, state) => AppScaffold(
+              body: TakerConflictScreen(offerId: state.extra as String),
+            ),
       ),
       GoRoute(
         path: '/maker-invalid-blik',
@@ -155,7 +205,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: MakerInvalidBlikScreen(offer: state.extra as Offer));
+            return AppScaffold(
+              body: MakerInvalidBlikScreen(offer: state.extra as Offer),
+            );
           }
         },
       ),
@@ -166,13 +218,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             context.go("/");
             return Container();
           } else {
-            return AppScaffold(body: MakerConflictScreen(offer: state.extra as Offer));
+            return AppScaffold(
+              body: MakerConflictScreen(offer: state.extra as Offer),
+            );
           }
         },
       ),
       GoRoute(
         path: FaqScreen.routeName,
-        builder: (context, state) => AppScaffold(body: const FaqScreen(), pageTitle: t.faq.screenTitle),
+        builder:
+            (context, state) =>
+                const AppScaffold(body: FaqScreen(), hideBackButton: true),
       ),
     ],
   );
@@ -223,7 +279,9 @@ class _MyAppState extends ConsumerState<MyApp> {
       ref.read(keyServiceProvider);
       ref.read(apiServiceProvider);
 
-      print('🚀 App initialized: API service and coordinator discovery started');
+      print(
+        '🚀 App initialized: API service and coordinator discovery started',
+      );
     } catch (e) {
       print('❌ Error during app initialization: $e');
     }
@@ -244,7 +302,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         // Start listening to connectivity changes
         _connectivitySubscription = listenToConnectivityChanges(ref);
 
-        print('🚀 App initialized: API service and coordinator discovery started');
+        print(
+          '🚀 App initialized: API service and coordinator discovery started',
+        );
       } catch (e) {
         print('❌ Error during app initialization: $e');
       }
@@ -285,7 +345,10 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp.router(
       title: t.app.title,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
       locale: appLocale.flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -298,8 +361,16 @@ class _MyAppState extends ConsumerState<MyApp> {
 class AppScaffold extends ConsumerStatefulWidget {
   final Widget body;
   final String? pageTitle; // Optional page title
+  final bool showBackButton; // Whether to show back button
+  final bool hideBackButton; // Whether to explicitly hide back button
 
-  const AppScaffold({super.key, required this.body, this.pageTitle});
+  const AppScaffold({
+    super.key,
+    required this.body,
+    this.pageTitle,
+    this.showBackButton = false,
+    this.hideBackButton = false,
+  });
 
   @override
   ConsumerState<AppScaffold> createState() => _AppScaffoldState();
@@ -341,7 +412,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 // Display bigger neko avatar at the top
                 CachedNetworkImage(
                   imageUrl: 'https://robohash.org/$pubKey?set=set4',
-                  placeholder: (context, url) => const CircularProgressIndicator(),
+                  placeholder:
+                      (context, url) => const CircularProgressIndicator(),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   width: 150,
                   // Bigger size compared to the 32x32 in the footer
@@ -355,7 +427,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ),
           ),
           actions: <Widget>[
-            TextButton(child: Text(t.common.buttons.close), onPressed: () => Navigator.of(context).pop()),
+            TextButton(
+              child: Text(t.common.buttons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ],
         );
       },
@@ -371,9 +446,16 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       builder: (context) {
         return AlertDialog(
           title: Text(t.generateNewKey.title),
-          content: Text(activeOffer != null ? t.generateNewKey.errors.activeOffer : t.generateNewKey.description),
+          content: Text(
+            activeOffer != null
+                ? t.generateNewKey.errors.activeOffer
+                : t.generateNewKey.description,
+          ),
           actions: <Widget>[
-            TextButton(child: Text(t.common.buttons.cancel), onPressed: () => Navigator.of(context).pop()),
+            TextButton(
+              child: Text(t.common.buttons.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             if (activeOffer == null)
               TextButton(
                 child: Text(t.generateNewKey.buttons.generate),
@@ -382,7 +464,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.generateNewKeyPair();
 
                     // Clear the active offer when restoring a new key
-                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -395,7 +479,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -404,13 +490,19 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close generate key dialog
 
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(t.generateNewKey.feedback.success)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t.generateNewKey.feedback.success),
+                      ),
+                    );
                   } catch (e) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('${t.generateNewKey.errors.failed}: ${e.toString()}')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
                   }
                 },
               ),
@@ -452,8 +544,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               ),
               actions: <Widget>[
                 TextButton.icon(
-                  icon: Icon(isRevealed ? Icons.visibility_off : Icons.visibility),
-                  label: Text(isRevealed ? t.common.buttons.hide : t.common.buttons.reveal),
+                  icon: Icon(
+                    isRevealed ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  label: Text(
+                    isRevealed
+                        ? t.common.buttons.hide
+                        : t.common.buttons.reveal,
+                  ),
                   onPressed: () {
                     setState(() {
                       isRevealed = !isRevealed;
@@ -464,8 +562,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   icon: const Icon(Icons.copy),
                   label: Text(t.common.buttons.copy),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: Nip19.encodePrivateKey(privateKey)));
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.backup.feedback.copied)));
+                    Clipboard.setData(
+                      ClipboardData(text: Nip19.encodePrivateKey(privateKey)),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.backup.feedback.copied)),
+                    );
                   },
                 ),
                 TextButton(
@@ -496,7 +598,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             key: formKey,
             child: TextFormField(
               controller: privateKeyController,
-              decoration: InputDecoration(labelText: t.restore.labels.privateKey, hintText: 'e.g., nsec1...'),
+              decoration: InputDecoration(
+                labelText: t.restore.labels.privateKey,
+                hintText: 'e.g., nsec1...',
+              ),
               validator: (value) {
                 if (value == null || !Nip19.isPrivateKey(value)) {
                   return t.restore.errors.invalidKey;
@@ -521,7 +626,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.savePrivateKey(pKey);
 
                     // Clear the active offer when restoring a new key
-                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -534,7 +641,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                      builder:
+                          (context) =>
+                              const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -543,11 +652,17 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close restore dialog
 
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.restore.feedback.success)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.restore.feedback.success)),
+                    );
                   } catch (e) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('${t.restore.errors.failed}: ${e.toString()}')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${t.restore.errors.failed}: ${e.toString()}',
+                        ),
+                      ),
+                    );
                   }
                 }
               },
@@ -589,9 +704,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             children: [
               Text(
                 t.app.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               const SizedBox(width: 4),
               Text(
@@ -607,10 +723,16 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading:
-            (widget.pageTitle != null && widget.pageTitle!.isNotEmpty), // Show back button if pageTitle is present
+            !widget.hideBackButton &&
+            ((widget.pageTitle != null && widget.pageTitle!.isNotEmpty) ||
+                widget
+                    .showBackButton), // Show back button if pageTitle is present or showBackButton is true, unless hideBackButton is true
         title: appBarTitle,
         // Add a divider at the bottom of the AppBar
-        bottom: const PreferredSize(preferredSize: Size.fromHeight(1.0), child: Divider(height: 1.0, thickness: 1.0)),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Divider(height: 1.0, thickness: 1.0),
+        ),
         actions: [
           // Language Switcher Dropdown
           DropdownButtonHideUnderline(
@@ -625,15 +747,27 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   return Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 48),
-                    child: Image.asset('assets/languages.png', width: 20, height: 20, fit: BoxFit.contain),
+                    child: Image.asset(
+                      'assets/languages.png',
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
                   );
                 }).toList();
               },
               onChanged: (AppLocale? newLocale) async {
                 if (newLocale != null) {
-                  await asyncPrefs.setString('app_locale', newLocale.languageCode);
-                  if (LocaleSettings.currentLocale.languageCode != newLocale.languageCode) {
-                    appLocale = newLocale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
+                  await asyncPrefs.setString(
+                    'app_locale',
+                    newLocale.languageCode,
+                  );
+                  if (LocaleSettings.currentLocale.languageCode !=
+                      newLocale.languageCode) {
+                    appLocale =
+                        newLocale.languageCode == 'pl'
+                            ? AppLocale.pl
+                            : AppLocale.en;
                     LocaleSettings.setLocale(appLocale);
                     // Force rebuild to update UI
                     if (mounted) {
@@ -643,7 +777,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 }
               },
               items:
-                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((AppLocale locale) {
+                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((
+                    AppLocale locale,
+                  ) {
                     final String flagEmoji =
                         locale.languageCode == 'en'
                             ? '🇬🇧'
@@ -706,7 +842,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             constraints: const BoxConstraints(),
             tooltip: t.faq.tooltip,
             onPressed: () {
-              kIsWeb ? context.go(FaqScreen.routeName) : context.push(FaqScreen.routeName);
+              kIsWeb
+                  ? context.go(FaqScreen.routeName)
+                  : context.push(FaqScreen.routeName);
             },
           ),
         ],
@@ -729,7 +867,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        final Uri url = Uri.parse('https://github.com/bitblik/client/releases');
+                        final Uri url = Uri.parse(
+                          'https://github.com/bitblik/client/releases',
+                        );
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
                         } else {
@@ -742,7 +882,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           }
                         }
                       },
-                      child: Image.asset('assets/apk.png', width: 100, height: 31, fit: BoxFit.contain),
+                      child: Image.asset(
+                        'assets/apk.png',
+                        width: 100,
+                        height: 31,
+                        fit: BoxFit.contain,
+                      ),
                       //  Icon(Icons.android, size: 32, color: Colors.green),
                     ),
                     const SizedBox(width: 16),
@@ -751,7 +896,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                         final Uri url = Uri.parse('zapstore://app.bitblik');
                         await launchUrl(url);
                       },
-                      child: Image.asset('assets/zapstore.png', width: 100, height: 31, fit: BoxFit.contain),
+                      child: Image.asset(
+                        'assets/zapstore.png',
+                        width: 100,
+                        height: 31,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ],
                 ),
@@ -770,9 +920,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                   // Text(t.neko.yourNeko, style: Theme.of(context).textTheme.bodySmall),
                                   // const SizedBox(width: 4),
                                   CachedNetworkImage(
-                                    imageUrl: 'https://robohash.org/$publicKey?set=set4',
-                                    placeholder: (context, url) => const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                                    imageUrl:
+                                        'https://robohash.org/$publicKey?set=set4',
+                                    placeholder:
+                                        (context, url) =>
+                                            const CircularProgressIndicator(),
+                                    errorWidget:
+                                        (context, url, error) =>
+                                            const Icon(Icons.error),
                                     width: 32,
                                     height: 32,
                                   ),
@@ -780,7 +935,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                   Flexible(
                                     child: Text(
                                       '${Nip19.encodePubKey(publicKey).substring(0, 21)}...',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
@@ -806,12 +962,18 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           : const SizedBox.shrink(),
               loading:
                   () => const Center(
-                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
               error:
                   (err, stack) => Text(
                     'Error loading key: $err', // This can remain hardcoded or be added to Slang if needed
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
             ),
