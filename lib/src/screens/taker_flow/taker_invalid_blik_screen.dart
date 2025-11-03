@@ -115,104 +115,104 @@ class _TakerInvalidBlikScreenState
                 child: Text(t.taker.invalidBlik.actions.retry),
               ),
               const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed:
-                    _isLoading
-                        ? null
-                        : () async {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          final apiService = ref.read(apiServiceProvider);
-                          final userPublicKey = await ref.read(
-                            publicKeyProvider.future,
-                          );
-
-                          if (userPublicKey == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t
-                                      .maker
-                                      .confirmPayment
-                                      .errors
-                                      .missingHashOrKey,
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                              ),
-                            );
-                            setState(() {
-                              _isLoading = false;
-                            });
-                            return;
-                          }
-
-                          try {
-                            print(
-                              "[TakerInvalidBlikScreen] Canceling reservation for offer ${offer.id} by taker $userPublicKey",
-                            );
-                            await apiService.cancelReservation(
-                              offer.id,
-                              userPublicKey,
-                              offer.coordinatorPubkey,
-                            );
-
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    t.reservations.feedback.cancelled,
-                                  ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              await ref
-                                  .read(activeOfferProvider.notifier)
-                                  .setActiveOffer(null);
-                              context.go('/offers');
-                            }
-                          } catch (e) {
-                            print(
-                              "[TakerInvalidBlikScreen] Error canceling reservation: $e",
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.reservations.errors.cancelling(
-                                    error: e.toString(),
-                                  ),
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                              ),
-                            );
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                _isLoading = false;
-                              });
-                            }
-                          }
-                        },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                ),
-                child:
-                    _isLoading
-                        ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                        : Text(t.taker.invalidBlik.actions.cancelReservation),
-              ),
+              // ElevatedButton(
+              //   onPressed:
+              //       _isLoading
+              //           ? null
+              //           : () async {
+              //             setState(() {
+              //               _isLoading = true;
+              //             });
+              //             final apiService = ref.read(apiServiceProvider);
+              //             final userPublicKey = await ref.read(
+              //               publicKeyProvider.future,
+              //             );
+              //
+              //             if (userPublicKey == null) {
+              //               ScaffoldMessenger.of(context).showSnackBar(
+              //                 SnackBar(
+              //                   content: Text(
+              //                     t
+              //                         .maker
+              //                         .confirmPayment
+              //                         .errors
+              //                         .missingHashOrKey,
+              //                   ),
+              //                   backgroundColor:
+              //                       Theme.of(context).colorScheme.error,
+              //                 ),
+              //               );
+              //               setState(() {
+              //                 _isLoading = false;
+              //               });
+              //               return;
+              //             }
+              //
+              //             try {
+              //               print(
+              //                 "[TakerInvalidBlikScreen] Canceling reservation for offer ${offer.id} by taker $userPublicKey",
+              //               );
+              //               await apiService.cancelReservation(
+              //                 offer.id,
+              //                 userPublicKey,
+              //                 offer.coordinatorPubkey,
+              //               );
+              //
+              //               if (mounted) {
+              //                 ScaffoldMessenger.of(context).showSnackBar(
+              //                   SnackBar(
+              //                     content: Text(
+              //                       t.reservations.feedback.cancelled,
+              //                     ),
+              //                     backgroundColor: Colors.green,
+              //                   ),
+              //                 );
+              //                 await ref
+              //                     .read(activeOfferProvider.notifier)
+              //                     .setActiveOffer(null);
+              //                 context.go('/offers');
+              //               }
+              //             } catch (e) {
+              //               print(
+              //                 "[TakerInvalidBlikScreen] Error canceling reservation: $e",
+              //               );
+              //               ScaffoldMessenger.of(context).showSnackBar(
+              //                 SnackBar(
+              //                   content: Text(
+              //                     t.reservations.errors.cancelling(
+              //                       error: e.toString(),
+              //                     ),
+              //                   ),
+              //                   backgroundColor:
+              //                       Theme.of(context).colorScheme.error,
+              //                 ),
+              //               );
+              //             } finally {
+              //               if (mounted) {
+              //                 setState(() {
+              //                   _isLoading = false;
+              //                 });
+              //               }
+              //             }
+              //           },
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.orange,
+              //     foregroundColor: Colors.white,
+              //   ),
+              //   child:
+              //       _isLoading
+              //           ? const SizedBox(
+              //             height: 20,
+              //             width: 20,
+              //             child: CircularProgressIndicator(
+              //               strokeWidth: 2,
+              //               valueColor: AlwaysStoppedAnimation<Color>(
+              //                 Colors.white,
+              //               ),
+              //             ),
+              //           )
+              //           : Text(t.taker.invalidBlik.actions.cancelReservation),
+              // ),
               const SizedBox(height: 15),
               ElevatedButton(
                 onPressed:

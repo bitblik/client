@@ -149,6 +149,7 @@ class TranslationsCoordinatorEn {
 	// Translations
 	late final TranslationsCoordinatorInfoEn info = TranslationsCoordinatorInfoEn.internal(_root);
 	late final TranslationsCoordinatorSelectorEn selector = TranslationsCoordinatorSelectorEn.internal(_root);
+	late final TranslationsCoordinatorDialogEn dialog = TranslationsCoordinatorDialogEn.internal(_root);
 }
 
 // Path: maker
@@ -632,6 +633,9 @@ class TranslationsOffersActionsEn {
 
 	/// en: 'Cancel offer'
 	String get cancel => 'Cancel offer';
+
+	/// en: 'View details'
+	String get View => 'View details';
 }
 
 // Path: offers.status
@@ -942,11 +946,38 @@ class TranslationsCoordinatorSelectorEn {
 	/// en: 'Waiting for coordinator response'
 	String get waitingResponse => 'Waiting for coordinator response';
 
-	/// en: 'I accept the '
-	String get termsAccept => 'I accept the ';
+	/// en: 'I accept its '
+	String get termsAccept => 'I accept its ';
 
 	/// en: 'Terms of Usage'
 	String get termsOfUsage => 'Terms of Usage';
+}
+
+// Path: coordinator.dialog
+class TranslationsCoordinatorDialogEn {
+	TranslationsCoordinatorDialogEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Maker Fee'
+	String get makerFee => 'Maker Fee';
+
+	/// en: 'Taker Fee'
+	String get takerFee => 'Taker Fee';
+
+	/// en: 'Amount Range'
+	String get amountRange => 'Amount Range';
+
+	/// en: 'Reservation Time'
+	String get reservationTime => 'Reservation Time';
+
+	/// en: 'Currencies'
+	String get currencies => 'Currencies';
+
+	/// en: 'View Terms'
+	String get viewTerms => 'View Terms';
 }
 
 // Path: maker.roleSelection
@@ -2257,6 +2288,7 @@ extension on Translations {
 			case 'offers.actions.takeOffer': return 'Take Offer';
 			case 'offers.actions.resume': return 'ENTER BLIK';
 			case 'offers.actions.cancel': return 'Cancel offer';
+			case 'offers.actions.View': return 'View details';
 			case 'offers.status.created': return 'Created';
 			case 'offers.status.funded': return 'Funded';
 			case 'offers.status.expired': return 'Expired';
@@ -2324,8 +2356,14 @@ extension on Translations {
 			case 'coordinator.selector.viewNostrProfile': return 'View Nostr profile';
 			case 'coordinator.selector.unresponsive': return 'This coordinator is unresponsive';
 			case 'coordinator.selector.waitingResponse': return 'Waiting for coordinator response';
-			case 'coordinator.selector.termsAccept': return 'I accept the ';
+			case 'coordinator.selector.termsAccept': return 'I accept its ';
 			case 'coordinator.selector.termsOfUsage': return 'Terms of Usage';
+			case 'coordinator.dialog.makerFee': return 'Maker Fee';
+			case 'coordinator.dialog.takerFee': return 'Taker Fee';
+			case 'coordinator.dialog.amountRange': return 'Amount Range';
+			case 'coordinator.dialog.reservationTime': return 'Reservation Time';
+			case 'coordinator.dialog.currencies': return 'Currencies';
+			case 'coordinator.dialog.viewTerms': return 'View Terms';
 			case 'maker.roleSelection.button': return 'PAY with Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';

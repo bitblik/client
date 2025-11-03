@@ -104,7 +104,7 @@ class _TakerWaitConfirmationScreenState
 
   Future<void> _resetToOfferList(String message) async {
     _confirmationTimer?.cancel();
-    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+    // await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(errorProvider.notifier).state = null;
     _timersInitialized = false;
 

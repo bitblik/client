@@ -109,6 +109,7 @@ offers:
     takeOffer: Take Offer
     resume: ENTER BLIK
     cancel: Cancel offer
+    View: View details
   
   status:
     created: "Created"
@@ -212,8 +213,16 @@ coordinator:
     viewNostrProfile: "View Nostr profile"
     unresponsive: "This coordinator is unresponsive"
     waitingResponse: "Waiting for coordinator response"
-    termsAccept: "I accept the "
+    termsAccept: "I accept its "
     termsOfUsage: "Terms of Usage"
+  
+  dialog:
+    makerFee: "Maker Fee"
+    takerFee: "Taker Fee"
+    amountRange: "Amount Range"
+    reservationTime: "Reservation Time"
+    currencies: "Currencies"
+    viewTerms: "View Terms"
 
 # =============================================================================
 # MAKER FLOW

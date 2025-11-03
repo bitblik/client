@@ -144,6 +144,7 @@ class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
 	// Translations
 	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
 	@override late final _TranslationsCoordinatorSelectorPl selector = _TranslationsCoordinatorSelectorPl._(_root);
+	@override late final _TranslationsCoordinatorDialogPl dialog = _TranslationsCoordinatorDialogPl._(_root);
 }
 
 // Path: maker
@@ -458,6 +459,7 @@ class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 	@override String get takeOffer => 'Weź ofertę';
 	@override String get resume => 'Wprowadź BLIK';
 	@override String get cancel => 'Anuluj ofertę';
+	@override String get view => 'Zobacz';
 }
 
 // Path: offers.status
@@ -633,8 +635,23 @@ class _TranslationsCoordinatorSelectorPl extends TranslationsCoordinatorSelector
 	@override String get viewNostrProfile => 'Zobacz profil Nostr';
 	@override String get unresponsive => 'Ten koordynator nie odpowiada';
 	@override String get waitingResponse => 'Oczekiwanie na odpowiedź koordynatora';
-	@override String get termsAccept => 'Akceptuję ';
+	@override String get termsAccept => 'Akceptuję jego';
 	@override String get termsOfUsage => 'Warunki użytkowania';
+}
+
+// Path: coordinator.dialog
+class _TranslationsCoordinatorDialogPl extends TranslationsCoordinatorDialogEn {
+	_TranslationsCoordinatorDialogPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get makerFee => 'Opłata twórcy';
+	@override String get takerFee => 'Opłata odbiorcy';
+	@override String get amountRange => 'Zakres kwoty';
+	@override String get reservationTime => 'Czas rezerwacji';
+	@override String get currencies => 'Waluty';
+	@override String get viewTerms => 'Zobacz warunki';
 }
 
 // Path: maker.roleSelection
@@ -1571,6 +1588,7 @@ extension on TranslationsPl {
 			case 'offers.actions.takeOffer': return 'Weź ofertę';
 			case 'offers.actions.resume': return 'Wprowadź BLIK';
 			case 'offers.actions.cancel': return 'Anuluj ofertę';
+			case 'offers.actions.view': return 'Zobacz';
 			case 'offers.status.created': return 'Utworzona';
 			case 'offers.status.funded': return 'Sfinansowana';
 			case 'offers.status.expired': return 'Wygasła';
@@ -1638,8 +1656,14 @@ extension on TranslationsPl {
 			case 'coordinator.selector.viewNostrProfile': return 'Zobacz profil Nostr';
 			case 'coordinator.selector.unresponsive': return 'Ten koordynator nie odpowiada';
 			case 'coordinator.selector.waitingResponse': return 'Oczekiwanie na odpowiedź koordynatora';
-			case 'coordinator.selector.termsAccept': return 'Akceptuję ';
+			case 'coordinator.selector.termsAccept': return 'Akceptuję jego';
 			case 'coordinator.selector.termsOfUsage': return 'Warunki użytkowania';
+			case 'coordinator.dialog.makerFee': return 'Opłata twórcy';
+			case 'coordinator.dialog.takerFee': return 'Opłata odbiorcy';
+			case 'coordinator.dialog.amountRange': return 'Zakres kwoty';
+			case 'coordinator.dialog.reservationTime': return 'Czas rezerwacji';
+			case 'coordinator.dialog.currencies': return 'Waluty';
+			case 'coordinator.dialog.viewTerms': return 'Zobacz warunki';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';

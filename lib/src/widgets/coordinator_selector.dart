@@ -375,31 +375,37 @@ class _CoordinatorSelectorState extends ConsumerState<CoordinatorSelector> {
                             },
                           ),
                         Expanded(
-                          child: GestureDetector(
-                            onTap: () => _openTermsOfUsage(
-                              displayCoordinator.termsOfUsageNaddr!,
-                            ),
-                            child: RichText(
-                              text: TextSpan(
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: t.coordinator.selector.termsAccept,
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _saveTermsAcceptance(!_termsAccepted);
+                                },
+                                child: Text(
+                                  t.coordinator.selector.termsAccept,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
                                   ),
-                                  TextSpan(
-                                    mouseCursor: SystemMouseCursors.click,
-                                    text: t.coordinator.selector.termsOfUsage,
+                                ),
+                              ),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () => _openTermsOfUsage(
+                                    displayCoordinator.termsOfUsageNaddr!,
+                                  ),
+                                  child: Text(
+                                    t.coordinator.selector.termsOfUsage,
                                     style: const TextStyle(
                                       color: Colors.blue,
+                                      fontSize: 14,
                                       decoration: TextDecoration.underline,
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                         // IconButton(

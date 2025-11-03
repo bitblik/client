@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../i18n/gen/strings.g.dart';
@@ -9,8 +10,6 @@ import '../models/coordinator_info.dart';
 import '../models/offer.dart';
 import '../providers/providers.dart';
 import '../services/api_service_nostr.dart';
-import '../services/nostr_service.dart';
-import '../services/key_service.dart';
 import '../widgets/lightning_address_widget.dart';
 import '../widgets/progress_indicators.dart';
 
@@ -24,6 +23,54 @@ class OfferDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
+  bool _termsAccepted = false;
+  bool _isLoadingTerms = true;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _loadTermsAcceptance(
+    String coordinatorPubkey,
+    String? termsOfUsageNaddr,
+  ) async {
+    if (termsOfUsageNaddr == null) {
+      setState(() {
+        _termsAccepted = false;
+        _isLoadingTerms = false;
+      });
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'terms_accepted_$coordinatorPubkey';
+    final accepted = prefs.getBool(key) ?? false;
+
+    setState(() {
+      _termsAccepted = accepted;
+      _isLoadingTerms = false;
+    });
+  }
+
+  Future<void> _saveTermsAcceptance(
+    bool accepted,
+    String coordinatorPubkey,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'terms_accepted_$coordinatorPubkey';
+    await prefs.setBool(key, accepted);
+
+    setState(() {
+      _termsAccepted = accepted;
+    });
+  }
+
+  Future<void> _openTermsOfUsage(String naddr) async {
+    final url = 'https://njump.me/$naddr';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Watch available offers for real-time updates
@@ -81,6 +128,16 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
             coordinatorInfoByPubkeyProvider(offer.coordinatorPubkey),
           );
 
+          // Load terms acceptance when coordinator info is available
+          coordinatorInfoAsync.whenData((coordInfo) {
+            if (coordInfo != null && _isLoadingTerms) {
+              _loadTermsAcceptance(
+                offer.coordinatorPubkey,
+                coordInfo.termsOfUsageNaddr,
+              );
+            }
+          });
+
           // Calculate exchange rate and amounts (PLN per BTC)
           final exchangeRate =
               offer.amountSats > 0
@@ -115,82 +172,126 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                 ),
                 onPressed: publicKeyAsyncValue.maybeWhen(
                   data:
-                      (publicKey) => () {
-                        if (publicKey == null) return;
+                      (publicKey) => coordinatorInfoAsync.maybeWhen(
+                        data: (coordInfo) {
+                          final hasTerms = coordInfo?.termsOfUsageNaddr != null;
+                          final isTermsAccepted = !hasTerms || _termsAccepted;
+                          final isButtonEnabled =
+                              publicKey != null &&
+                              hasLightningAddress &&
+                              isTermsAccepted &&
+                              !_isLoadingTerms;
 
-                        // Check if lightning address is set
-                        if (!hasLightningAddress) {
-                          LightningAddressWidget.showLightningAddressRequiredDialog(
-                            context,
-                            ref,
-                            keyService,
-                            t,
-                          );
-                          return;
-                        }
+                          return isButtonEnabled
+                              ? () {
+                                // Check if lightning address is set
+                                if (!hasLightningAddress) {
+                                  LightningAddressWidget.showLightningAddressRequiredDialog(
+                                    context,
+                                    ref,
+                                    keyService,
+                                    t,
+                                  );
+                                  return;
+                                }
 
-                        final takerId = publicKey;
-                        final apiService = ref.read(apiServiceProvider);
-                        final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder:
-                              (context) => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                        );
-
-                        apiService
-                            .reserveOffer(
-                              offer.id,
-                              takerId,
-                              offer.coordinatorPubkey,
-                            )
-                            .then((reservationTimestamp) {
-                              if (reservationTimestamp != null) {
-                                final updatedOffer = offer.copyWith(
-                                  status: OfferStatus.reserved.name,
-                                  takerPubkey: takerId,
-                                  reservedAt: reservationTimestamp,
-                                );
-
-                                ref
-                                    .read(activeOfferProvider.notifier)
-                                    .setActiveOffer(updatedOffer);
-                                router.go("/submit-blik", extra: updatedOffer);
-                              } else {
-                                Navigator.of(context).pop();
-                                ref.read(errorProvider.notifier).state =
-                                    t.reservations.errors.failedNoTimestamp;
-                                if (scaffoldMessenger.mounted) {
-                                  scaffoldMessenger.showSnackBar(
+                                // Check if terms are accepted
+                                if (coordInfo?.termsOfUsageNaddr != null &&
+                                    !_termsAccepted) {
+                                  // Should not happen if button is properly disabled, but check anyway
+                                  ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        t.reservations.errors.failedNoTimestamp,
+                                        t.coordinator.selector.termsAccept +
+                                            t.coordinator.selector.termsOfUsage,
                                       ),
                                     ),
                                   );
+                                  return;
                                 }
-                                ref.invalidate(availableOffersProvider);
-                              }
-                            })
-                            .catchError((e) {
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
-                              }
-                              final errorMsg = t.reservations.errors
-                                  .failedToReserve(details: e.toString());
-                              ref.read(errorProvider.notifier).state = errorMsg;
-                              if (scaffoldMessenger.mounted) {
-                                scaffoldMessenger.showSnackBar(
-                                  SnackBar(content: Text(errorMsg)),
+
+                                final takerId = publicKey;
+                                final apiService = ref.read(apiServiceProvider);
+                                final scaffoldMessenger = ScaffoldMessenger.of(
+                                  context,
                                 );
+
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder:
+                                      (context) => const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                );
+
+                                apiService
+                                    .reserveOffer(
+                                      offer.id,
+                                      takerId,
+                                      offer.coordinatorPubkey,
+                                    )
+                                    .then((reservationTimestamp) {
+                                      if (reservationTimestamp != null) {
+                                        final updatedOffer = offer.copyWith(
+                                          status: OfferStatus.reserved.name,
+                                          takerPubkey: takerId,
+                                          reservedAt: reservationTimestamp,
+                                        );
+
+                                        ref
+                                            .read(activeOfferProvider.notifier)
+                                            .setActiveOffer(updatedOffer);
+                                        router.go(
+                                          "/submit-blik",
+                                          extra: updatedOffer,
+                                        );
+                                      } else {
+                                        Navigator.of(context).pop();
+                                        ref.read(errorProvider.notifier).state =
+                                            t
+                                                .reservations
+                                                .errors
+                                                .failedNoTimestamp;
+                                        if (scaffoldMessenger.mounted) {
+                                          scaffoldMessenger.showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                t
+                                                    .reservations
+                                                    .errors
+                                                    .failedNoTimestamp,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        ref.invalidate(availableOffersProvider);
+                                      }
+                                    })
+                                    .catchError((e) {
+                                      if (Navigator.of(context).canPop()) {
+                                        Navigator.of(context).pop();
+                                      }
+                                      final errorMsg = t.reservations.errors
+                                          .failedToReserve(
+                                            details: e.toString(),
+                                          );
+                                      ref.read(errorProvider.notifier).state =
+                                          errorMsg;
+                                      if (scaffoldMessenger.mounted) {
+                                        scaffoldMessenger.showSnackBar(
+                                          SnackBar(content: Text(errorMsg)),
+                                        );
+                                      }
+                                      ref.invalidate(availableOffersProvider);
+                                    });
                               }
-                              ref.invalidate(availableOffersProvider);
-                            });
-                      },
+                              : null;
+                        },
+                        loading: () => null,
+                        error: (_, __) => null,
+                        orElse: () => null,
+                      ),
                   orElse: () => null,
                 ),
                 child: Text(
@@ -200,6 +301,36 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+              ),
+            );
+          } else if (myActiveOffer != null && offer.id == myActiveOffer.id &&
+              (myActiveOffer.isInvalidBlik ||  myActiveOffer.isConflict)) {
+            // Show button for conflict or invalidBlik if it's the active offer
+            actionButton = SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                ),
+                child: Text(
+                  t.offers.actions.View,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onPressed: () {
+                  if (myActiveOffer.isInvalidBlik) {
+                    router.go('/taker-invalid-blik', extra: myActiveOffer);
+                  } else if (myActiveOffer.isConflict) {
+                    router.go('/taker-conflict', extra: myActiveOffer.id);
+                  }
+                },
               ),
             );
           } else if (isReserved || isBlikReceived) {
@@ -216,17 +347,13 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    t.offers.actions.resume,
+                    t.offers.actions.View,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   onPressed: () {
-                    ref
-                        .read(activeOfferProvider.notifier)
-                        .setActiveOffer(myActiveOffer);
-
                     if (myActiveOffer.status == OfferStatus.reserved.name) {
                       router.go("/submit-blik", extra: myActiveOffer);
                     } else {
@@ -319,7 +446,21 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                     '$takerFeeAmount sats',
                                   ),
 
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 24),
+
+                                  // You'll receive row (highlighted)
+                                  _buildInfoRow(
+                                    t.offers.details.youllReceive,
+                                    '$youllReceive sats',
+                                    isHighlighted: true,
+                                  ),
+
+                                  const SizedBox(height: 24),
+
+                                  // Separator line
+                                  Container(height: 1, color: Colors.grey[300]),
+
+                                  const SizedBox(height: 24),
 
                                   // Coordinator row
                                   coordinatorInfoAsync.when(
@@ -346,21 +487,107 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                         ),
                                   ),
 
-                                  const SizedBox(height: 24),
+                                  // Terms of Usage checkbox (only for funded offers with terms)
+                                  if (isFunded)
+                                    coordinatorInfoAsync.maybeWhen(
+                                      data: (coordInfo) {
+                                        if (coordInfo?.termsOfUsageNaddr !=
+                                            null) {
+                                          return Column(
+                                            children: [
+                                              const SizedBox(height: 16),
+                                              if (_isLoadingTerms)
+                                                const Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 8.0,
+                                                  ),
+                                                  child: SizedBox(
+                                                    width: 20,
+                                                    height: 20,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                        ),
+                                                  ),
+                                                )
+                                              else
+                                                Row(
+                                                  children: [
+                                                    Checkbox(
+                                                      value: _termsAccepted,
+                                                      onChanged: (bool? value) {
+                                                        _saveTermsAcceptance(
+                                                          value ?? false,
+                                                          offer
+                                                              .coordinatorPubkey,
+                                                        );
+                                                      },
+                                                    ),
+                                                    Expanded(
+                                                      child: Row(
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              _saveTermsAcceptance(
+                                                                !_termsAccepted,
+                                                                offer
+                                                                    .coordinatorPubkey,
+                                                              );
+                                                            },
+                                                            child: Text(
+                                                              t
+                                                                  .coordinator
+                                                                  .selector
+                                                                  .termsAccept,
+                                                              style: const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .black,
+                                                                fontSize: 14,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          MouseRegion(
+                                                            cursor:
+                                                                SystemMouseCursors
+                                                                    .click,
+                                                            child: GestureDetector(
+                                                              onTap:
+                                                                  () => _openTermsOfUsage(
+                                                                    coordInfo!
+                                                                        .termsOfUsageNaddr!,
+                                                                  ),
+                                                              child: Text(
+                                                                t
+                                                                    .coordinator
+                                                                    .selector
+                                                                    .termsOfUsage,
+                                                                style: const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .blue,
+                                                                  fontSize: 14,
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .underline,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                            ],
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
+                                      },
+                                      orElse: () => const SizedBox.shrink(),
+                                    ),
 
-                                  // Separator line
-                                  Container(height: 1, color: Colors.grey[300]),
-
-                                  const SizedBox(height: 24),
-
-                                  // You'll receive row (highlighted)
-                                  _buildInfoRow(
-                                    t.offers.details.youllReceive,
-                                    '$youllReceive sats',
-                                    isHighlighted: true,
-                                  ),
-
-                                  const SizedBox(height: 32),
+                                  const SizedBox(height: 10),
 
                                   // Action button
                                   if (actionButton != null) actionButton,
@@ -636,22 +863,28 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                   const SizedBox(height: 24),
 
                   // Coordinator details
-                  _buildDialogInfoRow('Maker Fee', '${coordInfo.makerFee}%'),
-                  const SizedBox(height: 12),
-                  _buildDialogInfoRow('Taker Fee', '${coordInfo.takerFee}%'),
+                  _buildDialogInfoRow(
+                    t.coordinator.dialog.makerFee,
+                    '${coordInfo.makerFee}%',
+                  ),
                   const SizedBox(height: 12),
                   _buildDialogInfoRow(
-                    'Amount Range',
+                    t.coordinator.dialog.takerFee,
+                    '${coordInfo.takerFee}%',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildDialogInfoRow(
+                    t.coordinator.dialog.amountRange,
                     '${coordInfo.minAmountSats}-${coordInfo.maxAmountSats} sats',
                   ),
                   const SizedBox(height: 12),
                   _buildDialogInfoRow(
-                    'Reservation Time',
+                    t.coordinator.dialog.reservationTime,
                     '${coordInfo.reservationSeconds}s',
                   ),
                   const SizedBox(height: 12),
                   _buildDialogInfoRow(
-                    'Currencies',
+                    t.coordinator.dialog.currencies,
                     coordInfo.currencies.join(', '),
                   ),
 
@@ -659,22 +892,26 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                   if (coordInfo.termsOfUsageNaddr != null) ...[
                     const SizedBox(height: 12),
                     GestureDetector(
-                      onTap: () => _openTermsOfUsage(coordInfo.termsOfUsageNaddr!),
+                      onTap:
+                          () => _openTermsOfUsage(coordInfo.termsOfUsageNaddr!),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Terms of Usage',
-                            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                            t.coordinator.selector.termsOfUsage,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Flexible(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                const Text(
-                                  'View Terms',
-                                  style: TextStyle(
+                                Text(
+                                  t.coordinator.dialog.viewTerms,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.blue,
@@ -706,7 +943,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                           width: 20,
                           height: 20,
                         ),
-                        label: const Text('View Nostr Profile'),
+                        label: Text(t.coordinator.selector.viewNostrProfile),
                         onPressed:
                             () => _openNostrProfile(coordInfo.nostrNpub!),
                       ),
@@ -844,13 +1081,6 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
   void _openNostrProfile(String npub) async {
     // Use njump.me as a Nostr profile viewer (npub is already encoded in CoordinatorInfo)
     final url = 'https://njump.me/$npub';
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  }
-
-  /// Opens the terms of usage (naddr) in a browser
-  void _openTermsOfUsage(String naddr) async {
-    // Use njump.me to view the naddr event
-    final url = 'https://njump.me/$naddr';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 }

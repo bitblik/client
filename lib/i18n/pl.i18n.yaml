@@ -109,6 +109,7 @@ offers:
     takeOffer: Weź ofertę
     resume: Wprowadź BLIK
     cancel: Anuluj ofertę
+    view: Zobacz
   
   status:
     created: "Utworzona"
@@ -212,8 +213,16 @@ coordinator:
     viewNostrProfile: "Zobacz profil Nostr"
     unresponsive: "Ten koordynator nie odpowiada"
     waitingResponse: "Oczekiwanie na odpowiedź koordynatora"
-    termsAccept: "Akceptuję "
+    termsAccept: "Akceptuję jego"
     termsOfUsage: "Warunki użytkowania"
+  
+  dialog:
+    makerFee: "Opłata twórcy"
+    takerFee: "Opłata odbiorcy"
+    amountRange: "Zakres kwoty"
+    reservationTime: "Czas rezerwacji"
+    currencies: "Waluty"
+    viewTerms: "Zobacz warunki"
 
 # =============================================================================
 # MAKER FLOW

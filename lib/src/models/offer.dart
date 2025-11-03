@@ -246,6 +246,12 @@ class Offer {
     }
   }
 
+  bool get isConflict => status == OfferStatus.conflict.name;
+
+  bool get isInvalidBlik => status == OfferStatus.invalidBlik.name;
+
+  bool get isDispute => status == OfferStatus.dispute.name;
+
   // copyWith method for updating state immutably
   Offer copyWith({
     String? id,
