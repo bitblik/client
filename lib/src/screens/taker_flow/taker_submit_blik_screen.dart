@@ -5,30 +5,80 @@ import 'package:flutter/services.dart';
 import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/offer.dart';
 import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
+import '../../services/api_service_nostr.dart';
 
-// --- BlikInputProgressIndicator Widget ---
-class BlikInputProgressIndicator extends StatefulWidget {
+// --- 3-Step Progress Indicator Widget ---
+class SubmitBlikProgressIndicator extends StatelessWidget {
+  const SubmitBlikProgressIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Step 1: Submit BLIK (Active)
+          Text(
+            '1. Submit BLIK',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          const SizedBox(width: 8),
+          // Step 2: Confirm BLIK (Inactive)
+          const Text(
+            '2. Confirm BLIK',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          const SizedBox(width: 8),
+          // Step 3: Get Paid (Inactive)
+          const Text(
+            '3. Get Paid',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Circular Countdown Timer Widget ---
+class CircularCountdownTimer extends StatefulWidget {
   final DateTime reservedAt;
   final Duration maxDuration;
 
-  const BlikInputProgressIndicator({
+  const CircularCountdownTimer({
     super.key,
     required this.reservedAt,
     required this.maxDuration,
   });
 
   @override
-  State<BlikInputProgressIndicator> createState() =>
-      _BlikInputProgressIndicatorState();
+  State<CircularCountdownTimer> createState() => _CircularCountdownTimerState();
 }
 
-class _BlikInputProgressIndicatorState
-    extends State<BlikInputProgressIndicator> {
+class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
   Timer? _timer;
   double _progress = 1.0;
   int _remainingSeconds = 0;
@@ -36,7 +86,6 @@ class _BlikInputProgressIndicatorState
   @override
   void initState() {
     super.initState();
-    _remainingSeconds = widget.maxDuration.inSeconds;
     _calculateProgress();
     if (_progress > 0) {
       _startTimer();
@@ -44,10 +93,10 @@ class _BlikInputProgressIndicatorState
   }
 
   @override
-  void didUpdateWidget(covariant BlikInputProgressIndicator oldWidget) {
+  void didUpdateWidget(covariant CircularCountdownTimer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.reservedAt != oldWidget.reservedAt) {
-      print("[BlikInputProgress] reservedAt changed. Recalculating.");
+    if (widget.reservedAt != oldWidget.reservedAt ||
+        widget.maxDuration != oldWidget.maxDuration) {
       _timer?.cancel();
       _calculateProgress();
       if (_progress > 0) _startTimer();
@@ -98,31 +147,42 @@ class _BlikInputProgressIndicatorState
     });
   }
 
+  String _formatMMSS(int totalSeconds) {
+    final minutes = (totalSeconds ~/ 60).toString();
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_progress <= 0) {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return SizedBox(
+      width: 120,
+      height: 120,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[500],
-            valueColor: AlwaysStoppedAnimation<Color>(
-              _remainingSeconds <= 5 ? Colors.red : Colors.green,
+          // Circular progress indicator
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: CircularProgressIndicator(
+              value: _progress,
+              backgroundColor: Colors.grey[200],
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+              strokeWidth: 8,
             ),
-            minHeight: 20,
           ),
+          // Time display
           Text(
-            t.taker.submitBlik.timeLimit(seconds: _remainingSeconds),
+            _formatMMSS(_remainingSeconds),
             style: const TextStyle(
-              color: Colors.white,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
-              fontSize: 12,
+              color: Colors.black,
             ),
           ),
         ],
@@ -145,6 +205,7 @@ class TakerSubmitBlikScreen extends ConsumerStatefulWidget {
 
 class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   final _blikController = TextEditingController();
+  final _blikFocusNode = FocusNode();
   Timer? _blikInputTimer;
   Duration? _maxBlikInputTime; // Will be set from coordinatorInfo
   bool _isLoadingDetails = true; // Flag for initial loading
@@ -203,7 +264,10 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         throw Exception(t.taker.paymentProcess.errors.noPublicKey);
       }
 
-      final fullOfferData = await apiService.getMyActiveOffer(publicKey, widget.initialOffer.coordinatorPubkey);
+      final fullOfferData = await apiService.getMyActiveOffer(
+        publicKey,
+        widget.initialOffer.coordinatorPubkey,
+      );
 
       if (!mounted) return;
 
@@ -253,6 +317,12 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       setState(() {
         _isLoadingDetails = false;
       });
+      // Focus on BLIK input field after loading completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _blikFocusNode.requestFocus();
+        }
+      });
     } catch (e) {
       print("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
       if (mounted) {
@@ -267,6 +337,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   void dispose() {
     _blikInputTimer?.cancel();
     _blikController.dispose();
+    _blikFocusNode.dispose();
     super.dispose();
   }
 
@@ -422,12 +493,10 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     if (takerId == null) {
       ref.read(errorProvider.notifier).state =
           t.taker.paymentProcess.errors.noPublicKey;
-      if (offer != null) _startBlikInputTimer(offer);
+      _startBlikInputTimer(offer);
       return;
     }
-    if (offer == null ||
-        offer.status != OfferStatus.reserved.name ||
-        offer.reservedAt == null) {
+    if (offer.status != OfferStatus.reserved.name || offer.reservedAt == null) {
       ref.read(errorProvider.notifier).state =
           t.taker.submitBlik.errors.stateChanged;
       _resetToOfferList(t.taker.submitBlik.errors.stateNotValid);
@@ -529,8 +598,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final isLoadingDetails = _isLoadingDetails;
     final errorMessage = ref.watch(errorProvider);
     final activeOffer = ref.watch(activeOfferProvider);
-    // Use initialOffer only as a fallback while loading details
-    final displayOffer = activeOffer ?? widget.initialOffer;
+    final t = Translations.of(context);
 
     if (isLoadingDetails) {
       return const Scaffold(
@@ -547,112 +615,210 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       );
     }
 
+    // Get coordinator info for taker fee calculation
+    final coordinatorInfoAsync = ref.watch(
+      coordinatorInfoByPubkeyProvider(activeOffer.coordinatorPubkey),
+    );
+
+    // Calculate exchange rate and amounts (PLN per BTC) - same as offer details
+    final exchangeRate =
+        activeOffer.amountSats > 0
+            ? ((activeOffer.fiatAmount / activeOffer.amountSats) * 100000000)
+                .round()
+            : 0;
+
+    // Calculate taker fee from coordinator's percentage - same as offer details
+    final takerFeeAmount = coordinatorInfoAsync.maybeWhen(
+      data:
+          (coordInfo) =>
+              coordInfo != null
+                  ? (activeOffer.amountSats * coordInfo.takerFee / 100).ceil()
+                  : 0,
+      orElse: () => 0,
+    );
+
+    final youllReceive = activeOffer.amountSats - takerFeeAmount;
+
+    // Format number with spaces as thousand separators - same as offer details
+    String formatNumber(int number) {
+      final formatter = NumberFormat('#,###', 'en_US');
+      return formatter.format(number).replaceAll(',', ' ');
+    }
+
     // --- Main UI Build ---
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.taker.submitBlik.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-            if (errorMessage != null) ...[
-              Text(
-                errorMessage,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          // 3-Step Progress Indicator
+          // const SubmitBlikProgressIndicator(),
+          // const SizedBox(height: 24),
+
+          // Instructional text
+          Text(
+            'Enter BLIK before time ends...',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 10),
+
+          // Large BLIK Input Field
+          SizedBox(
+            width: double.infinity,
+            child: TextField(
+              controller: _blikController,
+              focusNode: _blikFocusNode,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 10,
               ),
-              const SizedBox(height: 10),
-            ],
-            Text(
-              t.offers.details.selectedOffer,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Card(
-              child: ListTile(
-                title: Text(
-                  "${formatDouble(displayOffer.fiatAmount)} ${displayOffer.fiatCurrency}",
+
+              decoration: InputDecoration(
+                hintText: t.taker.submitBlik.title,
+                hintStyle: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w200,
+                  letterSpacing: 2,
+                  color: Colors.grey[400],
                 ),
-                subtitle: Text(
-                  t.offers.details.takerFeeWithStatus(
-                    fee: displayOffer.takerFees ?? 0,
-                    status: displayOffer.status,
-                  ),
+                border: InputBorder.none,
+                counterText: "",
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.content_paste, size: 20),
+                  color: Colors.grey,
+                  onPressed: _pasteFromClipboard,
                 ),
-                isThreeLine: true,
               ),
             ),
-            const SizedBox(height: 20),
-            // Use reservedAt from the *active* offer state
-            if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
-              BlikInputProgressIndicator(
-                key: ValueKey('blik_timer_${activeOffer.id}'),
-                reservedAt: activeOffer.reservedAt!,
-                maxDuration: _maxBlikInputTime!,
-              )
-            else if (activeOffer.reservedAt != null &&
-                _maxBlikInputTime == null)
-              Text(
-                t.system.errors.loadingTimeoutConfig,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              )
-            else
-              const SizedBox(
-                height: 20,
-              ), // Should not happen if validation passed
-            const SizedBox(height: 15),
-            Text(
-              t.taker.submitBlik.title,
-              style: const TextStyle(fontSize: 16),
+          ),
+
+          const SizedBox(height: 32),
+
+          // Circular Countdown Timer
+          if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
+            CircularCountdownTimer(
+              key: ValueKey('blik_timer_${activeOffer.id}'),
+              reservedAt: activeOffer.reservedAt!,
+              maxDuration: _maxBlikInputTime!,
+            )
+          else
+            const SizedBox(height: 120),
+
+          const SizedBox(height: 10),
+
+          // Transaction Details Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 8),
-            Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _blikController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: t.taker.submitBlik.label,
-                      counterText: "",
-                    ),
-                  ),
+                _buildDetailRow(
+                  t.taker.submitBlik.details.requestedAmount,
+                  '${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}',
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.content_paste),
-                  tooltip: t.common.clipboard.pasteFromClipboard,
-                  onPressed: _pasteFromClipboard,
+                const SizedBox(height: 12),
+                // Exchange Rate row with tooltip - same as offer details
+                _buildInfoRow(
+                  t.taker.submitBlik.details.exchangeRate,
+                  '${formatNumber(exchangeRate)} ${activeOffer.fiatCurrency}/BTC',
+                  hasInfoIcon: true,
+                  onInfoTap: () => _showExchangeRateSourcesDialog(context),
+                ),
+                const SizedBox(height: 12),
+                // Taker fee row - same as offer details
+                _buildInfoRow(
+                  t.offers.details.takerFeeLabel,
+                  '$takerFeeAmount sats',
+                ),
+                const SizedBox(height: 12),
+                // You'll receive row (highlighted) - same as offer details
+                _buildInfoRow(
+                  t.taker.submitBlik.details.youllReceive,
+                  '$youllReceive sats',
+                  isHighlighted: true,
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
+          ),
+
+          if (errorMessage != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              errorMessage,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+
+          const SizedBox(height: 10),
+
+          // Submit BLIK Button (Grey with green checkmark)
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.grey[300],
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
               ),
               onPressed: isLoading ? null : _submitBlik,
-              child:
-                  isLoading
-                      ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : Text(t.taker.submitBlik.actions.submit),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isLoading)
+                    const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else ...[
+                    const Icon(Icons.check, color: Colors.green, size: 20),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    t.taker.submitBlik.actions.submit,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+          ),
+
+          const SizedBox(height: 12),
+
+          // Cancel Reservation Button (Red with border and X)
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red, width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed:
                   isLoading
@@ -680,7 +846,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                               .reservations
                               .errors
                               .cancelling(error: e.toString());
-                          if (mounted) {
+                          if (mounted && offer.reservedAt != null) {
                             _startBlikInputTimer(offer);
                           }
                         } finally {
@@ -689,12 +855,129 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                           }
                         }
                       },
-              child: Text(t.reservations.actions.cancel),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.close, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    t.reservations.actions.cancel,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
+      ],
+    );
+  }
+
+  /// Builds an info row similar to offer details screen
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    bool hasInfoIcon = false,
+    bool isHighlighted = false,
+    VoidCallback? onInfoTap,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            if (hasInfoIcon) ...[
+              const SizedBox(width: 4),
+              GestureDetector(
+                onTap: onInfoTap,
+                child: Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ],
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+            fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Shows a dialog with exchange rate sources - same as offer details screen
+  void _showExchangeRateSourcesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:
+                      ApiServiceNostr.exchangeRateSourceNames
+                          .map(
+                            (source) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Text(
+                                source,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                ),
+              ),
+            ),
+          ),
     );
   }
 }

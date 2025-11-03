@@ -342,7 +342,7 @@ taker:
     button: SELL BLIK code for satoshi
   
   submitBlik:
-    title: "Enter 6-digit BLIK code:"
+    title: "Enter 6-digit BLIK"
     label: BLIK Code
     
     timeLimit: "Enter BLIK within: ${seconds} s"
@@ -364,6 +364,13 @@ taker:
       stateNotValid: "Error: Offer state is no longer valid."
       fetchedIdMismatch: "Fetched active offer ID (${fetchedId}) does not match initial offer ID (${initialId}). State mismatch?"
       paymentHashMissing: Offer payment hash missing after fetch.
+    
+    details:
+      requestedAmount: "Requested BLIK amount"
+      exchangeRate: "Exchange Rate"
+      takerFee: "Taker fee"
+      status: "Status"
+      youllReceive: "You'll receive"
   
   waitConfirmation:
     title: "Waiting for Maker"

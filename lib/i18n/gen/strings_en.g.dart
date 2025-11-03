@@ -1183,8 +1183,8 @@ class TranslationsTakerSubmitBlikEn {
 
 	// Translations
 
-	/// en: 'Enter 6-digit BLIK code:'
-	String get title => 'Enter 6-digit BLIK code:';
+	/// en: 'Enter 6-digit BLIK'
+	String get title => 'Enter 6-digit BLIK';
 
 	/// en: 'BLIK Code'
 	String get label => 'BLIK Code';
@@ -1199,6 +1199,7 @@ class TranslationsTakerSubmitBlikEn {
 	late final TranslationsTakerSubmitBlikFeedbackEn feedback = TranslationsTakerSubmitBlikFeedbackEn.internal(_root);
 	late final TranslationsTakerSubmitBlikValidationEn validation = TranslationsTakerSubmitBlikValidationEn.internal(_root);
 	late final TranslationsTakerSubmitBlikErrorsEn errors = TranslationsTakerSubmitBlikErrorsEn.internal(_root);
+	late final TranslationsTakerSubmitBlikDetailsEn details = TranslationsTakerSubmitBlikDetailsEn.internal(_root);
 }
 
 // Path: taker.waitConfirmation
@@ -1875,6 +1876,30 @@ class TranslationsTakerSubmitBlikErrorsEn {
 	String get paymentHashMissing => 'Offer payment hash missing after fetch.';
 }
 
+// Path: taker.submitBlik.details
+class TranslationsTakerSubmitBlikDetailsEn {
+	TranslationsTakerSubmitBlikDetailsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Requested BLIK amount'
+	String get requestedAmount => 'Requested BLIK amount';
+
+	/// en: 'Exchange Rate'
+	String get exchangeRate => 'Exchange Rate';
+
+	/// en: 'Taker fee'
+	String get takerFee => 'Taker fee';
+
+	/// en: 'Status'
+	String get status => 'Status';
+
+	/// en: 'You'll receive'
+	String get youllReceive => 'You\'ll receive';
+}
+
 // Path: taker.waitConfirmation.feedback
 class TranslationsTakerWaitConfirmationFeedbackEn {
 	TranslationsTakerWaitConfirmationFeedbackEn.internal(this._root);
@@ -2430,7 +2455,7 @@ extension on Translations {
 			case 'maker.success.subtitle': return 'Taker has been paid.';
 			case 'maker.success.detailsTitle': return 'Offer details:';
 			case 'taker.roleSelection.button': return 'SELL BLIK code for satoshi';
-			case 'taker.submitBlik.title': return 'Enter 6-digit BLIK code:';
+			case 'taker.submitBlik.title': return 'Enter 6-digit BLIK';
 			case 'taker.submitBlik.label': return 'BLIK Code';
 			case 'taker.submitBlik.timeLimit': return ({required Object seconds}) => 'Enter BLIK within: ${seconds} s';
 			case 'taker.submitBlik.timeExpired': return 'Time to enter BLIK code has expired.';
@@ -2443,6 +2468,11 @@ extension on Translations {
 			case 'taker.submitBlik.errors.stateNotValid': return 'Error: Offer state is no longer valid.';
 			case 'taker.submitBlik.errors.fetchedIdMismatch': return ({required Object fetchedId, required Object initialId}) => 'Fetched active offer ID (${fetchedId}) does not match initial offer ID (${initialId}). State mismatch?';
 			case 'taker.submitBlik.errors.paymentHashMissing': return 'Offer payment hash missing after fetch.';
+			case 'taker.submitBlik.details.requestedAmount': return 'Requested BLIK amount';
+			case 'taker.submitBlik.details.exchangeRate': return 'Exchange Rate';
+			case 'taker.submitBlik.details.takerFee': return 'Taker fee';
+			case 'taker.submitBlik.details.status': return 'Status';
+			case 'taker.submitBlik.details.youllReceive': return 'You\'ll receive';
 			case 'taker.waitConfirmation.title': return 'Waiting for Maker';
 			case 'taker.waitConfirmation.statusLabel': return ({required Object status}) => 'Offer status: ${status}';
 			case 'taker.waitConfirmation.waitingMaker': return ({required Object seconds}) => 'Waiting for Maker confirmation: ${seconds} s';

@@ -342,7 +342,7 @@ taker:
     button: SPRZEDAJ kod BLIK za satoshi
   
   submitBlik:
-    title: "Wprowadź 6-cyfrowy kod BLIK:"
+    title: "Wprowadź 6-cyfrowy BLIK"
     label: Kod BLIK
     
     timeLimit: "Wprowadź BLIK w ciągu: ${seconds} s"
@@ -364,6 +364,13 @@ taker:
       stateNotValid: "Błąd: Stan oferty nie jest już ważny."
       fetchedIdMismatch: "Pobrane ID aktywnej oferty (${fetchedId}) nie pasuje do początkowego ID oferty (${initialId}). Niezgodność stanu?"
       paymentHashMissing: Brak hasha płatności oferty po pobraniu.
+    
+    details:
+      requestedAmount: "Żądana kwota BLIK"
+      exchangeRate: "Kurs wymiany"
+      takerFee: "Opłata Taker"
+      status: "Status"
+      youllReceive: "Otrzymasz"
   
   waitConfirmation:
     title: "Oczekiwanie na Makera"

@@ -793,7 +793,7 @@ class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Wprowadź 6-cyfrowy kod BLIK:';
+	@override String get title => 'Wprowadź 6-cyfrowy BLIK';
 	@override String get label => 'Kod BLIK';
 	@override String timeLimit({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 	@override String get timeExpired => 'Czas na wprowadzenie kodu BLIK minął.';
@@ -801,6 +801,7 @@ class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	@override late final _TranslationsTakerSubmitBlikFeedbackPl feedback = _TranslationsTakerSubmitBlikFeedbackPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikValidationPl validation = _TranslationsTakerSubmitBlikValidationPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikErrorsPl errors = _TranslationsTakerSubmitBlikErrorsPl._(_root);
+	@override late final _TranslationsTakerSubmitBlikDetailsPl details = _TranslationsTakerSubmitBlikDetailsPl._(_root);
 }
 
 // Path: taker.waitConfirmation
@@ -1273,6 +1274,20 @@ class _TranslationsTakerSubmitBlikErrorsPl extends TranslationsTakerSubmitBlikEr
 	@override String get paymentHashMissing => 'Brak hasha płatności oferty po pobraniu.';
 }
 
+// Path: taker.submitBlik.details
+class _TranslationsTakerSubmitBlikDetailsPl extends TranslationsTakerSubmitBlikDetailsEn {
+	_TranslationsTakerSubmitBlikDetailsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get requestedAmount => 'Żądana kwota BLIK';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get takerFee => 'Opłata Taker';
+	@override String get status => 'Status';
+	@override String get youllReceive => 'Otrzymasz';
+}
+
 // Path: taker.waitConfirmation.feedback
 class _TranslationsTakerWaitConfirmationFeedbackPl extends TranslationsTakerWaitConfirmationFeedbackEn {
 	_TranslationsTakerWaitConfirmationFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -1730,7 +1745,7 @@ extension on TranslationsPl {
 			case 'maker.success.subtitle': return 'Taker otrzymał zapłatę.';
 			case 'maker.success.detailsTitle': return 'Szczegóły oferty:';
 			case 'taker.roleSelection.button': return 'SPRZEDAJ kod BLIK za satoshi';
-			case 'taker.submitBlik.title': return 'Wprowadź 6-cyfrowy kod BLIK:';
+			case 'taker.submitBlik.title': return 'Wprowadź 6-cyfrowy BLIK';
 			case 'taker.submitBlik.label': return 'Kod BLIK';
 			case 'taker.submitBlik.timeLimit': return ({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 			case 'taker.submitBlik.timeExpired': return 'Czas na wprowadzenie kodu BLIK minął.';
@@ -1743,6 +1758,11 @@ extension on TranslationsPl {
 			case 'taker.submitBlik.errors.stateNotValid': return 'Błąd: Stan oferty nie jest już ważny.';
 			case 'taker.submitBlik.errors.fetchedIdMismatch': return ({required Object fetchedId, required Object initialId}) => 'Pobrane ID aktywnej oferty (${fetchedId}) nie pasuje do początkowego ID oferty (${initialId}). Niezgodność stanu?';
 			case 'taker.submitBlik.errors.paymentHashMissing': return 'Brak hasha płatności oferty po pobraniu.';
+			case 'taker.submitBlik.details.requestedAmount': return 'Żądana kwota BLIK';
+			case 'taker.submitBlik.details.exchangeRate': return 'Kurs wymiany';
+			case 'taker.submitBlik.details.takerFee': return 'Opłata Taker';
+			case 'taker.submitBlik.details.status': return 'Status';
+			case 'taker.submitBlik.details.youllReceive': return 'Otrzymasz';
 			case 'taker.waitConfirmation.title': return 'Oczekiwanie na Makera';
 			case 'taker.waitConfirmation.statusLabel': return ({required Object status}) => 'Status oferty: ${status}';
 			case 'taker.waitConfirmation.waitingMaker': return ({required Object seconds}) => 'Oczekiwanie na potwierdzenie Makera: ${seconds} s';
