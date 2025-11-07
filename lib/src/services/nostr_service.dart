@@ -214,7 +214,7 @@ class NostrService {
         cache: MemCacheManager(),
         eventVerifier: rustEventVerifier,//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: lib_logger.Level.trace,
+        logLevel: LogLevel.trace,
       ),
     );
 

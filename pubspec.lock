@@ -649,18 +649,18 @@ packages:
     dependency: "direct main"
     description:
       name: ndk
-      sha256: "654c7ca526ef019020a734fc1147aeb41e86f63865366fc4e1623a9a67136582"
+      sha256: cbace034c1c63b00239bc1d9f804f849641e5a7d31b1e866fb1183455903262e
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0-dev.2"
+    version: "0.6.0-dev.6"
   ndk_rust_verifier:
     dependency: "direct main"
     description:
       name: ndk_rust_verifier
-      sha256: "1f7f672de0737d9b0bb9ebb5a7351ca1893b2f291d4cecf6cf028b8f1647fffa"
+      sha256: ecb8627c2e4f6c90875ac7b1f10fc459b87c2e93ae477df13e046494cbb2a654
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.2-dev.7"
+    version: "0.4.2-dev.11"
   nm:
     dependency: transitive
     description:
