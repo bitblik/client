@@ -213,7 +213,7 @@ coordinator:
     viewNostrProfile: "Zobacz profil Nostr"
     unresponsive: "Ten koordynator nie odpowiada"
     waitingResponse: "Oczekiwanie na odpowiedź koordynatora"
-    termsAccept: "Akceptuję jego"
+    termsAccept: "Akceptuję "
     termsOfUsage: "Warunki użytkowania"
   
   dialog:

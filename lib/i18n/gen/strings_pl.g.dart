@@ -635,7 +635,7 @@ class _TranslationsCoordinatorSelectorPl extends TranslationsCoordinatorSelector
 	@override String get viewNostrProfile => 'Zobacz profil Nostr';
 	@override String get unresponsive => 'Ten koordynator nie odpowiada';
 	@override String get waitingResponse => 'Oczekiwanie na odpowiedź koordynatora';
-	@override String get termsAccept => 'Akceptuję jego';
+	@override String get termsAccept => 'Akceptuję ';
 	@override String get termsOfUsage => 'Warunki użytkowania';
 }
 
@@ -1671,7 +1671,7 @@ extension on TranslationsPl {
 			case 'coordinator.selector.viewNostrProfile': return 'Zobacz profil Nostr';
 			case 'coordinator.selector.unresponsive': return 'Ten koordynator nie odpowiada';
 			case 'coordinator.selector.waitingResponse': return 'Oczekiwanie na odpowiedź koordynatora';
-			case 'coordinator.selector.termsAccept': return 'Akceptuję jego';
+			case 'coordinator.selector.termsAccept': return 'Akceptuję ';
 			case 'coordinator.selector.termsOfUsage': return 'Warunki użytkowania';
 			case 'coordinator.dialog.makerFee': return 'Opłata twórcy';
 			case 'coordinator.dialog.takerFee': return 'Opłata odbiorcy';
