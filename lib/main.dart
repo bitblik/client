@@ -1364,22 +1364,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                             final Uri url = Uri.parse(
                               'https://github.com/bitblik-user/client/releases',
                             );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } else {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Could not open GitHub releases link.',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
                           },
                           child: Text(
                             _clientVersion != null
@@ -1398,20 +1386,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           final Uri url = Uri.parse(
                             'https://github.com/bitblik-user/client',
                           );
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
-                          } else {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not open GitHub link.'),
-                                ),
-                              );
-                            }
-                          }
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
                         },
                         child: const Icon(
                           Icons.code,
