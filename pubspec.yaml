@@ -142,6 +142,8 @@ flutter:
     - assets/element.png
     - assets/logo.png
     - assets/nostr.png
+    - assets/logo-horizontal.png
+    - assets/sell-blik.png
     - assets/apk.png
     - assets/zapstore.png
     - assets/telegram.png

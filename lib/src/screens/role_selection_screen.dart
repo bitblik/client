@@ -156,7 +156,7 @@ class RoleSelectionScreen extends ConsumerWidget {
 
                     return Row(
                       children: [
-                        // Pay BLIK card (red)
+                        // Pay BLIK card (gradient)
                         Expanded(
                           child: Container(
                             height: cardHeight,
@@ -165,7 +165,14 @@ class RoleSelectionScreen extends ConsumerWidget {
                               title: t.landing.actions.payBlik,
                               subtitle: t.landing.actions.payBlikSubtitle,
                               icon: Icons.flash_on,
-                              backgroundColor: const Color(0xFFE53E3E),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFFF0000), // Bright red/pink
+                                  Color(0xFFFF007F), // Bright magenta/pink
+                                ],
+                              ),
                               textColor: Colors.white,
                               isEnabled: !hasRealActiveOffer,
                               onTap: () {
@@ -187,9 +194,9 @@ class RoleSelectionScreen extends ConsumerWidget {
                               context: context,
                               title: t.landing.actions.sellBlik,
                               subtitle: t.landing.actions.sellBlikSubtitle,
-                              icon: Icons.monetization_on_outlined,
+                              iconImage: 'assets/sell-blik.png',
                               backgroundColor: Colors.white,
-                              textColor: const Color(0xFFE53E3E),
+                              textColor: const Color(0xFF000000),
                               borderColor: Colors.grey[300],
                               isEnabled: !hasRealActiveOffer,
                               onTap: () {
@@ -244,7 +251,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                 if (hasActiveOffer && !isTakerPaid) ...[
                   const Divider(),
                   const SizedBox(height: 30),
-                  _buildActiveOfferSection(context, ref, activeOffer!, currentPubKey, t),
+                  _buildActiveOfferSection(context, ref, activeOffer, currentPubKey, t),
                 ],
 
                 // Finished offers section
@@ -261,15 +268,17 @@ class RoleSelectionScreen extends ConsumerWidget {
     required BuildContext context,
     required String title,
     required String subtitle,
-    required IconData icon,
-    required Color backgroundColor,
+    IconData? icon,
+    String? iconImage,
+    Color? backgroundColor,
+    Gradient? gradient,
     required Color textColor,
     Color? borderColor,
     required bool isEnabled,
     required VoidCallback onTap,
   }) {
     return Material(
-      color: backgroundColor,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: isEnabled ? onTap : null,
@@ -277,6 +286,8 @@ class RoleSelectionScreen extends ConsumerWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
+            color: gradient == null ? backgroundColor : null,
+            gradient: gradient,
             border: borderColor != null ? Border.all(color: borderColor) : null,
           ),
           padding: const EdgeInsets.all(16), // Reduced from 24 to 16
@@ -284,11 +295,20 @@ class RoleSelectionScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min, // Added to prevent overflow
             children: [
-              Icon(
-                icon,
-                size: 44, // Reduced from 48 to 40
-                color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
-              ),
+              if (iconImage != null)
+                Image.asset(
+                  iconImage,
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.contain,
+                  opacity: AlwaysStoppedAnimation(isEnabled ? 1.0 : 0.5),
+                )
+              else if (icon != null)
+                Icon(
+                  icon,
+                  size: 44, // Reduced from 48 to 40
+                  color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
+                ),
               const SizedBox(height: 14), // Reduced from 16 to 12
               Flexible( // Wrapped title in Flexible
                 child: Text(

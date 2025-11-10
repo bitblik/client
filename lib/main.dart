@@ -348,6 +348,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
       ),
       locale: appLocale.flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
@@ -702,12 +703,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                t.app.title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              Image.asset(
+                'assets/logo-horizontal.png',
+                height: 100,
+                fit: BoxFit.cover,
               ),
               const SizedBox(width: 4),
               Text(
@@ -722,6 +721,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
     return Scaffold(
       appBar: AppBar(
+
+        backgroundColor: Colors.white,
         automaticallyImplyLeading:
             !widget.hideBackButton &&
             ((widget.pageTitle != null && widget.pageTitle!.isNotEmpty) ||
