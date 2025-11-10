@@ -1370,9 +1370,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                             );
                           },
                           child: Text(
-                            _clientVersion != null
-                                ? 'v$_clientVersion beta'
-                                : 'beta',
+                            _clientVersion != null ? 'v$_clientVersion' : '',
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.black45,
