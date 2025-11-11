@@ -2,6 +2,9 @@
 # Use an official Flutter image that includes the SDK
 FROM instrumentisto/flutter:3.35.3 AS build
 
+# Build mode argument: can be "release" or "debug"
+ARG BUILD_MODE=release
+
 # Set working directory INSIDE the client directory structure for the build
 WORKDIR /app
 
@@ -17,8 +20,8 @@ RUN flutter pub get
 # Ensure web support is enabled (might be redundant if already enabled)
 RUN flutter config --enable-web
 
-# Build the web application
-RUN flutter build web --release --no-web-resources-cdn
+# Build the web application with the specified build mode
+RUN flutter build web --${BUILD_MODE} --no-web-resources-cdn
 
 # Stage 2: Serve the built web application using Nginx
 FROM nginx:stable-alpine

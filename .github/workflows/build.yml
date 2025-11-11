@@ -12,15 +12,20 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        build_mode: [release, debug]
 
     steps:
     - uses: actions/checkout@v2
       name: Check out code
-    - name: Docker build
+    - name: Docker build (${{ matrix.build_mode }})
       uses: mr-smithers-excellent/docker-build-push@v5
       id: build
       with:
         image: ${{ env.IMAGENAME }}
+        tags: ${{ matrix.build_mode }}
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
+        buildArgs: BUILD_MODE=${{ matrix.build_mode }}
