@@ -226,7 +226,7 @@ class NostrService {
         cache: MemCacheManager(),
         eventVerifier: rustEventVerifier,//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: kDebugMode?LogLevel.trace:LogLevel.warning,
+        logLevel: kDebugMode?LogLevel.debug:LogLevel.warning,
       ),
     );
 
