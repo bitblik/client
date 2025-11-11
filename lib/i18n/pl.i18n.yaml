@@ -279,7 +279,7 @@ maker:
       generateInvoice: Wygeneruj Fakturę
     
     tooltips:
-      feeInfo: "Koordynator pobiera ${feePercent}% opłaty dla twórcy. Ta opłata jest odejmowana od Twojej płatności Lightning."
+      feeInfo: "Koordynator pobiera od twórcy opłatę w wysokości ${feePercent}%. Ta opłata jest odejmowana od Twojej płatności Lightning."
       payInfo: "Ta kalkulacja jest oparta na kursach wymiany pobranych po stronie klienta. Koordynator obliczy dokładną kwotę, a kwota faktury będzie ostateczną i dokładną kwotą do zapłaty."
     
     errors:
