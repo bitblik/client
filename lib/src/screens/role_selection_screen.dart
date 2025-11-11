@@ -153,7 +153,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                         .of(context)
                         .size
                         .width;
-                    final cardHeight = screenWidth > 600 ? 200.0 : 180.0; // Responsive height
+                    final cardHeight = 220.0;//screenWidth > 600 ? 200.0 : 180.0; // Responsive height
 
                     return Row(
                       children: [
