@@ -15,7 +15,12 @@ import '../../services/nostr_service.dart'; // Import DiscoveredCoordinator
 
 // Progress indicator widget for maker flow
 class MakerProgressIndicator extends StatelessWidget {
-  const MakerProgressIndicator({super.key});
+  final int activeStep; // 1, 2, or 3
+  
+  const MakerProgressIndicator({
+    super.key,
+    this.activeStep = 1,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,33 +33,33 @@ class MakerProgressIndicator extends StatelessWidget {
         spacing: 8.0,
         runSpacing: 4.0,
         children: [
-          // Step 1: Create Offer (Active)
+          // Step 1: Create Offer
           Text(
             t.maker.amountForm.progress.step1,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
+              fontWeight: activeStep >= 1 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep >= 1 ? Colors.black : Colors.grey,
             ),
           ),
           const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
-          // Step 2: Wait for Taker (Inactive)
+          // Step 2: Wait for Taker
           Text(
             t.maker.amountForm.progress.step2,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey,
+              fontWeight: activeStep >= 2 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep >= 2 ? Colors.black : Colors.grey,
             ),
           ),
           const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
-          // Step 3: Use BLIK (Inactive)
+          // Step 3: Use BLIK
           Text(
             t.maker.amountForm.progress.step3,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey,
+              fontWeight: activeStep >= 3 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep >= 3 ? Colors.black : Colors.grey,
             ),
           ),
         ],

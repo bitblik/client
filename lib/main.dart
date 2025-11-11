@@ -73,180 +73,171 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        builder:
-            (context, state) => const AppScaffold(body: RoleSelectionScreen()),
-      ),
-      GoRoute(
-        path: '/offers',
-        builder: (context, state) => const AppScaffold(body: OfferListScreen()),
-      ),
-      GoRoute(
-        path: '/offers/:id',
-        builder: (context, state) {
-          final offerId = state.pathParameters['id'];
-          if (offerId == null) {
-            // Or redirect to an error page
-            return const AppScaffold(
-              body: Center(child: Text('No offer ID provided.')),
-            );
-          }
-          return AppScaffold(body: OfferDetailsScreen(offerId: offerId));
-        },
-      ),
-      GoRoute(
-        path: '/create',
-        builder: (context, state) => const AppScaffold(body: MakerAmountForm()),
-      ),
-      GoRoute(
-        path: '/pay',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerPayInvoiceScreen()),
-      ),
-      GoRoute(
-        path: '/wait-taker',
-        builder:
-            (context, state) => const AppScaffold(body: MakerWaitTakerScreen()),
-      ),
-      GoRoute(
-        path: '/wait-blik',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerWaitForBlikScreen()),
-      ),
-      GoRoute(
-        path: '/confirm-blik',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: MakerConfirmPaymentScreen()),
-      ),
-      GoRoute(
-        path: '/maker-success',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: MakerSuccessScreen(completedOffer: state.extra as Offer),
-            );
-          }
-        },
-      ),
-      GoRoute(
-        path: '/coordinators',
-        builder:
-            (context, state) =>
-                const AppScaffold(body: CoordinatorManagementScreen()),
-      ),
-      GoRoute(
-        path: '/settings',
-        builder: (context, state) => const AppScaffold(body: SettingsScreen()),
-      ),
-      GoRoute(
-        path: '/neko-management',
-        builder:
-            (context, state) => const AppScaffold(body: NekoManagementScreen()),
-      ),
+      ShellRoute(
+        builder: (context, state, child) {
+          // Determine page title and back button visibility from route
+          String? pageTitle;
+          bool hideBackButton = false;
+          bool showBackButton = false;
 
-      GoRoute(
-        path: '/submit-blik',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: TakerSubmitBlikScreen(initialOffer: state.extra as Offer),
-            );
+          // Extract route-specific settings from state
+          final path = state.uri.path;
+          if (path == FaqScreen.routeName) {
+            hideBackButton = true;
           }
-        },
-      ),
-      GoRoute(
-        path: '/wait-confirmation',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: TakerWaitConfirmationScreen(offer: state.extra as Offer),
-            );
-          }
-        },
-      ),
-      GoRoute(
-        path: '/taker-failed',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: TakerPaymentFailedScreen(offer: state.extra as Offer),
-            );
-          }
-        },
-      ),
-      GoRoute(
-        path: '/paying-taker',
-        builder:
-            (context, state) => AppScaffold(body: TakerPaymentProcessScreen()),
-      ),
-      GoRoute(
-        path: '/taker-invalid-blik',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: TakerInvalidBlikScreen(offer: state.extra as Offer),
-            );
-          }
-        },
-      ),
 
-      GoRoute(
-        path: '/taker-conflict',
-        builder:
-            (context, state) => AppScaffold(
-              body: TakerConflictScreen(offerId: state.extra as String),
-            ),
-      ),
-      GoRoute(
-        path: '/maker-invalid-blik',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: MakerInvalidBlikScreen(offer: state.extra as Offer),
-            );
-          }
+          return AppScaffold(
+            body: child,
+            pageTitle: pageTitle,
+            showBackButton: showBackButton,
+            hideBackButton: hideBackButton,
+          );
         },
-      ),
-      GoRoute(
-        path: '/maker-conflict',
-        builder: (context, state) {
-          if (state.extra == null) {
-            context.go("/");
-            return Container();
-          } else {
-            return AppScaffold(
-              body: MakerConflictScreen(offer: state.extra as Offer),
-            );
-          }
-        },
-      ),
-      GoRoute(
-        path: FaqScreen.routeName,
-        builder:
-            (context, state) =>
-                const AppScaffold(body: FaqScreen(), hideBackButton: true),
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const RoleSelectionScreen(),
+          ),
+          GoRoute(
+            path: '/offers',
+            builder: (context, state) => const OfferListScreen(),
+          ),
+          GoRoute(
+            path: '/offers/:id',
+            builder: (context, state) {
+              final offerId = state.pathParameters['id'];
+              if (offerId == null) {
+                return const Center(child: Text('No offer ID provided.'));
+              }
+              return OfferDetailsScreen(offerId: offerId);
+            },
+          ),
+          GoRoute(
+            path: '/create',
+            builder: (context, state) => const MakerAmountForm(),
+          ),
+          GoRoute(
+            path: '/pay',
+            builder: (context, state) => const MakerPayInvoiceScreen(),
+          ),
+          GoRoute(
+            path: '/wait-taker',
+            builder: (context, state) => const MakerWaitTakerScreen(),
+          ),
+          GoRoute(
+            path: '/wait-blik',
+            builder: (context, state) => const MakerWaitForBlikScreen(),
+          ),
+          GoRoute(
+            path: '/confirm-blik',
+            builder: (context, state) => const MakerConfirmPaymentScreen(),
+          ),
+          GoRoute(
+            path: '/maker-success',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return MakerSuccessScreen(completedOffer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: '/coordinators',
+            builder: (context, state) => const CoordinatorManagementScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/neko-management',
+            builder: (context, state) => const NekoManagementScreen(),
+          ),
+          GoRoute(
+            path: '/submit-blik',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return TakerSubmitBlikScreen(
+                  initialOffer: state.extra as Offer,
+                );
+              }
+            },
+          ),
+          GoRoute(
+            path: '/wait-confirmation',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return TakerWaitConfirmationScreen(offer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: '/taker-failed',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return TakerPaymentFailedScreen(offer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: '/paying-taker',
+            builder: (context, state) => TakerPaymentProcessScreen(),
+          ),
+          GoRoute(
+            path: '/taker-invalid-blik',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return TakerInvalidBlikScreen(offer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: '/taker-conflict',
+            builder:
+                (context, state) =>
+                    TakerConflictScreen(offerId: state.extra as String),
+          ),
+          GoRoute(
+            path: '/maker-invalid-blik',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return MakerInvalidBlikScreen(offer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: '/maker-conflict',
+            builder: (context, state) {
+              if (state.extra == null) {
+                context.go("/");
+                return Container();
+              } else {
+                return MakerConflictScreen(offer: state.extra as Offer);
+              }
+            },
+          ),
+          GoRoute(
+            path: FaqScreen.routeName,
+            builder: (context, state) => const FaqScreen(),
+          ),
+        ],
       ),
     ],
   );
@@ -802,7 +793,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     final publicKeyAsync = ref.watch(publicKeyProvider);
-    final String currentPath = GoRouterState.of(context).uri.toString();
 
     Widget appBarTitle;
     // bool canGoBack = GoRouter.of(context).canGoBack(); // Removed this line

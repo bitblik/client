@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:qr_flutter/qr_flutter.dart'; // For QR code display
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs/Intents
 import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
@@ -14,6 +15,7 @@ import '../../models/offer.dart'; // Import Offer model for status enum comparis
 import 'package:go_router/go_router.dart';
 import '../../../i18n/gen/strings.g.dart'; // Correct Slang import
 import 'webln_stub.dart' if (dart.library.js) 'webln_web.dart';
+import 'maker_amount_form.dart'; // Import MakerProgressIndicator
 
 class MakerPayInvoiceScreen extends ConsumerStatefulWidget {
   const MakerPayInvoiceScreen({super.key});
@@ -162,6 +164,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   @override
   Widget build(BuildContext context) {
     final offer = ref.watch(activeOfferProvider);
+    final t = Translations.of(context);
 
     // Listen to the active offer provider for status changes
     ref.listen<Offer?>(activeOfferProvider, (previous, next) {
@@ -226,12 +229,69 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Text(
-                  t.maker.payInvoice.title,
-                  style: const TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
+                // Progress indicator (Step 1: Create Offer)
+                const MakerProgressIndicator(activeStep: 1),
+                // Text(
+                //   t.maker.payInvoice.title,
+                //   style: const TextStyle(fontSize: 18),
+                //   textAlign: TextAlign.center,
+                // ),
+                // const SizedBox(height: 15),
                 const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 15,
+                      height: 15,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      t.maker.payInvoice.feedback.waitingConfirmation,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                Center(
+                  child: GestureDetector(
+                    onTap: () => _launchLightningUrl(holdInvoice),
+                    child: Container(
+                      width: 250,
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: PrettyQrView.data(
+                        data: holdInvoice.toUpperCase(),
+                        errorCorrectLevel: QrErrorCorrectLevel.M,
+                        decoration: const PrettyQrDecoration(
+                          quietZone: PrettyQrQuietZone.standart,
+                          background: Colors.white,
+                          shape: PrettyQrSmoothSymbol(
+                            color: Colors.black,
+                            roundFactor: 0.3,
+                          ),
+                          image: PrettyQrDecorationImage(
+                            scale: 0.3,
+                            image: AssetImage('assets/logo2.png'),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // child: QrImageView(
+                    //   data: holdInvoice.toUpperCase(),
+                    //   version: QrVersions.auto,
+                    //   size: 200.0,
+                    //   backgroundColor: Colors.white,
+                    //   embeddedImage: const AssetImage('assets/logo.png'),
+                    //   embeddedImageStyle: QrEmbeddedImageStyle(
+                    //     size: const Size(60, 60),
+                    //   ),
+                    // ),
+                  ),
+                ),
                 Builder(
                   builder: (context) {
                     if (offer == null) return const SizedBox.shrink();
@@ -257,97 +317,89 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                         Text(
                           "$sats sats",
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w400,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
+                          //                          "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
+                          "${formatFiat(totalFiat)} PLN",
                           style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[700], fontSize: 13),
+                              ?.copyWith(color: Colors.grey[700], fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     );
                   },
                 ),
-                const SizedBox(height: 15),
-                Center(
-                  child: GestureDetector(
-                    onTap: () => _launchLightningUrl(holdInvoice),
-                    child: QrImageView(
-                      data: holdInvoice.toUpperCase(),
-                      version: QrVersions.auto,
-                      size: 200.0,
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.account_balance_wallet),
-                      label: Text(t.maker.payInvoice.actions.payInWallet),
-                      onPressed: () => _launchLightningUrl(holdInvoice),
-                    ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.copy),
-                      label: Text(t.maker.payInvoice.actions.copy),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: holdInvoice));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(t.maker.payInvoice.feedback.copied),
-                          ),
-                        );
-                      },
-                    ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.cancel),
-                      label: Text(t.common.buttons.cancel),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () async {
-                        await ref
-                            .read(activeOfferProvider.notifier)
-                            .setActiveOffer(null);
-                        context.go('/');
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                const SizedBox(height: 20),
+                Column(
                   children: [
                     SizedBox(
-                      width: 15,
-                      height: 15,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.account_balance_wallet_outlined),
+                        label: Text(t.maker.payInvoice.actions.payInWallet),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          foregroundColor: Colors.black,
+                        ),
+                        onPressed: () => _launchLightningUrl(holdInvoice),
+                      ),
                     ),
-                    SizedBox(width: 8),
-                    Text(t.maker.payInvoice.feedback.waitingConfirmation),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.copy),
+                        label: Text(t.maker.payInvoice.actions.copy),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          foregroundColor: Colors.black,
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: holdInvoice));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(t.maker.payInvoice.feedback.copied),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.cancel),
+                        label: Text(t.common.buttons.cancel),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () async {
+                          await ref
+                              .read(activeOfferProvider.notifier)
+                              .setActiveOffer(null);
+                          context.go('/');
+                        },
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 15),
-                InkWell(
-                  onTap: () => _launchLightningUrl(holdInvoice),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: SelectableText(
-                      holdInvoice,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+                // const SizedBox(height: 25),
+                // InkWell(
+                //   onTap: () => _launchLightningUrl(holdInvoice),
+                //   child: Padding(
+                //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+                //     child: SelectableText(
+                //       holdInvoice,
+                //       textAlign: TextAlign.center,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

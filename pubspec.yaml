@@ -42,7 +42,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.1 # For making HTTP requests
   flutter_riverpod: ^2.6.1 # For state management
-  qr_flutter: ^4.1.0 # For displaying QR codes
+#  qr_flutter: ^4.1.0 # For displaying QR codes
+  pretty_qr_code: ^3.5.0
+
   bip340: ^0.3.0 # For secp256k1 key pair generation (alternative to dart_nostr)
   flutter_secure_storage: ^9.2.4 # For secure key storage (Updated to latest)
   ndk: 0.6.0-dev.6
@@ -142,6 +144,8 @@ flutter:
     - assets/simplex.png
     - assets/element.png
     - assets/logo.png
+    - assets/logo2.png
+    - assets/logo-trans.png
     - assets/nostr.png
     - assets/logo-horizontal.png
     - assets/sell-blik.png
