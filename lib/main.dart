@@ -20,6 +20,7 @@ import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for G
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:ndk_rust_verifier/data_layer/repositories/verifiers/rust_event_verifier.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -288,11 +289,11 @@ class _MyAppState extends ConsumerState<MyApp> {
       ref.read(keyServiceProvider);
       ref.read(apiServiceProvider);
 
-      print(
+      Logger.log.i(
         '🚀 App initialized: API service and coordinator discovery started',
       );
     } catch (e) {
-      print('❌ Error during app initialization: $e');
+      Logger.log.e('❌ Error during app initialization: $e');
     }
 
     // Initialize API service and start coordinator discovery
@@ -311,11 +312,11 @@ class _MyAppState extends ConsumerState<MyApp> {
         // Start listening to connectivity changes
         _connectivitySubscription = listenToConnectivityChanges(ref);
 
-        print(
+        Logger.log.i(
           '🚀 App initialized: API service and coordinator discovery started',
         );
       } catch (e) {
-        print('❌ Error during app initialization: $e');
+        Logger.log.e('❌ Error during app initialization: $e');
       }
     });
 

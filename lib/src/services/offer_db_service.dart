@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/offer.dart';
@@ -92,21 +93,21 @@ class OfferDbService {
     try {
       final db = await database;
       final jsonData = offer.toJson();
-      print('[OfferDbService] Upserting offer with data: $jsonData');
+      Logger.log.d('[OfferDbService] Upserting offer with data: $jsonData');
 
       // // Debug: Check table schema
       // final tableInfo = await db.rawQuery('PRAGMA table_info(active_offer)');
-      // print('[OfferDbService] Table schema: $tableInfo');
+      // Logger.log.d('[OfferDbService] Table schema: $tableInfo');
       await deleteActiveOffer();
       await db.insert(
         'active_offer',
         jsonData,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      print('[OfferDbService] Successfully upserted offer');
+      Logger.log.d('[OfferDbService] Successfully upserted offer');
     } catch (e, stackTrace) {
-      print('[OfferDbService] Error upserting offer: $e');
-      print('[OfferDbService] Stack trace: $stackTrace');
+      Logger.log.d('[OfferDbService] Error upserting offer: $e');
+      Logger.log.d('[OfferDbService] Stack trace: $stackTrace');
       rethrow;
     }
   }
@@ -118,7 +119,7 @@ class OfferDbService {
       try {
         return Offer.fromJson(maps.first);
       } catch (e) {
-        print('could not parse offer from json: $e');
+        Logger.log.e('could not parse offer from json: $e');
       }
     }
     return null;

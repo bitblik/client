@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -31,7 +32,7 @@ class _TakerWaitConfirmationScreenState
     if (widget.offer.status != OfferStatus.blikReceived.name &&
         widget.offer.status != OfferStatus.blikSentToMaker.name &&
         widget.offer.status != OfferStatus.makerConfirmed.name) {
-      print(
+      Logger.log.d(
         "[TakerWaitConfirmation initState] Error: Received invalid offer state: ${widget.offer.status}. Resetting.",
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -51,7 +52,7 @@ class _TakerWaitConfirmationScreenState
   }
 
   void _initializeOrUpdateCountdownTimer(Offer offer) {
-    print("[TakerWaitConfirmation] Initializing/Updating countdown timer...");
+    Logger.log.d("[TakerWaitConfirmation] Initializing/Updating countdown timer...");
     _startConfirmationTimer(offer);
     _timersInitialized = true;
   }
@@ -65,7 +66,7 @@ class _TakerWaitConfirmationScreenState
     final now = DateTime.now();
     final initialRemaining = expiresAt.difference(now);
 
-    print(
+    Logger.log.d(
       "[TakerWaitConfirmation] Starting confirmation timer. Expires ~ $expiresAt",
     );
 
@@ -98,7 +99,7 @@ class _TakerWaitConfirmationScreenState
   void _handleConfirmationTimeout() {
     _confirmationTimer?.cancel();
     if (mounted) {
-      print("[TakerWaitConfirmation] Confirmation timer expired.");
+      Logger.log.d("[TakerWaitConfirmation] Confirmation timer expired.");
     }
   }
 
@@ -139,7 +140,7 @@ class _TakerWaitConfirmationScreenState
       if (!mounted) return;
 
       if (offer == null) {
-        print("[TakerWaitConfirmation] Active offer is null. Resetting.");
+        Logger.log.d("[TakerWaitConfirmation] Active offer is null. Resetting.");
         _resetToOfferList(t.offers.status.cancelled);
         return;
       }
@@ -150,7 +151,7 @@ class _TakerWaitConfirmationScreenState
           currentStatusEnum == OfferStatus.settled ||
           currentStatusEnum == OfferStatus.payingTaker ||
           currentStatusEnum == OfferStatus.takerPaid) {
-        print(
+        Logger.log.d(
           "[TakerWaitConfirmation] Status is $currentStatusEnum. Navigating to process screen.",
         );
         // final paymentHash = offer.holdInvoicePaymentHash;

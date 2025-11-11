@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
 import '../../widgets/progress_indicators.dart';
@@ -57,7 +58,7 @@ class _MakerWaitForBlikScreenState
       _startStatusCheckTimer();
     } catch (e) {
       if (!mounted) return;
-      print(
+      Logger.log.e(
         "[MakerWaitForBlikScreen] Error loading coordinator info:  [1m${e.toString()} [0m",
       );
       setState(() {
@@ -76,7 +77,7 @@ class _MakerWaitForBlikScreenState
   void _startStatusCheckTimer() {
     // Ensure this is called only after _reservationDuration is set
     if (_reservationDuration == null) {
-      print(
+      Logger.log.w(
         "[MakerWaitForBlikScreen] _startStatusCheckTimer called before _reservationDuration is set. Aborting timer start.",
       );
       if (mounted && _configError == null && !_isLoadingConfig) {
@@ -97,17 +98,17 @@ class _MakerWaitForBlikScreenState
     final coordinatorPubkey = offer?.coordinatorPubkey;
 
     if (offer == null || makerId == null || coordinatorPubkey == null) {
-      print(
+      Logger.log.e(
         "[MakerWaitForBlik] Error: Missing offer, public key or coordinator pubkey.",
       );
       return;
     }
 
-    print("[MakerWaitForBlik] Status update received: $status");
+    Logger.log.d("[MakerWaitForBlik] Status update received: $status");
 
     if (status == OfferStatus.blikReceived ||
         status == OfferStatus.blikSentToMaker) {
-      print("[MakerWaitForBlik] BLIK received/sent. Fetching code via API...");
+      Logger.log.i("[MakerWaitForBlik] BLIK received/sent. Fetching code via API...");
 
       try {
         final apiService = ref.read(apiServiceProvider);
@@ -116,23 +117,23 @@ class _MakerWaitForBlikScreenState
           makerId,
           coordinatorPubkey,
         );
-        print("[MakerWaitForBlik] API returned blikCode: $blikCode");
+        Logger.log.d("[MakerWaitForBlik] API returned blikCode: $blikCode");
 
         if (blikCode != null && blikCode.isNotEmpty) {
-          print(
+          Logger.log.d(
             "[MakerWaitForBlik] BLIK code is valid. Storing in provider...",
           );
           ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
-          print("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
+          Logger.log.i("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
 
           if (mounted) {
-            print(
+            Logger.log.d(
               "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
             );
             context.go('/confirm-blik');
           }
         } else {
-          print(
+          Logger.log.e(
             "[MakerWaitForBlik] Error: Status is $status but API returned no BLIK code. Resetting.",
           );
           if (mounted) {
@@ -140,22 +141,22 @@ class _MakerWaitForBlikScreenState
           }
         }
       } catch (e) {
-        print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
+        Logger.log.e("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
         if (mounted) {
           _resetToRoleSelection(t.system.errors.generic);
         }
       }
     } else if (status == OfferStatus.funded) {
-      print(
+      Logger.log.i(
         "[MakerWaitForBlik] Offer reverted to FUNDED (Taker likely timed out). Popping back.",
       );
       if (mounted) {
         context.go('/wait-taker');
       }
     } else if (status == OfferStatus.reserved) {
-      print("[MakerWaitForBlik] Still waiting for BLIK (Status: $status).");
+      Logger.log.d("[MakerWaitForBlik] Still waiting for BLIK (Status: $status).");
     } else {
-      print(
+      Logger.log.w(
         "[MakerWaitForBlik] Offer in unexpected state ($status). Resetting.",
       );
       if (mounted) {

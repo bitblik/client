@@ -1,3 +1,5 @@
+import 'package:ndk/shared/logger/logger.dart';
+
 enum OfferStatus {
   created, // Initial state, invoice generated but not paid
   funded, // Hold invoice paid by maker, offer listed
@@ -263,7 +265,7 @@ class Offer {
       return OfferStatus.values.byName(status);
     } catch (e) {
       // Handle cases where the string doesn't match any enum value
-      print('Warning: Unknown offer status "$status", defaulting to created.');
+      Logger.log.w('Warning: Unknown offer status "$status", defaulting to created.');
       return OfferStatus
           .created; // Or throw an error, depending on desired behavior
     }

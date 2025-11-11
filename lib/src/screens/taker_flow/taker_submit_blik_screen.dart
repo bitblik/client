@@ -6,6 +6,7 @@ import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../models/coordinator_info.dart'; // Added
@@ -118,12 +119,12 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         } else {
           // Fallback if coordinator info is somehow null
           _maxBlikInputTime = const Duration(seconds: 20); // Default fallback
-          print(
+          Logger.log.w(
             "[TakerSubmitBlikScreen] Warning: CoordinatorInfo was null, using default timeout.",
           );
         }
       } catch (e) {
-        print(
+        Logger.log.e(
           "[TakerSubmitBlikScreen] Error fetching coordinator info: $e. Using default timeout.",
         );
         _maxBlikInputTime = const Duration(
@@ -175,11 +176,11 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       // TODO is this really not necessary? then we don't need to getMyActiveOffer
       // await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
-      print("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
+      Logger.log.i("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
 
       // Ensure _maxBlikInputTime is set before starting timer
       if (_maxBlikInputTime == null) {
-        print(
+        Logger.log.e(
           "[TakerSubmitBlikScreen] _maxBlikInputTime is null before _startBlikInputTimer. This should not happen.",
         );
         _maxBlikInputTime = Duration(
@@ -197,7 +198,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         }
       });
     } catch (e) {
-      print("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
+      Logger.log.e("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
       if (mounted) {
         _resetToOfferList(
           t.offers.errors.loadingDetails(details: e.toString()),
@@ -221,7 +222,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
     final reservedAt = offer.reservedAt;
     if (reservedAt == null) {
-      print(
+      Logger.log.e(
         "[TakerSubmitBlikScreen] Error: reservedAt is null when starting timer. Resetting.",
       );
       _resetToOfferList(t.offers.errors.detailsMissing);
@@ -231,7 +232,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final now = DateTime.now();
     // Ensure _maxBlikInputTime is non-null before proceeding
     if (_maxBlikInputTime == null) {
-      print(
+      Logger.log.e(
         "[TakerSubmitBlikScreen] Error: _maxBlikInputTime is null in _startBlikInputTimer. Resetting.",
       );
       _resetToOfferList("${t.offers.errors.detailsMissing} (Timeout config)");
@@ -243,7 +244,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     ); // Use non-null assertion
     final timeUntilExpiry = expiresAt.difference(now);
 
-    print(
+    Logger.log.d(
       "[TakerSubmitBlikScreen] Starting BLIK input timeout timer for ${_maxBlikInputTime!.inSeconds}s. Expires ~ $expiresAt",
     );
 
@@ -257,7 +258,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   Future<void> _handleBlikInputTimeout() async {
     _blikInputTimer?.cancel();
     if (mounted) {
-      print("[TakerSubmitBlikScreen] BLIK input timer expired.");
+      Logger.log.i("[TakerSubmitBlikScreen] BLIK input timer expired.");
       await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
       _resetToOfferList(t.taker.submitBlik.timeExpired);
     }
@@ -384,16 +385,16 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       return;
     }
     if (lnAddress == null || lnAddress.isEmpty || !lnAddress.contains('@')) {
-      print("[TakerSubmitBlikScreen] LN Address missing, prompting user.");
+      Logger.log.d("[TakerSubmitBlikScreen] LN Address missing, prompting user.");
       lnAddress = await _promptForLightningAddress(context, keyService);
       if (lnAddress == null) {
-        print("[TakerSubmitBlikScreen] User cancelled LN Address prompt.");
+        Logger.log.d("[TakerSubmitBlikScreen] User cancelled LN Address prompt.");
         ref.read(errorProvider.notifier).state =
             t.lightningAddress.prompts.required;
         _startBlikInputTimer(offer);
         return;
       }
-      print("[TakerSubmitBlikScreen] LN Address obtained: $lnAddress");
+      Logger.log.i("[TakerSubmitBlikScreen] LN Address obtained: $lnAddress");
     }
     // --- End Validations ---
 
@@ -417,7 +418,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       );
       await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
-      print(
+      Logger.log.i(
         "[TakerSubmitBlikScreen] BLIK submitted. Navigating to WaitConfirmation.",
       );
       if (mounted) {
@@ -442,7 +443,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       if (textData != null &&
           textData.text != null &&
           textData.text!.isNotEmpty) {
-        print("clipboard.getData:${textData.text}");
+        Logger.log.d("clipboard.getData:${textData.text}");
         final pastedText = textData.text!;
         final digitsOnly = pastedText.replaceAll(RegExp(r'[^0-9]'), '');
         if (digitsOnly.length == 6) {

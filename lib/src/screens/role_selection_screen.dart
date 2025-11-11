@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart'; // Import providers
@@ -39,7 +40,7 @@ class RoleSelectionScreen extends ConsumerWidget {
         context.go("/maker-invalid-blik", extra: offer);
         break;
       default:
-        print("Cannot resume Maker offer in state: $offerStatus");
+        Logger.log.w("Cannot resume Maker offer in state: $offerStatus");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -73,7 +74,7 @@ class RoleSelectionScreen extends ConsumerWidget {
       // Navigate to the taker conflict screen
       context.go('/taker-conflict', extra: offer.id);
     } else {
-      print(
+      Logger.log.e(
         "[RoleSelectionScreen] Error: Resuming Taker offer in unexpected state: $offerStatus",
       );
       ScaffoldMessenger.of(context).showSnackBar(

@@ -2,6 +2,7 @@ import 'dart:async'; // For Stream.periodic
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../models/coordinator_info.dart';
 import '../models/offer.dart'; // OfferStatus is in here
@@ -58,7 +59,7 @@ class DiscoveredCoordinatorsNotifier
         await apiService.startCoordinatorDiscovery();
         await _loadCoordinators();
       } catch (e) {
-        print('Error during periodic coordinator refresh: $e');
+        Logger.log.e('Error during periodic coordinator refresh: $e');
       }
     });
   }
@@ -75,7 +76,7 @@ class DiscoveredCoordinatorsNotifier
       final apiService = await _ref.read(initializedApiServiceProvider.future);
       final coordinators = apiService.discoveredCoordinators;
 
-      print(
+      Logger.log.d(
         '🔍 Provider: Loading ${coordinators.length} coordinators for health check',
       );
 
@@ -85,7 +86,9 @@ class DiscoveredCoordinatorsNotifier
         // Perform health checks for all discovered coordinators
         final healthCheckFutures = <Future<void>>[];
         for (final coordinator in coordinators) {
-          print('🔍 Provider: Starting health check for ${coordinator.name}');
+          Logger.log.d(
+            '🔍 Provider: Starting health check for ${coordinator.name}',
+          );
           healthCheckFutures.add(
             apiService.checkCoordinatorHealth(coordinator.pubkey),
           );
@@ -96,25 +99,27 @@ class DiscoveredCoordinatorsNotifier
           await Future.wait(
             healthCheckFutures,
           ).timeout(const Duration(seconds: 20));
-          print('🔍 Provider: All health checks completed');
+          Logger.log.d('🔍 Provider: All health checks completed');
         } catch (e) {
-          print('Some health checks timed out or failed: $e');
+          Logger.log.w('Some health checks timed out or failed: $e');
           // Continue anyway - some coordinators may have been checked successfully
         }
       }
 
       // Now get the updated list with health check results and set the state
       final updatedCoordinators = apiService.discoveredCoordinators;
-      print(
+      Logger.log.d(
         '🔍 Provider: Final coordinator list (${updatedCoordinators.length}):',
       );
       for (final coordinator in updatedCoordinators) {
-        print('  - ${coordinator.name}: responsive=${coordinator.responsive}');
+        Logger.log.d(
+          '  - ${coordinator.name}: responsive=${coordinator.responsive}',
+        );
       }
 
       state = AsyncValue.data(updatedCoordinators);
     } catch (e, stack) {
-      print('Error in _loadCoordinators: $e');
+      Logger.log.e('Error in _loadCoordinators: $e');
       state = AsyncValue.error(e, stack);
     }
   }
@@ -132,79 +137,99 @@ class DiscoveredCoordinatorsNotifier
   /// This will restart the discovery process and reload the coordinator list
   Future<void> refreshDiscovery() async {
     try {
-      print('🔍 Provider: Manual refresh triggered, starting coordinator discovery...');
-      
+      Logger.log.i(
+        '🔍 Provider: Manual refresh triggered, starting coordinator discovery...',
+      );
+
       // Wait for API service to be fully initialized
       final apiService = await _ref.read(initializedApiServiceProvider.future);
-      
+
       // Trigger discovery
       await apiService.startCoordinatorDiscovery();
-      
+
       // Reload coordinators with health checks
       await _loadCoordinators(skipHealthChecks: false);
     } catch (e, stack) {
-      print('Error in refreshDiscovery: $e');
+      Logger.log.e('Error in refreshDiscovery: $e');
       state = AsyncValue.error(e, stack);
     }
   }
 
   /// Trigger health check for a specific coordinator and update the list when done
-  Future<void> checkCoordinatorHealthAndRefresh(String coordinatorPubkey) async {
+  Future<void> checkCoordinatorHealthAndRefresh(
+    String coordinatorPubkey,
+  ) async {
     if (!state.hasValue) return;
-    
+
     try {
       final apiService = await _ref.read(initializedApiServiceProvider.future);
       // Run health check in background
-      apiService.checkCoordinatorHealth(coordinatorPubkey).then((_) {
-        // Update the list after health check completes
-        refreshList(runHealthChecks: false);
-      }).catchError((error) {
-        print('⚠️ Error during health check for $coordinatorPubkey: $error');
-        // Still refresh the list to update status
-        refreshList(runHealthChecks: false);
-      });
+      apiService
+          .checkCoordinatorHealth(coordinatorPubkey)
+          .then((_) {
+            // Update the list after health check completes
+            refreshList(runHealthChecks: false);
+          })
+          .catchError((error) {
+            Logger.log.w(
+              '⚠️ Error during health check for $coordinatorPubkey: $error',
+            );
+            // Still refresh the list to update status
+            refreshList(runHealthChecks: false);
+          });
     } catch (e) {
-      print('Error checking coordinator health: $e');
+      Logger.log.e('Error checking coordinator health: $e');
     }
   }
 
   /// Trigger health checks for multiple coordinators in background and update when done
-  Future<void> checkCoordinatorsHealthAndRefresh(List<String> coordinatorPubkeys) async {
+  Future<void> checkCoordinatorsHealthAndRefresh(
+    List<String> coordinatorPubkeys,
+  ) async {
     if (!state.hasValue || coordinatorPubkeys.isEmpty) return;
-    
+
     try {
       final apiService = await _ref.read(initializedApiServiceProvider.future);
       // Run health checks in parallel
-      final futures = coordinatorPubkeys.map((pubkey) => 
-        apiService.checkCoordinatorHealth(pubkey).catchError((error) {
-          print('⚠️ Error during health check for $pubkey: $error');
-        })
-      ).toList();
-      
+      final futures =
+          coordinatorPubkeys
+              .map(
+                (pubkey) => apiService
+                    .checkCoordinatorHealth(pubkey)
+                    .catchError((error) {
+                      Logger.log.w(
+                        '⚠️ Error during health check for $pubkey: $error',
+                      );
+                    }),
+              )
+              .toList();
+
       // Wait for all health checks to complete, then refresh
-      Future.wait(futures).then((_) {
-        // Update the list after all health checks complete
-        refreshList(runHealthChecks: false);
-      }).catchError((error) {
-        print('Error during health checks: $error');
-        // Still refresh the list
-        refreshList(runHealthChecks: false);
-      });
+      Future.wait(futures)
+          .then((_) {
+            // Update the list after all health checks complete
+            refreshList(runHealthChecks: false);
+          })
+          .catchError((error) {
+            Logger.log.e('Error during health checks: $error');
+            // Still refresh the list
+            refreshList(runHealthChecks: false);
+          });
     } catch (e) {
-      print('Error checking coordinators health: $e');
+      Logger.log.e('Error checking coordinators health: $e');
     }
   }
 
   Future<void> _startDiscovery() async {
     try {
       state = const AsyncValue.loading();
-      print(
+      Logger.log.d(
         '🔍 Provider: Starting coordinator discovery, waiting for API service initialization...',
       );
 
       // Wait for API service to be fully initialized (this ensures KeyService is ready)
       final apiService = await _ref.read(initializedApiServiceProvider.future);
-      print(
+      Logger.log.d(
         '🔍 Provider: API service initialized, starting coordinator discovery...',
       );
 
@@ -214,7 +239,7 @@ class DiscoveredCoordinatorsNotifier
       _startPeriodicRefresh();
       await _loadCoordinators();
     } catch (e, stack) {
-      print('Error in _startDiscovery: $e');
+      Logger.log.e('Error in _startDiscovery: $e');
       state = AsyncValue.error(e, stack);
     }
   }
@@ -263,7 +288,7 @@ class CoordinatorInfoNotifier
             await Future.delayed(const Duration(milliseconds: 500));
             coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
           } catch (e) {
-            print('Error during coordinator discovery for $pubkey: $e');
+            Logger.log.e('Error during coordinator discovery for $pubkey: $e');
           }
         }
       },
@@ -273,7 +298,7 @@ class CoordinatorInfoNotifier
         coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
       },
       error: (error, stack) async {
-        print('Error in coordinator discovery: $error');
+        Logger.log.e('Error in coordinator discovery: $error');
         // Still try to get from cache even if discovery failed
         coordinatorInfo = apiService.getCoordinatorInfoByPubkey(pubkey);
       },
@@ -352,10 +377,12 @@ class ActiveOfferNotifier extends StateNotifier<Offer?> {
 
   Future<void> setActiveOffer(Offer? offer) async {
     if (offer != null) {
-      print('[ActiveOfferNotifier] Setting active offer: ${offer.toJson()}');
+      Logger.log.d(
+        '[ActiveOfferNotifier] Setting active offer: ${offer.toJson()}',
+      );
       await OfferDbService().upsertActiveOffer(offer);
     } else {
-      print('[ActiveOfferNotifier] Clearing active offer');
+      Logger.log.d('[ActiveOfferNotifier] Clearing active offer');
       await OfferDbService().deleteActiveOffer();
     }
     state = offer;
@@ -404,13 +431,13 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
     data: (coordinators) async {
       // Only proceed if we have discovered coordinators
       if (coordinators.isEmpty) {
-        print(
+        Logger.log.d(
           'No coordinators discovered yet, returning empty finished offers list',
         );
         return <Offer>[];
       }
 
-      print(
+      Logger.log.d(
         'Found ${coordinators.length} coordinators, loading finished offers',
       );
       // Use initialized API service to ensure KeyService is ready
@@ -428,7 +455,7 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
     },
     loading: () => <Offer>[], // Return empty list while loading coordinators
     error: (error, stack) {
-      print('Error loading coordinators for finished offers: $error');
+      Logger.log.e('Error loading coordinators for finished offers: $error');
       return <Offer>[]; // Return empty list on error
     },
   );
@@ -459,7 +486,7 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
     statusSubscription?.cancel();
 
     if (current != null) {
-      print(
+      Logger.log.d(
         "[SubscriptionManager] Active offer changed to ${current.id}. Starting new status subscription.",
       );
       final apiService = ref.read(apiServiceProvider);
@@ -480,11 +507,13 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
           try {
             newStatus = OfferStatus.values.byName(statusUpdate.status);
           } catch (e) {
-            print("Error parsing status string '${statusUpdate.status}': $e");
+            Logger.log.e(
+              "Error parsing status string '${statusUpdate.status}': $e",
+            );
           }
 
           if (newStatus != null) {
-            print(
+            Logger.log.d(
               "Offer ${current.id} status updated to: $newStatus. Updating active offer provider.",
             );
             activeOfferNotifier.updateOfferStatus(statusUpdate);
@@ -492,7 +521,7 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
         }
       });
     } else {
-      print(
+      Logger.log.d(
         "[SubscriptionManager] Active offer cleared. Subscription stopped.",
       );
       _currentOfferId = null;
@@ -526,17 +555,19 @@ final successfulOffersStatsProvider = FutureProvider<Map<String, dynamic>>((
   await coordinatorsAsync.when(
     data: (coordinators) async {
       // Coordinators are loaded, we can proceed
-      print(
+      Logger.log.d(
         '📊 Stats Provider: Found ${coordinators.length} coordinators for stats',
       );
     },
     loading: () async {
       // Wait a bit for coordinators to load
-      print('📊 Stats Provider: Waiting for coordinators to be discovered...');
+      Logger.log.d(
+        '📊 Stats Provider: Waiting for coordinators to be discovered...',
+      );
       await Future.delayed(const Duration(seconds: 2));
     },
     error: (error, stack) async {
-      print('📊 Stats Provider: Error loading coordinators: $error');
+      Logger.log.e('📊 Stats Provider: Error loading coordinators: $error');
     },
   );
 

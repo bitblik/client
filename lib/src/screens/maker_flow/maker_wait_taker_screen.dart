@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../i18n/gen/strings.g.dart'; // Correct Slang import
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart'; // For OfferStatus enum
 import '../../providers/providers.dart';
@@ -47,7 +48,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
       return;
     }
 
-    print("[MakerWaitTaker] Status update received: $status");
+    Logger.log.d("[MakerWaitTaker] Status update received: $status");
 
     if (status == OfferStatus.reserved) {
       if (mounted) {

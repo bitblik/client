@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -372,7 +373,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      print(
+      Logger.log.e(
         "[OfferListScreen] Error loading coordinator info: ${e.toString()}",
       );
       setState(() {
@@ -574,7 +575,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () async {
-                          print("[OfferListScreen] Manual refresh triggered.");
+                          Logger.log.d("[OfferListScreen] Manual refresh triggered.");
                           ref.invalidate(availableOffersProvider);
                           ref.invalidate(activeOfferProvider);
                           await ref.read(availableOffersProvider.future);
@@ -869,7 +870,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     offer: myActiveOffer,
                                                   );
                                             } else {
-                                              print(
+                                              Logger.log.e(
                                                 "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer.status}",
                                               );
                                               ScaffoldMessenger.of(

@@ -2,6 +2,7 @@ import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // Import providers
@@ -55,7 +56,7 @@ class _TakerInvalidBlikScreenState
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  print(
+                  Logger.log.d(
                     "[TakerInvalidBlikScreen] Retry selected for offer ${offer.id}",
                   );
 
@@ -149,7 +150,7 @@ class _TakerInvalidBlikScreenState
               //             }
               //
               //             try {
-              //               print(
+              //               Logger.log.d(
               //                 "[TakerInvalidBlikScreen] Canceling reservation for offer ${offer.id} by taker $userPublicKey",
               //               );
               //               await apiService.cancelReservation(
@@ -173,7 +174,7 @@ class _TakerInvalidBlikScreenState
               //                 context.go('/offers');
               //               }
               //             } catch (e) {
-              //               print(
+              //               Logger.log.d(
               //                 "[TakerInvalidBlikScreen] Error canceling reservation: $e",
               //               );
               //               ScaffoldMessenger.of(context).showSnackBar(
@@ -248,7 +249,7 @@ class _TakerInvalidBlikScreenState
                           }
 
                           try {
-                            print(
+                            Logger.log.d(
                               "[TakerInvalidBlikScreen] Reporting conflict for offer ${offer.id} by taker $userPublicKey",
                             );
                             await apiService.markOfferConflict(
@@ -273,7 +274,7 @@ class _TakerInvalidBlikScreenState
                               context.go('/taker-conflict', extra: offer.id);
                             }
                           } catch (e) {
-                            print(
+                            Logger.log.d(
                               "[TakerInvalidBlikScreen] Error reporting conflict: $e",
                             );
                             ScaffoldMessenger.of(context).showSnackBar(

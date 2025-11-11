@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
 import 'package:ndk/ndk.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../models/coordinator_info.dart';
 import '../models/offer.dart';
@@ -41,7 +42,7 @@ class ApiServiceNostr {
         coordinatorPubkey: coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling initiateOfferFiat: $e');
+      Logger.log.e('Error calling initiateOfferFiat: $e');
       rethrow;
     }
   }
@@ -77,7 +78,7 @@ class ApiServiceNostr {
         return rate.toDouble();
       }
     } catch (e) {
-      print('Error parsing CoinGecko response: $e');
+      Logger.log.e('Error parsing CoinGecko response: $e');
     }
     return null;
   }
@@ -90,7 +91,7 @@ class ApiServiceNostr {
         return rate.toDouble();
       }
     } catch (e) {
-      print('Error parsing Yadio response: $e');
+      Logger.log.e('Error parsing Yadio response: $e');
     }
     return null;
   }
@@ -103,7 +104,7 @@ class ApiServiceNostr {
         return (plnData['last'] as num).toDouble();
       }
     } catch (e) {
-      print('Error parsing Blockchain.info response: $e');
+      Logger.log.e('Error parsing Blockchain.info response: $e');
     }
     return null;
   }
@@ -137,7 +138,7 @@ class ApiServiceNostr {
     } else {
       final lastKnown = MemoryCache.instance.read<double>(_btcPlnCacheKey);
       if (lastKnown != null) {
-        print(
+        Logger.log.w(
           'Returning stale BTC/PLN rate due to all sources failing to fetch.',
         );
         return lastKnown;
@@ -163,20 +164,20 @@ class ApiServiceNostr {
           rate = _parseBlockchainInfoResponse(response.body);
         }
         if (rate != null) {
-          print('Successfully fetched rate from $sourceName: $rate');
+          Logger.log.d('Successfully fetched rate from $sourceName: $rate');
           return rate;
         } else {
-          print('Failed to parse response from $sourceName');
+          Logger.log.w('Failed to parse response from $sourceName');
           return null;
         }
       } else {
-        print(
+        Logger.log.w(
           'Failed to fetch BTC/PLN rate from $sourceName: ${response.statusCode} ${response.body}',
         );
         return null;
       }
     } catch (e) {
-      print('Error fetching BTC/PLN rate from $sourceName: $e');
+      Logger.log.e('Error fetching BTC/PLN rate from $sourceName: $e');
       return null;
     }
   }
@@ -193,7 +194,7 @@ class ApiServiceNostr {
         coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling reserveOffer: $e');
+      Logger.log.e('Error calling reserveOffer: $e');
       rethrow;
     }
   }
@@ -214,7 +215,7 @@ class ApiServiceNostr {
         coordinatorPubkey: coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling submitBlikCode: $e');
+      Logger.log.e('Error calling submitBlikCode: $e');
       rethrow;
     }
   }
@@ -231,7 +232,7 @@ class ApiServiceNostr {
         coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling getBlikCodeForMaker: $e');
+      Logger.log.e('Error calling getBlikCodeForMaker: $e');
       if (e.toString().contains('not found')) {
         return null;
       }
@@ -251,7 +252,7 @@ class ApiServiceNostr {
         coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling confirmMakerPayment: $e');
+      Logger.log.e('Error calling confirmMakerPayment: $e');
       rethrow;
     }
   }
@@ -260,7 +261,7 @@ class ApiServiceNostr {
     try {
       return await _nostrService.getMyActiveOffer(userPubkey, coordinatorPubkey);
     } catch (e) {
-      print('Error calling getMyActiveOffer: $e');
+      Logger.log.e('Error calling getMyActiveOffer: $e');
       return null;
     }
   }
@@ -269,7 +270,7 @@ class ApiServiceNostr {
     try {
       return await _nostrService.getMyFinishedOffers(userPubkey);
     } catch (e) {
-      print('Error calling getMyFinishedOffers: $e');
+      Logger.log.e('Error calling getMyFinishedOffers: $e');
       return [];
     }
   }
@@ -278,7 +279,7 @@ class ApiServiceNostr {
     try {
       await _nostrService.cancelOffer(offerId, coordinatorPubkey);
     } catch (e) {
-      print('Error calling cancelOffer: $e');
+      Logger.log.e('Error calling cancelOffer: $e');
       rethrow;
     }
   }
@@ -295,7 +296,7 @@ class ApiServiceNostr {
         coordinatorPubKey,
       );
     } catch (e) {
-      print('Error calling cancelReservation: $e');
+      Logger.log.e('Error calling cancelReservation: $e');
       rethrow;
     }
   }
@@ -314,7 +315,7 @@ class ApiServiceNostr {
         coordinatorPubkey: coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling updateTakerInvoice: $e');
+      Logger.log.e('Error calling updateTakerInvoice: $e');
       rethrow;
     }
   }
@@ -332,7 +333,7 @@ class ApiServiceNostr {
         coordinatorPubkey: coordinatorPubkey,
       );
     } catch (e) {
-      print('Error calling retryTakerPayment: $e');
+      Logger.log.e('Error calling retryTakerPayment: $e');
       rethrow;
     }
   }
@@ -346,7 +347,7 @@ class ApiServiceNostr {
     try {
       await _nostrService.markBlikInvalid(offerId, makerId, coordinatorPubKey);
     } catch (e) {
-      print('Error calling markBlikInvalid: $e');
+      Logger.log.e('Error calling markBlikInvalid: $e');
       rethrow;
     }
   }
@@ -359,7 +360,7 @@ class ApiServiceNostr {
     try {
       await _nostrService.markOfferConflict(offerId, coordinatorPubKey);
     } catch (e) {
-      print('Error calling markOfferConflict: $e');
+      Logger.log.e('Error calling markOfferConflict: $e');
       rethrow;
     }
   }
@@ -368,7 +369,7 @@ class ApiServiceNostr {
     try {
       await _nostrService.openDispute(offerId, coordinatorPubKey);
     } catch (e) {
-      print('Error calling markOfferConflict: $e');
+      Logger.log.e('Error calling markOfferConflict: $e');
       rethrow;
     }
   }
@@ -383,7 +384,7 @@ class ApiServiceNostr {
     try {
       return await _nostrService.getSuccessfulOffersStats();
     } catch (e) {
-      print('Error calling getSuccessfulOffersStats: $e');
+      Logger.log.e('Error calling getSuccessfulOffersStats: $e');
       rethrow;
     }
   }
@@ -442,7 +443,7 @@ class ApiServiceNostr {
     try {
       return await _nostrService.getOffer(offerId);
     } catch (e) {
-      print('Error calling getOffer: $e');
+      Logger.log.e('Error calling getOffer: $e');
       rethrow;
     }
   }

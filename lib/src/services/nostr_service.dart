@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:ndk/ndk.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:ndk/shared/nips/nip44/nip44.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -190,7 +191,7 @@ class NostrService {
     await _subscribeToResponses();
 
     _isInitialized = true;
-    print('✅ NostrService initialized');
+    Logger.log.i('✅ NostrService initialized');
   }
 
   /// Load configuration from SharedPreferences
@@ -202,9 +203,9 @@ class NostrService {
     _blacklistedCoordinators = prefs.getStringList(_blacklistKey) ?? [];
     _customWhitelistedCoordinators = prefs.getStringList(_customWhitelistKey) ?? [];
 
-    print('📡 Using relays: $_relayUrls');
-    print('🚫 Blacklisted coordinators: ${_blacklistedCoordinators.length}');
-    print('✅ Custom whitelisted coordinators: ${_customWhitelistedCoordinators.length}');
+    Logger.log.i('📡 Using relays: $_relayUrls');
+    Logger.log.i('🚫 Blacklisted coordinators: ${_blacklistedCoordinators.length}');
+    Logger.log.i('✅ Custom whitelisted coordinators: ${_customWhitelistedCoordinators.length}');
   }
 
   /// Initialize NDK and connect to relays
@@ -213,9 +214,9 @@ class NostrService {
     if (_ndk != null) {
       try {
         await _ndk!.destroy();
-        print('🔄 Destroyed previous NDK instance');
+        Logger.log.d('🔄 Destroyed previous NDK instance');
       } catch (e) {
-        print('⚠️ Error destroying previous NDK instance: $e');
+        Logger.log.w('⚠️ Error destroying previous NDK instance: $e');
       }
     }
 
@@ -225,7 +226,7 @@ class NostrService {
         cache: MemCacheManager(),
         eventVerifier: rustEventVerifier,//Bip340EventVerifier(),
         bootstrapRelays: _relayUrls,
-        logLevel: kDebugMode?LogLevel.trace:LogLevel.warning,
+        logLevel: !kDebugMode?LogLevel.trace:LogLevel.warning,
       ),
     );
 
@@ -248,12 +249,12 @@ class NostrService {
     //     print('🔗 Error parsing connectivity data: $e');
     //   }
     // });
-    print(
+    Logger.log.i(
       '🔑 Client signer initialized with pubkey: ${_keyService.publicKeyHex}',
     );
 
     // Wait for NDK to actually connect to at least one relay
-    print('⏳ Waiting for NDK to connect to relays...');
+    Logger.log.t('⏳ Waiting for NDK to connect to relays...');
 
     // Wait up to 10 seconds for connection
     bool connected = false;
@@ -269,9 +270,9 @@ class NostrService {
     }
 
     if (connected) {
-      print('✅ NDK connection wait completed');
+      Logger.log.i('✅ NDK connection wait completed');
     } else {
-      print('⚠️ NDK connection timeout - proceeding anyway');
+      Logger.log.w('⚠️ NDK connection timeout - proceeding anyway');
     }
   }
 
@@ -294,13 +295,13 @@ class NostrService {
     );
 
     _responseSubscription!.stream.listen(_handleResponseEvent);
-    print('👂 Subscribed to coordinator responses');
+    Logger.log.i('👂 Subscribed to coordinator responses');
   }
 
   /// Handle incoming response events
   void _handleResponseEvent(Nip01Event event) async {
     try {
-      print('📨 Received response event: ${event.id} from ${event.pubKey}');
+      Logger.log.d('📨 Received response event: ${event.id} from ${event.pubKey}');
 
       // Decrypt the content using NIP-44
       final decryptedContent = await Nip44.decryptMessage(
@@ -309,7 +310,7 @@ class NostrService {
         event.pubKey,
       );
 
-      print('🔓 Decrypted response: $decryptedContent');
+      Logger.log.d('🔓 Decrypted response: $decryptedContent');
 
       final responseData = jsonDecode(decryptedContent) as Map<String, dynamic>;
       final response = NostrResponse.fromJson(responseData);
@@ -318,14 +319,14 @@ class NostrService {
       if (response.id != null && _pendingRequests.containsKey(response.id)) {
         final completer = _pendingRequests.remove(response.id);
         completer?.complete(response);
-        print('✅ Completed request: ${response.id}');
+        Logger.log.d('✅ Completed request: ${response.id}');
       } else {
-        print('⚠️ No matching pending request for response ID: ${response.id}');
+        Logger.log.w('⚠️ No matching pending request for response ID: ${response.id}');
       }
     } catch (e) {
-      print('❌ Error handling response event: $e');
-      print('🔑 Current pubkey: ${_keyService.publicKeyHex}');
-      print('📨 Event from: ${event.pubKey}');
+      Logger.log.e('❌ Error handling response event: $e');
+      Logger.log.e('🔑 Current pubkey: ${_keyService.publicKeyHex}');
+      Logger.log.e('📨 Event from: ${event.pubKey}');
     }
   }
 
@@ -383,7 +384,7 @@ class NostrService {
       // Publish the event
       _ndk!.broadcast.broadcast(nostrEvent: event);
 
-      print(
+      Logger.log.d(
         '📤 Sent request: ${request.method} (ID: $requestId) to $coordinatorPubkey',
       );
 
@@ -405,7 +406,7 @@ class NostrService {
         if (request.method != 'get_info') {
           // Trigger health check asynchronously (don't await)
           checkCoordinatorHealth(coordinatorPubkey).catchError((error) {
-            print('⚠️ Error during health check after timeout: $error');
+            Logger.log.w('⚠️ Error during health check after timeout: $error');
           });
         }
         rethrow;
@@ -498,7 +499,7 @@ class NostrService {
       filters: [filter],
     );
     _offerSubscription!.stream.listen(_handleOfferEvent);
-    print('🔎 Started offers subscription');
+    Logger.log.i('🔎 Started offers subscription');
   }
 
   void _handleOfferEvent(Nip01Event event) {
@@ -506,7 +507,7 @@ class NostrService {
       final offer = _mapEventToOffer(event);
       _offerStreamController.add(offer);
     } catch (e) {
-      print('❌ Error parsing offer event: $e');
+      Logger.log.e('❌ Error parsing offer event: $e');
     }
   }
 
@@ -700,7 +701,7 @@ class NostrService {
       }
     } catch (e) {
       // Continue to the next coordinator if one fails
-      print(
+      Logger.log.e(
         "Error getting active offer from coordinator ${coordinatorPubkey}: $e",
       );
     }
@@ -716,7 +717,7 @@ class NostrService {
     final allOffers = <Offer>[];
     final coordinators = _discoveredCoordinators.values.toList();
     if (coordinators.isEmpty) {
-      print("No coordinators discovered, cannot get finished offers.");
+      Logger.log.w("No coordinators discovered, cannot get finished offers.");
       return [];
     }
 
@@ -755,7 +756,7 @@ class NostrService {
         }).toList();
       });
     } catch (e) {
-      print(
+      Logger.log.e(
         "Error getting finished offers from coordinator $coordinatorPubkey: $e",
       );
       return [];
@@ -884,7 +885,7 @@ class NostrService {
 
     final coordinators = _discoveredCoordinators.values.toList();
     if (coordinators.isEmpty) {
-      print("No coordinators discovered, cannot get stats.");
+      Logger.log.w("No coordinators discovered, cannot get stats.");
       return {
         'total_sats': 0,
         'total_offers': 0,
@@ -986,7 +987,7 @@ class NostrService {
           }
         }
       } catch (e) {
-        print("Error getting stats from coordinator ${coordinator.pubkey}: $e");
+        Logger.log.e("Error getting stats from coordinator ${coordinator.pubkey}: $e");
       }
     }
 
@@ -1074,7 +1075,7 @@ class NostrService {
     );
 
     _offerStatusSubscription!.stream.listen(_handleOfferStatusEvent);
-    print('📊 Started offer status subscription for $userPubkey');
+    Logger.log.i('📊 Started offer status subscription for $userPubkey');
   }
 
   Future<void> stopOfferStatusSubscription() async {
@@ -1083,14 +1084,14 @@ class NostrService {
         _offerStatusSubscription!.requestId,
       );
       _offerStatusSubscription = null;
-      print('📊 Stopped offer status subscription');
+      Logger.log.i('📊 Stopped offer status subscription');
     }
   }
 
   /// Handle incoming offer status update events
   void _handleOfferStatusEvent(Nip01Event event) async {
     try {
-      print(
+      Logger.log.d(
         '📊 Received offer status update: ${event.id} from ${event.pubKey}',
       );
 
@@ -1101,7 +1102,7 @@ class NostrService {
         event.pubKey,
       );
 
-      print('🔓 Decrypted status update: $decryptedContent');
+      Logger.log.d('🔓 Decrypted status update: $decryptedContent');
 
       final content = jsonDecode(decryptedContent) as Map<String, dynamic>;
       final statusUpdate = OfferStatusUpdate.fromJson(content, event.pubKey);
@@ -1109,11 +1110,11 @@ class NostrService {
       // Emit the status update to listeners
       _offerStatusController.add(statusUpdate);
 
-      print(
+      Logger.log.d(
         '📊 Processed status update: ${statusUpdate.offerId} -> ${statusUpdate.status}',
       );
     } catch (e) {
-      print('❌ Error handling offer status event: $e');
+      Logger.log.e('❌ Error handling offer status event: $e');
     }
   }
 
@@ -1171,7 +1172,7 @@ class NostrService {
         // Cache coordinator info immediately when discovered
         final coordinatorInfo = coordinator.toCoordinatorInfo();
         _coordinatorInfoCache[pubkey] = coordinatorInfo;
-        print(
+        Logger.log.i(
           '🎯 Discovered coordinator: ${coordinator.name} ($pubkey)',
         );
         // Only check health if not blacklisted
@@ -1181,7 +1182,7 @@ class NostrService {
         }
       }
     } catch (e) {
-      print('❌ Error parsing coordinator info event: $e');
+      Logger.log.e('❌ Error parsing coordinator info event: $e');
     }
   }
 
@@ -1202,7 +1203,7 @@ class NostrService {
       // If no exception, coordinator is responsive
       _markCoordinatorResponsive(coordinatorPubkey, true);
     } catch (e) {
-      print(
+      Logger.log.w(
         '🚨 Coordinator $coordinatorPubkey did not respond to get_info: $e',
       );
       _markCoordinatorResponsive(coordinatorPubkey, false);
@@ -1355,7 +1356,7 @@ class NostrService {
     // Don't remove from discovered coordinators - keep them visible so users can unblacklist
     // The _shouldIncludeCoordinator check will prevent them from being used in operations
     
-    print('${blacklist ? "🚫" : "✅"} Coordinator $normalized ${blacklist ? "blacklisted" : "unblacklisted"}');
+    Logger.log.i('${blacklist ? "🚫" : "✅"} Coordinator $normalized ${blacklist ? "blacklisted" : "unblacklisted"}');
   }
 
   /// Add a coordinator to custom whitelist
@@ -1389,7 +1390,7 @@ class NostrService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_customWhitelistKey, _customWhitelistedCoordinators);
     
-    print('✅ Added coordinator $normalized to custom whitelist');
+    Logger.log.i('✅ Added coordinator $normalized to custom whitelist');
     
     // Try to discover this coordinator
     // Note: This won't immediately discover it, but it will be included if discovered later
@@ -1414,7 +1415,7 @@ class NostrService {
         _coordinatorInfoCache.remove(normalized);
       }
       
-      print('🗑️ Removed coordinator $normalized from custom whitelist');
+      Logger.log.i('🗑️ Removed coordinator $normalized from custom whitelist');
     }
   }
 

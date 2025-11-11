@@ -2,6 +2,7 @@ import '../../../i18n/gen/strings.g.dart'; // Corrected Slang import
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -119,7 +120,7 @@ class _TakerPaymentFailedScreenState
           final status = OfferStatus.values.byName(next.status);
           _handleStatusUpdate(status);
         } catch (e) {
-          print("Error parsing offer status in TakerPaymentFailedScreen: $e");
+          Logger.log.e("Error parsing offer status in TakerPaymentFailedScreen: $e");
         }
       }
     });

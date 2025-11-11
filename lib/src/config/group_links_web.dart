@@ -1,5 +1,6 @@
 import 'package:web/web.dart';
 import 'dart:js_interop';
+import 'package:ndk/shared/logger/logger.dart';
 import 'group_links_constants.dart';
 
 /// Extension type for accessing window.appConfig JavaScript object
@@ -68,7 +69,7 @@ class GroupLinks {
         _signal = GroupLinksConstants.defaultSignal;
       }
     } catch (e) {
-      print('⚠️ Error loading group links config: $e');
+      Logger.log.w('⚠️ Error loading group links config: $e');
       // Fall back to default constants on error
       _telegram = GroupLinksConstants.defaultTelegram;
       _element = GroupLinksConstants.defaultElement;

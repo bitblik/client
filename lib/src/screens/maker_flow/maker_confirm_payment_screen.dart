@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import '../../../i18n/gen/strings.g.dart';
 import '../../providers/providers.dart';
 import 'maker_amount_form.dart'; // For MakerProgressIndicator
@@ -87,7 +88,7 @@ class _MakerConfirmPaymentScreenState
       //   );
       // }
 
-      print(
+      Logger.log.i(
         "[MakerConfirmPaymentScreen] Confirming payment for offer $offerId by maker $makerId",
       );
       await apiService.confirmMakerPayment(
@@ -132,7 +133,7 @@ class _MakerConfirmPaymentScreenState
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      print(
+      Logger.log.i(
         "[MakerConfirmPaymentScreen] Marking BLIK invalid for offer ${offer.id} by maker $makerId",
       );
       await apiService.markBlikInvalid(

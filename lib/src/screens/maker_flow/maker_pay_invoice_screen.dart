@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs/Intents
 import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
@@ -60,7 +61,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   ) async {
     if (status == null || !mounted) return;
 
-    print('[MakerPayInvoiceScreen] Status update received: $status');
+    Logger.log.d('[MakerPayInvoiceScreen] Status update received: $status');
 
     // final publicKey = ref.read(publicKeyProvider).value;
     // if (publicKey == null) {
@@ -92,14 +93,14 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
     // await ref.read(activeOfferProvider.notifier).setActiveOffer(updatedOffer);
 
     if (status.index >= OfferStatus.funded.index) {
-      print(
+      Logger.log.i(
         '[MakerPayInvoiceScreen] Invoice paid! Offer status: $status. Moving to next step.',
       );
       if (mounted) {
         context.go("/wait-taker");
       }
     } else {
-      print(
+      Logger.log.d(
         '[MakerPayInvoiceScreen] Offer status: $status. No action needed yet.',
       );
     }
@@ -108,7 +109,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
   // --- Intent/URL Launching ---
   Future<void> _launchLightningUrl(String invoice) async {
     if (kIsWeb) {
-      print("!! launch lightning URL -> sending invoice");
+      Logger.log.d("!! launch lightning URL -> sending invoice");
 
       await sendWeblnPayment(invoice).then((_) {}).catchError((e) {
         if (mounted) {
@@ -135,7 +136,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } else {
           if (kDebugMode) {
-            print('Could not launch $link');
+            Logger.log.w('Could not launch $link');
           }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -147,7 +148,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
         }
       }
     } catch (e) {
-      print('Error launching lightning URL: $e');
+      Logger.log.e('Error launching lightning URL: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -178,7 +179,9 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
 
     // WebLN auto-pay logic
     if (isWallet && holdInvoice != null && !_sentWeblnPayment) {
-      print("isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment");
+      Logger.log.d(
+        "isWallet: $isWallet, _sentWeblnPayment: $_sentWeblnPayment",
+      );
       sendWeblnPayment(holdInvoice)
           .then((_) {
             if (mounted) {

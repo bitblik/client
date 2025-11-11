@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../i18n/gen/strings.g.dart';
 import '../providers/providers.dart';
@@ -516,20 +517,20 @@ class _LightningAddressWidgetState
                     }
                   },
                   onFieldSubmitted: (value) async {
-                    print('[LN Address Dialog] onFieldSubmitted called with: $value');
+                    Logger.log.d('[LN Address Dialog] onFieldSubmitted called with: $value');
                     
                     // First validate the form format
                     if (!editFormKey.currentState!.validate()) {
-                      print('[LN Address Dialog] Form validation failed');
+                      Logger.log.d('[LN Address Dialog] Form validation failed');
                       return;
                     }
                     
                     // Then perform async validation
                     if (value.isNotEmpty && value.contains('@')) {
-                      print('[LN Address Dialog] Starting async validation...');
+                      Logger.log.d('[LN Address Dialog] Starting async validation...');
                       try {
                         final error = await validateLightningAddress(value, t);
-                        print('[LN Address Dialog] Validation result: ${error ?? "SUCCESS"}');
+                        Logger.log.d('[LN Address Dialog] Validation result: ${error ?? "SUCCESS"}');
                         if (!context.mounted) return;
                         setState(() {
                           editValidationError = error;
@@ -537,12 +538,12 @@ class _LightningAddressWidgetState
                         
                         // If there's a validation error, show it and return
                         if (error != null) {
-                          print('[LN Address Dialog] Validation failed, showing error');
+                          Logger.log.d('[LN Address Dialog] Validation failed, showing error');
                           editFormKey.currentState!.validate();
                           return;
                         }
                       } catch (e) {
-                        print('[LN Address Dialog] Validation threw exception: $e');
+                        Logger.log.d('[LN Address Dialog] Validation threw exception: $e');
                         if (!context.mounted) return;
                         setState(() {
                           editValidationError = t.lightningAddress.prompts.invalid;
@@ -553,12 +554,12 @@ class _LightningAddressWidgetState
                     }
                     
                     // Save the address
-                    print('[LN Address Dialog] Attempting to save address...');
+                    Logger.log.d('[LN Address Dialog] Attempting to save address...');
                     try {
                       await keyService.saveLightningAddress(
                         editController.text,
                       );
-                      print('[LN Address Dialog] Address saved successfully');
+                      Logger.log.d('[LN Address Dialog] Address saved successfully');
                       if (!context.mounted) return;
                       ref.invalidate(lightningAddressProvider);
                       Navigator.of(context).pop(editController.text);
@@ -572,7 +573,7 @@ class _LightningAddressWidgetState
                         ),
                       );
                     } catch (e) {
-                      print('[LN Address Dialog] Save failed: $e');
+                      Logger.log.d('[LN Address Dialog] Save failed: $e');
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
