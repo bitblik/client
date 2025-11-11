@@ -20,11 +20,12 @@ jobs:
     - uses: actions/checkout@v2
       name: Check out code
     - name: Docker build (${{ matrix.build_mode }})
-      uses: mr-smithers-excellent/docker-build-push@v5
+      uses: mr-smithers-excellent/docker-build-push@v6.8
       id: build
       with:
         image: ${{ env.IMAGENAME }}
         tags: ${{ matrix.build_mode }}
+        appendMode: true
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
