@@ -155,7 +155,7 @@ class _MakerSuccessScreenState extends ConsumerState<MakerSuccessScreen> {
                                 context,
                                 label: t.offers.details.amountLabel,
                                 value:
-                                    '${offer.fiatAmount.toStringAsFixed(2)} ${offer.fiatCurrency}',
+                                    '${(offer.fiatAmount * 100).round() % 100 == 0 ? offer.fiatAmount.toStringAsFixed(0) : offer.fiatAmount.toStringAsFixed(2)} ${offer.fiatCurrency}',
                               ),
                               const SizedBox(height: 8),
                               _rowDetail(
@@ -163,12 +163,12 @@ class _MakerSuccessScreenState extends ConsumerState<MakerSuccessScreen> {
                                 label: t.offers.details.feeLabel,
                                 value: '${offer.makerFees} sats',
                               ),
-                              const SizedBox(height: 8),
-                              _rowDetail(
-                                context,
-                                label: t.offers.details.statusLabel,
-                                value: offer.status,
-                              ),
+                              // const SizedBox(height: 8),
+                              // _rowDetail(
+                              //   context,
+                              //   label: t.offers.details.statusLabel,
+                              //   value: offer.status,
+                              // ),
                               const SizedBox(height: 8),
                               _rowDetail(
                                 context,

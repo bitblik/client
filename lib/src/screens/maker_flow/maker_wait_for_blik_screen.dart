@@ -310,7 +310,7 @@ class _MakerWaitForBlikScreenState
                   _buildDetailRow(
                     context,
                     t.offers.details.amountLabel,
-                    '${offer.amountSats} sats',
+                    '${(offer.fiatAmount * 100).round() % 100 == 0 ? offer.fiatAmount.toStringAsFixed(0) : offer.fiatAmount.toStringAsFixed(2)} ${offer.fiatCurrency}',
                   ),
                   const SizedBox(height: 8),
                   _buildDetailRow(
