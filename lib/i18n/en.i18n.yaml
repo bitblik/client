@@ -302,18 +302,22 @@ maker:
   
   waitForBlik:
     title: Waiting for BLIK
-    message: Waiting for Taker to provide BLIK code.
-    timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
+    message: Taker has reserved offer! Waiting to provide BLIK code...
+    #timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
     progressLabel: "Reserved: ${seconds} s left"
   
   confirmPayment:
     title: BLIK code received!
     retrieving: Retrieving BLIK code...
     instructions: Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.
+    instruction1: Enter the code into the BLIK payment request.
+    instruction2: Wait until Taker confirms the payment in their app.
+    instruction3: "When payment is succesful, press Confirm below:"
     
     actions:
       confirm: Confirm successful payment
       markInvalid: Invalid BLIK Code
+      copyBlik: Copy BLIK
     
     feedback:
       confirmed: Maker confirmed payment.

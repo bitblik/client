@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../i18n/gen/strings.g.dart'; // Correct Slang import
+import 'package:flutter/services.dart';
+import '../../../i18n/gen/strings.g.dart';
 import '../../providers/providers.dart';
-import '../../models/offer.dart'; // For OfferStatus enum and Offer
-// import 'maker_invalid_blik_screen.dart'; // This import seems correct if the file exists at this path
-import 'package:flutter/services.dart'; // Add this import for clipboard
+import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
 class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
   const MakerConfirmPaymentScreen({super.key});
@@ -17,18 +16,37 @@ class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
 
 class _MakerConfirmPaymentScreenState
     extends ConsumerState<MakerConfirmPaymentScreen> {
+  bool _fetchAttempted = false;
   @override
   void initState() {
     super.initState();
-    _fetchBlikCode();
+    // Immediately reset any lingering loading state
+    ref.read(isLoadingProvider.notifier).state = false;
+    // Also reset in post frame to catch any async state changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(isLoadingProvider.notifier).state = false;
+      }
+    });
+    // Attempt immediately if key is already available
+    final pkNow = ref.read(publicKeyProvider).value;
+    if (pkNow != null) {
+      _fetchBlikCode();
+    }
   }
 
   Future<void> _fetchBlikCode() async {
+    if (_fetchAttempted) return;
+    _fetchAttempted = true;
     final offer = ref.read(activeOfferProvider);
     final makerId = ref.read(publicKeyProvider).value;
     if (offer == null || makerId == null) return;
     final apiService = ref.read(apiServiceProvider);
-    final blikCode = await apiService.getBlikCodeForMaker(offer.id, makerId, offer.coordinatorPubkey);
+    final blikCode = await apiService.getBlikCodeForMaker(
+      offer.id,
+      makerId,
+      offer.coordinatorPubkey,
+    );
     if (blikCode != null) {
       ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
     }
@@ -72,7 +90,11 @@ class _MakerConfirmPaymentScreenState
       print(
         "[MakerConfirmPaymentScreen] Confirming payment for offer $offerId by maker $makerId",
       );
-      await apiService.confirmMakerPayment(offerId, makerId, offer.coordinatorPubkey);
+      await apiService.confirmMakerPayment(
+        offerId,
+        makerId,
+        offer.coordinatorPubkey,
+      );
 
       final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
       if (scaffoldMessenger != null) {
@@ -113,7 +135,11 @@ class _MakerConfirmPaymentScreenState
       print(
         "[MakerConfirmPaymentScreen] Marking BLIK invalid for offer ${offer.id} by maker $makerId",
       );
-      await apiService.markBlikInvalid(offer.id, makerId, offer.coordinatorPubkey);
+      await apiService.markBlikInvalid(
+        offer.id,
+        makerId,
+        offer.coordinatorPubkey,
+      );
 
       if (context.mounted) {
         context.go('/maker-invalid-blik', extra: offer);
@@ -133,10 +159,18 @@ class _MakerConfirmPaymentScreenState
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(t.system.blik.copied), // Use Slang t
+        content: Text(t.system.blik.copied),
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  String _formatBlikCode(String code) {
+    // Format BLIK code with space: "987085" -> "987 085"
+    if (code.length == 6) {
+      return '${code.substring(0, 3)} ${code.substring(3)}';
+    }
+    return code;
   }
 
   @override
@@ -144,150 +178,292 @@ class _MakerConfirmPaymentScreenState
     // final strings = AppLocalizations.of(context)!; // REMOVE THIS
     final ref =
         this.ref; // 'ref' is already available in ConsumerStatefulWidget's state
-    final isLoading = ref.watch(isLoadingProvider);
+    // Hard reset any lingering global loader to avoid blocking UI
+    final currentLoading = ref.read(isLoadingProvider);
+    if (currentLoading == true) {
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
+    // Listen for public key availability (must be done during build)
+    ref.listen(publicKeyProvider, (previous, next) {
+      if (!_fetchAttempted && next.value != null) {
+        _fetchBlikCode();
+      }
+    });
     final errorMessage = ref.watch(errorProvider);
     final receivedBlikCode = ref.watch(receivedBlikCodeProvider);
-    final publicKeyAsyncValue = ref.watch(publicKeyProvider);
 
-    if (receivedBlikCode == null) {
-      return Scaffold(
-        // Added Scaffold wrapper
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                t.maker.confirmPayment.retrieving, // Use Slang t
-                style: const TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              const CircularProgressIndicator(),
-            ],
-          ),
-        ),
-      );
-    }
+    final bool isFetchingBlik = receivedBlikCode == null;
+    final formattedBlikCode = _formatBlikCode(receivedBlikCode ?? '··· ···');
+    const TextStyle blikStyle = TextStyle(
+      fontSize: 68,
+      fontWeight: FontWeight.w600,
+      color: Colors.black,
+      letterSpacing: 6,
+    );
+    final TextPainter tp = TextPainter(
+      text: const TextSpan(text: ''), // will set below to avoid const issue
+      textDirection: TextDirection.ltr,
+    );
+    tp.text = TextSpan(text: formattedBlikCode, style: blikStyle);
+    tp.layout();
+    // Add some padding budget for icon and inner paddings
+    final double copyButtonWidth = tp.width;
 
     return Scaffold(
-      // Added Scaffold wrapper
-      appBar: AppBar(title: Text(t.maker.confirmPayment.title)), // Use Slang t
-      body: SingleChildScrollView(
+      backgroundColor: Colors.white,
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              if (errorMessage != null) ...[
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
+              // Progress indicator (Step 3: Use BLIK)
+              const MakerProgressIndicator(activeStep: 3),
+              const SizedBox(height: 20),
+
+              // Expanded section with evenly spaced title, code, and button
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final upperContent = Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // BLIK code received text
+                        Text(
+                          t.maker.confirmPayment.title,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        // Large BLIK code (with loading hint if needed)
+                        Column(
+                          children: [
+                            Text(
+                              formattedBlikCode,
+                              style: blikStyle,
+                              textAlign: TextAlign.center,
+                            ),
+                            if (isFetchingBlik) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                t.maker.confirmPayment.retrieving,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        // Copy BLIK button with gradient
+                        Center(
+                          child: SizedBox(
+                            width: copyButtonWidth,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFFFF0000),
+                                    Color(0xFFFF007F),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: ElevatedButton(
+                                onPressed:
+                                    receivedBlikCode == null
+                                        ? null
+                                        : () =>
+                                            _copyToClipboard(receivedBlikCode),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.copy,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      t.maker.confirmPayment.actions.copyBlik,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                    // Make upper content scrollable only when needed
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: upperContent,
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 10),
-              ],
-              Text(
-                t.maker.confirmPayment.title, // Use Slang t
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+
+              // Bottom section: Instructions and buttons
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    receivedBlikCode,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 3,
-                    ),
-                    textAlign: TextAlign.center,
+                  // Instructions
+                  _buildInstructionItem(
+                    '1',
+                    t.maker.confirmPayment.instruction1,
                   ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () => _copyToClipboard(receivedBlikCode),
-                    tooltip: t.common.clipboard.copyToClipboard, // Use Slang t
+                  const SizedBox(height: 6),
+                  _buildInstructionItem(
+                    '2',
+                    t.maker.confirmPayment.instruction2,
+                  ),
+                  const SizedBox(height: 6),
+                  _buildInstructionItem(
+                    '3',
+                    t.maker.confirmPayment.instruction3,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Error message
+                  if (errorMessage != null) ...[
+                    Text(
+                      errorMessage,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Confirm Successful Payment button (green)
+                  ElevatedButton(
+                    onPressed:
+                         () => _confirmPayment(context, ref),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child:
+                    Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.maker.confirmPayment.actions.confirm,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Invalid BLIK code button (red outlined)
+                  OutlinedButton(
+                    onPressed:
+                         () => _markBlikInvalid(context, ref),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red, width: 2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child:
+                         Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close_outlined,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.maker.confirmPayment.actions.markInvalid,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                t.maker.confirmPayment.instructions, // Use Slang t
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14),
-                softWrap: true,
-              ),
-              const SizedBox(height: 25),
-              ElevatedButton(
-                onPressed:
-                    isLoading || publicKeyAsyncValue.isLoading
-                        ? null
-                        : () => _confirmPayment(context, ref),
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                        : Text(
-                          t.maker.confirmPayment.actions.confirm, // Use Slang t
-                          style: const TextStyle(fontSize: 16),
-                        ),
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed:
-                    isLoading || publicKeyAsyncValue.isLoading
-                        ? null
-                        : () => _markBlikInvalid(context, ref),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                        : Text(
-                          t
-                              .maker
-                              .confirmPayment
-                              .actions
-                              .markInvalid, // Use Slang t
-                          style: const TextStyle(fontSize: 16),
-                        ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInstructionItem(String number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          number,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
+          ),
+        ),
+      ],
     );
   }
 }

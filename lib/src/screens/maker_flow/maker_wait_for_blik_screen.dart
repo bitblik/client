@@ -256,7 +256,6 @@ class _MakerWaitForBlikScreenState
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Progress indicator (Step 3: Use BLIK)
               const MakerProgressIndicator(activeStep: 2),
               const SizedBox(height: 20),
               // Top section: Message with refresh icon
@@ -265,8 +264,8 @@ class _MakerWaitForBlikScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: 30,
+                    height: 30,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
@@ -277,7 +276,7 @@ class _MakerWaitForBlikScreenState
                     child: Text(
                       t.maker.waitForBlik.message,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 24,
                         color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,

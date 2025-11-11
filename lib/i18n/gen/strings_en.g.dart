@@ -1171,11 +1171,8 @@ class TranslationsMakerWaitForBlikEn {
 	/// en: 'Waiting for BLIK'
 	String get title => 'Waiting for BLIK';
 
-	/// en: 'Waiting for Taker to provide BLIK code.'
-	String get message => 'Waiting for Taker to provide BLIK code.';
-
-	/// en: 'Taker has ${seconds} seconds to provide BLIK code.'
-	String timeLimitWithSeconds({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
+	/// en: 'Taker has reserved offer! Waiting to provide BLIK code...'
+	String get message => 'Taker has reserved offer! Waiting to provide BLIK code...';
 
 	/// en: 'Reserved: ${seconds} s left'
 	String progressLabel({required Object seconds}) => 'Reserved: ${seconds} s left';
@@ -1197,6 +1194,15 @@ class TranslationsMakerConfirmPaymentEn {
 
 	/// en: 'Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.'
 	String get instructions => 'Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.';
+
+	/// en: 'Enter the code into the BLIK payment request.'
+	String get instruction1 => 'Enter the code into the BLIK payment request.';
+
+	/// en: 'Wait until Taker confirms the payment in their app.'
+	String get instruction2 => 'Wait until Taker confirms the payment in their app.';
+
+	/// en: 'When payment is succesful, press Confirm below:'
+	String get instruction3 => 'When payment is succesful, press Confirm below:';
 
 	late final TranslationsMakerConfirmPaymentActionsEn actions = TranslationsMakerConfirmPaymentActionsEn.internal(_root);
 	late final TranslationsMakerConfirmPaymentFeedbackEn feedback = TranslationsMakerConfirmPaymentFeedbackEn.internal(_root);
@@ -1839,6 +1845,9 @@ class TranslationsMakerConfirmPaymentActionsEn {
 
 	/// en: 'Invalid BLIK Code'
 	String get markInvalid => 'Invalid BLIK Code';
+
+	/// en: 'Copy BLIK'
+	String get copyBlik => 'Copy BLIK';
 }
 
 // Path: maker.confirmPayment.feedback
@@ -2589,14 +2598,17 @@ extension on Translations {
 			case 'maker.waitTaker.offerCancelledSuccessfully': return 'Offer cancelled successfully.';
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Failed to cancel offer: ${details}';
 			case 'maker.waitForBlik.title': return 'Waiting for BLIK';
-			case 'maker.waitForBlik.message': return 'Waiting for Taker to provide BLIK code.';
-			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker has ${seconds} seconds to provide BLIK code.';
+			case 'maker.waitForBlik.message': return 'Taker has reserved offer! Waiting to provide BLIK code...';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Reserved: ${seconds} s left';
 			case 'maker.confirmPayment.title': return 'BLIK code received!';
 			case 'maker.confirmPayment.retrieving': return 'Retrieving BLIK code...';
 			case 'maker.confirmPayment.instructions': return 'Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.';
+			case 'maker.confirmPayment.instruction1': return 'Enter the code into the BLIK payment request.';
+			case 'maker.confirmPayment.instruction2': return 'Wait until Taker confirms the payment in their app.';
+			case 'maker.confirmPayment.instruction3': return 'When payment is succesful, press Confirm below:';
 			case 'maker.confirmPayment.actions.confirm': return 'Confirm successful payment';
 			case 'maker.confirmPayment.actions.markInvalid': return 'Invalid BLIK Code';
+			case 'maker.confirmPayment.actions.copyBlik': return 'Copy BLIK';
 			case 'maker.confirmPayment.feedback.confirmed': return 'Maker confirmed payment.';
 			case 'maker.confirmPayment.feedback.confirmedTakerPaid': return 'Payment confirmed! Taker will receive funds.';
 			case 'maker.confirmPayment.feedback.progressLabel': return ({required Object seconds}) => 'Confirming: ${seconds} s left';

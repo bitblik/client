@@ -768,8 +768,7 @@ class _TranslationsMakerWaitForBlikPl extends TranslationsMakerWaitForBlikEn {
 
 	// Translations
 	@override String get title => 'Oczekiwanie na BLIK';
-	@override String get message => 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-	@override String timeLimitWithSeconds({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
+	@override String get message => 'Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...';
 	@override String progressLabel({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 }
 
@@ -782,7 +781,9 @@ class _TranslationsMakerConfirmPaymentPl extends TranslationsMakerConfirmPayment
 	// Translations
 	@override String get title => 'Otrzymano kod BLIK!';
 	@override String get retrieving => 'Pobieranie kodu BLIK...';
-	@override String get instructions => 'Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.';
+	@override String get instruction1 => 'Wprowadź kod do systemu płatności BLIK.';
+	@override String get instruction2 => 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
+	@override String get instruction3 => 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
 	@override late final _TranslationsMakerConfirmPaymentActionsPl actions = _TranslationsMakerConfirmPaymentActionsPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentFeedbackPl feedback = _TranslationsMakerConfirmPaymentFeedbackPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentErrorsPl errors = _TranslationsMakerConfirmPaymentErrorsPl._(_root);
@@ -1231,6 +1232,7 @@ class _TranslationsMakerConfirmPaymentActionsPl extends TranslationsMakerConfirm
 	// Translations
 	@override String get confirm => 'Potwierdź udaną płatność';
 	@override String get markInvalid => 'Nieprawidłowy kod BLIK';
+	@override String get copyBlik => 'Kopiuj BLIK';
 }
 
 // Path: maker.confirmPayment.feedback
@@ -1810,14 +1812,16 @@ extension on TranslationsPl {
 			case 'maker.waitTaker.offerCancelledSuccessfully': return 'Oferta anulowana pomyślnie.';
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Nie udało się anulować oferty: ${details}';
 			case 'maker.waitForBlik.title': return 'Oczekiwanie na BLIK';
-			case 'maker.waitForBlik.message': return 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
+			case 'maker.waitForBlik.message': return 'Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'maker.confirmPayment.title': return 'Otrzymano kod BLIK!';
 			case 'maker.confirmPayment.retrieving': return 'Pobieranie kodu BLIK...';
-			case 'maker.confirmPayment.instructions': return 'Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.';
+			case 'maker.confirmPayment.instruction1': return 'Wprowadź kod do systemu płatności BLIK.';
+			case 'maker.confirmPayment.instruction2': return 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
+			case 'maker.confirmPayment.instruction3': return 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
 			case 'maker.confirmPayment.actions.confirm': return 'Potwierdź udaną płatność';
 			case 'maker.confirmPayment.actions.markInvalid': return 'Nieprawidłowy kod BLIK';
+			case 'maker.confirmPayment.actions.copyBlik': return 'Kopiuj BLIK';
 			case 'maker.confirmPayment.feedback.confirmed': return 'Maker potwierdził płatność.';
 			case 'maker.confirmPayment.feedback.confirmedTakerPaid': return 'Płatność potwierdzona! Taker otrzyma środki.';
 			case 'maker.confirmPayment.feedback.progressLabel': return ({required Object seconds}) => 'Potwierdzanie: ${seconds} s pozostało';

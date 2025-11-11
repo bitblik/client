@@ -39,7 +39,7 @@ class MakerProgressIndicator extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: activeStep >= 1 ? FontWeight.w500 : FontWeight.w400,
-              color: activeStep >= 1 ? Colors.black : Colors.grey,
+              color: activeStep == 1 ? Colors.black : Colors.grey,
             ),
           ),
           const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -49,7 +49,7 @@ class MakerProgressIndicator extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: activeStep >= 2 ? FontWeight.w500 : FontWeight.w400,
-              color: activeStep >= 2 ? Colors.black : Colors.grey,
+              color: activeStep == 2 ? Colors.black : Colors.grey,
             ),
           ),
           const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -58,7 +58,7 @@ class MakerProgressIndicator extends StatelessWidget {
             t.maker.amountForm.progress.step3,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: activeStep >= 3 ? FontWeight.w500 : FontWeight.w400,
+              fontWeight: activeStep == 3 ? FontWeight.w500 : FontWeight.w400,
               color: activeStep >= 3 ? Colors.black : Colors.grey,
             ),
           ),
@@ -476,7 +476,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         gradient: onPressed != null
             ? const LinearGradient(
                 begin: Alignment.topCenter,
@@ -484,9 +484,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                 colors: [
                   Color(0xFFFF0000), // Bright red/pink
                   Color(0xFFFF007F), // Bright magenta/pink
-
-                  // Color(0xFFFFB6C1), // Light pink
-                  // Color(0xFFFFA07A), // Light salmon/orange
                 ],
               )
             : null,
@@ -496,7 +493,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
           child: Center(child: child),
         ),
       ),

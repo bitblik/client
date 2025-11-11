@@ -125,8 +125,24 @@ class Offer {
 
   // Factory constructor to create an Offer from JSON data (Map).
   factory Offer.fromJson(Map<String, dynamic> json) {
-    DateTime? parseOptionalDateTime(int? timestamp) {
-      return timestamp!= null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+    DateTime? parseOptionalDateTime(dynamic value) {
+      if (value == null) return null;
+      if (value is int) {
+        return DateTime.fromMillisecondsSinceEpoch(value);
+      }
+      if (value is String) {
+        // Try ISO8601 first
+        try {
+          return DateTime.parse(value);
+        } catch (_) {
+          // Fallback: try parse as int millis inside a string
+          final asInt = int.tryParse(value);
+          if (asInt != null) {
+            return DateTime.fromMillisecondsSinceEpoch(asInt);
+          }
+        }
+      }
+      return null;
     }
 
     // Helper to safely parse string providing a default
@@ -174,19 +190,28 @@ class Offer {
         json['status'],
         OfferStatus.takerPaid.name,
       ), // Default to takerPaid for stats if missing
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        json['created_at'] as int,
-      ), // Assumed to be present and valid
+      createdAt: () {
+        final v = json['created_at'];
+        if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+        if (v is String) {
+          try {
+            return DateTime.parse(v);
+          } catch (_) {
+            final asInt = int.tryParse(v);
+            if (asInt != null) return DateTime.fromMillisecondsSinceEpoch(asInt);
+          }
+        }
+        // Sensible fallback to "now" to avoid crash; ideally this should not happen.
+        return DateTime.now();
+      }(),
       makerPubkey: safeString(
         json['maker_pubkey'],
         'unknown_maker',
       ), // Default if 'maker_pubkey' is null or not a string
       coordinatorPubkey: safeString(json['coordinator_pubkey'], 'unknown_coordinator'), // Added coordinator pubkey
       takerPubkey: json['taker_pubkey'] as String?, // Already nullable
-      reservedAt: parseOptionalDateTime(json['reserved_at'] as int?),
-      blikReceivedAt: parseOptionalDateTime(
-        json['blik_received_at'] as int?,
-      ),
+      reservedAt: parseOptionalDateTime(json['reserved_at']),
+      blikReceivedAt: parseOptionalDateTime(json['blik_received_at']),
       blikCode: json['blik_code'] as String?,
       holdInvoicePaymentHash: json['hold_invoice_payment_hash'] as String?,
       holdInvoice: json['hold_invoice'] as String?,
@@ -195,12 +220,10 @@ class Offer {
       takerInvoice: json['taker_invoice'] as String?,
       holdInvoicePreimage:
           json['hold_invoice_preimage'] as String?, // Be cautious exposing this
-      updatedAt: parseOptionalDateTime(json['updated_at'] as int?),
-      makerConfirmedAt: parseOptionalDateTime(
-        json['maker_confirmed_at'] as int?,
-      ),
-      settledAt: parseOptionalDateTime(json['settled_at'] as int?),
-      takerPaidAt: parseOptionalDateTime(json['taker_paid_at'] as int?),
+      updatedAt: parseOptionalDateTime(json['updated_at']),
+      makerConfirmedAt: parseOptionalDateTime(json['maker_confirmed_at']),
+      settledAt: parseOptionalDateTime(json['settled_at']),
+      takerPaidAt: parseOptionalDateTime(json['taker_paid_at']),
       takerFees: json['taker_fees'] as int?, // Renamed key and field
     );
   }

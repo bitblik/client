@@ -554,12 +554,6 @@ class RoleSelectionScreen extends ConsumerWidget {
     final offerStatus = OfferStatus.values.byName(activeOffer.status);
 
     if (offerStatus == OfferStatus.blikReceived || offerStatus == OfferStatus.blikSentToMaker) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
       try {
         ref.read(apiServiceProvider);
         if (currentPubKey == activeOffer.makerPubkey) {
@@ -576,7 +570,6 @@ class RoleSelectionScreen extends ConsumerWidget {
           }
         }
       } catch (e) {
-        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t.offers.errors.resuming(details: e.toString())),

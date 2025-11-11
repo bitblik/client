@@ -301,18 +301,22 @@ maker:
   
   waitForBlik:
     title: Oczekiwanie na BLIK
-    message: Oczekiwanie na podanie kodu BLIK przez Takera.
-    timeLimitWithSeconds: "Taker ma ${seconds} sekund na podanie kodu BLIK."
+    message: Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...
+    #timeLimitWithSeconds: "Taker ma ${seconds} sekund na podanie kodu BLIK."
     progressLabel: "Zarezerwowano: ${seconds} s pozostało"
   
   confirmPayment:
     title: Otrzymano kod BLIK!
     retrieving: Pobieranie kodu BLIK...
-    instructions: Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.
+    #instructions: Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.
+    instruction1: Wprowadź kod do systemu płatności BLIK.
+    instruction2: Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.
+    instruction3: "Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:"
     
     actions:
       confirm: Potwierdź udaną płatność
       markInvalid: Nieprawidłowy kod BLIK
+      copyBlik: Kopiuj BLIK
     
     feedback:
       confirmed: Maker potwierdził płatność.
