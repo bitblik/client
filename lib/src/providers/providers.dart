@@ -128,6 +128,26 @@ class DiscoveredCoordinatorsNotifier
     }
   }
 
+  /// Trigger a full coordinator discovery refresh
+  /// This will restart the discovery process and reload the coordinator list
+  Future<void> refreshDiscovery() async {
+    try {
+      print('🔍 Provider: Manual refresh triggered, starting coordinator discovery...');
+      
+      // Wait for API service to be fully initialized
+      final apiService = await _ref.read(initializedApiServiceProvider.future);
+      
+      // Trigger discovery
+      await apiService.startCoordinatorDiscovery();
+      
+      // Reload coordinators with health checks
+      await _loadCoordinators(skipHealthChecks: false);
+    } catch (e, stack) {
+      print('Error in refreshDiscovery: $e');
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
   /// Trigger health check for a specific coordinator and update the list when done
   Future<void> checkCoordinatorHealthAndRefresh(String coordinatorPubkey) async {
     if (!state.hasValue) return;

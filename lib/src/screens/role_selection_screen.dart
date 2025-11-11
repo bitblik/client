@@ -106,7 +106,7 @@ class RoleSelectionScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const SizedBox(height: 30),
+                SizedBox(height: hasActiveOffer? 40:80),
 
                 // Main title
                 Text(
@@ -126,7 +126,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
 
                 // Subtitle
                 Text(
@@ -138,11 +138,12 @@ class RoleSelectionScreen extends ConsumerWidget {
                       ?.copyWith(
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w400,
+                    fontSize: 20
                   ),
                   textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: hasActiveOffer? 40:100),
 
                 // Action cards
                 Builder(

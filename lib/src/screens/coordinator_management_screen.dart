@@ -160,12 +160,23 @@ class _CoordinatorManagementScreenState extends ConsumerState<CoordinatorManagem
                 error: (err, stack) => Center(child: Text('${t.coordinator.management.error}: ${err.toString()}')),
                 data: (coordinators) {
                   if (coordinators.isEmpty) {
-                    return Center(child: Text(t.coordinator.management.noCoordinators));
+                    return RefreshIndicator(
+                      onRefresh: () => ref.read(discoveredCoordinatorsProvider.notifier).refreshDiscovery(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: Center(child: Text(t.coordinator.management.noCoordinators)),
+                        ),
+                      ),
+                    );
                   }
-                  return ListView.separated(
-                    itemCount: coordinators.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
+                  return RefreshIndicator(
+                    onRefresh: () => ref.read(discoveredCoordinatorsProvider.notifier).refreshDiscovery(),
+                    child: ListView.separated(
+                      itemCount: coordinators.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
                       final c = coordinators[index];
                       final pubkey = c.pubkey;
                       final isDefault = apiService.isDefaultWhitelisted(pubkey);
@@ -255,7 +266,8 @@ class _CoordinatorManagementScreenState extends ConsumerState<CoordinatorManagem
                         ],
                       );
                     },
-                  );
+                  ),
+                );
                 },
               ),
             ),
