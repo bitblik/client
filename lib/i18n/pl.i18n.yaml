@@ -252,6 +252,17 @@ maker:
     button: ZAPŁAĆ przez Lightning
   
   amountForm:
+    progress:
+      step1: "1. Utwórz Ofertę"
+      step2: "2. Czekaj na zabranie"
+      step3: "3. Użyj BLIK"
+    labels:
+      coordinator: Koordynator
+      exchangeRate: Kurs wymiany
+      fee: Opłata
+      satoshisToPay: Do zapłaty
+      enterAmount: Wprowadź kwotę
+      tapToSelect: Kliknij, aby wybrać
     actions:
       generateInvoice: Wygeneruj Fakturę
     

@@ -722,6 +722,8 @@ class _TranslationsMakerAmountFormPl extends TranslationsMakerAmountFormEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsMakerAmountFormProgressPl progress = _TranslationsMakerAmountFormProgressPl._(_root);
+	@override late final _TranslationsMakerAmountFormLabelsPl labels = _TranslationsMakerAmountFormLabelsPl._(_root);
 	@override late final _TranslationsMakerAmountFormActionsPl actions = _TranslationsMakerAmountFormActionsPl._(_root);
 	@override late final _TranslationsMakerAmountFormErrorsPl errors = _TranslationsMakerAmountFormErrorsPl._(_root);
 }
@@ -1135,6 +1137,33 @@ class _TranslationsLandingActionsPl extends TranslationsLandingActionsEn {
 	@override String get sellBlik => 'Kup bitcoin';
 	@override String get sellBlikSubtitle => 'używając BLIK';
 	@override String get howItWorks => 'Jak to działa?';
+}
+
+// Path: maker.amountForm.progress
+class _TranslationsMakerAmountFormProgressPl extends TranslationsMakerAmountFormProgressEn {
+	_TranslationsMakerAmountFormProgressPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get step1 => '1. Utwórz Ofertę';
+	@override String get step2 => '2. Czekaj na zabranie';
+	@override String get step3 => '3. Użyj BLIK';
+}
+
+// Path: maker.amountForm.labels
+class _TranslationsMakerAmountFormLabelsPl extends TranslationsMakerAmountFormLabelsEn {
+	_TranslationsMakerAmountFormLabelsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get coordinator => 'Koordynator';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get fee => 'Opłata';
+	@override String get satoshisToPay => 'Do zapłaty';
+	@override String get enterAmount => 'Wprowadź kwotę';
+	@override String get tapToSelect => 'Kliknij, aby wybrać';
 }
 
 // Path: maker.amountForm.actions
@@ -1749,6 +1778,15 @@ extension on TranslationsPl {
 			case 'coordinator.management.pleaseEnterNpub': return 'Proszę wprowadzić npub';
 			case 'coordinator.management.error': return 'Błąd';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
+			case 'maker.amountForm.progress.step1': return '1. Utwórz Ofertę';
+			case 'maker.amountForm.progress.step2': return '2. Czekaj na zabranie';
+			case 'maker.amountForm.progress.step3': return '3. Użyj BLIK';
+			case 'maker.amountForm.labels.coordinator': return 'Koordynator';
+			case 'maker.amountForm.labels.exchangeRate': return 'Kurs wymiany';
+			case 'maker.amountForm.labels.fee': return 'Opłata';
+			case 'maker.amountForm.labels.satoshisToPay': return 'Do zapłaty';
+			case 'maker.amountForm.labels.enterAmount': return 'Wprowadź kwotę';
+			case 'maker.amountForm.labels.tapToSelect': return 'Kliknij, aby wybrać';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Błąd: Klucz publiczny nie został jeszcze załadowany.';

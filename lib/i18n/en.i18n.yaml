@@ -214,7 +214,7 @@ coordinator:
     viewNostrProfile: "View Nostr profile"
     unresponsive: "This coordinator is unresponsive"
     waitingResponse: "Waiting for coordinator response"
-    termsAccept: "I accept its "
+    termsAccept: "I accept coordinator's "
     termsOfUsage: "Terms of Usage"
   
   dialog:
@@ -252,6 +252,17 @@ maker:
     button: PAY with Lightning
   
   amountForm:
+    progress:
+      step1: "1. Create Offer"
+      step2: "2. Wait for Taker"
+      step3: "3. Use BLIK"
+    labels:
+      coordinator: Coordinator
+      exchangeRate: Exchange Rate
+      fee: Fee
+      satoshisToPay: Pay
+      enterAmount: Enter amount
+      tapToSelect: Tap to select
     actions:
       generateInvoice: Generate Invoice
     

@@ -980,8 +980,8 @@ class TranslationsCoordinatorSelectorEn {
 	/// en: 'Waiting for coordinator response'
 	String get waitingResponse => 'Waiting for coordinator response';
 
-	/// en: 'I accept its '
-	String get termsAccept => 'I accept its ';
+	/// en: 'I accept coordinator's '
+	String get termsAccept => 'I accept coordinator\'s ';
 
 	/// en: 'Terms of Usage'
 	String get termsOfUsage => 'Terms of Usage';
@@ -1093,6 +1093,8 @@ class TranslationsMakerAmountFormEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	late final TranslationsMakerAmountFormProgressEn progress = TranslationsMakerAmountFormProgressEn.internal(_root);
+	late final TranslationsMakerAmountFormLabelsEn labels = TranslationsMakerAmountFormLabelsEn.internal(_root);
 	late final TranslationsMakerAmountFormActionsEn actions = TranslationsMakerAmountFormActionsEn.internal(_root);
 	late final TranslationsMakerAmountFormErrorsEn errors = TranslationsMakerAmountFormErrorsEn.internal(_root);
 }
@@ -1693,6 +1695,51 @@ class TranslationsLandingActionsEn {
 
 	/// en: 'How it works?'
 	String get howItWorks => 'How it works?';
+}
+
+// Path: maker.amountForm.progress
+class TranslationsMakerAmountFormProgressEn {
+	TranslationsMakerAmountFormProgressEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '1. Create Offer'
+	String get step1 => '1. Create Offer';
+
+	/// en: '2. Wait for Taker'
+	String get step2 => '2. Wait for Taker';
+
+	/// en: '3. Use BLIK'
+	String get step3 => '3. Use BLIK';
+}
+
+// Path: maker.amountForm.labels
+class TranslationsMakerAmountFormLabelsEn {
+	TranslationsMakerAmountFormLabelsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Coordinator'
+	String get coordinator => 'Coordinator';
+
+	/// en: 'Exchange Rate'
+	String get exchangeRate => 'Exchange Rate';
+
+	/// en: 'Fee'
+	String get fee => 'Fee';
+
+	/// en: 'Pay'
+	String get satoshisToPay => 'Pay';
+
+	/// en: 'Enter amount'
+	String get enterAmount => 'Enter amount';
+
+	/// en: 'Tap to select'
+	String get tapToSelect => 'Tap to select';
 }
 
 // Path: maker.amountForm.actions
@@ -2476,7 +2523,7 @@ extension on Translations {
 			case 'coordinator.selector.viewNostrProfile': return 'View Nostr profile';
 			case 'coordinator.selector.unresponsive': return 'This coordinator is unresponsive';
 			case 'coordinator.selector.waitingResponse': return 'Waiting for coordinator response';
-			case 'coordinator.selector.termsAccept': return 'I accept its ';
+			case 'coordinator.selector.termsAccept': return 'I accept coordinator\'s ';
 			case 'coordinator.selector.termsOfUsage': return 'Terms of Usage';
 			case 'coordinator.dialog.makerFee': return 'Maker Fee';
 			case 'coordinator.dialog.takerFee': return 'Taker Fee';
@@ -2502,6 +2549,15 @@ extension on Translations {
 			case 'coordinator.management.pleaseEnterNpub': return 'Please enter an npub';
 			case 'coordinator.management.error': return 'Error';
 			case 'maker.roleSelection.button': return 'PAY with Lightning';
+			case 'maker.amountForm.progress.step1': return '1. Create Offer';
+			case 'maker.amountForm.progress.step2': return '2. Wait for Taker';
+			case 'maker.amountForm.progress.step3': return '3. Use BLIK';
+			case 'maker.amountForm.labels.coordinator': return 'Coordinator';
+			case 'maker.amountForm.labels.exchangeRate': return 'Exchange Rate';
+			case 'maker.amountForm.labels.fee': return 'Fee';
+			case 'maker.amountForm.labels.satoshisToPay': return 'Pay';
+			case 'maker.amountForm.labels.enterAmount': return 'Enter amount';
+			case 'maker.amountForm.labels.tapToSelect': return 'Tap to select';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Error: Public key not yet loaded.';
