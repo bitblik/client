@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:logger/logger.dart' as lib_logger;
+import 'package:flutter/foundation.dart';
 import 'package:ndk/ndk.dart';
 import 'package:ndk/shared/nips/nip19/nip19.dart';
 import 'package:ndk/shared/nips/nip44/nip44.dart';
-import 'package:ndk_rust_verifier/data_layer/repositories/verifiers/rust_event_verifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
@@ -169,9 +168,10 @@ class NostrService {
   final Map<String, CoordinatorInfo> _coordinatorInfoCache = {};
 
   // Default whitelist (hardcoded)
-  List<String> kWhitelistCoordinatorPubKeys = [
-    "c6e5e031989223dd63e6ed49f0905a19a92ed86e0754721d6071133a9340bf7e",
-  ];
+  List<String> kWhitelistCoordinatorPubKeys = !kDebugMode? [
+     "c6e5e031989223dd63e6ed49f0905a19a92ed86e0754721d6071133a9340bf7e",
+  ]:["30a68e444a09fcf01c49c673e9fd4c1ddf27bae6ee3f9b7a26c8785de741d414"]
+  ;
 
   // Blacklist and custom whitelist (loaded from preferences)
   List<String> _blacklistedCoordinators = [];

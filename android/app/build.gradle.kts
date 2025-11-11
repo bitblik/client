@@ -108,6 +108,7 @@ android {
         }
         debug {
             applicationIdSuffix = ".dev"
+            signingConfig = cfg
         }
     }
 }
