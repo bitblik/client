@@ -111,6 +111,7 @@ class TranslationsOffersEn {
 
 	// Translations
 	late final TranslationsOffersDetailsEn details = TranslationsOffersDetailsEn.internal(_root);
+	late final TranslationsOffersTooltipsEn tooltips = TranslationsOffersTooltipsEn.internal(_root);
 	late final TranslationsOffersActionsEn actions = TranslationsOffersActionsEn.internal(_root);
 	late final TranslationsOffersStatusEn status = TranslationsOffersStatusEn.internal(_root);
 	late final TranslationsOffersStatusMessagesEn statusMessages = TranslationsOffersStatusMessagesEn.internal(_root);
@@ -658,6 +659,18 @@ class TranslationsOffersDetailsEn {
 	String get coordinator => 'Coordinator';
 }
 
+// Path: offers.tooltips
+class TranslationsOffersTooltipsEn {
+	TranslationsOffersTooltipsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Coordinator charges a ${feePercent}% taker fee. This fee is deducted from the amount you receive.'
+	String takerFeeInfo({required Object feePercent}) => 'Coordinator charges a ${feePercent}% taker fee. This fee is deducted from the amount you receive.';
+}
+
 // Path: offers.actions
 class TranslationsOffersActionsEn {
 	TranslationsOffersActionsEn.internal(this._root);
@@ -1130,6 +1143,7 @@ class TranslationsMakerAmountFormEn {
 	late final TranslationsMakerAmountFormProgressEn progress = TranslationsMakerAmountFormProgressEn.internal(_root);
 	late final TranslationsMakerAmountFormLabelsEn labels = TranslationsMakerAmountFormLabelsEn.internal(_root);
 	late final TranslationsMakerAmountFormActionsEn actions = TranslationsMakerAmountFormActionsEn.internal(_root);
+	late final TranslationsMakerAmountFormTooltipsEn tooltips = TranslationsMakerAmountFormTooltipsEn.internal(_root);
 	late final TranslationsMakerAmountFormErrorsEn errors = TranslationsMakerAmountFormErrorsEn.internal(_root);
 }
 
@@ -1772,8 +1786,8 @@ class TranslationsMakerAmountFormLabelsEn {
 	/// en: 'Fee'
 	String get fee => 'Fee';
 
-	/// en: 'Pay'
-	String get satoshisToPay => 'Pay';
+	/// en: 'Amount to Pay'
+	String get satoshisToPay => 'Amount to Pay';
 
 	/// en: 'Enter amount'
 	String get enterAmount => 'Enter amount';
@@ -1792,6 +1806,21 @@ class TranslationsMakerAmountFormActionsEn {
 
 	/// en: 'Generate Invoice'
 	String get generateInvoice => 'Generate Invoice';
+}
+
+// Path: maker.amountForm.tooltips
+class TranslationsMakerAmountFormTooltipsEn {
+	TranslationsMakerAmountFormTooltipsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Coordinator charges a ${feePercent}% maker fee. This fee is deducted from your Lightning payment.'
+	String feeInfo({required Object feePercent}) => 'Coordinator charges a ${feePercent}% maker fee. This fee is deducted from your Lightning payment.';
+
+	/// en: 'This calculation is based on client-side fetched exchange rates. The coordinator will calculate the exact amount, and the invoice amount will be the final and exact amount to pay.'
+	String get payInfo => 'This calculation is based on client-side fetched exchange rates. The coordinator will calculate the exact amount, and the invoice amount will be the final and exact amount to pay.';
 }
 
 // Path: maker.amountForm.errors
@@ -2496,6 +2525,7 @@ extension on Translations {
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'You\'ll receive';
 			case 'offers.details.coordinator': return 'Coordinator';
+			case 'offers.tooltips.takerFeeInfo': return ({required Object feePercent}) => 'Coordinator charges a ${feePercent}% taker fee. This fee is deducted from the amount you receive.';
 			case 'offers.actions.take': return 'TAKE';
 			case 'offers.actions.takeOffer': return 'Take Offer';
 			case 'offers.actions.resume': return 'ENTER BLIK';
@@ -2606,10 +2636,12 @@ extension on Translations {
 			case 'maker.amountForm.labels.coordinator': return 'Coordinator';
 			case 'maker.amountForm.labels.exchangeRate': return 'Exchange Rate';
 			case 'maker.amountForm.labels.fee': return 'Fee';
-			case 'maker.amountForm.labels.satoshisToPay': return 'Pay';
+			case 'maker.amountForm.labels.satoshisToPay': return 'Amount to Pay';
 			case 'maker.amountForm.labels.enterAmount': return 'Enter amount';
 			case 'maker.amountForm.labels.tapToSelect': return 'Tap to select';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
+			case 'maker.amountForm.tooltips.feeInfo': return ({required Object feePercent}) => 'Coordinator charges a ${feePercent}% maker fee. This fee is deducted from your Lightning payment.';
+			case 'maker.amountForm.tooltips.payInfo': return 'This calculation is based on client-side fetched exchange rates. The coordinator will calculate the exact amount, and the invoice amount will be the final and exact amount to pay.';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Error: Public key not yet loaded.';
 			case 'maker.payInvoice.title': return 'Pay this Hold invoice:';

@@ -106,6 +106,7 @@ class _TranslationsOffersPl extends TranslationsOffersEn {
 
 	// Translations
 	@override late final _TranslationsOffersDetailsPl details = _TranslationsOffersDetailsPl._(_root);
+	@override late final _TranslationsOffersTooltipsPl tooltips = _TranslationsOffersTooltipsPl._(_root);
 	@override late final _TranslationsOffersActionsPl actions = _TranslationsOffersActionsPl._(_root);
 	@override late final _TranslationsOffersStatusPl status = _TranslationsOffersStatusPl._(_root);
 	@override late final _TranslationsOffersStatusMessagesPl statusMessages = _TranslationsOffersStatusMessagesPl._(_root);
@@ -476,6 +477,16 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	@override String get coordinator => 'Koordynator';
 }
 
+// Path: offers.tooltips
+class _TranslationsOffersTooltipsPl extends TranslationsOffersTooltipsEn {
+	_TranslationsOffersTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String takerFeeInfo({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla kupującego. Ta opłata jest odejmowana od kwoty, którą otrzymasz.';
+}
+
 // Path: offers.actions
 class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 	_TranslationsOffersActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -742,6 +753,7 @@ class _TranslationsMakerAmountFormPl extends TranslationsMakerAmountFormEn {
 	@override late final _TranslationsMakerAmountFormProgressPl progress = _TranslationsMakerAmountFormProgressPl._(_root);
 	@override late final _TranslationsMakerAmountFormLabelsPl labels = _TranslationsMakerAmountFormLabelsPl._(_root);
 	@override late final _TranslationsMakerAmountFormActionsPl actions = _TranslationsMakerAmountFormActionsPl._(_root);
+	@override late final _TranslationsMakerAmountFormTooltipsPl tooltips = _TranslationsMakerAmountFormTooltipsPl._(_root);
 	@override late final _TranslationsMakerAmountFormErrorsPl errors = _TranslationsMakerAmountFormErrorsPl._(_root);
 }
 
@@ -1192,6 +1204,17 @@ class _TranslationsMakerAmountFormActionsPl extends TranslationsMakerAmountFormA
 
 	// Translations
 	@override String get generateInvoice => 'Wygeneruj Fakturę';
+}
+
+// Path: maker.amountForm.tooltips
+class _TranslationsMakerAmountFormTooltipsPl extends TranslationsMakerAmountFormTooltipsEn {
+	_TranslationsMakerAmountFormTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String feeInfo({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla twórcy. Ta opłata jest odejmowana od Twojej płatności Lightning.';
+	@override String get payInfo => 'Ta kalkulacja jest oparta na kursach wymiany pobranych po stronie klienta. Koordynator obliczy dokładną kwotę, a kwota faktury będzie ostateczną i dokładną kwotą do zapłaty.';
 }
 
 // Path: maker.amountForm.errors
@@ -1700,6 +1723,7 @@ extension on TranslationsPl {
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'Otrzymasz';
 			case 'offers.details.coordinator': return 'Koordynator';
+			case 'offers.tooltips.takerFeeInfo': return ({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla kupującego. Ta opłata jest odejmowana od kwoty, którą otrzymasz.';
 			case 'offers.actions.take': return 'WEŹ';
 			case 'offers.actions.takeOffer': return 'Weź ofertę';
 			case 'offers.actions.resume': return 'Wprowadź BLIK';
@@ -1814,6 +1838,8 @@ extension on TranslationsPl {
 			case 'maker.amountForm.labels.enterAmount': return 'Wprowadź kwotę';
 			case 'maker.amountForm.labels.tapToSelect': return 'Kliknij, aby wybrać';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
+			case 'maker.amountForm.tooltips.feeInfo': return ({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla twórcy. Ta opłata jest odejmowana od Twojej płatności Lightning.';
+			case 'maker.amountForm.tooltips.payInfo': return 'Ta kalkulacja jest oparta na kursach wymiany pobranych po stronie klienta. Koordynator obliczy dokładną kwotę, a kwota faktury będzie ostateczną i dokładną kwotą do zapłaty.';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Błąd: Klucz publiczny nie został jeszcze załadowany.';
 			case 'maker.payInvoice.title': return 'Zapłać tę fakturę Hold:';

@@ -308,8 +308,8 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                     );
                     if (coordinatorInfo == null) return const SizedBox.shrink();
                     final feePct = coordinatorInfo.makerFee;
-                    final feeFiat = fiat * feePct / 100;
-                    final totalFiat = fiat + feeFiat;
+                    // final feeFiat = fiat * feePct / 100;
+                    // final totalFiat = fiat + feeFiat;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -324,7 +324,7 @@ class _MakerPayInvoiceScreenState extends ConsumerState<MakerPayInvoiceScreen> {
                         const SizedBox(height: 4),
                         Text(
                           //                          "${formatFiat(fiat)} + ${formatFiat(feeFiat)} fee = ${formatFiat(totalFiat)} PLN",
-                          "${formatFiat(totalFiat)} PLN",
+                          "${formatFiat(fiat)} PLN",
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: Colors.grey[700], fontSize: 14),
                           textAlign: TextAlign.center,

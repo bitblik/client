@@ -311,29 +311,29 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.grey,
+          GestureDetector(
+            onTap: infoIcon != null ? onInfoTap : null,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-              if (infoIcon != null) ...[
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: onInfoTap,
-                  child: Icon(
+                if (infoIcon != null) ...[
+                  const SizedBox(width: 4),
+                  Icon(
                     infoIcon,
                     size: 16,
                     color: Colors.grey,
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
           const Spacer(),
           value,
@@ -696,7 +696,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    infoIcon: Icons.help_outline,
+                    infoIcon: Icons.info_outline,
                     onInfoTap: () => _showExchangeRateSourcesDialog(context),
                   ),
 
@@ -705,13 +705,35 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                     t.maker.amountForm.labels.fee,
                     Text(
                       (_selectedCoordinatorInfo != null && _satsEquivalent != null)
-                          ? '${(_satsEquivalent! * _selectedCoordinatorInfo!.makerFee / 100).toStringAsFixed(0)} sats'
+                          ? '≈${(_satsEquivalent! * _selectedCoordinatorInfo!.makerFee / 100).toStringAsFixed(0)} sats'
                           : '-',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
+                    infoIcon: Icons.info_outline,
+                    onInfoTap: () {
+                      if (_selectedCoordinatorInfo != null) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(t.maker.amountForm.labels.fee),
+                            content: Text(
+                              t.maker.amountForm.tooltips.feeInfo(
+                                feePercent: _selectedCoordinatorInfo!.makerFee.toString(),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text(t.common.buttons.close),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
                   ),
 
                   const Divider(height: 1),
@@ -721,13 +743,29 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                     t.maker.amountForm.labels.satoshisToPay,
                     Text(
                       _satsEquivalent != null
-                          ? _satsEquivalent!.toStringAsFixed(0)
+                          ? "≈${(_satsEquivalent! + (_satsEquivalent! * _selectedCoordinatorInfo!.makerFee / 100)).toStringAsFixed(0)}"
                           : '-',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    infoIcon: Icons.info_outline,
+                    onInfoTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(t.maker.amountForm.labels.satoshisToPay),
+                          content: Text(t.maker.amountForm.tooltips.payInfo),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(t.common.buttons.close),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

@@ -444,6 +444,30 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                   _buildInfoRow(
                                     t.offers.details.takerFeeLabel,
                                     '$takerFeeAmount sats',
+                                    hasInfoIcon: true,
+                                    onInfoTap: () {
+                                      coordinatorInfoAsync.whenData((coordInfo) {
+                                        if (coordInfo != null) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text(t.offers.details.takerFeeLabel),
+                                              content: Text(
+                                                t.offers.tooltips.takerFeeInfo(
+                                                  feePercent: coordInfo.takerFee.toString(),
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  child: Text(t.common.buttons.close),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    },
                                   ),
 
                                   const SizedBox(height: 24),
@@ -634,28 +658,28 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
+        GestureDetector(
+          onTap: hasInfoIcon ? onInfoTap : null,
+          child: Row(
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            if (hasInfoIcon) ...[
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: onInfoTap,
-                child: Icon(
+              if (hasInfoIcon) ...[
+                const SizedBox(width: 4),
+                Icon(
                   Icons.info_outline,
                   size: 16,
                   color: Colors.grey[500],
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
         Text(
           value,
@@ -667,46 +691,6 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
         ),
       ],
     );
-  }
-
-  /// Formats the offer status for display using translations
-  String _formatStatus(String status) {
-    final t = Translations.of(context);
-
-    switch (status.toLowerCase()) {
-      case 'created':
-        return t.offers.status.created;
-      case 'funded':
-        return t.offers.status.funded;
-      case 'expired':
-        return t.offers.status.expired;
-      case 'cancelled':
-        return t.offers.status.cancelled;
-      case 'reserved':
-        return t.offers.status.reserved;
-      case 'blikreceived':
-        return t.offers.status.blikReceived;
-      case 'bliksenttomaker':
-        return t.offers.status.blikSentToMaker;
-      case 'invalidblik':
-        return t.offers.status.invalidBlik;
-      case 'conflict':
-        return t.offers.status.conflict;
-      case 'dispute':
-        return t.offers.status.dispute;
-      case 'makerconfirmed':
-        return t.offers.status.makerConfirmed;
-      case 'settled':
-        return t.offers.status.settled;
-      case 'payingtaker':
-        return t.offers.status.payingTaker;
-      case 'takerpaymentfailed':
-        return t.offers.status.takerPaymentFailed;
-      case 'takerpaid':
-        return t.offers.status.takerPaid;
-      default:
-        return status.substring(0, 1).toUpperCase() + status.substring(1);
-    }
   }
 
   /// Formats a number with spaces as thousand separators

@@ -107,6 +107,9 @@ offers:
     youllReceive: "You'll receive"
     coordinator: "Coordinator"
   
+  tooltips:
+    takerFeeInfo: "Coordinator charges a ${feePercent}% taker fee. This fee is deducted from the amount you receive."
+  
   actions:
     take: TAKE
     takeOffer: Take Offer
@@ -270,11 +273,15 @@ maker:
       coordinator: Coordinator
       exchangeRate: Exchange Rate
       fee: Fee
-      satoshisToPay: Pay
+      satoshisToPay: Amount to Pay
       enterAmount: Enter amount
       tapToSelect: Tap to select
     actions:
       generateInvoice: Generate Invoice
+    
+    tooltips:
+      feeInfo: "Coordinator charges a ${feePercent}% maker fee. This fee is deducted from your Lightning payment."
+      payInfo: "This calculation is based on client-side fetched exchange rates. The coordinator will calculate the exact amount, and the invoice amount will be the final and exact amount to pay."
     
     errors:
       initiating: "Error initiating offer: ${details}"
