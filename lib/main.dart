@@ -42,6 +42,8 @@ import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/utils/platform_detection.dart'; // Import our platform detection utility
 import 'src/screens/coordinator_management_screen.dart';
+import 'src/screens/settings_screen.dart';
+import 'src/screens/neko_management_screen.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -138,6 +140,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder:
             (context, state) =>
                 const AppScaffold(body: CoordinatorManagementScreen()),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const AppScaffold(body: SettingsScreen()),
+      ),
+      GoRoute(
+        path: '/neko-management',
+        builder:
+            (context, state) => const AppScaffold(body: NekoManagementScreen()),
       ),
 
       GoRoute(
@@ -405,399 +416,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void _showNekoInfoDialog(String initialPubKey) {
-    final keyService = ref.read(keyServiceProvider);
-    final TextEditingController restoreKeyController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    String? selectedAction; // null, 'backup', 'restore', 'generate'
-    bool isRevealed = false;
-    String currentPubKey = initialPubKey;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            final privateKey = keyService.privateKeyHex;
-            final t = Translations.of(context);
-
-            return AlertDialog(
-              title: Row(
-                children: [
-                  if (selectedAction != null)
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        setState(() {
-                          selectedAction = null;
-                          isRevealed = false;
-                        });
-                      },
-                    ),
-                  Expanded(
-                    child: Text(
-                      selectedAction == 'backup'
-                          ? t.backup.title
-                          : selectedAction == 'restore'
-                          ? t.restore.title
-                          : selectedAction == 'generate'
-                          ? t.generateNewKey.title
-                          : t.nekoInfo.title,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      restoreKeyController.dispose();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      selectedAction == null
-                          ? [
-                            // Main content
-                            Center(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    'https://robohash.org/$currentPubKey?set=set4',
-                                placeholder:
-                                    (context, url) =>
-                                        const CircularProgressIndicator(),
-                                errorWidget:
-                                    (context, url, error) =>
-                                        const Icon(Icons.error),
-                                width: 150,
-                                height: 150,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(t.nekoInfo.description),
-                            const SizedBox(height: 20),
-                            SelectableText(Nip19.encodePubKey(currentPubKey)),
-                            const SizedBox(height: 24),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            // Action buttons
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                OutlinedButton.icon(
-                                  icon: const Icon(Icons.backup),
-                                  label: Text(t.backup.title),
-                                  onPressed: () {
-                                    setState(() {
-                                      selectedAction = 'backup';
-                                      isRevealed = false;
-                                    });
-                                  },
-                                ),
-                                OutlinedButton.icon(
-                                  icon: const Icon(Icons.restore),
-                                  label: Text(t.restore.title),
-                                  onPressed: () {
-                                    setState(() {
-                                      selectedAction = 'restore';
-                                    });
-                                  },
-                                ),
-                                OutlinedButton.icon(
-                                  icon: const Icon(Icons.refresh),
-                                  label: Text(t.generateNewKey.title),
-                                  onPressed: () {
-                                    setState(() {
-                                      selectedAction = 'generate';
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ]
-                          : selectedAction == 'backup' && privateKey != null
-                          ? [
-                            // Backup content
-                            Text(
-                              t.backup.description,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: SelectableText(
-                                isRevealed
-                                    ? Nip19.encodePrivateKey(privateKey)
-                                    : '****************************************************************',
-                                style: const TextStyle(fontFamily: 'monospace'),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                TextButton.icon(
-                                  icon: Icon(
-                                    isRevealed
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                  ),
-                                  label: Text(
-                                    isRevealed
-                                        ? t.common.buttons.hide
-                                        : t.common.buttons.reveal,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      isRevealed = !isRevealed;
-                                    });
-                                  },
-                                ),
-                                TextButton.icon(
-                                  icon: const Icon(Icons.copy),
-                                  label: Text(t.common.buttons.copy),
-                                  onPressed: () {
-                                    Clipboard.setData(
-                                      ClipboardData(
-                                        text: Nip19.encodePrivateKey(
-                                          privateKey,
-                                        ),
-                                      ),
-                                    );
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(t.backup.feedback.copied),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ]
-                          : selectedAction == 'restore'
-                          ? [
-                            // Restore content
-                            Form(
-                              key: formKey,
-                              child: TextFormField(
-                                controller: restoreKeyController,
-                                decoration: InputDecoration(
-                                  labelText: t.restore.labels.privateKey,
-                                  hintText: 'e.g., nsec1...',
-                                  border: const OutlineInputBorder(),
-                                ),
-                                validator: (value) {
-                                  if (value == null ||
-                                      !Nip19.isPrivateKey(value)) {
-                                    return t.restore.errors.invalidKey;
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.restore),
-                              label: Text(t.restore.buttons.restore),
-                              onPressed: () async {
-                                if (formKey.currentState!.validate()) {
-                                  try {
-                                    String pKey = Nip19.decode(
-                                      restoreKeyController.text,
-                                    );
-                                    await keyService.savePrivateKey(pKey);
-
-                                    // Clear the active offer when restoring
-                                    await ref
-                                        .read(activeOfferProvider.notifier)
-                                        .setActiveOffer(null);
-
-                                    // Invalidate providers
-                                    ref.invalidate(keyServiceProvider);
-                                    ref.invalidate(apiServiceProvider);
-                                    ref.invalidate(
-                                      initializedApiServiceProvider,
-                                    );
-                                    ref.invalidate(publicKeyProvider);
-                                    ref.invalidate(
-                                      discoveredCoordinatorsProvider,
-                                    );
-
-                                    // Show loading
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder:
-                                          (context) => const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                    );
-
-                                    // Re-initialize services
-                                    await ref.read(
-                                      initializedApiServiceProvider.future,
-                                    );
-
-                                    // Get new public key
-                                    final newKeyService = ref.read(
-                                      keyServiceProvider,
-                                    );
-                                    final newPubKey =
-                                        newKeyService.publicKeyHex;
-
-                                    Navigator.of(
-                                      context,
-                                    ).pop(); // Close loading
-
-                                    if (newPubKey != null) {
-                                      setState(() {
-                                        currentPubKey = newPubKey;
-                                        selectedAction = null;
-                                        restoreKeyController.clear();
-                                      });
-                                    } else {
-                                      Navigator.of(
-                                        context,
-                                      ).pop(); // Close dialog
-                                    }
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          t.restore.feedback.success,
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    Navigator.of(
-                                      context,
-                                    ).pop(); // Close loading if open
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '${t.restore.errors.failed}: ${e.toString()}',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                            ),
-                          ]
-                          : [
-                            // Generate content
-                            Text(
-                              ref.read(activeOfferProvider) != null
-                                  ? t.generateNewKey.errors.activeOffer
-                                  : t.generateNewKey.description,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            if (ref.read(activeOfferProvider) == null) ...[
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.refresh),
-                                label: Text(t.generateNewKey.buttons.generate),
-                                onPressed: () async {
-                                  try {
-                                    await keyService.generateNewKeyPair();
-
-                                    // Clear the active offer
-                                    await ref
-                                        .read(activeOfferProvider.notifier)
-                                        .setActiveOffer(null);
-
-                                    // Invalidate providers
-                                    ref.invalidate(keyServiceProvider);
-                                    ref.invalidate(apiServiceProvider);
-                                    ref.invalidate(
-                                      initializedApiServiceProvider,
-                                    );
-                                    ref.invalidate(publicKeyProvider);
-                                    ref.invalidate(
-                                      discoveredCoordinatorsProvider,
-                                    );
-
-                                    // Show loading
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder:
-                                          (context) => const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                    );
-
-                                    // Re-initialize services
-                                    await ref.read(
-                                      initializedApiServiceProvider.future,
-                                    );
-
-                                    // Get new public key
-                                    final newKeyService = ref.read(
-                                      keyServiceProvider,
-                                    );
-                                    final newPubKey =
-                                        newKeyService.publicKeyHex;
-
-                                    Navigator.of(
-                                      context,
-                                    ).pop(); // Close loading
-
-                                    if (newPubKey != null) {
-                                      setState(() {
-                                        currentPubKey = newPubKey;
-                                        selectedAction = null;
-                                      });
-                                    }
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          t.generateNewKey.feedback.success,
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    Navigator.of(
-                                      context,
-                                    ).pop(); // Close loading if open
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text(t.common.buttons.close),
-                  onPressed: () {
-                    restoreKeyController.dispose();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   void _showGenerateNewKeyDialog() {
@@ -1075,7 +693,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     InkWell(
                       onTap: () {
                         Navigator.of(context).pop();
-                        _showNekoInfoDialog(publicKey);
+                        if (kIsWeb) {
+                          context.go(NekoManagementScreen.routeName);
+                        } else {
+                          context.push(NekoManagementScreen.routeName);
+                        }
                       },
                       borderRadius: BorderRadius.circular(4),
                       child: Padding(
@@ -1088,17 +710,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           children: [
                             Text(
                               t.nekoInfo.title,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.blue,
-                              ),
+                              style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(
-                              Icons.info_outline,
-                              size: 18,
-                              color: Colors.blue,
-                            ),
+                            const Icon(Icons.info_outline, size: 18),
                           ],
                         ),
                       ),
@@ -1106,24 +721,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   ],
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings),
-                title: Text(
-                  appLocale.languageCode == 'pl'
-                      ? 'Koordynatorzy'
-                      : 'Coordinators',
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  if (kIsWeb) {
-                    context.go('/coordinators');
-                  } else {
-                    context.push('/coordinators');
-                  }
-                },
-              ),
-              const Divider(),
               ListTile(
                 leading: const Icon(Icons.flash_on, color: Color(0xFFFF0000)),
                 title: Text(t.landing.actions.payBlik),
@@ -1164,6 +761,20 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     context.go("/faq");
                   } else {
                     context.push("/faq");
+                  }
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: Text(t.settings.title),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  if (kIsWeb) {
+                    context.go("/settings");
+                  } else {
+                    context.push("/settings");
                   }
                 },
               ),

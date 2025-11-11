@@ -141,7 +141,7 @@ class _CoordinatorManagementScreenState extends ConsumerState<CoordinatorManagem
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.coordinator.management.title),
+        title: Text(t.coordinator.management.availableCoordinators),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -152,7 +152,7 @@ class _CoordinatorManagementScreenState extends ConsumerState<CoordinatorManagem
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.coordinator.management.availableCoordinators, style: const TextStyle(fontWeight: FontWeight.bold)),
+            // Text(t.coordinator.management.availableCoordinators, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Expanded(
               child: coordinatorsAsync.when(

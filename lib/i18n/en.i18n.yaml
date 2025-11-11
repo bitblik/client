@@ -201,6 +201,7 @@ exchange:
 # COORDINATOR INFORMATION
 # =============================================================================
 coordinator:
+  title: "Coordinators"
   info:
     fee: "fee"
     rangeDisplay: "Amount: ${minAmount}-${maxAmount} ${currency}"
@@ -533,10 +534,11 @@ home:
 # =============================================================================
 nekoInfo:
   title: What is a Neko?
-  description: "Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer."
+  description: "Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.\n\n⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds."
+  backupWarning: "Remember to backup your Neko"
 
 generateNewKey:
-  title: Generate New Neko
+  title: New
   description: Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven't backed it up.
   buttons:
     generate: Generate
@@ -552,7 +554,7 @@ generateNewKey:
 # BACKUP AND RESTORE
 # =============================================================================
 backup:
-  title: Backup Neko
+  title: Backup
   description: This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.
   feedback:
     copied: Private key copied to clipboard!
@@ -560,7 +562,7 @@ backup:
     backup: Backup Neko
 
 restore:
-  title: Restore Neko
+  title: Restore
   labels:
     privateKey: Private Key
   buttons:
@@ -609,3 +611,12 @@ landing:
 faq:
   screenTitle: FAQ
   tooltip: FAQ
+
+# =============================================================================
+# SETTINGS
+# =============================================================================
+settings:
+  title: Settings
+
+nekoManagement:
+  title: Neko

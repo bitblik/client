@@ -56,6 +56,8 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
 	@override late final _TranslationsLandingPl landing = _TranslationsLandingPl._(_root);
 	@override late final _TranslationsFaqPl faq = _TranslationsFaqPl._(_root);
+	@override late final _TranslationsSettingsPl settings = _TranslationsSettingsPl._(_root);
+	@override late final _TranslationsNekoManagementPl nekoManagement = _TranslationsNekoManagementPl._(_root);
 }
 
 // Path: app
@@ -142,6 +144,7 @@ class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
+	@override String get title => 'Koordynatorzy';
 	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
 	@override late final _TranslationsCoordinatorSelectorPl selector = _TranslationsCoordinatorSelectorPl._(_root);
 	@override late final _TranslationsCoordinatorDialogPl dialog = _TranslationsCoordinatorDialogPl._(_root);
@@ -201,7 +204,8 @@ class _TranslationsNekoInfoPl extends TranslationsNekoInfoEn {
 
 	// Translations
 	@override String get title => 'Czym jest Neko?';
-	@override String get description => 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.';
+	@override String get description => 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.\n\n⚠️ WAŻNE: Twój klucz prywatny jest przechowywany tylko na Twoim urządzeniu (po stronie klienta). Niezwykle ważne jest zarchiwizowanie klucza prywatnego, ponieważ utrata dostępu do niego może uniemożliwić rozstrzygnięcie sporów i odzyskanie środków.';
+	@override String get backupWarning => 'Pamiętaj, aby zarchiwizować swoje Neko';
 }
 
 // Path: generateNewKey
@@ -211,7 +215,7 @@ class _TranslationsGenerateNewKeyPl extends TranslationsGenerateNewKeyEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Wygeneruj nowe Neko';
+	@override String get title => 'Nowy';
 	@override String get description => 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
 	@override late final _TranslationsGenerateNewKeyButtonsPl buttons = _TranslationsGenerateNewKeyButtonsPl._(_root);
 	@override late final _TranslationsGenerateNewKeyErrorsPl errors = _TranslationsGenerateNewKeyErrorsPl._(_root);
@@ -226,7 +230,7 @@ class _TranslationsBackupPl extends TranslationsBackupEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Zarchiwizuj Neko';
+	@override String get title => 'Zarchiwizuj';
 	@override String get description => 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
 	@override late final _TranslationsBackupFeedbackPl feedback = _TranslationsBackupFeedbackPl._(_root);
 	@override late final _TranslationsBackupTooltipsPl tooltips = _TranslationsBackupTooltipsPl._(_root);
@@ -239,7 +243,7 @@ class _TranslationsRestorePl extends TranslationsRestoreEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Przywróć Neko';
+	@override String get title => 'Przywróć';
 	@override late final _TranslationsRestoreLabelsPl labels = _TranslationsRestoreLabelsPl._(_root);
 	@override late final _TranslationsRestoreButtonsPl buttons = _TranslationsRestoreButtonsPl._(_root);
 	@override late final _TranslationsRestoreErrorsPl errors = _TranslationsRestoreErrorsPl._(_root);
@@ -291,6 +295,26 @@ class _TranslationsFaqPl extends TranslationsFaqEn {
 	// Translations
 	@override String get screenTitle => 'FAQ';
 	@override String get tooltip => 'FAQ';
+}
+
+// Path: settings
+class _TranslationsSettingsPl extends TranslationsSettingsEn {
+	_TranslationsSettingsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Ustawienia';
+}
+
+// Path: nekoManagement
+class _TranslationsNekoManagementPl extends TranslationsNekoManagementEn {
+	_TranslationsNekoManagementPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Neko';
 }
 
 // Path: common.buttons
@@ -1689,6 +1713,7 @@ extension on TranslationsPl {
 			case 'exchange.errors.invalidFeePercentage': return 'Nieprawidłowy procent opłaty';
 			case 'exchange.errors.tooLowFiat': return ({required Object minAmount, required Object currency}) => 'Kwota jest za niska. Minimum to ${minAmount} ${currency}.';
 			case 'exchange.errors.tooHighFiat': return ({required Object maxAmount, required Object currency}) => 'Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}.';
+			case 'coordinator.title': return 'Koordynatorzy';
 			case 'coordinator.info.fee': return 'opłata';
 			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
 			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% opłata';
@@ -1876,19 +1901,20 @@ extension on TranslationsPl {
 			case 'taker.conflict.errors.reporting': return ({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 			case 'blik.instructions.taker': return 'Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem.';
 			case 'nekoInfo.title': return 'Czym jest Neko?';
-			case 'nekoInfo.description': return 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.';
-			case 'generateNewKey.title': return 'Wygeneruj nowe Neko';
+			case 'nekoInfo.description': return 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.\n\n⚠️ WAŻNE: Twój klucz prywatny jest przechowywany tylko na Twoim urządzeniu (po stronie klienta). Niezwykle ważne jest zarchiwizowanie klucza prywatnego, ponieważ utrata dostępu do niego może uniemożliwić rozstrzygnięcie sporów i odzyskanie środków.';
+			case 'nekoInfo.backupWarning': return 'Pamiętaj, aby zarchiwizować swoje Neko';
+			case 'generateNewKey.title': return 'Nowy';
 			case 'generateNewKey.description': return 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
 			case 'generateNewKey.buttons.generate': return 'Generuj';
 			case 'generateNewKey.errors.activeOffer': return 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
 			case 'generateNewKey.errors.failed': return 'Nie udało się wygenerować nowego Neko';
 			case 'generateNewKey.feedback.success': return 'Nowe Neko wygenerowane pomyślnie!';
 			case 'generateNewKey.tooltips.generate': return 'Wygeneruj nowe Neko';
-			case 'backup.title': return 'Zarchiwizuj Neko';
+			case 'backup.title': return 'Zarchiwizuj';
 			case 'backup.description': return 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
 			case 'backup.feedback.copied': return 'Klucz prywatny skopiowany do schowka!';
 			case 'backup.tooltips.backup': return 'Zarchiwizuj Neko';
-			case 'restore.title': return 'Przywróć Neko';
+			case 'restore.title': return 'Przywróć';
 			case 'restore.labels.privateKey': return 'Klucz prywatny';
 			case 'restore.buttons.restore': return 'Przywróć';
 			case 'restore.errors.invalidKey': return 'Musi to być 64-znakowy ciąg szesnastkowy.';
@@ -1921,6 +1947,8 @@ extension on TranslationsPl {
 			case 'landing.actions.howItWorks': return 'Jak to działa?';
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
+			case 'settings.title': return 'Ustawienia';
+			case 'nekoManagement.title': return 'Neko';
 			default: return null;
 		}
 	}

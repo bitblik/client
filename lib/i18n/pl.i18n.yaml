@@ -201,6 +201,7 @@ exchange:
 # COORDINATOR INFORMATION
 # =============================================================================
 coordinator:
+  title: "Koordynatorzy"
   info:
     fee: opłata
     rangeDisplay: "Kwota: ${minAmount}-${maxAmount} ${currency}"
@@ -514,10 +515,11 @@ blik:
 # =============================================================================
 nekoInfo:
   title: Czym jest Neko?
-  description: "Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty."
+  description: "Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.\n\n⚠️ WAŻNE: Twój klucz prywatny jest przechowywany tylko na Twoim urządzeniu (po stronie klienta). Niezwykle ważne jest zarchiwizowanie klucza prywatnego, ponieważ utrata dostępu do niego może uniemożliwić rozstrzygnięcie sporów i odzyskanie środków."
+  backupWarning: "Pamiętaj, aby zarchiwizować swoje Neko"
 
 generateNewKey:
-  title: Wygeneruj nowe Neko
+  title: Nowy
   description: Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.
   buttons:
     generate: Generuj
@@ -533,7 +535,7 @@ generateNewKey:
 # BACKUP AND RESTORE
 # =============================================================================
 backup:
-  title: Zarchiwizuj Neko
+  title: Zarchiwizuj
   description: To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.
   feedback:
     copied: Klucz prywatny skopiowany do schowka!
@@ -541,7 +543,7 @@ backup:
     backup: Zarchiwizuj Neko
 
 restore:
-  title: Przywróć Neko
+  title: Przywróć
   labels:
     privateKey: Klucz prywatny
   buttons:
@@ -609,3 +611,12 @@ landing:
 faq:
   screenTitle: FAQ
   tooltip: FAQ
+
+# =============================================================================
+# SETTINGS
+# =============================================================================
+settings:
+  title: Ustawienia
+
+nekoManagement:
+  title: Neko

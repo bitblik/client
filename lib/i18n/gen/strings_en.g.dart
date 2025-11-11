@@ -57,6 +57,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSystemEn system = TranslationsSystemEn.internal(_root);
 	late final TranslationsLandingEn landing = TranslationsLandingEn.internal(_root);
 	late final TranslationsFaqEn faq = TranslationsFaqEn.internal(_root);
+	late final TranslationsSettingsEn settings = TranslationsSettingsEn.internal(_root);
+	late final TranslationsNekoManagementEn nekoManagement = TranslationsNekoManagementEn.internal(_root);
 }
 
 // Path: app
@@ -147,6 +149,10 @@ class TranslationsCoordinatorEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Coordinators'
+	String get title => 'Coordinators';
+
 	late final TranslationsCoordinatorInfoEn info = TranslationsCoordinatorInfoEn.internal(_root);
 	late final TranslationsCoordinatorSelectorEn selector = TranslationsCoordinatorSelectorEn.internal(_root);
 	late final TranslationsCoordinatorDialogEn dialog = TranslationsCoordinatorDialogEn.internal(_root);
@@ -220,8 +226,11 @@ class TranslationsNekoInfoEn {
 	/// en: 'What is a Neko?'
 	String get title => 'What is a Neko?';
 
-	/// en: 'Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator. To ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.'
-	String get description => 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.';
+	/// en: 'Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator. To ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer. ⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds.'
+	String get description => 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.\n\n⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds.';
+
+	/// en: 'Remember to backup your Neko'
+	String get backupWarning => 'Remember to backup your Neko';
 }
 
 // Path: generateNewKey
@@ -232,8 +241,8 @@ class TranslationsGenerateNewKeyEn {
 
 	// Translations
 
-	/// en: 'Generate New Neko'
-	String get title => 'Generate New Neko';
+	/// en: 'New'
+	String get title => 'New';
 
 	/// en: 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven't backed it up.'
 	String get description => 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven\'t backed it up.';
@@ -252,8 +261,8 @@ class TranslationsBackupEn {
 
 	// Translations
 
-	/// en: 'Backup Neko'
-	String get title => 'Backup Neko';
+	/// en: 'Backup'
+	String get title => 'Backup';
 
 	/// en: 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.'
 	String get description => 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
@@ -270,8 +279,8 @@ class TranslationsRestoreEn {
 
 	// Translations
 
-	/// en: 'Restore Neko'
-	String get title => 'Restore Neko';
+	/// en: 'Restore'
+	String get title => 'Restore';
 
 	late final TranslationsRestoreLabelsEn labels = TranslationsRestoreLabelsEn.internal(_root);
 	late final TranslationsRestoreButtonsEn buttons = TranslationsRestoreButtonsEn.internal(_root);
@@ -325,6 +334,30 @@ class TranslationsFaqEn {
 
 	/// en: 'FAQ'
 	String get tooltip => 'FAQ';
+}
+
+// Path: settings
+class TranslationsSettingsEn {
+	TranslationsSettingsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Settings'
+	String get title => 'Settings';
+}
+
+// Path: nekoManagement
+class TranslationsNekoManagementEn {
+	TranslationsNekoManagementEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Neko'
+	String get title => 'Neko';
 }
 
 // Path: common.buttons
@@ -2433,6 +2466,7 @@ extension on Translations {
 			case 'exchange.errors.invalidFeePercentage': return 'Invalid fee percentage';
 			case 'exchange.errors.tooLowFiat': return ({required Object minAmount, required Object currency}) => 'Amount is too low. Minimum is ${minAmount} ${currency}.';
 			case 'exchange.errors.tooHighFiat': return ({required Object maxAmount, required Object currency}) => 'Amount is too high. Maximum is ${maxAmount} ${currency}.';
+			case 'coordinator.title': return 'Coordinators';
 			case 'coordinator.info.fee': return 'fee';
 			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Amount: ${minAmount}-${maxAmount} ${currency}';
 			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% fee';
@@ -2629,19 +2663,20 @@ extension on Translations {
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Error loading statistics: ${error}';
 			case 'nekoInfo.title': return 'What is a Neko?';
-			case 'nekoInfo.description': return 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.';
-			case 'generateNewKey.title': return 'Generate New Neko';
+			case 'nekoInfo.description': return 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.\n\n⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds.';
+			case 'nekoInfo.backupWarning': return 'Remember to backup your Neko';
+			case 'generateNewKey.title': return 'New';
 			case 'generateNewKey.description': return 'Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven\'t backed it up.';
 			case 'generateNewKey.buttons.generate': return 'Generate';
 			case 'generateNewKey.errors.activeOffer': return 'You cannot generate a new Neko while you have an active offer.';
 			case 'generateNewKey.errors.failed': return 'Failed to generate new Neko';
 			case 'generateNewKey.feedback.success': return 'New Neko generated successfully!';
 			case 'generateNewKey.tooltips.generate': return 'Generate New Neko';
-			case 'backup.title': return 'Backup Neko';
+			case 'backup.title': return 'Backup';
 			case 'backup.description': return 'This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.';
 			case 'backup.feedback.copied': return 'Private key copied to clipboard!';
 			case 'backup.tooltips.backup': return 'Backup Neko';
-			case 'restore.title': return 'Restore Neko';
+			case 'restore.title': return 'Restore';
 			case 'restore.labels.privateKey': return 'Private Key';
 			case 'restore.buttons.restore': return 'Restore';
 			case 'restore.errors.invalidKey': return 'Must be a 64-character hex string.';
@@ -2665,6 +2700,8 @@ extension on Translations {
 			case 'landing.actions.howItWorks': return 'How it works?';
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
+			case 'settings.title': return 'Settings';
+			case 'nekoManagement.title': return 'Neko';
 			default: return null;
 		}
 	}
