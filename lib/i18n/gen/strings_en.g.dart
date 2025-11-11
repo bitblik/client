@@ -116,6 +116,7 @@ class TranslationsOffersEn {
 	late final TranslationsOffersStatusMessagesEn statusMessages = TranslationsOffersStatusMessagesEn.internal(_root);
 	late final TranslationsOffersProgressEn progress = TranslationsOffersProgressEn.internal(_root);
 	late final TranslationsOffersErrorsEn errors = TranslationsOffersErrorsEn.internal(_root);
+	late final TranslationsOffersSuccessEn success = TranslationsOffersSuccessEn.internal(_root);
 }
 
 // Path: reservations
@@ -644,6 +645,9 @@ class TranslationsOffersDetailsEn {
 	/// en: 'Taker fee'
 	String get takerFeeLabel => 'Taker fee';
 
+	/// en: 'Fee'
+	String get feeLabel => 'Fee';
+
 	/// en: 'Status'
 	String get statusLabel => 'Status';
 
@@ -835,6 +839,30 @@ class TranslationsOffersErrorsEn {
 
 	/// en: 'Taker public key not found.'
 	String get takerPublicKeyNotFound => 'Taker public key not found.';
+}
+
+// Path: offers.success
+class TranslationsOffersSuccessEn {
+	TranslationsOffersSuccessEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Offer completed'
+	String get title => 'Offer completed';
+
+	/// en: 'Payment confirmed!'
+	String get headline => 'Payment confirmed!';
+
+	/// en: 'Taker has been paid.'
+	String get subtitle => 'Taker has been paid.';
+
+	/// en: 'Offer details:'
+	String get detailsTitle => 'Offer details:';
+
+	/// en: 'Offer took ${time} to complete.'
+	String duration({required Object time}) => 'Offer took ${time} to complete.';
 }
 
 // Path: reservations.actions
@@ -2464,6 +2492,7 @@ extension on Translations {
 			case 'offers.details.amountLabel': return 'Amount';
 			case 'offers.details.makerFeeLabel': return 'Maker fee';
 			case 'offers.details.takerFeeLabel': return 'Taker fee';
+			case 'offers.details.feeLabel': return 'Fee';
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'You\'ll receive';
 			case 'offers.details.coordinator': return 'Coordinator';
@@ -2513,6 +2542,11 @@ extension on Translations {
 			case 'offers.errors.resuming': return ({required Object details}) => 'Error resuming offer: ${details}';
 			case 'offers.errors.makerPublicKeyNotFound': return 'Maker public key not found';
 			case 'offers.errors.takerPublicKeyNotFound': return 'Taker public key not found.';
+			case 'offers.success.title': return 'Offer completed';
+			case 'offers.success.headline': return 'Payment confirmed!';
+			case 'offers.success.subtitle': return 'Taker has been paid.';
+			case 'offers.success.detailsTitle': return 'Offer details:';
+			case 'offers.success.duration': return ({required Object time}) => 'Offer took ${time} to complete.';
 			case 'reservations.actions.cancel': return 'Cancel reservation';
 			case 'reservations.feedback.cancelled': return 'Reservation cancelled.';
 			case 'reservations.errors.cancelling': return ({required Object error}) => 'Failed to cancel reservation: ${error}';

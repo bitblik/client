@@ -102,6 +102,7 @@ offers:
     amountLabel: "Amount"
     makerFeeLabel: "Maker fee"
     takerFeeLabel: "Taker fee"
+    feeLabel: "Fee"
     statusLabel: "Status"
     youllReceive: "You'll receive"
     coordinator: "Coordinator"
@@ -161,6 +162,13 @@ offers:
     resuming: "Error resuming offer: ${details}"
     makerPublicKeyNotFound: Maker public key not found
     takerPublicKeyNotFound: Taker public key not found.
+
+  success:
+    title: Offer completed
+    headline: Payment confirmed!
+    subtitle: Taker has been paid.
+    detailsTitle: "Offer details:"
+    duration: "Offer took ${time} to complete."
 
 # =============================================================================
 # RESERVATIONS

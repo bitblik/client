@@ -363,8 +363,7 @@ class _MakerConfirmPaymentScreenState
 
                   // Confirm Successful Payment button (green)
                   ElevatedButton(
-                    onPressed:
-                         () => _confirmPayment(context, ref),
+                    onPressed: () => _confirmPayment(context, ref),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -373,32 +372,26 @@ class _MakerConfirmPaymentScreenState
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child:
-                    Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  t.maker.confirmPayment.actions.confirm,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.check, color: Colors.white, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.maker.confirmPayment.actions.confirm,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 15),
 
                   // Invalid BLIK code button (red outlined)
                   OutlinedButton(
-                    onPressed:
-                         () => _markBlikInvalid(context, ref),
+                    onPressed: () => _markBlikInvalid(context, ref),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.red, width: 2),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -406,34 +399,33 @@ class _MakerConfirmPaymentScreenState
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child:
-                         Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.red,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close_outlined,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  t.maker.confirmPayment.actions.markInvalid,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.red,
+                          ),
+                          child: const Icon(
+                            Icons.close_outlined,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.maker.confirmPayment.actions.markInvalid,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -101,6 +101,7 @@ offers:
     exchangeRate: "Kurs wymiany"
     takerFeeLabel: "Opłata"
     amountLabel: "Kwota"
+    feeLabel: "Opłata"
     statusLabel: "Status"
     youllReceive: "Otrzymasz"
     coordinator: "Koordynator"
@@ -160,6 +161,13 @@ offers:
     resuming: "Błąd wznawiania oferty: ${details}"
     makerPublicKeyNotFound: Nie znaleziono klucza publicznego Makera
     takerPublicKeyNotFound: Nie znaleziono klucza publicznego Takera.
+
+  success:
+    title: Oferta zakończona
+    headline: Płatność potwierdzona!
+    subtitle: Taker otrzymał zapłatę.
+    detailsTitle: "Szczegóły oferty:"
+    duration: "Realizacja oferty zajęła ${time}."
 
 # =============================================================================
 # RESERVATIONS
@@ -367,8 +375,9 @@ maker:
   success:
     title: Oferta zakończona
     headline: Płatność potwierdzona!
-    subtitle: Taker otrzymał zapłatę.
+    subtitle: Kupujący otrzymał zapłatę.
     detailsTitle: "Szczegóły oferty:"
+    duration: "Oferta zajęła ${time}!"
 
 # =============================================================================
 # TAKER FLOW

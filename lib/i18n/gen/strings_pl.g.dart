@@ -111,6 +111,7 @@ class _TranslationsOffersPl extends TranslationsOffersEn {
 	@override late final _TranslationsOffersStatusMessagesPl statusMessages = _TranslationsOffersStatusMessagesPl._(_root);
 	@override late final _TranslationsOffersProgressPl progress = _TranslationsOffersProgressPl._(_root);
 	@override late final _TranslationsOffersErrorsPl errors = _TranslationsOffersErrorsPl._(_root);
+	@override late final _TranslationsOffersSuccessPl success = _TranslationsOffersSuccessPl._(_root);
 }
 
 // Path: reservations
@@ -469,6 +470,7 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	@override String get exchangeRate => 'Kurs wymiany';
 	@override String get takerFeeLabel => 'Opłata';
 	@override String get amountLabel => 'Kwota';
+	@override String get feeLabel => 'Opłata';
 	@override String get statusLabel => 'Status';
 	@override String get youllReceive => 'Otrzymasz';
 	@override String get coordinator => 'Koordynator';
@@ -563,6 +565,20 @@ class _TranslationsOffersErrorsPl extends TranslationsOffersErrorsEn {
 	@override String resuming({required Object details}) => 'Błąd wznawiania oferty: ${details}';
 	@override String get makerPublicKeyNotFound => 'Nie znaleziono klucza publicznego Makera';
 	@override String get takerPublicKeyNotFound => 'Nie znaleziono klucza publicznego Takera.';
+}
+
+// Path: offers.success
+class _TranslationsOffersSuccessPl extends TranslationsOffersSuccessEn {
+	_TranslationsOffersSuccessPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Oferta zakończona';
+	@override String get headline => 'Płatność potwierdzona!';
+	@override String get subtitle => 'Taker otrzymał zapłatę.';
+	@override String get detailsTitle => 'Szczegóły oferty:';
+	@override String duration({required Object time}) => 'Realizacja oferty zajęła ${time}.';
 }
 
 // Path: reservations.actions
@@ -826,8 +842,9 @@ class _TranslationsMakerSuccessPl extends TranslationsMakerSuccessEn {
 	// Translations
 	@override String get title => 'Oferta zakończona';
 	@override String get headline => 'Płatność potwierdzona!';
-	@override String get subtitle => 'Taker otrzymał zapłatę.';
+	@override String get subtitle => 'Kupujący otrzymał zapłatę.';
 	@override String get detailsTitle => 'Szczegóły oferty:';
+	@override String duration({required Object time}) => 'Oferta zajęła ${time}!';
 }
 
 // Path: taker.roleSelection
@@ -1679,6 +1696,7 @@ extension on TranslationsPl {
 			case 'offers.details.exchangeRate': return 'Kurs wymiany';
 			case 'offers.details.takerFeeLabel': return 'Opłata';
 			case 'offers.details.amountLabel': return 'Kwota';
+			case 'offers.details.feeLabel': return 'Opłata';
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'Otrzymasz';
 			case 'offers.details.coordinator': return 'Koordynator';
@@ -1728,6 +1746,11 @@ extension on TranslationsPl {
 			case 'offers.errors.resuming': return ({required Object details}) => 'Błąd wznawiania oferty: ${details}';
 			case 'offers.errors.makerPublicKeyNotFound': return 'Nie znaleziono klucza publicznego Makera';
 			case 'offers.errors.takerPublicKeyNotFound': return 'Nie znaleziono klucza publicznego Takera.';
+			case 'offers.success.title': return 'Oferta zakończona';
+			case 'offers.success.headline': return 'Płatność potwierdzona!';
+			case 'offers.success.subtitle': return 'Taker otrzymał zapłatę.';
+			case 'offers.success.detailsTitle': return 'Szczegóły oferty:';
+			case 'offers.success.duration': return ({required Object time}) => 'Realizacja oferty zajęła ${time}.';
 			case 'reservations.actions.cancel': return 'Anuluj rezerwację';
 			case 'reservations.feedback.cancelled': return 'Rezerwacja anulowana.';
 			case 'reservations.errors.cancelling': return ({required Object error}) => 'Nie udało się anulować rezerwacji: ${error}';
@@ -1853,8 +1876,9 @@ extension on TranslationsPl {
 			case 'maker.conflict.errors.openingDispute': return ({required Object error}) => 'Błąd otwierania sporu: ${error}';
 			case 'maker.success.title': return 'Oferta zakończona';
 			case 'maker.success.headline': return 'Płatność potwierdzona!';
-			case 'maker.success.subtitle': return 'Taker otrzymał zapłatę.';
+			case 'maker.success.subtitle': return 'Kupujący otrzymał zapłatę.';
 			case 'maker.success.detailsTitle': return 'Szczegóły oferty:';
+			case 'maker.success.duration': return ({required Object time}) => 'Oferta zajęła ${time}!';
 			case 'taker.roleSelection.button': return 'SPRZEDAJ kod BLIK za satoshi';
 			case 'taker.submitBlik.title': return 'Wprowadź 6-cyfrowy BLIK';
 			case 'taker.submitBlik.label': return 'Kod BLIK';
