@@ -13,7 +13,7 @@ import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode; // Import kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
@@ -918,41 +918,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   }).toList(),
             ),
           ),
-          // Conditionally display Home icon if not on the main screen ('/')
-          // if (currentPath != '/')
-          //   IconButton(
-          //     icon: const Icon(Icons.home),
-          //     iconSize: 20,
-          //     padding: const EdgeInsets.all(8),
-          //     constraints: const BoxConstraints(),
-          //     tooltip: t.common.buttons.goHome,
-          //     // Use Slang for tooltip
-          //     onPressed: () async {
-          //       // Reset relevant state providers (but keep active offer)
-          //       ref.read(holdInvoiceProvider.notifier).state = null;
-          //       ref.read(paymentHashProvider.notifier).state = null;
-          //       ref.read(receivedBlikCodeProvider.notifier).state = null;
-          //       ref.read(errorProvider.notifier).state = null;
-          //       ref.read(isLoadingProvider.notifier).state = false;
-          //       ref.invalidate(availableOffersProvider);
-
-          //       // Navigate to home
-          //       context.go('/');
-          //     },
-          //   ),
-          // Always display FAQ icon
-          // IconButton(
-          //   icon: Icon(Icons.help_outline, color: Colors.grey[600]),
-          //   iconSize: 28,
-          //   padding: const EdgeInsets.all(6),
-          //   constraints: const BoxConstraints(),
-          //   tooltip: t.faq.tooltip,
-          //   onPressed: () {
-          //     kIsWeb
-          //         ? context.go(FaqScreen.routeName)
-          //         : context.push(FaqScreen.routeName);
-          //   },
-          // ),
           // Neko icon - opens side menu
           publicKeyAsync.when(
             data:
@@ -991,6 +956,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),
+          kDebugMode? SizedBox(width: 40,):Container()
         ],
       ),
       body: _buildBody(widget.body),
@@ -1051,6 +1017,26 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                           Icons.code,
                           size: 20,
                           color: Colors.black45,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: () async {
+                          final Uri url = Uri.parse(
+                            'https://njump.to/npub1k3g092rlzvn7nftz3jte9pkx63zp705nh78r6hjpjm55fjg7r2cqx8stj3',
+                          );
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        },
+                        child: Opacity(
+                          opacity: 1,
+                          child: Image.asset(
+                            'assets/nostr.png',
+                            width: 32,
+                            height: 32,
+                          ),
                         ),
                       ),
                     ],
