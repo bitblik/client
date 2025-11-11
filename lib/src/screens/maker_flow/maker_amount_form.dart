@@ -32,7 +32,7 @@ class MakerProgressIndicator extends StatelessWidget {
           Text(
             t.maker.amountForm.progress.step1,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: Colors.black,
             ),
@@ -42,7 +42,7 @@ class MakerProgressIndicator extends StatelessWidget {
           Text(
             t.maker.amountForm.progress.step2,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
             ),
@@ -52,7 +52,7 @@ class MakerProgressIndicator extends StatelessWidget {
           Text(
             t.maker.amountForm.progress.step3,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
             ),
@@ -560,14 +560,14 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                         decimal: true,
                       ),
                       style: const TextStyle(
-                        fontSize: 44,
+                        fontSize: 42,
                         fontWeight: FontWeight.w400,
                         height: 1.2,
                       ),
                       decoration: InputDecoration(
                         hintText: t.maker.amountForm.labels.enterAmount,
                         hintStyle: TextStyle(
-                          fontSize: 40,
+                          fontSize: 36,
                           color: Colors.grey[400],
                           fontWeight: FontWeight.w300,
                         ),
