@@ -223,6 +223,25 @@ coordinator:
     reservationTime: "Reservation Time"
     currencies: "Currencies"
     viewTerms: "View Terms"
+  
+  management:
+    title: "Coordinator Management"
+    availableCoordinators: "Available Coordinators"
+    noCoordinators: "No coordinators discovered yet."
+    online: "Online"
+    unknownOffline: "Unknown/Offline"
+    openNostrProfile: "Open Nostr Profile"
+    enable: "Enable"
+    remove: "Remove"
+    addCustomWhitelist: "Add custom coordinator"
+    addCustomWhitelistHint: "npub1..."
+    add: "Add"
+    coordinatorBlacklisted: "Coordinator blacklisted"
+    coordinatorUnblacklisted: "Coordinator unblacklisted"
+    coordinatorAdded: "Coordinator added to custom whitelist"
+    coordinatorRemoved: "Coordinator removed from custom whitelist"
+    pleaseEnterNpub: "Please enter an npub"
+    error: "Error"
 
 # =============================================================================
 # MAKER FLOW

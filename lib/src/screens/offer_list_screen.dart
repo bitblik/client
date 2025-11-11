@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/group_links.dart';
 import '../models/coordinator_info.dart'; // Added
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
@@ -53,12 +54,12 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   }
 
   Future<void> _openTermsOfUsage(String naddr) async {
-    final url = 'https://njump.me/$naddr';
+    final url = 'https://njump.to/$naddr';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> _openNostrProfile(String npub) async {
-    final url = 'https://njump.me/$npub';
+    final url = 'https://njump.to/$npub';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
@@ -418,129 +419,122 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                 spacing: 16,
                 runSpacing: 8,
                 children: [
-                  // Telegram
-                  InkWell(
-                    onTap: () async {
-                      final Uri url = Uri.parse(
-                        'https://t.me/+xSktv2JukXUxYmEx',
-                      );
-                      await launchUrl(url);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 23,
-                          height: 23,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/telegram.png',
-                              fit: BoxFit.contain,
+                  // Telegram - only show if link is configured
+                  if (GroupLinks.telegram.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.telegram);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/telegram.png',
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
-                        ),
-
-                        const SizedBox(width: 8),
-                        Text(
-                          t.home.notifications.telegram,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.telegram,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  // Element
-                  InkWell(
-                    onTap: () async {
-                      final Uri url = Uri.parse(
-                        // 'https://matrix.to/#/#bitblik-offers:matrix.org',
-                        'https://matrix.to/#/#test-bitblik-offers:matrix.org',
-                      );
-                      await launchUrl(url);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 23,
-                          height: 23,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/element.png',
-                              fit: BoxFit.contain,
+                  // Element - only show if link is configured
+                  if (GroupLinks.element.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.element);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/element.png',
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.home.notifications.element,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.element,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  // SimpleX
-                  InkWell(
-                    onTap: () async {
-                      final Uri url = Uri.parse(
-                        //'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
-                        'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2F-FjYjoPVW323UWnxJ-ICEIvlUY0vnuRM%23%2F%3Fv%3D1-4%26dh%3DMCowBQYDK2VuAyEAX-eUfNzP4E_n0BkC-5A7iqHrchhcDC23FopK4JPXm3Q%253D%26q%3Dc%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22pG-_A9dIAhbdz8ZTTpbNdQ%3D%3D%22%7D',
-                      );
-                      await launchUrl(url);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 23,
-                          height: 23,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/simplex.png',
-                              fit: BoxFit.contain,
+                  // SimpleX - only show if link is configured
+                  if (GroupLinks.simplex.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.simplex);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/simplex.png',
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.home.notifications.simplex,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.simplex,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  // Signal
-                  InkWell(
-                    onTap: () async {
-                      final Uri url = Uri.parse(
-                        'https://signal.group/#CjQKIGcFyMrwHN1UPB57IhdkGmz23_64AhyIU5oBaZufe2hcEhCltosTHbc9ROywT0KETJbk',
-                      );
-                      await launchUrl(url);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 23,
-                          height: 23,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/signal.png',
-                              fit: BoxFit.contain,
+                  // Signal - only show if link is configured
+                  if (GroupLinks.signal.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.signal);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/signal.png',
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.home.notifications.signal,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.signal,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],

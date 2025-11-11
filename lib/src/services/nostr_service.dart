@@ -128,6 +128,8 @@ class DiscoveredCoordinator {
 class NostrService {
   static const String _selectedCoordinatorKey = 'selected_coordinator_pubkey';
   static const String _relayUrlsKey = 'relay_urls';
+  static const String _blacklistKey = 'coordinators.blacklist';
+  static const String _customWhitelistKey = 'coordinators.customWhitelist';
 
   static const List<String> _defaultRelayUrls = [
     // 'wss://relay.damus.io',
@@ -166,9 +168,14 @@ class NostrService {
   // Coordinator info cache by pubkey
   final Map<String, CoordinatorInfo> _coordinatorInfoCache = {};
 
+  // Default whitelist (hardcoded)
   List<String> kWhitelistCoordinatorPubKeys = [
     "c6e5e031989223dd63e6ed49f0905a19a92ed86e0754721d6071133a9340bf7e",
   ];
+
+  // Blacklist and custom whitelist (loaded from preferences)
+  List<String> _blacklistedCoordinators = [];
+  List<String> _customWhitelistedCoordinators = [];
 
   NostrService(this._keyService) {
     _offerStreamController = StreamController<Offer>.broadcast();
@@ -192,8 +199,12 @@ class NostrService {
 
     _relayUrls =
         prefs.getStringList(_relayUrlsKey) ?? List.from(_defaultRelayUrls);
+    _blacklistedCoordinators = prefs.getStringList(_blacklistKey) ?? [];
+    _customWhitelistedCoordinators = prefs.getStringList(_customWhitelistKey) ?? [];
 
     print('📡 Using relays: $_relayUrls');
+    print('🚫 Blacklisted coordinators: ${_blacklistedCoordinators.length}');
+    print('✅ Custom whitelisted coordinators: ${_customWhitelistedCoordinators.length}');
   }
 
   /// Initialize NDK and connect to relays
@@ -377,16 +388,28 @@ class NostrService {
       );
 
       // Wait for response with timeout
-      return await completer.future.timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          _pendingRequests.remove(requestId);
-          throw TimeoutException(
-            'Request timed out',
-            const Duration(seconds: 5),
-          );
-        },
-      );
+      try {
+        return await completer.future.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            _pendingRequests.remove(requestId);
+            throw TimeoutException(
+              'Request timed out',
+              const Duration(seconds: 5),
+            );
+          },
+        );
+      } on TimeoutException {
+        // Trigger health check for this coordinator when timeout occurs
+        // Only if it's not already a health check request (to avoid infinite loops)
+        if (request.method != 'get_info') {
+          // Trigger health check asynchronously (don't await)
+          checkCoordinatorHealth(coordinatorPubkey).catchError((error) {
+            print('⚠️ Error during health check after timeout: $error');
+          });
+        }
+        rethrow;
+      }
     } catch (e) {
       _pendingRequests.remove(requestId);
       rethrow;
@@ -1098,21 +1121,64 @@ class NostrService {
   Stream<OfferStatusUpdate> get offerStatusStream =>
       _offerStatusController.stream;
 
+  /// Check if a coordinator should be included (not blacklisted, and in default or custom whitelist)
+  bool _shouldIncludeCoordinator(String pubkey) {
+    // Normalize pubkey to hex format for comparison
+    String pubkeyHex = _normalizePubkey(pubkey);
+    
+    // Check if blacklisted
+    if (_blacklistedCoordinators.any((b) => _normalizePubkey(b) == pubkeyHex)) {
+      return false;
+    }
+    
+    // Check if in default whitelist
+    if (kWhitelistCoordinatorPubKeys.any((w) => _normalizePubkey(w) == pubkeyHex)) {
+      return true;
+    }
+    
+    // Check if in custom whitelist
+    if (_customWhitelistedCoordinators.any((w) => _normalizePubkey(w) == pubkeyHex)) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /// Normalize pubkey to hex format
+  String _normalizePubkey(String pubkey) {
+    try {
+      if (pubkey.startsWith('npub')) {
+        return Nip19.decode(pubkey);
+      }
+    } catch (_) {
+      // If decoding fails, use as-is
+    }
+    return pubkey;
+  }
+
   /// Handle incoming coordinator info events
   void  _handleCoordinatorInfoEvent(Nip01Event event) {
     try {
       final coordinator = DiscoveredCoordinator.fromNostrEvent(event);
-      if (kWhitelistCoordinatorPubKeys.contains(coordinator.pubkey)) {
-        _discoveredCoordinators[coordinator.pubkey] = coordinator;
-        final coordinatorPubkey = coordinator.pubkey;
+      final pubkey = coordinator.pubkey;
+      
+      // Always add to discovered coordinators if in default whitelist (even if blacklisted)
+      // This allows users to see and unblacklist them in the UI
+      final isDefaultWhitelisted = kWhitelistCoordinatorPubKeys.any((w) => _normalizePubkey(w) == _normalizePubkey(pubkey));
+      
+      if (isDefaultWhitelisted || _shouldIncludeCoordinator(pubkey)) {
+        _discoveredCoordinators[pubkey] = coordinator;
         // Cache coordinator info immediately when discovered
         final coordinatorInfo = coordinator.toCoordinatorInfo();
-        _coordinatorInfoCache[coordinator.pubkey] = coordinatorInfo;
+        _coordinatorInfoCache[pubkey] = coordinatorInfo;
         print(
-          '🎯 Discovered coordinator: ${coordinator.name} (${coordinator.pubkey})',
+          '🎯 Discovered coordinator: ${coordinator.name} ($pubkey)',
         );
-        // Check health via get_info after discovery (don't await)
-        // checkCoordinatorHealth(coordinatorPubkey);
+        // Only check health if not blacklisted
+        if (_shouldIncludeCoordinator(pubkey)) {
+          // Check health via get_info after discovery (don't await)
+          // checkCoordinatorHealth(pubkey);
+        }
       }
     } catch (e) {
       print('❌ Error parsing coordinator info event: $e');
@@ -1121,6 +1187,11 @@ class NostrService {
 
   // Add health check
   Future<void> checkCoordinatorHealth(String coordinatorPubkey) async {
+    // Only check health for coordinators that should be included
+    if (!_shouldIncludeCoordinator(coordinatorPubkey)) {
+      return;
+    }
+    
     try {
       final request = NostrRequest(method: 'get_info', params: {});
       // Use a shorter timeout for health checks
@@ -1162,16 +1233,61 @@ class NostrService {
   }
 
   /// Get current list of discovered coordinators
+  /// Includes both discovered coordinators and custom whitelisted ones
   List<DiscoveredCoordinator> get discoveredCoordinators {
-    final coordinators = _discoveredCoordinators.values.toList();
+    final coordinators = <DiscoveredCoordinator>[];
+    
+    // Add discovered coordinators (already filtered by _shouldIncludeCoordinator)
+    coordinators.addAll(_discoveredCoordinators.values);
+    
+    // Add custom whitelisted coordinators that haven't been discovered yet
+    for (final pubkey in _customWhitelistedCoordinators) {
+      final normalized = _normalizePubkey(pubkey);
+      if (!_discoveredCoordinators.containsKey(normalized)) {
+        // Create a placeholder coordinator for custom whitelisted ones
+        coordinators.add(DiscoveredCoordinator(
+          pubkey: normalized,
+          name: pubkey, // Use pubkey as name if not discovered
+          icon: null,
+          minAmountSats: 0,
+          maxAmountSats: 0,
+          makerFee: 0.0,
+          takerFee: 0.0,
+          reservationSeconds: 0,
+          currencies: [],
+          version: '',
+          lastSeen: DateTime.now(),
+          responsive: null,
+          termsOfUsageNaddr: null,
+        ));
+      }
+    }
 
-    // Sort by responsive status (true first), then by name
+    // Sort: default whitelisted first (by responsive status, then name), then custom whitelisted at the end
     coordinators.sort((a, b) {
-      // Handle null responsive values - treat null as false
+      final aNormalized = _normalizePubkey(a.pubkey);
+      final bNormalized = _normalizePubkey(b.pubkey);
+      
+      final aIsDefault = kWhitelistCoordinatorPubKeys.any((w) => _normalizePubkey(w) == aNormalized);
+      final bIsDefault = kWhitelistCoordinatorPubKeys.any((w) => _normalizePubkey(w) == bNormalized);
+      
+      final aIsCustomOnly = _customWhitelistedCoordinators.any((w) => _normalizePubkey(w) == aNormalized) && !aIsDefault;
+      final bIsCustomOnly = _customWhitelistedCoordinators.any((w) => _normalizePubkey(w) == bNormalized) && !bIsDefault;
+      
+      // Default whitelisted coordinators come first
+      if (aIsDefault != bIsDefault) {
+        return aIsDefault ? -1 : 1;
+      }
+      
+      // Custom-only coordinators come last (after default whitelisted)
+      if (aIsCustomOnly != bIsCustomOnly) {
+        return aIsCustomOnly ? 1 : -1; // custom-only goes to the end (positive value)
+      }
+      
+      // Within each group (default or custom), sort by responsive status (true first)
       final aResponsive = a.responsive ?? false;
       final bResponsive = b.responsive ?? false;
-
-      // First sort by responsive status (true first)
+      
       if (aResponsive != bResponsive) {
         return aResponsive ? -1 : 1; // responsive coordinators come first
       }
@@ -1194,6 +1310,111 @@ class NostrService {
       await dispose();
       await init();
       await startCoordinatorDiscovery();
+    }
+  }
+
+  // --- Coordinator Management Methods ---
+
+  /// Check if a coordinator is in the default whitelist
+  bool isDefaultWhitelisted(String pubkey) {
+    final normalized = _normalizePubkey(pubkey);
+    return kWhitelistCoordinatorPubKeys.any((w) => _normalizePubkey(w) == normalized);
+  }
+
+  /// Check if a coordinator is blacklisted
+  bool isBlacklisted(String pubkey) {
+    final normalized = _normalizePubkey(pubkey);
+    return _blacklistedCoordinators.any((b) => _normalizePubkey(b) == normalized);
+  }
+
+  /// Get the list of blacklisted coordinators
+  List<String> get blacklistedCoordinators => List.from(_blacklistedCoordinators);
+
+  /// Get the list of custom whitelisted coordinators
+  List<String> get customWhitelistedCoordinators => List.from(_customWhitelistedCoordinators);
+
+  /// Get the list of default whitelisted coordinators
+  List<String> get defaultWhitelistedCoordinators => List.from(kWhitelistCoordinatorPubKeys);
+
+  /// Toggle blacklist status for a coordinator
+  Future<void> toggleBlacklist(String pubkey, bool blacklist) async {
+    final normalized = _normalizePubkey(pubkey);
+    
+    if (blacklist) {
+      // Remove any existing entry (in case of format mismatch) and add normalized
+      _blacklistedCoordinators.removeWhere((b) => _normalizePubkey(b) == normalized);
+      _blacklistedCoordinators.add(normalized);
+    } else {
+      _blacklistedCoordinators.removeWhere((b) => _normalizePubkey(b) == normalized);
+    }
+    
+    // Save to preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_blacklistKey, _blacklistedCoordinators);
+    
+    // Don't remove from discovered coordinators - keep them visible so users can unblacklist
+    // The _shouldIncludeCoordinator check will prevent them from being used in operations
+    
+    print('${blacklist ? "🚫" : "✅"} Coordinator $normalized ${blacklist ? "blacklisted" : "unblacklisted"}');
+  }
+
+  /// Add a coordinator to custom whitelist
+  Future<void> addCustomWhitelist(String npub) async {
+    final trimmed = npub.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Npub cannot be empty');
+    }
+    
+    // Validate npub format
+    String normalized;
+    try {
+      if (trimmed.startsWith('npub')) {
+        normalized = Nip19.decode(trimmed);
+      } else {
+        // Assume it's already hex
+        normalized = trimmed;
+      }
+    } catch (e) {
+      throw ArgumentError('Invalid npub format: $e');
+    }
+    
+    // Check if already in custom whitelist
+    if (_customWhitelistedCoordinators.any((w) => _normalizePubkey(w) == normalized)) {
+      throw ArgumentError('Coordinator already in custom whitelist');
+    }
+    
+    _customWhitelistedCoordinators.add(normalized);
+    
+    // Save to preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_customWhitelistKey, _customWhitelistedCoordinators);
+    
+    print('✅ Added coordinator $normalized to custom whitelist');
+    
+    // Try to discover this coordinator
+    // Note: This won't immediately discover it, but it will be included if discovered later
+  }
+
+  /// Remove a coordinator from custom whitelist
+  Future<void> removeCustomWhitelist(String pubkey) async {
+    final normalized = _normalizePubkey(pubkey);
+    
+    final beforeLength = _customWhitelistedCoordinators.length;
+    _customWhitelistedCoordinators.removeWhere((w) => _normalizePubkey(w) == normalized);
+    final afterLength = _customWhitelistedCoordinators.length;
+    
+    if (beforeLength > afterLength) {
+      // Save to preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_customWhitelistKey, _customWhitelistedCoordinators);
+      
+      // Remove from discovered coordinators if not in default whitelist
+      if (!isDefaultWhitelisted(normalized)) {
+        _discoveredCoordinators.remove(normalized);
+        _coordinatorInfoCache.remove(normalized);
+      }
+      
+      print('🗑️ Removed coordinator $normalized from custom whitelist');
     }
   }
 

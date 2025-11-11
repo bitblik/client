@@ -223,6 +223,25 @@ coordinator:
     reservationTime: "Czas rezerwacji"
     currencies: "Waluty"
     viewTerms: "Zobacz warunki"
+  
+  management:
+    title: "Zarządzanie Koordynatorami"
+    availableCoordinators: "Dostępni Koordynatorzy"
+    noCoordinators: "Nie odkryto jeszcze żadnych koordynatorów."
+    online: "Online"
+    unknownOffline: "Nieznany/Offline"
+    openNostrProfile: "Otwórz profil Nostr"
+    enable: "Włącz"
+    remove: "Usuń"
+    addCustomWhitelist: "Dodaj koordynatora"
+    addCustomWhitelistHint: "npub1..."
+    add: "Dodaj"
+    coordinatorBlacklisted: "Koordynator zablokowany"
+    coordinatorUnblacklisted: "Koordynator odblokowany"
+    coordinatorAdded: "Koordynator dodany do niestandardowej białej listy"
+    coordinatorRemoved: "Koordynator usunięty z niestandardowej białej listy"
+    pleaseEnterNpub: "Proszę wprowadzić npub"
+    error: "Błąd"
 
 # =============================================================================
 # MAKER FLOW

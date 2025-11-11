@@ -71,7 +71,7 @@ class _CoordinatorSelectorState extends ConsumerState<CoordinatorSelector> {
   }
 
   Future<void> _openTermsOfUsage(String naddr) async {
-    final url = 'https://njump.me/$naddr';
+    final url = 'https://njump.to/$naddr';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
@@ -162,7 +162,7 @@ class _CoordinatorSelectorState extends ConsumerState<CoordinatorSelector> {
                                 icon: Image.asset('assets/nostr.png', width: 32, height: 32),
                                 tooltip: t.coordinator.selector.viewNostrProfile,
                                 onPressed: () async {
-                                  final url = 'https://njump.me/${Nip19.encodePubKey(coordinator.pubkey)}';
+                                  final url = 'https://njump.to/${Nip19.encodePubKey(coordinator.pubkey)}';
                                   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
                                 },
                               ),

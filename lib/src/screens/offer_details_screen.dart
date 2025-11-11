@@ -67,7 +67,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
   }
 
   Future<void> _openTermsOfUsage(String naddr) async {
-    final url = 'https://njump.me/$naddr';
+    final url = 'https://njump.to/$naddr';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
@@ -1079,8 +1079,8 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
 
   /// Opens the Nostr profile in a browser
   void _openNostrProfile(String npub) async {
-    // Use njump.me as a Nostr profile viewer (npub is already encoded in CoordinatorInfo)
-    final url = 'https://njump.me/$npub';
+    // Use njump.to as a Nostr profile viewer (npub is already encoded in CoordinatorInfo)
+    final url = 'https://njump.to/$npub';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 }

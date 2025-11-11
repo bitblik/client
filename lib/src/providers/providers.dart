@@ -69,7 +69,7 @@ class DiscoveredCoordinatorsNotifier
     super.dispose();
   }
 
-  Future<void> _loadCoordinators() async {
+  Future<void> _loadCoordinators({bool skipHealthChecks = false}) async {
     try {
       // Use initialized API service to ensure KeyService is ready
       final apiService = await _ref.read(initializedApiServiceProvider.future);
@@ -81,24 +81,26 @@ class DiscoveredCoordinatorsNotifier
 
       // Don't set the state immediately - wait for health checks to complete
 
-      // Perform health checks for all discovered coordinators
-      final healthCheckFutures = <Future<void>>[];
-      for (final coordinator in coordinators) {
-        print('🔍 Provider: Starting health check for ${coordinator.name}');
-        healthCheckFutures.add(
-          apiService.checkCoordinatorHealth(coordinator.pubkey),
-        );
-      }
+      if (!skipHealthChecks) {
+        // Perform health checks for all discovered coordinators
+        final healthCheckFutures = <Future<void>>[];
+        for (final coordinator in coordinators) {
+          print('🔍 Provider: Starting health check for ${coordinator.name}');
+          healthCheckFutures.add(
+            apiService.checkCoordinatorHealth(coordinator.pubkey),
+          );
+        }
 
-      // Wait for all health checks to complete (with timeout)
-      try {
-        await Future.wait(
-          healthCheckFutures,
-        ).timeout(const Duration(seconds: 20));
-        print('🔍 Provider: All health checks completed');
-      } catch (e) {
-        print('Some health checks timed out or failed: $e');
-        // Continue anyway - some coordinators may have been checked successfully
+        // Wait for all health checks to complete (with timeout)
+        try {
+          await Future.wait(
+            healthCheckFutures,
+          ).timeout(const Duration(seconds: 20));
+          print('🔍 Provider: All health checks completed');
+        } catch (e) {
+          print('Some health checks timed out or failed: $e');
+          // Continue anyway - some coordinators may have been checked successfully
+        }
       }
 
       // Now get the updated list with health check results and set the state
@@ -114,6 +116,62 @@ class DiscoveredCoordinatorsNotifier
     } catch (e, stack) {
       print('Error in _loadCoordinators: $e');
       state = AsyncValue.error(e, stack);
+    }
+  }
+
+  /// Refresh the coordinator list without going through full discovery
+  /// This preserves the current state and just updates the list
+  Future<void> refreshList({bool runHealthChecks = false}) async {
+    // Only refresh if we have data, otherwise let the normal discovery process handle it
+    if (state.hasValue) {
+      await _loadCoordinators(skipHealthChecks: !runHealthChecks);
+    }
+  }
+
+  /// Trigger health check for a specific coordinator and update the list when done
+  Future<void> checkCoordinatorHealthAndRefresh(String coordinatorPubkey) async {
+    if (!state.hasValue) return;
+    
+    try {
+      final apiService = await _ref.read(initializedApiServiceProvider.future);
+      // Run health check in background
+      apiService.checkCoordinatorHealth(coordinatorPubkey).then((_) {
+        // Update the list after health check completes
+        refreshList(runHealthChecks: false);
+      }).catchError((error) {
+        print('⚠️ Error during health check for $coordinatorPubkey: $error');
+        // Still refresh the list to update status
+        refreshList(runHealthChecks: false);
+      });
+    } catch (e) {
+      print('Error checking coordinator health: $e');
+    }
+  }
+
+  /// Trigger health checks for multiple coordinators in background and update when done
+  Future<void> checkCoordinatorsHealthAndRefresh(List<String> coordinatorPubkeys) async {
+    if (!state.hasValue || coordinatorPubkeys.isEmpty) return;
+    
+    try {
+      final apiService = await _ref.read(initializedApiServiceProvider.future);
+      // Run health checks in parallel
+      final futures = coordinatorPubkeys.map((pubkey) => 
+        apiService.checkCoordinatorHealth(pubkey).catchError((error) {
+          print('⚠️ Error during health check for $pubkey: $error');
+        })
+      ).toList();
+      
+      // Wait for all health checks to complete, then refresh
+      Future.wait(futures).then((_) {
+        // Update the list after all health checks complete
+        refreshList(runHealthChecks: false);
+      }).catchError((error) {
+        print('Error during health checks: $error');
+        // Still refresh the list
+        refreshList(runHealthChecks: false);
+      });
+    } catch (e) {
+      print('Error checking coordinators health: $e');
     }
   }
 

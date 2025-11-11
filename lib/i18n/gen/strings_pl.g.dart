@@ -145,6 +145,7 @@ class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
 	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
 	@override late final _TranslationsCoordinatorSelectorPl selector = _TranslationsCoordinatorSelectorPl._(_root);
 	@override late final _TranslationsCoordinatorDialogPl dialog = _TranslationsCoordinatorDialogPl._(_root);
+	@override late final _TranslationsCoordinatorManagementPl management = _TranslationsCoordinatorManagementPl._(_root);
 }
 
 // Path: maker
@@ -652,6 +653,32 @@ class _TranslationsCoordinatorDialogPl extends TranslationsCoordinatorDialogEn {
 	@override String get reservationTime => 'Czas rezerwacji';
 	@override String get currencies => 'Waluty';
 	@override String get viewTerms => 'Zobacz warunki';
+}
+
+// Path: coordinator.management
+class _TranslationsCoordinatorManagementPl extends TranslationsCoordinatorManagementEn {
+	_TranslationsCoordinatorManagementPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Zarządzanie Koordynatorami';
+	@override String get availableCoordinators => 'Dostępni Koordynatorzy';
+	@override String get noCoordinators => 'Nie odkryto jeszcze żadnych koordynatorów.';
+	@override String get online => 'Online';
+	@override String get unknownOffline => 'Nieznany/Offline';
+	@override String get openNostrProfile => 'Otwórz profil Nostr';
+	@override String get enable => 'Włącz';
+	@override String get remove => 'Usuń';
+	@override String get addCustomWhitelist => 'Dodaj koordynatora';
+	@override String get addCustomWhitelistHint => 'npub1...';
+	@override String get add => 'Dodaj';
+	@override String get coordinatorBlacklisted => 'Koordynator zablokowany';
+	@override String get coordinatorUnblacklisted => 'Koordynator odblokowany';
+	@override String get coordinatorAdded => 'Koordynator dodany do niestandardowej białej listy';
+	@override String get coordinatorRemoved => 'Koordynator usunięty z niestandardowej białej listy';
+	@override String get pleaseEnterNpub => 'Proszę wprowadzić npub';
+	@override String get error => 'Błąd';
 }
 
 // Path: maker.roleSelection
@@ -1679,6 +1706,23 @@ extension on TranslationsPl {
 			case 'coordinator.dialog.reservationTime': return 'Czas rezerwacji';
 			case 'coordinator.dialog.currencies': return 'Waluty';
 			case 'coordinator.dialog.viewTerms': return 'Zobacz warunki';
+			case 'coordinator.management.title': return 'Zarządzanie Koordynatorami';
+			case 'coordinator.management.availableCoordinators': return 'Dostępni Koordynatorzy';
+			case 'coordinator.management.noCoordinators': return 'Nie odkryto jeszcze żadnych koordynatorów.';
+			case 'coordinator.management.online': return 'Online';
+			case 'coordinator.management.unknownOffline': return 'Nieznany/Offline';
+			case 'coordinator.management.openNostrProfile': return 'Otwórz profil Nostr';
+			case 'coordinator.management.enable': return 'Włącz';
+			case 'coordinator.management.remove': return 'Usuń';
+			case 'coordinator.management.addCustomWhitelist': return 'Dodaj koordynatora';
+			case 'coordinator.management.addCustomWhitelistHint': return 'npub1...';
+			case 'coordinator.management.add': return 'Dodaj';
+			case 'coordinator.management.coordinatorBlacklisted': return 'Koordynator zablokowany';
+			case 'coordinator.management.coordinatorUnblacklisted': return 'Koordynator odblokowany';
+			case 'coordinator.management.coordinatorAdded': return 'Koordynator dodany do niestandardowej białej listy';
+			case 'coordinator.management.coordinatorRemoved': return 'Koordynator usunięty z niestandardowej białej listy';
+			case 'coordinator.management.pleaseEnterNpub': return 'Proszę wprowadzić npub';
+			case 'coordinator.management.error': return 'Błąd';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';

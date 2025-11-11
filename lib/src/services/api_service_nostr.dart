@@ -446,4 +446,37 @@ class ApiServiceNostr {
       rethrow;
     }
   }
+
+  // --- Coordinator Management Methods ---
+
+  /// Check if a coordinator is in the default whitelist
+  bool isDefaultWhitelisted(String pubkey) =>
+      _nostrService.isDefaultWhitelisted(pubkey);
+
+  /// Check if a coordinator is blacklisted
+  bool isBlacklisted(String pubkey) => _nostrService.isBlacklisted(pubkey);
+
+  /// Get the list of blacklisted coordinators
+  List<String> get blacklistedCoordinators =>
+      _nostrService.blacklistedCoordinators;
+
+  /// Get the list of custom whitelisted coordinators
+  List<String> get customWhitelistedCoordinators =>
+      _nostrService.customWhitelistedCoordinators;
+
+  /// Get the list of default whitelisted coordinators
+  List<String> get defaultWhitelistedCoordinators =>
+      _nostrService.defaultWhitelistedCoordinators;
+
+  /// Toggle blacklist status for a coordinator
+  Future<void> toggleBlacklist(String pubkey, bool blacklist) async =>
+      await _nostrService.toggleBlacklist(pubkey, blacklist);
+
+  /// Add a coordinator to custom whitelist
+  Future<void> addCustomWhitelist(String npub) async =>
+      await _nostrService.addCustomWhitelist(npub);
+
+  /// Remove a coordinator from custom whitelist
+  Future<void> removeCustomWhitelist(String pubkey) async =>
+      await _nostrService.removeCustomWhitelist(pubkey);
 }

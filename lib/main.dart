@@ -41,6 +41,7 @@ import 'src/screens/taker_flow/taker_conflict_screen.dart'; // Import the taker 
 import 'src/screens/taker_flow/taker_submit_blik_screen.dart';
 import 'src/screens/taker_flow/taker_wait_confirmation_screen.dart';
 import 'src/utils/platform_detection.dart'; // Import our platform detection utility
+import 'src/screens/coordinator_management_screen.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -131,6 +132,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             );
           }
         },
+      ),
+      GoRoute(
+        path: '/coordinators',
+        builder:
+            (context, state) =>
+                const AppScaffold(body: CoordinatorManagementScreen()),
       ),
 
       GoRoute(
@@ -1072,6 +1079,22 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 onTap: () {
                   Navigator.of(context).pop();
                   _showNekoInfoDialog(publicKey);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  appLocale.languageCode == 'pl'
+                      ? 'Koordynatorzy'
+                      : 'Coordinators',
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  if (kIsWeb) {
+                    context.go('/coordinators');
+                  } else {
+                    context.push('/coordinators');
+                  }
                 },
               ),
               const Divider(),

@@ -150,6 +150,7 @@ class TranslationsCoordinatorEn {
 	late final TranslationsCoordinatorInfoEn info = TranslationsCoordinatorInfoEn.internal(_root);
 	late final TranslationsCoordinatorSelectorEn selector = TranslationsCoordinatorSelectorEn.internal(_root);
 	late final TranslationsCoordinatorDialogEn dialog = TranslationsCoordinatorDialogEn.internal(_root);
+	late final TranslationsCoordinatorManagementEn management = TranslationsCoordinatorManagementEn.internal(_root);
 }
 
 // Path: maker
@@ -978,6 +979,66 @@ class TranslationsCoordinatorDialogEn {
 
 	/// en: 'View Terms'
 	String get viewTerms => 'View Terms';
+}
+
+// Path: coordinator.management
+class TranslationsCoordinatorManagementEn {
+	TranslationsCoordinatorManagementEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Coordinator Management'
+	String get title => 'Coordinator Management';
+
+	/// en: 'Available Coordinators'
+	String get availableCoordinators => 'Available Coordinators';
+
+	/// en: 'No coordinators discovered yet.'
+	String get noCoordinators => 'No coordinators discovered yet.';
+
+	/// en: 'Online'
+	String get online => 'Online';
+
+	/// en: 'Unknown/Offline'
+	String get unknownOffline => 'Unknown/Offline';
+
+	/// en: 'Open Nostr Profile'
+	String get openNostrProfile => 'Open Nostr Profile';
+
+	/// en: 'Enable'
+	String get enable => 'Enable';
+
+	/// en: 'Remove'
+	String get remove => 'Remove';
+
+	/// en: 'Add custom coordinator'
+	String get addCustomWhitelist => 'Add custom coordinator';
+
+	/// en: 'npub1...'
+	String get addCustomWhitelistHint => 'npub1...';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Coordinator blacklisted'
+	String get coordinatorBlacklisted => 'Coordinator blacklisted';
+
+	/// en: 'Coordinator unblacklisted'
+	String get coordinatorUnblacklisted => 'Coordinator unblacklisted';
+
+	/// en: 'Coordinator added to custom whitelist'
+	String get coordinatorAdded => 'Coordinator added to custom whitelist';
+
+	/// en: 'Coordinator removed from custom whitelist'
+	String get coordinatorRemoved => 'Coordinator removed from custom whitelist';
+
+	/// en: 'Please enter an npub'
+	String get pleaseEnterNpub => 'Please enter an npub';
+
+	/// en: 'Error'
+	String get error => 'Error';
 }
 
 // Path: maker.roleSelection
@@ -2389,6 +2450,23 @@ extension on Translations {
 			case 'coordinator.dialog.reservationTime': return 'Reservation Time';
 			case 'coordinator.dialog.currencies': return 'Currencies';
 			case 'coordinator.dialog.viewTerms': return 'View Terms';
+			case 'coordinator.management.title': return 'Coordinator Management';
+			case 'coordinator.management.availableCoordinators': return 'Available Coordinators';
+			case 'coordinator.management.noCoordinators': return 'No coordinators discovered yet.';
+			case 'coordinator.management.online': return 'Online';
+			case 'coordinator.management.unknownOffline': return 'Unknown/Offline';
+			case 'coordinator.management.openNostrProfile': return 'Open Nostr Profile';
+			case 'coordinator.management.enable': return 'Enable';
+			case 'coordinator.management.remove': return 'Remove';
+			case 'coordinator.management.addCustomWhitelist': return 'Add custom coordinator';
+			case 'coordinator.management.addCustomWhitelistHint': return 'npub1...';
+			case 'coordinator.management.add': return 'Add';
+			case 'coordinator.management.coordinatorBlacklisted': return 'Coordinator blacklisted';
+			case 'coordinator.management.coordinatorUnblacklisted': return 'Coordinator unblacklisted';
+			case 'coordinator.management.coordinatorAdded': return 'Coordinator added to custom whitelist';
+			case 'coordinator.management.coordinatorRemoved': return 'Coordinator removed from custom whitelist';
+			case 'coordinator.management.pleaseEnterNpub': return 'Please enter an npub';
+			case 'coordinator.management.error': return 'Error';
 			case 'maker.roleSelection.button': return 'PAY with Lightning';
 			case 'maker.amountForm.actions.generateInvoice': return 'Generate Invoice';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Error initiating offer: ${details}';
