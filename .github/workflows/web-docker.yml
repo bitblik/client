@@ -26,6 +26,7 @@ jobs:
         image: ${{ env.IMAGENAME }}
         tags: ${{ matrix.build_mode }}
         appendMode: true
+        addTimestamp: true
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
