@@ -635,6 +635,12 @@ class TranslationsOffersDetailsEn {
 	/// en: 'Exchange Rate'
 	String get exchangeRate => 'Exchange Rate';
 
+	/// en: 'Amount'
+	String get amountLabel => 'Amount';
+
+	/// en: 'Maker fee'
+	String get makerFeeLabel => 'Maker fee';
+
 	/// en: 'Taker fee'
 	String get takerFeeLabel => 'Taker fee';
 
@@ -2446,6 +2452,8 @@ extension on Translations {
 			case 'offers.details.takenAfter': return ({required Object duration}) => 'Taken after: ${duration}';
 			case 'offers.details.paidAfter': return ({required Object duration}) => 'Paid after: ${duration}';
 			case 'offers.details.exchangeRate': return 'Exchange Rate';
+			case 'offers.details.amountLabel': return 'Amount';
+			case 'offers.details.makerFeeLabel': return 'Maker fee';
 			case 'offers.details.takerFeeLabel': return 'Taker fee';
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'You\'ll receive';

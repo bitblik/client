@@ -100,6 +100,7 @@ offers:
     paidAfter: "Zapłacono po: ${duration}"
     exchangeRate: "Kurs wymiany"
     takerFeeLabel: "Opłata"
+    amountLabel: "Kwota"
     statusLabel: "Status"
     youllReceive: "Otrzymasz"
     coordinator: "Koordynator"
@@ -287,8 +288,8 @@ maker:
       couldNotFetchActive: Nie udało się pobrać szczegółów aktywnej oferty. Mogła wygasnąć.
   
   waitTaker:
-    message: Oczekiwanie na Takera, który zarezerwuje Twoją ofertę...
-    progressLabel: "Oczekiwanie na takera: ${time}"
+    message: "Oczekiwanie na rezerwację przez Kupującego..."
+#    progressLabel: "Oczekiwanie na takera: ${time}"
     errorActiveOfferDetailsLost: "Błąd: Utracono szczegóły aktywnej oferty."
     errorFailedToRetrieveBlik: "Błąd: Nie udało się pobrać kodu BLIK."
     errorRetrievingBlik: "Błąd pobierania kodu BLIK: ${details}"

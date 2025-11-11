@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/offer.dart'; // For OfferStatus enum
 import '../../providers/providers.dart';
 import '../../widgets/progress_indicators.dart';
+import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
 class MakerWaitTakerScreen extends ConsumerStatefulWidget {
   const MakerWaitTakerScreen({super.key});
@@ -170,6 +171,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
   Widget build(BuildContext context) {
     // Watch the active offer provider to get real-time status updates
     final offer = ref.watch(activeOfferProvider);
+    final t = Translations.of(context);
 
     ref.listen<Offer?>(activeOfferProvider, (previous, next) {
       if (next != null && mounted) {
@@ -177,102 +179,193 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
       }
     });
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            if (offer != null) ...[
-              Text(
-                t.offers.details.yourOffer, // Changed to common key
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                // Common key
-                t.offers.details.amount(amount: offer.amountSats.toString()),
-              ),
-              Text(
-                // Common key
-                t.offers.details.makerFee(fee: offer.makerFees.toString()),
-              ),
-              Text(
-                // Common key
-                t.common.labels.status(status: offer.status.toUpperCase()),
-              ),
-              const SizedBox(height: 30),
-            ],
-            if (offer != null && offer.status == OfferStatus.funded.name)
-              FundedOfferProgressIndicator(
-                key: ValueKey('progress_funded_${offer.id}'),
-                createdAt: offer.createdAt,
-              ),
-            Text(
-              t
-                  .maker
-                  .waitTaker
-                  .message, // Changed to use existing YAML key 'message'
-              style: const TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            if (offer == null || offer.status != OfferStatus.funded.name)
-              const CircularProgressIndicator(),
-            const SizedBox(height: 40),
-            Consumer(
-              builder: (context, ref, _) {
-                final error = ref.watch(errorProvider);
-                if (error != null &&
-                    error.startsWith(
-                      // Specific key
-                      t.maker.waitTaker
-                          .failedToCancelOffer(details: '')
-                          .split(' {details}')[0],
-                    )) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
+    if (offer == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Progress indicator (Step 2: Wait for Taker)
+              const MakerProgressIndicator(activeStep: 2),
+              const SizedBox(height: 20),
+              // Top section: Message with refresh icon
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
                     child: Text(
-                      error,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                      t.maker.waitTaker.message,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,
+                      softWrap: true,
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-            ElevatedButton(
-              onPressed:
-                  _isCancelling ||
-                          (offer != null &&
-                              offer.status != OfferStatus.funded.name)
-                      ? null
-                      : _cancelOffer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
+                  ),
+                ],
               ),
-              child:
-                  _isCancelling
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
+              const SizedBox(height: 40),
+              
+              // Center: Large circular green progress bar with time
+              Expanded(
+                child: Center(
+                  child: offer.status == OfferStatus.funded.name
+                      ? CircularCountdownTimer(
+                          startTime: offer.createdAt,
+                          maxDuration: const Duration(minutes: 10),
+                          size: 200,
+                          strokeWidth: 12,
+                          progressColor: Colors.green,
+                          backgroundColor: Colors.grey[400]!,
+                          fontSize: 48,
+                        )
+                      : const CircularProgressIndicator(),
+                ),
+              ),
+              
+              // Bottom section: Offer details and Cancel button
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Offer details (bottom left)
+                  _buildDetailRow(
+                    context,
+
+                    t.offers.details.amountLabel,
+                    '${offer.amountSats} sats',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    context,
+                    t.maker.amountForm.labels.fee,
+                    '${offer.makerFees} sats',
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  // Error message
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final error = ref.watch(errorProvider);
+                      if (error != null &&
+                          error.startsWith(
+                            t.maker.waitTaker
+                                .failedToCancelOffer(details: '')
+                                .split(' {details}')[0],
+                          )) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: Text(
+                            error,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  
+                  // Cancel Offer button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _isCancelling ||
+                              (offer.status != OfferStatus.funded.name)
+                          ? null
+                          : _cancelOffer,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red, width: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      )
-                      : Text(
-                        t.offers.actions.cancel, // Changed to common key
                       ),
-            ),
-          ],
+                      child: _isCancelling
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.red),
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.offers.actions.cancel,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

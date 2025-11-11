@@ -229,8 +229,9 @@ class _MakerConfirmPaymentScreenState
                     isLoading || publicKeyAsyncValue.isLoading
                         ? null
                         : () => _confirmPayment(context, ref),
+
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),

@@ -4,11 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
-import '../../models/coordinator_info.dart'; // Added
-// Added
-import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
-// Import next screen
-import '../../../i18n/gen/strings.g.dart'; // Import Slang - CORRECTED PATH
+import '../../widgets/progress_indicators.dart';
+import '../../../i18n/gen/strings.g.dart';
+import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});
@@ -20,12 +18,10 @@ class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
 
 class _MakerWaitForBlikScreenState
     extends ConsumerState<MakerWaitForBlikScreen> {
-  Timer? _statusCheckTimer;
-  bool _isChecking = false;
-  CoordinatorInfo? _coordinatorInfo;
   Duration? _reservationDuration;
   bool _isLoadingConfig = true;
   String? _configError;
+
 
   @override
   void initState() {
@@ -52,9 +48,8 @@ class _MakerWaitForBlikScreenState
         throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
       setState(() {
-        _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
-          seconds: coordinatorInfo.reservationSeconds, // Corrected field access
+          seconds: coordinatorInfo.reservationSeconds,
         );
         _isLoadingConfig = false;
       });
@@ -193,6 +188,7 @@ class _MakerWaitForBlikScreenState
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     // Watch the active offer to get the latest data
     final offer = ref.watch(activeOfferProvider);
 
@@ -207,17 +203,15 @@ class _MakerWaitForBlikScreenState
     });
 
     if (_isLoadingConfig) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.maker.waitForBlik.title)),
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_configError != null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.notifications.error),
-        ), // Corrected path
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -226,7 +220,7 @@ class _MakerWaitForBlikScreenState
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadInitialData,
-                child: Text(t.common.buttons.retry), // Corrected path
+                child: Text(t.common.buttons.retry),
               ),
             ],
           ),
@@ -238,9 +232,7 @@ class _MakerWaitForBlikScreenState
         offer.reservedAt == null ||
         _reservationDuration == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.notifications.error),
-        ), // Corrected path
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -258,51 +250,76 @@ class _MakerWaitForBlikScreenState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.maker.waitForBlik.title),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: t.common.buttons.goHome,
-            onPressed: _goHome,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                t.maker.waitForBlik.message, // Corrected from offerReserved
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 15),
+            children: [
+              // Progress indicator (Step 3: Use BLIK)
+              const MakerProgressIndicator(activeStep: 2),
               const SizedBox(height: 20),
-              ReservationProgressIndicator(
-                key: ValueKey(
-                  'res_timer_${offer.id}_${_reservationDuration!.inSeconds}',
-                ),
-                reservedAt: offer.reservedAt!,
-                maxDuration: _reservationDuration!,
+              // Top section: Message with refresh icon
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      t.maker.waitForBlik.message,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              const CircularProgressIndicator(),
-              const SizedBox(height: 20),
-              Text(
-                // Using timeLimitWithSeconds as it seems more appropriate here
-                t.maker.waitForBlik.timeLimitWithSeconds(
-                  seconds: _reservationDuration!.inSeconds,
+              const SizedBox(height: 40),
+              
+              // Center: Large circular progress bar with time
+              Expanded(
+                child: Center(
+                  child: CircularCountdownTimer(
+                    startTime: offer.reservedAt!,
+                    maxDuration: _reservationDuration!,
+                    size: 200,
+                    strokeWidth: 12,
+                    progressColor: Colors.orange,
+                    backgroundColor: Colors.grey[400]!,
+                    fontSize: 48,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
+              ),
+              
+              // Bottom section: Offer details
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Offer details (bottom left)
+                  _buildDetailRow(
+                    context,
+                    t.offers.details.amountLabel,
+                    '${offer.amountSats} sats',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    context,
+                    t.offers.details.makerFeeLabel,
+                    '${offer.makerFees} sats',
+                  ),
+                ],
               ),
             ],
           ),
@@ -310,4 +327,27 @@ class _MakerWaitForBlikScreenState
       ),
     );
   }
-} // Added missing closing brace for the class
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+}

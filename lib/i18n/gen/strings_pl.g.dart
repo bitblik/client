@@ -468,6 +468,7 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	@override String paidAfter({required Object duration}) => 'Zapłacono po: ${duration}';
 	@override String get exchangeRate => 'Kurs wymiany';
 	@override String get takerFeeLabel => 'Opłata';
+	@override String get amountLabel => 'Kwota';
 	@override String get statusLabel => 'Status';
 	@override String get youllReceive => 'Otrzymasz';
 	@override String get coordinator => 'Koordynator';
@@ -748,8 +749,7 @@ class _TranslationsMakerWaitTakerPl extends TranslationsMakerWaitTakerEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get message => 'Oczekiwanie na Takera, który zarezerwuje Twoją ofertę...';
-	@override String progressLabel({required Object time}) => 'Oczekiwanie na takera: ${time}';
+	@override String get message => 'Oczekiwanie na rezerwację przez Kupującego...';
 	@override String get errorActiveOfferDetailsLost => 'Błąd: Utracono szczegóły aktywnej oferty.';
 	@override String get errorFailedToRetrieveBlik => 'Błąd: Nie udało się pobrać kodu BLIK.';
 	@override String errorRetrievingBlik({required Object details}) => 'Błąd pobierania kodu BLIK: ${details}';
@@ -1676,6 +1676,7 @@ extension on TranslationsPl {
 			case 'offers.details.paidAfter': return ({required Object duration}) => 'Zapłacono po: ${duration}';
 			case 'offers.details.exchangeRate': return 'Kurs wymiany';
 			case 'offers.details.takerFeeLabel': return 'Opłata';
+			case 'offers.details.amountLabel': return 'Kwota';
 			case 'offers.details.statusLabel': return 'Status';
 			case 'offers.details.youllReceive': return 'Otrzymasz';
 			case 'offers.details.coordinator': return 'Koordynator';
@@ -1799,8 +1800,7 @@ extension on TranslationsPl {
 			case 'maker.payInvoice.errors.openingApp': return ({required Object details}) => 'Błąd otwierania aplikacji Lightning: ${details}';
 			case 'maker.payInvoice.errors.publicKeyNotAvailable': return 'Klucz publiczny nie jest dostępny.';
 			case 'maker.payInvoice.errors.couldNotFetchActive': return 'Nie udało się pobrać szczegółów aktywnej oferty. Mogła wygasnąć.';
-			case 'maker.waitTaker.message': return 'Oczekiwanie na Takera, który zarezerwuje Twoją ofertę...';
-			case 'maker.waitTaker.progressLabel': return ({required Object time}) => 'Oczekiwanie na takera: ${time}';
+			case 'maker.waitTaker.message': return 'Oczekiwanie na rezerwację przez Kupującego...';
 			case 'maker.waitTaker.errorActiveOfferDetailsLost': return 'Błąd: Utracono szczegóły aktywnej oferty.';
 			case 'maker.waitTaker.errorFailedToRetrieveBlik': return 'Błąd: Nie udało się pobrać kodu BLIK.';
 			case 'maker.waitTaker.errorRetrievingBlik': return ({required Object details}) => 'Błąd pobierania kodu BLIK: ${details}';

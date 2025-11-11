@@ -12,6 +12,7 @@ import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
 import '../../services/api_service_nostr.dart';
+import '../../widgets/progress_indicators.dart';
 
 // --- 3-Step Progress Indicator Widget ---
 class SubmitBlikProgressIndicator extends StatelessWidget {
@@ -55,134 +56,6 @@ class SubmitBlikProgressIndicator extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// --- Circular Countdown Timer Widget ---
-class CircularCountdownTimer extends StatefulWidget {
-  final DateTime reservedAt;
-  final Duration maxDuration;
-
-  const CircularCountdownTimer({
-    super.key,
-    required this.reservedAt,
-    required this.maxDuration,
-  });
-
-  @override
-  State<CircularCountdownTimer> createState() => _CircularCountdownTimerState();
-}
-
-class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
-  Timer? _timer;
-  double _progress = 1.0;
-  int _remainingSeconds = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _calculateProgress();
-    if (_progress > 0) {
-      _startTimer();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant CircularCountdownTimer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.reservedAt != oldWidget.reservedAt ||
-        widget.maxDuration != oldWidget.maxDuration) {
-      _timer?.cancel();
-      _calculateProgress();
-      if (_progress > 0) _startTimer();
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _calculateProgress() {
-    final now = DateTime.now();
-    final expiresAt = widget.reservedAt.add(widget.maxDuration);
-    final totalDuration = widget.maxDuration.inMilliseconds;
-    final remainingDuration = expiresAt.difference(now).inMilliseconds;
-
-    if (!mounted) return;
-
-    setState(() {
-      if (remainingDuration <= 0) {
-        _progress = 0.0;
-        _remainingSeconds = 0;
-      } else {
-        _progress = remainingDuration / totalDuration;
-        _remainingSeconds = (remainingDuration / 1000).ceil().clamp(
-          0,
-          widget.maxDuration.inSeconds,
-        );
-      }
-    });
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    if (_progress <= 0) return;
-
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      _calculateProgress();
-      if (_progress <= 0) {
-        timer.cancel();
-      }
-    });
-  }
-
-  String _formatMMSS(int totalSeconds) {
-    final minutes = (totalSeconds ~/ 60).toString();
-    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_progress <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    return SizedBox(
-      width: 120,
-      height: 120,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Circular progress indicator
-          SizedBox(
-            width: 120,
-            height: 120,
-            child: CircularProgressIndicator(
-              value: _progress,
-              backgroundColor: Colors.grey[200],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-              strokeWidth: 8,
-            ),
-          ),
-          // Time display
-          Text(
-            _formatMMSS(_remainingSeconds),
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
           ),
         ],
@@ -705,7 +578,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
           if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
             CircularCountdownTimer(
               key: ValueKey('blik_timer_${activeOffer.id}'),
-              reservedAt: activeOffer.reservedAt!,
+              startTime: activeOffer.reservedAt!,
               maxDuration: _maxBlikInputTime!,
             )
           else

@@ -99,6 +99,8 @@ offers:
     takenAfter: "Taken after: ${duration}"
     paidAfter: "Paid after: ${duration}"
     exchangeRate: "Exchange Rate"
+    amountLabel: "Amount"
+    makerFeeLabel: "Maker fee"
     takerFeeLabel: "Taker fee"
     statusLabel: "Status"
     youllReceive: "You'll receive"

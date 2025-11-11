@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:qr_flutter/qr_flutter.dart'; // For QR code display
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs/Intents
 import 'package:android_intent_plus/android_intent.dart'; // For Android Intents
 import 'package:android_intent_plus/flag.dart'; // Import for flags enum

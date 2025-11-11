@@ -420,3 +420,150 @@ class _BlikConfirmationProgressIndicatorState
     );
   }
 }
+
+// Circular Countdown Timer Widget - reusable for multiple screens
+class CircularCountdownTimer extends StatefulWidget {
+  final DateTime startTime;
+  final Duration maxDuration;
+  final double size;
+  final double strokeWidth;
+  final Color progressColor;
+  final Color backgroundColor;
+  final double fontSize;
+
+  const CircularCountdownTimer({
+    super.key,
+    required this.startTime,
+    required this.maxDuration,
+    this.size = 120,
+    this.strokeWidth = 8,
+    this.progressColor = Colors.green,
+    this.backgroundColor = Colors.grey,
+    this.fontSize = 32,
+  });
+
+  @override
+  State<CircularCountdownTimer> createState() => _CircularCountdownTimerState();
+}
+
+class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
+  Timer? _timer;
+  double _progress = 1.0;
+  int _remainingSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateProgress();
+    if (_progress > 0) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CircularCountdownTimer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.startTime != oldWidget.startTime ||
+        widget.maxDuration != oldWidget.maxDuration) {
+      _timer?.cancel();
+      _calculateProgress();
+      if (_progress > 0) _startTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _calculateProgress() {
+    final now = DateTime.now();
+    final expiresAt = widget.startTime.add(widget.maxDuration);
+    final totalDuration = widget.maxDuration.inMilliseconds;
+    final remainingDuration = expiresAt.difference(now).inMilliseconds;
+
+    if (!mounted) return;
+
+    setState(() {
+      if (remainingDuration <= 0) {
+        _progress = 0.0;
+        _remainingSeconds = 0;
+      } else {
+        _progress = remainingDuration / totalDuration;
+        _remainingSeconds = (remainingDuration / 1000).ceil().clamp(
+          0,
+          widget.maxDuration.inSeconds,
+        );
+      }
+    });
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (_progress <= 0) return;
+
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      _calculateProgress();
+      if (_progress <= 0) {
+        timer.cancel();
+      }
+    });
+  }
+
+  String _formatMMSS(int totalSeconds) {
+    final minutes = (totalSeconds ~/ 60).toString();
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_progress <= 0) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background circle
+          Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.backgroundColor.withOpacity(0.2),
+            ),
+          ),
+          // Circular progress indicator
+          SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: CircularProgressIndicator(
+              value: _progress,
+              backgroundColor: widget.backgroundColor.withOpacity(0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor),
+              strokeWidth: widget.strokeWidth,
+            ),
+          ),
+          // Time display
+          Text(
+            _formatMMSS(_remainingSeconds),
+            style: TextStyle(
+              fontSize: widget.fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

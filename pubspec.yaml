@@ -76,6 +76,7 @@ dependencies:
   app_links: ^6.4.0
   sqflite: ^2.3.0
   path: ^1.8.3
+  confetti: ^0.8.0
   logger: ^2.5.0
   sqflite_common_ffi: ^2.3.5
   sqflite_common_ffi_web: ^1.0.1+1
