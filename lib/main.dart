@@ -1042,6 +1042,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   ) {
     final t = Translations.of(context);
     return Drawer(
+      backgroundColor: Colors.white,
       child: publicKeyAsync.when(
         data: (publicKey) {
           if (publicKey == null) {
@@ -1056,7 +1057,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(color: Colors.grey[100]),
+                decoration: const BoxDecoration(color: Colors.white),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -1070,18 +1071,43 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       width: 80,
                       height: 80,
                     ),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showNekoInfoDialog(publicKey);
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              t.nekoInfo.title,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: Colors.blue,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               ListTile(
-                title: Text(t.nekoInfo.title),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showNekoInfoDialog(publicKey);
-                },
-              ),
-              ListTile(
+                leading: const Icon(Icons.admin_panel_settings),
                 title: Text(
                   appLocale.languageCode == 'pl'
                       ? 'Koordynatorzy'
@@ -1099,6 +1125,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               ),
               const Divider(),
               ListTile(
+                leading: const Icon(Icons.flash_on, color: Color(0xFFFF0000)),
                 title: Text(t.landing.actions.payBlik),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -1111,6 +1138,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 },
               ),
               ListTile(
+                leading: Image.asset(
+                  'assets/sell-blik.png',
+                  width: 24,
+                  height: 24,
+                ),
                 title: Text(t.landing.actions.sellBlik),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -1123,6 +1155,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 },
               ),
               ListTile(
+                leading: const Icon(Icons.help_outline),
                 title: Text(t.landing.actions.howItWorks),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
