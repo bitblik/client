@@ -731,7 +731,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   return Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 48),
-                    child: Image.asset('assets/lang-switcher.png', width: 32, height: 32, fit: BoxFit.contain),
+                    child: Image.asset('assets/lang-switcher.png', width: 60, height: 60, fit: BoxFit.fitHeight),
                   );
                 }).toList();
               },

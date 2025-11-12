@@ -177,6 +177,7 @@ class _MakerConfirmPaymentScreenState
   @override
   Widget build(BuildContext context) {
     // final strings = AppLocalizations.of(context)!; // REMOVE THIS
+    final t = Translations.of(context);
     final ref =
         this.ref; // 'ref' is already available in ConsumerStatefulWidget's state
     // Hard reset any lingering global loader to avoid blocking UI
