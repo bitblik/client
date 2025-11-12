@@ -234,7 +234,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                     ref
                                         .read(activeOfferProvider.notifier)
                                         .setActiveOffer(updatedOffer);
-                                    
+
                                     // Navigate to submit BLIK screen
                                     router.go(
                                       "/submit-blik",
@@ -242,10 +242,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                     );
                                   } else {
                                     ref.read(errorProvider.notifier).state =
-                                        t
-                                            .reservations
-                                            .errors
-                                            .failedNoTimestamp;
+                                        t.reservations.errors.failedNoTimestamp;
                                     if (scaffoldMessenger.mounted) {
                                       scaffoldMessenger.showSnackBar(
                                         SnackBar(
@@ -262,9 +259,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                   }
                                 } catch (e) {
                                   final errorMsg = t.reservations.errors
-                                      .failedToReserve(
-                                        details: e.toString(),
-                                      );
+                                      .failedToReserve(details: e.toString());
                                   ref.read(errorProvider.notifier).state =
                                       errorMsg;
                                   if (scaffoldMessenger.mounted) {
@@ -292,8 +287,9 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                 ),
               ),
             );
-          } else if (myActiveOffer != null && offer.id == myActiveOffer.id &&
-              (myActiveOffer.isInvalidBlik ||  myActiveOffer.isConflict)) {
+          } else if (myActiveOffer != null &&
+              offer.id == myActiveOffer.id &&
+              (myActiveOffer.isInvalidBlik || myActiveOffer.isConflict)) {
             // Show button for conflict or invalidBlik if it's the active offer
             actionButton = SizedBox(
               width: double.infinity,
@@ -417,7 +413,8 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                   const SizedBox(height: 32),
 
                                   // Exchange Rate row (hide for takerPaid)
-                                  if (offer.status != OfferStatus.takerPaid.name)
+                                  if (offer.status !=
+                                      OfferStatus.takerPaid.name)
                                     _buildInfoRow(
                                       t.offers.details.exchangeRate,
                                       '${_formatNumber(exchangeRate)} ${offer.fiatCurrency}/BTC',
@@ -428,45 +425,70 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                           ),
                                     ),
 
-                                  if (offer.status != OfferStatus.takerPaid.name)
+                                  if (offer.status !=
+                                      OfferStatus.takerPaid.name)
                                     const SizedBox(height: 16),
 
                                   // Taker fee row (hide for takerPaid)
-                                  if (offer.status != OfferStatus.takerPaid.name)
+                                  if (offer.status !=
+                                      OfferStatus.takerPaid.name)
                                     _buildInfoRow(
                                       t.offers.details.takerFeeLabel,
                                       '$takerFeeAmount sats',
                                       hasInfoIcon: true,
                                       onInfoTap: () {
-                                        coordinatorInfoAsync.whenData((coordInfo) {
+                                        coordinatorInfoAsync.whenData((
+                                          coordInfo,
+                                        ) {
                                           if (coordInfo != null) {
                                             showDialog(
                                               context: context,
-                                              builder: (context) => AlertDialog(
-                                                title: Text(t.offers.details.takerFeeLabel),
-                                                content: Text(
-                                                  t.offers.tooltips.takerFeeInfo(
-                                                    feePercent: coordInfo.takerFee.toString(),
+                                              builder:
+                                                  (context) => AlertDialog(
+                                                    title: Text(
+                                                      t
+                                                          .offers
+                                                          .details
+                                                          .takerFeeLabel,
+                                                    ),
+                                                    content: Text(
+                                                      t.offers.tooltips
+                                                          .takerFeeInfo(
+                                                            feePercent:
+                                                                coordInfo
+                                                                    .takerFee
+                                                                    .toString(),
+                                                          ),
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () =>
+                                                                Navigator.of(
+                                                                  context,
+                                                                ).pop(),
+                                                        child: Text(
+                                                          t
+                                                              .common
+                                                              .buttons
+                                                              .close,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(),
-                                                    child: Text(t.common.buttons.close),
-                                                  ),
-                                                ],
-                                              ),
                                             );
                                           }
                                         });
                                       },
                                     ),
 
-                                  if (offer.status != OfferStatus.takerPaid.name)
+                                  if (offer.status !=
+                                      OfferStatus.takerPaid.name)
                                     const SizedBox(height: 24),
 
                                   // You'll receive row (highlighted) (hide for takerPaid)
-                                  if (offer.status != OfferStatus.takerPaid.name)
+                                  if (offer.status !=
+                                      OfferStatus.takerPaid.name)
                                     _buildInfoRow(
                                       t.offers.details.youllReceive,
                                       '$youllReceive sats',
@@ -474,16 +496,18 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                     ),
 
                                   // Timing information for completed offers (takerPaid status)
-                                  if (offer.status == OfferStatus.takerPaid.name &&
-                                      offer.reservedAt != null &&
-                                      offer.takerPaidAt != null) ...[
+                                  if (offer.status ==
+                                          OfferStatus.takerPaid.name &&
+                                      offer.timeToReserveSeconds != null &&
+                                      offer.totalCompletionTimeMakerSeconds !=
+                                          null) ...[
                                     const SizedBox(height: 24),
-                                    
+
                                     // Taken after
                                     Text(
                                       t.offers.details.takenAfter(
-                                        duration: _formatDuration(
-                                          offer.createdAt.difference(offer.reservedAt!),
+                                        duration: _formatDurationFromSeconds(
+                                          offer.timeToReserveSeconds,
                                         ),
                                       ),
                                       style: TextStyle(
@@ -493,14 +517,14 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-                                    
+
                                     const SizedBox(height: 16),
-                                    
+
                                     // Paid after (total time)
                                     Text(
                                       t.offers.details.paidAfter(
-                                        duration: _formatDuration(
-                                          offer.takerPaidAt!.difference(offer.createdAt),
+                                        duration: _formatDurationFromSeconds(
+                                          offer.totalCompletionTimeMakerSeconds,
                                         ),
                                       ),
                                       style: TextStyle(
@@ -705,11 +729,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
               ),
               if (hasInfoIcon) ...[
                 const SizedBox(width: 4),
-                Icon(
-                  Icons.info_outline,
-                  size: 16,
-                  color: Colors.grey[500],
-                ),
+                Icon(Icons.info_outline, size: 16, color: Colors.grey[500]),
               ],
             ],
           ),
@@ -732,10 +752,15 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
     return formatter.format(number).replaceAll(',', ' ');
   }
 
-  /// Formats a duration in a human-readable format
-  String _formatDuration(Duration duration) {
-    final totalSeconds = duration.inSeconds;
-    
+  /// Formats a duration from seconds in a human-readable format
+  String _formatDurationFromSeconds(int? totalSeconds) {
+    if (totalSeconds == null || totalSeconds < 0) {
+      return '-';
+    }
+    if (totalSeconds == 0) {
+      return '0s';
+    }
+
     if (totalSeconds < 60) {
       return '${totalSeconds}s';
     } else if (totalSeconds < 3600) {

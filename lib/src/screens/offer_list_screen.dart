@@ -1279,7 +1279,7 @@ Widget _buildStatsSection(
                                             const SizedBox(width: 8),
                                           // Paid after (if available)
                                           if (offer
-                                                  .totalCompletionTimeTakerSeconds !=
+                                                  .totalCompletionTimeMakerSeconds !=
                                               null)
                                             Flexible(
                                               child: Text(
@@ -1287,7 +1287,7 @@ Widget _buildStatsSection(
                                                   duration:
                                                       _formatDurationFromSeconds(
                                                         offer
-                                                            .totalCompletionTimeTakerSeconds,
+                                                            .totalCompletionTimeMakerSeconds,
                                                       ),
                                                 ),
                                                 style: const TextStyle(
