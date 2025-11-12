@@ -187,6 +187,7 @@ class TranslationsTakerEn {
 
 	// Translations
 	late final TranslationsTakerRoleSelectionEn roleSelection = TranslationsTakerRoleSelectionEn.internal(_root);
+	late final TranslationsTakerProgressEn progress = TranslationsTakerProgressEn.internal(_root);
 	late final TranslationsTakerSubmitBlikEn submitBlik = TranslationsTakerSubmitBlikEn.internal(_root);
 	late final TranslationsTakerWaitConfirmationEn waitConfirmation = TranslationsTakerWaitConfirmationEn.internal(_root);
 	late final TranslationsTakerPaymentProcessEn paymentProcess = TranslationsTakerPaymentProcessEn.internal(_root);
@@ -1325,6 +1326,24 @@ class TranslationsTakerRoleSelectionEn {
 	String get button => 'SELL BLIK code for satoshi';
 }
 
+// Path: taker.progress
+class TranslationsTakerProgressEn {
+	TranslationsTakerProgressEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Submit BLIK'
+	String get step1 => 'Submit BLIK';
+
+	/// en: 'Confirm BLIK'
+	String get step2 => 'Confirm BLIK';
+
+	/// en: 'Get Paid'
+	String get step3 => 'Get Paid';
+}
+
 // Path: taker.submitBlik
 class TranslationsTakerSubmitBlikEn {
 	TranslationsTakerSubmitBlikEn.internal(this._root);
@@ -1338,6 +1357,9 @@ class TranslationsTakerSubmitBlikEn {
 
 	/// en: 'BLIK Code'
 	String get label => 'BLIK Code';
+
+	/// en: 'Enter BLIK before time ends...'
+	String get instruction => 'Enter BLIK before time ends...';
 
 	/// en: 'Enter BLIK within: ${seconds} s'
 	String timeLimit({required Object seconds}) => 'Enter BLIK within: ${seconds} s';
@@ -1546,6 +1568,9 @@ class TranslationsHomeStatisticsEn {
 
 	/// en: 'Last 7d: ${count} transactions Avg wait for BLIK: ${avgBlikTime} Avg completion time: ${avgPaidTime}'
 	String last7DaysCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
+
+	/// en: 'Last 7d: ${count} offers | Avg BLIK: ${avgBlikTime} | Avg Paid: ${avgPaidTime}'
+	String last7DaysSingleLine({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} offers  |  Avg BLIK: ${avgBlikTime}  |  Avg Paid: ${avgPaidTime}';
 
 	late final TranslationsHomeStatisticsErrorsEn errors = TranslationsHomeStatisticsErrorsEn.internal(_root);
 }
@@ -2709,8 +2734,12 @@ extension on Translations {
 			case 'maker.success.subtitle': return 'Taker has been paid.';
 			case 'maker.success.detailsTitle': return 'Offer details:';
 			case 'taker.roleSelection.button': return 'SELL BLIK code for satoshi';
+			case 'taker.progress.step1': return 'Submit BLIK';
+			case 'taker.progress.step2': return 'Confirm BLIK';
+			case 'taker.progress.step3': return 'Get Paid';
 			case 'taker.submitBlik.title': return 'Enter 6-digit BLIK';
 			case 'taker.submitBlik.label': return 'BLIK Code';
+			case 'taker.submitBlik.instruction': return 'Enter BLIK before time ends...';
 			case 'taker.submitBlik.timeLimit': return ({required Object seconds}) => 'Enter BLIK within: ${seconds} s';
 			case 'taker.submitBlik.timeExpired': return 'Time to enter BLIK code has expired.';
 			case 'taker.submitBlik.actions.submit': return 'Submit BLIK';
@@ -2803,6 +2832,7 @@ extension on Translations {
 			case 'home.statistics.title': return 'Finished Offers';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}';
+			case 'home.statistics.last7DaysSingleLine': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Last 7d: ${count} offers  |  Avg BLIK: ${avgBlikTime}  |  Avg Paid: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Error loading statistics: ${error}';
 			case 'nekoInfo.title': return 'What is a Neko?';
 			case 'nekoInfo.description': return 'Your Neko is your identity for using BitBlik. It\'s composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.\n\n⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds.';

@@ -194,31 +194,37 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                         Expanded(
                           child: Row(
                             children: [
-                              GestureDetector(
-                                onTap: () {
-                                  saveTermsAcceptance(!termsAccepted);
-                                },
-                                child: Text(
-                                  t.coordinator.selector.termsAccept,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    saveTermsAcceptance(!termsAccepted);
+                                  },
+                                  child: Text(
+                                    t.coordinator.selector.termsAccept,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                    ),
+                                    softWrap: true,
                                   ),
                                 ),
                               ),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap:
-                                      () => _openTermsOfUsage(
-                                        coordInfo!.termsOfUsageNaddr!,
+                              Flexible(
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap:
+                                        () => _openTermsOfUsage(
+                                          coordInfo!.termsOfUsageNaddr!,
+                                        ),
+                                    child: Text(
+                                      t.coordinator.selector.termsOfUsage,
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 14,
+                                        decoration: TextDecoration.underline,
                                       ),
-                                  child: Text(
-                                    t.coordinator.selector.termsOfUsage,
-                                    style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 14,
-                                      decoration: TextDecoration.underline,
+                                      softWrap: true,
                                     ),
                                   ),
                                 ),
@@ -242,6 +248,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                   onPressed:
                       termsAccepted
                           ? () async {
+                            // Pop the terms dialog first
                             Navigator.of(dialogContext).pop();
 
                             // Terms are already saved via checkbox, proceed with taking offer
@@ -253,78 +260,55 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                               context,
                             );
 
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder:
-                                  (context) => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                            );
-
                             try {
-                              apiService
+                              final reservationTimestamp = await apiService
                                   .reserveOffer(
                                     offer.id,
                                     takerId,
                                     offer.coordinatorPubkey,
-                                  )
-                                  .then((reservationTimestamp) {
-                                    if (reservationTimestamp != null) {
-                                      final Offer updatedOffer = Offer(
-                                        id: offer.id,
-                                        amountSats: offer.amountSats,
-                                        takerFees: offer.takerFees,
-                                        makerFees: offer.makerFees,
-                                        fiatCurrency: offer.fiatCurrency,
-                                        fiatAmount: offer.fiatAmount,
-                                        status: OfferStatus.reserved.name,
-                                        coordinatorPubkey:
-                                            offer.coordinatorPubkey,
-                                        createdAt: offer.createdAt,
-                                        makerPubkey: offer.makerPubkey,
-                                        takerPubkey: takerId,
-                                        reservedAt: reservationTimestamp,
-                                        blikReceivedAt: offer.blikReceivedAt,
-                                        blikCode: offer.blikCode,
-                                        holdInvoicePaymentHash:
-                                            offer.holdInvoicePaymentHash,
-                                      );
+                                  );
 
-                                      ref
-                                          .read(activeOfferProvider.notifier)
-                                          .setActiveOffer(updatedOffer);
+                              if (reservationTimestamp != null) {
+                                final Offer updatedOffer = Offer(
+                                  id: offer.id,
+                                  amountSats: offer.amountSats,
+                                  takerFees: offer.takerFees,
+                                  makerFees: offer.makerFees,
+                                  fiatCurrency: offer.fiatCurrency,
+                                  fiatAmount: offer.fiatAmount,
+                                  status: OfferStatus.reserved.name,
+                                  coordinatorPubkey: offer.coordinatorPubkey,
+                                  createdAt: offer.createdAt,
+                                  makerPubkey: offer.makerPubkey,
+                                  takerPubkey: takerId,
+                                  reservedAt: reservationTimestamp,
+                                  blikReceivedAt: offer.blikReceivedAt,
+                                  blikCode: offer.blikCode,
+                                  holdInvoicePaymentHash:
+                                      offer.holdInvoicePaymentHash,
+                                );
 
-                                      router.go(
-                                        "/submit-blik",
-                                        extra: updatedOffer,
-                                      );
-                                    } else {
-                                      Navigator.of(context).pop();
-                                      ref.read(errorProvider.notifier).state =
-                                          t
-                                              .reservations
-                                              .errors
-                                              .failedNoTimestamp;
-                                      if (scaffoldMessenger.mounted) {
-                                        scaffoldMessenger.showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              t
-                                                  .reservations
-                                                  .errors
-                                                  .failedNoTimestamp,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                      ref.invalidate(availableOffersProvider);
-                                    }
-                                  });
-                            } catch (e) {
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
+                                await ref
+                                    .read(activeOfferProvider.notifier)
+                                    .setActiveOffer(updatedOffer);
+
+                                // Navigate to submit BLIK screen
+                                router.go("/submit-blik", extra: updatedOffer);
+                              } else {
+                                ref.read(errorProvider.notifier).state =
+                                    t.reservations.errors.failedNoTimestamp;
+                                if (scaffoldMessenger.mounted) {
+                                  scaffoldMessenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        t.reservations.errors.failedNoTimestamp,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                ref.invalidate(availableOffersProvider);
                               }
+                            } catch (e) {
                               final errorMsg = t.reservations.errors
                                   .failedToReserve(details: e.toString());
                               ref.read(errorProvider.notifier).state = errorMsg;
@@ -575,7 +559,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () async {
-                          Logger.log.d("[OfferListScreen] Manual refresh triggered.");
+                          Logger.log.d(
+                            "[OfferListScreen] Manual refresh triggered.",
+                          );
                           ref.invalidate(availableOffersProvider);
                           ref.invalidate(activeOfferProvider);
                           await ref.read(availableOffersProvider.future);
@@ -666,120 +652,95 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                       context,
                                                     );
 
-                                                showDialog(
-                                                  context: context,
-                                                  barrierDismissible: false,
-                                                  builder:
-                                                      (context) => const Center(
-                                                        child:
-                                                            CircularProgressIndicator(),
-                                                      ),
-                                                );
                                                 try {
-                                                  // final DateTime?  =
-                                                  apiService
-                                                      .reserveOffer(
-                                                        offer.id,
-                                                        takerId,
-                                                        offer.coordinatorPubkey,
-                                                      )
-                                                      .then((
-                                                        reservationTimestamp,
-                                                      ) {
-                                                        if (reservationTimestamp !=
-                                                            null) {
-                                                          final Offer
-                                                          updatedOffer = Offer(
-                                                            id: offer.id,
-                                                            amountSats:
-                                                                offer
-                                                                    .amountSats,
-                                                            takerFees:
-                                                                offer.takerFees,
-                                                            makerFees:
-                                                                offer.makerFees,
-                                                            fiatCurrency:
-                                                                offer
-                                                                    .fiatCurrency,
-                                                            fiatAmount:
-                                                                offer
-                                                                    .fiatAmount,
-                                                            status:
-                                                                OfferStatus
-                                                                    .reserved
-                                                                    .name,
-                                                            coordinatorPubkey:
-                                                                offer
-                                                                    .coordinatorPubkey,
-                                                            createdAt:
-                                                                offer.createdAt,
-                                                            makerPubkey:
-                                                                offer
-                                                                    .makerPubkey,
-                                                            takerPubkey:
-                                                                takerId,
-                                                            reservedAt:
-                                                                reservationTimestamp,
-                                                            blikReceivedAt:
-                                                                offer
-                                                                    .blikReceivedAt,
-                                                            blikCode:
-                                                                offer.blikCode,
-                                                            holdInvoicePaymentHash:
-                                                                offer
-                                                                    .holdInvoicePaymentHash,
+                                                  final reservationTimestamp =
+                                                      await apiService
+                                                          .reserveOffer(
+                                                            offer.id,
+                                                            takerId,
+                                                            offer
+                                                                .coordinatorPubkey,
                                                           );
 
-                                                          ref
-                                                              .read(
-                                                                activeOfferProvider
-                                                                    .notifier,
-                                                              )
-                                                              .setActiveOffer(
-                                                                updatedOffer,
-                                                              );
+                                                  if (reservationTimestamp !=
+                                                      null) {
+                                                    final Offer
+                                                    updatedOffer = Offer(
+                                                      id: offer.id,
+                                                      amountSats:
+                                                          offer.amountSats,
+                                                      takerFees:
+                                                          offer.takerFees,
+                                                      makerFees:
+                                                          offer.makerFees,
+                                                      fiatCurrency:
+                                                          offer.fiatCurrency,
+                                                      fiatAmount:
+                                                          offer.fiatAmount,
+                                                      status:
+                                                          OfferStatus
+                                                              .reserved
+                                                              .name,
+                                                      coordinatorPubkey:
+                                                          offer
+                                                              .coordinatorPubkey,
+                                                      createdAt:
+                                                          offer.createdAt,
+                                                      makerPubkey:
+                                                          offer.makerPubkey,
+                                                      takerPubkey: takerId,
+                                                      reservedAt:
+                                                          reservationTimestamp,
+                                                      blikReceivedAt:
+                                                          offer.blikReceivedAt,
+                                                      blikCode: offer.blikCode,
+                                                      holdInvoicePaymentHash:
+                                                          offer
+                                                              .holdInvoicePaymentHash,
+                                                    );
 
-                                                          router.go(
-                                                            "/submit-blik",
-                                                            extra: updatedOffer,
-                                                          );
-                                                        } else {
-                                                          Navigator.of(
-                                                            context,
-                                                          ).pop();
-                                                          ref
-                                                              .read(
-                                                                errorProvider
-                                                                    .notifier,
-                                                              )
-                                                              .state = t
-                                                                  .reservations
-                                                                  .errors
-                                                                  .failedNoTimestamp;
-                                                          if (scaffoldMessenger
-                                                              .mounted) {
-                                                            scaffoldMessenger.showSnackBar(
-                                                              SnackBar(
-                                                                content: Text(
-                                                                  t
-                                                                      .reservations
-                                                                      .errors
-                                                                      .failedNoTimestamp,
-                                                                ),
-                                                              ),
-                                                            );
-                                                          }
-                                                          ref.invalidate(
-                                                            availableOffersProvider,
-                                                          );
-                                                        }
-                                                      });
-                                                } catch (e) {
-                                                  if (Navigator.of(
-                                                    context,
-                                                  ).canPop()) {
-                                                    Navigator.of(context).pop();
+                                                    ref
+                                                        .read(
+                                                          activeOfferProvider
+                                                              .notifier,
+                                                        )
+                                                        .setActiveOffer(
+                                                          updatedOffer,
+                                                        );
+
+                                                    // Navigate to submit BLIK screen
+                                                    router.go(
+                                                      "/submit-blik",
+                                                      extra: updatedOffer,
+                                                    );
+                                                  } else {
+                                                    ref
+                                                        .read(
+                                                          errorProvider
+                                                              .notifier,
+                                                        )
+                                                        .state = t
+                                                            .reservations
+                                                            .errors
+                                                            .failedNoTimestamp;
+                                                    if (scaffoldMessenger
+                                                        .mounted) {
+                                                      scaffoldMessenger.showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            t
+                                                                .reservations
+                                                                .errors
+                                                                .failedNoTimestamp,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                    ref.invalidate(
+                                                      availableOffersProvider,
+                                                    );
                                                   }
+                                                } catch (e) {
                                                   final errorMsg = t
                                                       .reservations
                                                       .errors
@@ -1021,19 +982,60 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                       margin: const EdgeInsets.symmetric(
                                         vertical: 5.0,
                                       ),
-                                      child: ListTile(
-                                        title: Text(
-                                          t.offers.details.amountWithCurrency(
-                                            amount: formatDouble(
-                                              offer.fiatAmount ?? 0.0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                          vertical: 12.0,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              t.offers.details
+                                                  .amountWithCurrency(
+                                                    amount: formatDouble(
+                                                      offer.fiatAmount ?? 0.0,
+                                                    ),
+                                                    currency:
+                                                        offer.fiatCurrency,
+                                                  ),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            currency: offer.fiatCurrency,
-                                          ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              t.offers.details.amount(
+                                                amount:
+                                                    offer.amountSats.toString(),
+                                              ),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              t.offers.details
+                                                  .takerFeeWithStatus(
+                                                    fee:
+                                                        offer.takerFees
+                                                            ?.toString() ??
+                                                        "0",
+                                                    status: offer.status,
+                                                  ),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ],
                                         ),
-                                        subtitle: Text(
-                                          '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
-                                        ),
-                                        isThreeLine: true,
                                       ),
                                     );
                                   },
@@ -1176,11 +1178,18 @@ Widget _buildStatsSection(
               children: [
                 // Combine last 7d and avg stats into one line
                 Text(
-                  'Last 7d: 	${numberFormat.format(last7Days['count'] ?? 0)}  |  '
-                  'Avg BLIK: ${_formatDurationFromSeconds(last7DaysBlikTime?.round())}  |  '
-                  'Avg Paid: ${_formatDurationFromSeconds(last7DaysPaidTime?.round())}',
+                  t.home.statistics.last7DaysSingleLine(
+                    count: numberFormat.format(last7Days['count'] ?? 0),
+                    avgBlikTime: _formatDurationFromSeconds(
+                      last7DaysBlikTime?.round(),
+                    ),
+                    avgPaidTime: _formatDurationFromSeconds(
+                      last7DaysPaidTime?.round(),
+                    ),
+                  ),
                   style: const TextStyle(fontSize: 13),
                 ),
+
                 const SizedBox(height: 8),
                 if (recentOffers.isEmpty)
                   Padding(
@@ -1189,7 +1198,7 @@ Widget _buildStatsSection(
                   )
                 else
                   SizedBox(
-                    height: 72, // further reduce height for compactness
+                    height: 150, // further reduce height for compactness
                     child: Scrollbar(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -1207,13 +1216,13 @@ Widget _buildStatsSection(
                             },
                             child: Card(
                               margin: const EdgeInsets.symmetric(
-                                vertical: 2.0,
+                                vertical: 1.0,
                                 horizontal: 0,
                               ), // less margin
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0,
-                                  vertical: 4.0,
+                                  vertical: 8.0,
                                 ), // less padding
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -1241,30 +1250,53 @@ Widget _buildStatsSection(
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    // Taken after (if available)
-                                    if (offer.timeToReserveSeconds != null)
-                                      Text(
-                                        t.offers.details.takenAfter(
-                                          duration: _formatDurationFromSeconds(
-                                            offer.timeToReserveSeconds,
-                                          ),
-                                        ),
-                                        style: const TextStyle(fontSize: 12),
+                                    // Taken after and Paid after (flexible to prevent overflow)
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          // Taken after (if available)
+                                          if (offer.timeToReserveSeconds !=
+                                              null)
+                                            Flexible(
+                                              child: Text(
+                                                t.offers.details.takenAfter(
+                                                  duration:
+                                                      _formatDurationFromSeconds(
+                                                        offer
+                                                            .timeToReserveSeconds,
+                                                      ),
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          if (offer.timeToReserveSeconds !=
+                                              null)
+                                            const SizedBox(width: 8),
+                                          // Paid after (if available)
+                                          if (offer
+                                                  .totalCompletionTimeTakerSeconds !=
+                                              null)
+                                            Flexible(
+                                              child: Text(
+                                                t.offers.details.paidAfter(
+                                                  duration:
+                                                      _formatDurationFromSeconds(
+                                                        offer
+                                                            .totalCompletionTimeTakerSeconds,
+                                                      ),
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                        ],
                                       ),
-                                    if (offer.timeToReserveSeconds != null)
-                                      const SizedBox(width: 8),
-                                    // Paid after (if available)
-                                    if (offer.totalCompletionTimeTakerSeconds !=
-                                        null)
-                                      Text(
-                                        t.offers.details.paidAfter(
-                                          duration: _formatDurationFromSeconds(
-                                            offer
-                                                .totalCompletionTimeTakerSeconds,
-                                          ),
-                                        ),
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

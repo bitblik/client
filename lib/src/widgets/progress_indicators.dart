@@ -5,6 +5,61 @@ import 'package:ndk/shared/logger/logger.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
 import '../../i18n/gen/strings.g.dart';
 
+// Taker Progress Indicator Widget - reusable for taker flow screens
+class TakerProgressIndicator extends StatelessWidget {
+  final int activeStep; // 1, 2, or 3
+  
+  const TakerProgressIndicator({
+    super.key,
+    this.activeStep = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8.0,
+        runSpacing: 4.0,
+        children: [
+          // Step 1: Submit BLIK
+          Text(
+            '1. ${t.taker.progress.step1}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep >= 1 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep == 1 ? Colors.black : Colors.grey,
+            ),
+          ),
+          const Text(' > ', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          // Step 2: Confirm BLIK
+          Text(
+            '2. ${t.taker.progress.step2}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep >= 2 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep == 2 ? Colors.black : Colors.grey,
+            ),
+          ),
+          const Text(' > ', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          // Step 3: Get Paid
+          Text(
+            '3. ${t.taker.progress.step3}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep == 3 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep >= 3 ? Colors.black : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // Widget for 10min Funded Offer Progress Bar
 class FundedOfferProgressIndicator extends ConsumerStatefulWidget {
   final DateTime createdAt;
@@ -437,10 +492,10 @@ class CircularCountdownTimer extends StatefulWidget {
     required this.startTime,
     required this.maxDuration,
     this.size = 120,
-    this.strokeWidth = 8,
+    this.strokeWidth = 12,
     this.progressColor = Colors.green,
-    this.backgroundColor = Colors.grey,
-    this.fontSize = 32,
+    this.backgroundColor = Colors.white,
+    this.fontSize = 40,
   });
 
   @override

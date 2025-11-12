@@ -97,7 +97,8 @@ class RoleSelectionScreen extends ConsumerWidget {
 
     final currentPubKey = publicKeyAsync.value;
     bool hasActiveOffer = activeOffer != null && currentPubKey != null;
-    final isTakerPaid = hasActiveOffer && activeOffer.status == OfferStatus.takerPaid.name;
+    final isTakerPaid =
+        hasActiveOffer && activeOffer.status == OfferStatus.takerPaid.name;
 
     return SingleChildScrollView(
       child: Column(
@@ -107,22 +108,15 @@ class RoleSelectionScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                SizedBox(height: hasActiveOffer? 40:80),
+                SizedBox(height: hasActiveOffer ? 40 : 80),
 
                 // Main title
                 Text(
                   t.landing.mainTitle,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headlineLarge
-                      ?.copyWith(
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
-                    fontSize: MediaQuery
-                        .of(context)
-                        .size
-                        .width > 600 ? 48 : 32,
+                    fontSize: MediaQuery.of(context).size.width > 600 ? 48 : 32,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -132,29 +126,24 @@ class RoleSelectionScreen extends ConsumerWidget {
                 // Subtitle
                 Text(
                   t.landing.subtitle,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w400,
-                    fontSize: 20
+                    fontSize: 20,
                   ),
                   textAlign: TextAlign.center,
                 ),
 
-                SizedBox(height: hasActiveOffer? 40:100),
+                SizedBox(height: hasActiveOffer ? 40 : 100),
 
                 // Action cards
                 Builder(
                   builder: (context) {
-                    final hasRealActiveOffer = !kDebugMode && hasActiveOffer && !isTakerPaid;
-                    final screenWidth = MediaQuery
-                        .of(context)
-                        .size
-                        .width;
-                    final cardHeight = 220.0;//screenWidth > 600 ? 200.0 : 180.0; // Responsive height
+                    final hasRealActiveOffer =
+                        !kDebugMode && hasActiveOffer && !isTakerPaid;
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final cardHeight =
+                        220.0; //screenWidth > 600 ? 200.0 : 180.0; // Responsive height
 
                     return Row(
                       children: [
@@ -238,22 +227,25 @@ class RoleSelectionScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         t.landing.actions.howItWorks,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 60),
+                const SizedBox(height: 30),
 
                 // Active offer section (if exists)
                 if (hasActiveOffer && !isTakerPaid) ...[
                   const Divider(),
-                  const SizedBox(height: 30),
-                  _buildActiveOfferSection(context, ref, activeOffer, currentPubKey, t),
+                  const SizedBox(height: 20),
+                  _buildActiveOfferSection(
+                    context,
+                    ref,
+                    activeOffer,
+                    currentPubKey,
+                    t,
+                  ),
                 ],
 
                 // Finished offers section
@@ -312,7 +304,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                   color: textColor.withOpacity(isEnabled ? 1.0 : 0.5),
                 ),
               const SizedBox(height: 14), // Reduced from 16 to 12
-              Flexible( // Wrapped title in Flexible
+              Flexible(
+                // Wrapped title in Flexible
                 child: Text(
                   title,
                   style: TextStyle(
@@ -326,7 +319,8 @@ class RoleSelectionScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 2), // Reduced from 4 to 2
-              Flexible( // Wrapped subtitle in Flexible
+              Flexible(
+                // Wrapped subtitle in Flexible
                 child: Text(
                   subtitle,
                   style: TextStyle(
@@ -345,23 +339,21 @@ class RoleSelectionScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActiveOfferSection(BuildContext context,
-      WidgetRef ref,
-      Offer activeOffer,
-      String? currentPubKey,
-      Translations t,) {
+  Widget _buildActiveOfferSection(
+    BuildContext context,
+    WidgetRef ref,
+    Offer activeOffer,
+    String? currentPubKey,
+    Translations t,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           t.offers.details.activeOffer,
-          style: Theme
-              .of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -375,21 +367,14 @@ class RoleSelectionScreen extends ConsumerWidget {
               children: [
                 Text(
                   "${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   t.common.labels.status(status: activeOffer.status),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 if (activeOffer.status == OfferStatus.takerPaymentFailed.name &&
                     activeOffer.takerLightningAddress != null &&
@@ -408,42 +393,54 @@ class RoleSelectionScreen extends ConsumerWidget {
                   ),
               ],
             ),
-            trailing: (activeOffer.status == OfferStatus.takerPaid.name)
-                ? null
-                : const Icon(Icons.arrow_forward_ios),
-            onTap: (activeOffer.status == OfferStatus.takerPaid.name)
-                ? null
-                : () {
-              _handleActiveOfferTap(context, ref, activeOffer, currentPubKey, t);
-            },
+            trailing:
+                (activeOffer.status == OfferStatus.takerPaid.name)
+                    ? null
+                    : const Icon(Icons.arrow_forward_ios),
+            onTap:
+                (activeOffer.status == OfferStatus.takerPaid.name)
+                    ? null
+                    : () {
+                      _handleActiveOfferTap(
+                        context,
+                        ref,
+                        activeOffer,
+                        currentPubKey,
+                        t,
+                      );
+                    },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFinishedOffersSection(BuildContext context, WidgetRef ref, Translations t) {
+  Widget _buildFinishedOffersSection(
+    BuildContext context,
+    WidgetRef ref,
+    Translations t,
+  ) {
     return Consumer(
       builder: (context, ref, _) {
         final coordinatorsAsync = ref.watch(discoveredCoordinatorsProvider);
         final finishedAsync = ref.watch(finishedOffersProvider);
 
         return coordinatorsAsync.when(
-          loading: () =>
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32.0),
-            child: Center(
-              child: Column(
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Discovering coordinators...'),
-                ],
+          loading:
+              () => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Discovering coordinators...'),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          error: (err, stack) =>
-              Padding(
+          error:
+              (err, stack) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                 child: Text(
                   'Error discovering coordinators: ${err.toString()}',
@@ -459,28 +456,28 @@ class RoleSelectionScreen extends ConsumerWidget {
 
             // Now check finished offers
             return finishedAsync.when(
-              loading: () =>
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Loading finished offers...'),
-                    ],
+              loading:
+                  () => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Loading finished offers...'),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              error: (err, stack) =>
-                  Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32.0),
-                child: Text(
-                  t.offers.errors.loadingFinished(details: err.toString()),
-                  style: TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              error:
+                  (err, stack) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32.0),
+                    child: Text(
+                      t.offers.errors.loadingFinished(details: err.toString()),
+                      style: TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               data: (finishedOffers) {
                 if (finishedOffers.isEmpty) return const SizedBox();
                 return Column(
@@ -489,47 +486,52 @@ class RoleSelectionScreen extends ConsumerWidget {
                     const SizedBox(height: 30),
                     Text(
                       t.offers.details.finishedOffersWithTime,
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ...finishedOffers.map(
-                          (offer) =>
-                          InkWell(
-                            onTap: () {
-                              if (kIsWeb) {
-                                context.go('/offers/${offer.id}');
-                              } else {
-                                context.push('/offers/${offer.id}');
-                              }
-                            },
-                            child: Card(
-                              elevation: 1,
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                title: Text(
-                                  "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                subtitle: Text(
-                                  t.offers.details.subtitleWithDate(
-                                    sats: offer.amountSats,
-                                    fee: offer.makerFees,
-                                    status: offer.status,
-                                    date: offer.takerPaidAt?.toLocal().toString().substring(0, 16) ?? '-',
-                                  ),
-                                ),
-                                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      (offer) => InkWell(
+                        onTap: () {
+                          if (kIsWeb) {
+                            context.go('/offers/${offer.id}');
+                          } else {
+                            context.push('/offers/${offer.id}');
+                          }
+                        },
+                        child: Card(
+                          elevation: 1,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            title: Text(
+                              "${formatDouble(offer.fiatAmount)} ${offer.fiatCurrency}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                            subtitle: Text(
+                              t.offers.details.subtitleWithDate(
+                                sats: offer.amountSats,
+                                fee: offer.makerFees,
+                                status: offer.status,
+                                date:
+                                    offer.takerPaidAt
+                                        ?.toLocal()
+                                        .toString()
+                                        .substring(0, 16) ??
+                                    '-',
+                              ),
+                            ),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                            ),
                           ),
+                        ),
+                      ),
                     ),
                   ],
                 );
@@ -541,20 +543,22 @@ class RoleSelectionScreen extends ConsumerWidget {
     );
   }
 
-  void _handleActiveOfferTap(BuildContext context,
-      WidgetRef ref,
-      Offer activeOffer,
-      String? currentPubKey,
-      Translations t,) {
+  void _handleActiveOfferTap(
+    BuildContext context,
+    WidgetRef ref,
+    Offer activeOffer,
+    String? currentPubKey,
+    Translations t,
+  ) {
     if (activeOffer.holdInvoicePaymentHash != null) {
-      ref
-          .read(paymentHashProvider.notifier)
-          .state = activeOffer.holdInvoicePaymentHash!;
+      ref.read(paymentHashProvider.notifier).state =
+          activeOffer.holdInvoicePaymentHash!;
     }
 
     final offerStatus = OfferStatus.values.byName(activeOffer.status);
 
-    if (offerStatus == OfferStatus.blikReceived || offerStatus == OfferStatus.blikSentToMaker) {
+    if (offerStatus == OfferStatus.blikReceived ||
+        offerStatus == OfferStatus.blikSentToMaker) {
       try {
         ref.read(apiServiceProvider);
         if (currentPubKey == activeOffer.makerPubkey) {

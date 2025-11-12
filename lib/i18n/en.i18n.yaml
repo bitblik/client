@@ -393,9 +393,15 @@ taker:
   roleSelection:
     button: SELL BLIK code for satoshi
   
+  progress:
+    step1: Submit BLIK
+    step2: Confirm BLIK
+    step3: Get Paid
+  
   submitBlik:
     title: "Enter 6-digit BLIK"
     label: BLIK Code
+    instruction: "Enter BLIK before time ends..."
     
     timeLimit: "Enter BLIK within: ${seconds} s"
     timeExpired: Time to enter BLIK code has expired.
@@ -557,6 +563,7 @@ home:
     title: Finished Offers
     lifetimeCompact: "All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
     last7DaysCompact: "Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
+    last7DaysSingleLine: "Last 7d: ${count} offers  |  Avg BLIK: ${avgBlikTime}  |  Avg Paid: ${avgPaidTime}"
     
     errors:
       loading: "Error loading statistics: ${error}"

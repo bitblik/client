@@ -13,7 +13,8 @@ import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode; // Import kIsWeb
+import 'package:flutter/foundation.dart'
+    show kIsWeb, kDebugMode; // Import kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
@@ -956,7 +957,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),
-          kDebugMode? SizedBox(width: 40,):Container()
+          kDebugMode ? SizedBox(width: 40) : Container(),
         ],
       ),
       body: _buildBody(widget.body),

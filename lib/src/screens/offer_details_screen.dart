@@ -183,7 +183,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                               !_isLoadingTerms;
 
                           return isButtonEnabled
-                              ? () {
+                              ? () async {
                                 // Check if lightning address is set
                                 if (!hasLightningAddress) {
                                   LightningAddressWidget.showLightningAddressRequiredDialog(
@@ -216,75 +216,64 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                   context,
                                 );
 
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder:
-                                      (context) => const Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                );
+                                try {
+                                  final reservationTimestamp = await apiService
+                                      .reserveOffer(
+                                        offer.id,
+                                        takerId,
+                                        offer.coordinatorPubkey,
+                                      );
 
-                                apiService
-                                    .reserveOffer(
-                                      offer.id,
-                                      takerId,
-                                      offer.coordinatorPubkey,
-                                    )
-                                    .then((reservationTimestamp) {
-                                      if (reservationTimestamp != null) {
-                                        final updatedOffer = offer.copyWith(
-                                          status: OfferStatus.reserved.name,
-                                          takerPubkey: takerId,
-                                          reservedAt: reservationTimestamp,
-                                        );
+                                  if (reservationTimestamp != null) {
+                                    final updatedOffer = offer.copyWith(
+                                      status: OfferStatus.reserved.name,
+                                      takerPubkey: takerId,
+                                      reservedAt: reservationTimestamp,
+                                    );
 
-                                        ref
-                                            .read(activeOfferProvider.notifier)
-                                            .setActiveOffer(updatedOffer);
-                                        router.go(
-                                          "/submit-blik",
-                                          extra: updatedOffer,
-                                        );
-                                      } else {
-                                        Navigator.of(context).pop();
-                                        ref.read(errorProvider.notifier).state =
+                                    ref
+                                        .read(activeOfferProvider.notifier)
+                                        .setActiveOffer(updatedOffer);
+                                    
+                                    // Navigate to submit BLIK screen
+                                    router.go(
+                                      "/submit-blik",
+                                      extra: updatedOffer,
+                                    );
+                                  } else {
+                                    ref.read(errorProvider.notifier).state =
+                                        t
+                                            .reservations
+                                            .errors
+                                            .failedNoTimestamp;
+                                    if (scaffoldMessenger.mounted) {
+                                      scaffoldMessenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(
                                             t
                                                 .reservations
                                                 .errors
-                                                .failedNoTimestamp;
-                                        if (scaffoldMessenger.mounted) {
-                                          scaffoldMessenger.showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                t
-                                                    .reservations
-                                                    .errors
-                                                    .failedNoTimestamp,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        ref.invalidate(availableOffersProvider);
-                                      }
-                                    })
-                                    .catchError((e) {
-                                      if (Navigator.of(context).canPop()) {
-                                        Navigator.of(context).pop();
-                                      }
-                                      final errorMsg = t.reservations.errors
-                                          .failedToReserve(
-                                            details: e.toString(),
-                                          );
-                                      ref.read(errorProvider.notifier).state =
-                                          errorMsg;
-                                      if (scaffoldMessenger.mounted) {
-                                        scaffoldMessenger.showSnackBar(
-                                          SnackBar(content: Text(errorMsg)),
-                                        );
-                                      }
-                                      ref.invalidate(availableOffersProvider);
-                                    });
+                                                .failedNoTimestamp,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    ref.invalidate(availableOffersProvider);
+                                  }
+                                } catch (e) {
+                                  final errorMsg = t.reservations.errors
+                                      .failedToReserve(
+                                        details: e.toString(),
+                                      );
+                                  ref.read(errorProvider.notifier).state =
+                                      errorMsg;
+                                  if (scaffoldMessenger.mounted) {
+                                    scaffoldMessenger.showSnackBar(
+                                      SnackBar(content: Text(errorMsg)),
+                                    );
+                                  }
+                                  ref.invalidate(availableOffersProvider);
+                                }
                               }
                               : null;
                         },

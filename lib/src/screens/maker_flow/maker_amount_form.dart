@@ -550,7 +550,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
 
             // Large amount input field
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -562,7 +562,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                         decimal: true,
                       ),
                       style: const TextStyle(
-                        fontSize: 42,
+                        fontSize: 38,
                         fontWeight: FontWeight.w400,
                         height: 1.2,
                       ),
@@ -592,7 +592,6 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
               ),
             ),
             if (_amountErrorText != null) ...[
-              const SizedBox(height: 8),
               Text(
                 _amountErrorText!,
                 style: TextStyle(
@@ -736,7 +735,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                     },
                   ),
 
-                  const Divider(height: 1),
+                  const Divider(height: 16),
 
                   // Satoshis to pay row
                   _buildDetailRow(

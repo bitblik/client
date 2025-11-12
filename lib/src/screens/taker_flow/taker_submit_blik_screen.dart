@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:neon_circular_timer/neon_circular_timer.dart';
 import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,57 +14,7 @@ import '../../models/coordinator_info.dart'; // Added
 import '../../providers/providers.dart';
 import '../../services/key_service.dart'; // For LN Address prompt
 import '../../services/api_service_nostr.dart';
-import '../../widgets/progress_indicators.dart';
-
-// --- 3-Step Progress Indicator Widget ---
-class SubmitBlikProgressIndicator extends StatelessWidget {
-  const SubmitBlikProgressIndicator({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Step 1: Submit BLIK (Active)
-          Text(
-            '1. Submit BLIK',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
-          const SizedBox(width: 8),
-          // Step 2: Confirm BLIK (Inactive)
-          const Text(
-            '2. Confirm BLIK',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text('>', style: TextStyle(fontSize: 14, color: Colors.grey)),
-          const SizedBox(width: 8),
-          // Step 3: Get Paid (Inactive)
-          const Text(
-            '3. Get Paid',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+import '../../widgets/progress_indicators.dart'; // Import TakerProgressIndicator
 
 // --- Main Screen Widget ---
 
@@ -88,6 +39,14 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Add listener to rebuild when BLIK code changes
+    _blikController.addListener(() {
+      setState(() {
+        // Trigger rebuild to update button state
+      });
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _fetchFullOfferDetails();
@@ -176,7 +135,9 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
       // TODO is this really not necessary? then we don't need to getMyActiveOffer
       // await ref.read(activeOfferProvider.notifier).setActiveOffer(fullOffer);
-      Logger.log.i("[TakerSubmitBlikScreen] Successfully fetched full offer details.");
+      Logger.log.i(
+        "[TakerSubmitBlikScreen] Successfully fetched full offer details.",
+      );
 
       // Ensure _maxBlikInputTime is set before starting timer
       if (_maxBlikInputTime == null) {
@@ -198,7 +159,9 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
         }
       });
     } catch (e) {
-      Logger.log.e("[TakerSubmitBlikScreen] Error fetching full offer details: $e");
+      Logger.log.e(
+        "[TakerSubmitBlikScreen] Error fetching full offer details: $e",
+      );
       if (mounted) {
         _resetToOfferList(
           t.offers.errors.loadingDetails(details: e.toString()),
@@ -385,10 +348,14 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       return;
     }
     if (lnAddress == null || lnAddress.isEmpty || !lnAddress.contains('@')) {
-      Logger.log.d("[TakerSubmitBlikScreen] LN Address missing, prompting user.");
+      Logger.log.d(
+        "[TakerSubmitBlikScreen] LN Address missing, prompting user.",
+      );
       lnAddress = await _promptForLightningAddress(context, keyService);
       if (lnAddress == null) {
-        Logger.log.d("[TakerSubmitBlikScreen] User cancelled LN Address prompt.");
+        Logger.log.d(
+          "[TakerSubmitBlikScreen] User cancelled LN Address prompt.",
+        );
         ref.read(errorProvider.notifier).state =
             t.lightningAddress.prompts.required;
         _startBlikInputTimer(offer);
@@ -474,13 +441,13 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
     final activeOffer = ref.watch(activeOfferProvider);
     final t = Translations.of(context);
 
-    if (isLoadingDetails) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(key: Key("loading_details")),
-        ),
-      );
-    }
+    // if (isLoadingDetails) {
+    //   return const Scaffold(
+    //     body: Center(
+    //       child: CircularProgressIndicator(key: Key("loading_details")),
+    //     ),
+    //   );
+    // }
 
     // If activeOffer is null after loading, it means fetch failed/reset was called
     if (activeOffer == null) {
@@ -519,233 +486,317 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
       return formatter.format(number).replaceAll(',', ' ');
     }
 
+    final blikCode = _blikController.text;
+
+    final validBlik =
+        !(blikCode.isEmpty ||
+            blikCode.length != 6 ||
+            int.tryParse(blikCode) == null);
+
     // --- Main UI Build ---
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          // 3-Step Progress Indicator
-          // const SubmitBlikProgressIndicator(),
-          // const SizedBox(height: 24),
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            // 3-Step Progress Indicator
+            const TakerProgressIndicator(activeStep: 1),
 
-          // Instructional text
-          Text(
-            'Enter BLIK before time ends...',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 10),
-
-          // Large BLIK Input Field
-          SizedBox(
-            width: double.infinity,
-            child: TextField(
-              controller: _blikController,
-              focusNode: _blikFocusNode,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 10,
-              ),
-
-              decoration: InputDecoration(
-                hintText: t.taker.submitBlik.title,
-                hintStyle: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w200,
-                  letterSpacing: 2,
-                  color: Colors.grey[400],
-                ),
-                border: InputBorder.none,
-                counterText: "",
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.content_paste, size: 20),
-                  color: Colors.grey,
-                  onPressed: _pasteFromClipboard,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 32),
-
-          // Circular Countdown Timer
-          if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
-            CircularCountdownTimer(
-              key: ValueKey('blik_timer_${activeOffer.id}'),
-              startTime: activeOffer.reservedAt!,
-              maxDuration: _maxBlikInputTime!,
-            )
-          else
-            const SizedBox(height: 120),
-
-          const SizedBox(height: 10),
-
-          // Transaction Details Section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDetailRow(
-                  t.taker.submitBlik.details.requestedAmount,
-                  '${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}',
-                ),
-                const SizedBox(height: 12),
-                // Exchange Rate row with tooltip - same as offer details
-                _buildInfoRow(
-                  t.taker.submitBlik.details.exchangeRate,
-                  '${formatNumber(exchangeRate)} ${activeOffer.fiatCurrency}/BTC',
-                  hasInfoIcon: true,
-                  onInfoTap: () => _showExchangeRateSourcesDialog(context),
-                ),
-                const SizedBox(height: 12),
-                // Taker fee row - same as offer details
-                _buildInfoRow(
-                  t.offers.details.takerFeeLabel,
-                  '$takerFeeAmount sats',
-                ),
-                const SizedBox(height: 12),
-                // You'll receive row (highlighted) - same as offer details
-                _buildInfoRow(
-                  t.taker.submitBlik.details.youllReceive,
-                  '$youllReceive sats',
-                  isHighlighted: true,
-                ),
-              ],
-            ),
-          ),
-
-          if (errorMessage != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              errorMessage,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-
-          const SizedBox(height: 10),
-
-          // Submit BLIK Button (Grey with green checkmark)
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[300],
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
-              onPressed: isLoading ? null : _submitBlik,
+            // Instructional text
+            Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (isLoading)
-                    const SizedBox(
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    t.taker.submitBlik.instruction,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Circular Countdown Timer
+            if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
+              NeonCircularTimer(
+                width: 200,
+                isReverseAnimation: true,
+                isReverse: true,
+                duration: _maxBlikInputTime!.inSeconds,
+                controller: null,
+                isTimerTextShown: true,
+                neumorphicEffect: true,
+                innerFillGradient: LinearGradient(
+                  colors: [
+                    Colors.greenAccent.shade200,
+                    Colors.redAccent.shade400,
+                  ],
+                ),
+                neonGradient: LinearGradient(
+                  colors: [
+                    Colors.greenAccent.shade200,
+                    Colors.redAccent.shade400,
+                  ],
+                ),
+              ),
+
+            // CircularCountdownTimer(
+            //   size: 150,
+            //   key: ValueKey('blik_timer_${activeOffer.id}'),
+            //   startTime: activeOffer.reservedAt!,
+            //   maxDuration: _maxBlikInputTime!,
+            // )
+            // else
+            //   const SizedBox(height: 120),
+            const SizedBox(height: 20),
+            // Large BLIK Input Field
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              width: double.infinity,
+              child: TextField(
+                controller: _blikController,
+                focusNode: _blikFocusNode,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 46,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 16,
+                ),
+
+                decoration: InputDecoration(
+                  hintText: t.taker.submitBlik.title,
+                  hintStyle: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 2,
+                    color: Colors.grey[400],
+                  ),
+                  border: InputBorder.none,
+                  counterText: "",
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.content_paste, size: 32),
+                    color: Colors.grey,
+                    onPressed: _pasteFromClipboard,
+                  ),
+                ),
+              ),
+            ),
+
+            if (errorMessage != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                errorMessage,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+
+            const SizedBox(height: 32),
+
+            // Transaction Details Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailRow(
+                    t.taker.submitBlik.details.requestedAmount,
+                    '${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}',
+                  ),
+                  const SizedBox(height: 12),
+                  // Exchange Rate row with tooltip - same as offer details
+                  _buildInfoRow(
+                    t.taker.submitBlik.details.exchangeRate,
+                    '${formatNumber(exchangeRate)} ${activeOffer.fiatCurrency}/BTC',
+                    hasInfoIcon: true,
+                    onInfoTap: () => _showExchangeRateSourcesDialog(context),
+                  ),
+                  const SizedBox(height: 12),
+                  // Taker fee row - same as offer details
+                  _buildInfoRow(
+                    t.offers.details.takerFeeLabel,
+                    '$takerFeeAmount sats',
+                  ),
+                  const SizedBox(height: 12),
+                  Divider(),
+                  // You'll receive row (highlighted) - same as offer details
+                  _buildInfoRow(
+                    t.taker.submitBlik.details.youllReceive,
+                    '$youllReceive sats',
+                    isHighlighted: true,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Submit BLIK Button (Gradient with green checkmark)
+            Container(
+              width: double.infinity,
+              height: 44,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient:
+                    isLoading
+                        ? null
+                        : LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            validBlik
+                                ? Color(0xFFFF0000)
+                                : Color(0x55FF0000), // Bright red/pink
+                            validBlik
+                                ? Color(0xFFFF007F)
+                                : Color(0x55FF007F), // Bright magenta/pink
+                          ],
+                        ),
+                color: isLoading ? Colors.grey[300] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: isLoading || !validBlik ? null : _submitBlik,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (isLoading)
+                          const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.black,
+                              ),
+                            ),
+                          )
+                        else ...[
+                          const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          t.taker.submitBlik.actions.submit,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isLoading ? Colors.black : Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Cancel Reservation Button (Red with border and X)
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed:
+                    isLoading
+                        ? null
+                        : () async {
+                          final offer = ref.read(activeOfferProvider);
+                          final takerId = ref.read(publicKeyProvider).value;
+                          if (offer == null || takerId == null) return;
+                          ref.read(isLoadingProvider.notifier).state = true;
+                          ref.read(errorProvider.notifier).state = null;
+                          try {
+                            final apiService = ref.read(apiServiceProvider);
+                            await apiService.cancelReservation(
+                              offer.id,
+                              takerId,
+                              offer.coordinatorPubkey,
+                            );
+                            if (mounted) {
+                              _resetToOfferList(
+                                t.reservations.feedback.cancelled,
+                              );
+                            }
+                          } catch (e) {
+                            ref.read(errorProvider.notifier).state = t
+                                .reservations
+                                .errors
+                                .cancelling(error: e.toString());
+                            if (mounted && offer.reservedAt != null) {
+                              _startBlikInputTimer(offer);
+                            }
+                          } finally {
+                            if (mounted) {
+                              ref.read(isLoadingProvider.notifier).state =
+                                  false;
+                            }
+                          }
+                        },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
                       width: 24,
                       height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  else ...[
-                    const Icon(Icons.check, color: Colors.green, size: 20),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    t.taker.submitBlik.actions.submit,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
 
-          const SizedBox(height: 12),
-
-          // Cancel Reservation Button (Red with border and X)
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red, width: 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                    // const Icon(Icons.close, color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.reservations.actions.cancel,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed:
-                  isLoading
-                      ? null
-                      : () async {
-                        final offer = ref.read(activeOfferProvider);
-                        final takerId = ref.read(publicKeyProvider).value;
-                        if (offer == null || takerId == null) return;
-                        ref.read(isLoadingProvider.notifier).state = true;
-                        ref.read(errorProvider.notifier).state = null;
-                        try {
-                          final apiService = ref.read(apiServiceProvider);
-                          await apiService.cancelReservation(
-                            offer.id,
-                            takerId,
-                            offer.coordinatorPubkey,
-                          );
-                          if (mounted) {
-                            _resetToOfferList(
-                              t.reservations.feedback.cancelled,
-                            );
-                          }
-                        } catch (e) {
-                          ref.read(errorProvider.notifier).state = t
-                              .reservations
-                              .errors
-                              .cancelling(error: e.toString());
-                          if (mounted && offer.reservedAt != null) {
-                            _startBlikInputTimer(offer);
-                          }
-                        } finally {
-                          if (mounted) {
-                            ref.read(isLoadingProvider.notifier).state = false;
-                          }
-                        }
-                      },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.close, color: Colors.red, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    t.reservations.actions.cancel,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

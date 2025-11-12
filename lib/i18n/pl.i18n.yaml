@@ -393,9 +393,15 @@ taker:
   roleSelection:
     button: SPRZEDAJ kod BLIK za satoshi
   
+  progress:
+    step1: Wyślij BLIK
+    step2: Potwierdź BLIK
+    step3: Otrzymaj płatność
+  
   submitBlik:
-    title: "Wprowadź 6-cyfrowy BLIK"
+    title: "Wpisz 6-cyfr BLIK"
     label: Kod BLIK
+    instruction: "Wprowadź BLIK zanim upłynie czas..."
     
     timeLimit: "Wprowadź BLIK w ciągu: ${seconds} s"
     timeExpired: Czas na wprowadzenie kodu BLIK minął.
@@ -603,6 +609,7 @@ home:
     title: Zakończone oferty
     lifetimeCompact: "Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}"
     last7DaysCompact: "Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}"
+    last7DaysSingleLine: "Ost. 7 dni: ${count} ofert  |  Śr. BLIK: ${avgBlikTime}  |  Śr. płatność: ${avgPaidTime}"
     
     errors:
       loading: "Błąd ładowania statystyk: ${error}"

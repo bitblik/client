@@ -9,6 +9,7 @@ import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
+import '../../widgets/progress_indicators.dart'; // Import for TakerProgressIndicator
 
 class TakerWaitConfirmationScreen extends ConsumerStatefulWidget {
   final Offer offer;
@@ -227,6 +228,9 @@ class _TakerWaitConfirmationScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            // Progress indicator
+            const TakerProgressIndicator(activeStep: 2),
+            const SizedBox(height: 24),
             if (errorMessage != null) ...[
               Text(
                 errorMessage,

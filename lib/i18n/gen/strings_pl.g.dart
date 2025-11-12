@@ -179,6 +179,7 @@ class _TranslationsTakerPl extends TranslationsTakerEn {
 
 	// Translations
 	@override late final _TranslationsTakerRoleSelectionPl roleSelection = _TranslationsTakerRoleSelectionPl._(_root);
+	@override late final _TranslationsTakerProgressPl progress = _TranslationsTakerProgressPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikPl submitBlik = _TranslationsTakerSubmitBlikPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationPl waitConfirmation = _TranslationsTakerWaitConfirmationPl._(_root);
 	@override late final _TranslationsTakerPaymentProcessPl paymentProcess = _TranslationsTakerPaymentProcessPl._(_root);
@@ -869,6 +870,18 @@ class _TranslationsTakerRoleSelectionPl extends TranslationsTakerRoleSelectionEn
 	@override String get button => 'SPRZEDAJ kod BLIK za satoshi';
 }
 
+// Path: taker.progress
+class _TranslationsTakerProgressPl extends TranslationsTakerProgressEn {
+	_TranslationsTakerProgressPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get step1 => 'Wyślij BLIK';
+	@override String get step2 => 'Potwierdź BLIK';
+	@override String get step3 => 'Otrzymaj płatność';
+}
+
 // Path: taker.submitBlik
 class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	_TranslationsTakerSubmitBlikPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -876,8 +889,9 @@ class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Wprowadź 6-cyfrowy BLIK';
+	@override String get title => 'Wpisz 6-cyfr BLIK';
 	@override String get label => 'Kod BLIK';
+	@override String get instruction => 'Wprowadź BLIK zanim upłynie czas...';
 	@override String timeLimit({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 	@override String get timeExpired => 'Czas na wprowadzenie kodu BLIK minął.';
 	@override late final _TranslationsTakerSubmitBlikActionsPl actions = _TranslationsTakerSubmitBlikActionsPl._(_root);
@@ -1127,6 +1141,7 @@ class _TranslationsHomeStatisticsPl extends TranslationsHomeStatisticsEn {
 	@override String get title => 'Zakończone oferty';
 	@override String lifetimeCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 	@override String last7DaysCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
+	@override String last7DaysSingleLine({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} ofert  |  Śr. BLIK: ${avgBlikTime}  |  Śr. płatność: ${avgPaidTime}';
 	@override late final _TranslationsHomeStatisticsErrorsPl errors = _TranslationsHomeStatisticsErrorsPl._(_root);
 }
 
@@ -1906,8 +1921,12 @@ extension on TranslationsPl {
 			case 'maker.success.detailsTitle': return 'Szczegóły oferty:';
 			case 'maker.success.duration': return ({required Object time}) => 'Oferta zajęła ${time}!';
 			case 'taker.roleSelection.button': return 'SPRZEDAJ kod BLIK za satoshi';
-			case 'taker.submitBlik.title': return 'Wprowadź 6-cyfrowy BLIK';
+			case 'taker.progress.step1': return 'Wyślij BLIK';
+			case 'taker.progress.step2': return 'Potwierdź BLIK';
+			case 'taker.progress.step3': return 'Otrzymaj płatność';
+			case 'taker.submitBlik.title': return 'Wpisz 6-cyfr BLIK';
 			case 'taker.submitBlik.label': return 'Kod BLIK';
+			case 'taker.submitBlik.instruction': return 'Wprowadź BLIK zanim upłynie czas...';
 			case 'taker.submitBlik.timeLimit': return ({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 			case 'taker.submitBlik.timeExpired': return 'Czas na wprowadzenie kodu BLIK minął.';
 			case 'taker.submitBlik.actions.submit': return 'Wyślij BLIK';
@@ -2021,6 +2040,7 @@ extension on TranslationsPl {
 			case 'home.statistics.title': return 'Zakończone oferty';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
+			case 'home.statistics.last7DaysSingleLine': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} ofert  |  Śr. BLIK: ${avgBlikTime}  |  Śr. płatność: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Błąd ładowania statystyk: ${error}';
 			case 'system.loadingPublicKey': return 'Ładowanie Twojego klucza publicznego...';
 			case 'system.errors.generic': return 'Wystąpił nieoczekiwany błąd. Proszę spróbować ponownie.';

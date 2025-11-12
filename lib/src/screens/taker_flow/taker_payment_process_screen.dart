@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart'; // Import Offer which contains OfferStatus
 import '../../providers/providers.dart';
+import '../../widgets/progress_indicators.dart'; // Import for TakerProgressIndicator
 
 // Define the checklist steps and their corresponding statuses
 enum PaymentStep {
@@ -46,17 +47,26 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
       body: Padding(
         // Add padding around the checklist
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child:
-              // paymentHash == null
-              //     ? _buildErrorContent(
-              //       context,
-              //       t.taker.paymentProcess.errors.missingPaymentHash,
-              //     )
-              //     :
-              _buildPollingContent(context, ref
-                  // , paymentHash
+        child: Column(
+          children: [
+            // Progress indicator
+            const TakerProgressIndicator(activeStep: 3),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Center(
+                child:
+                    // paymentHash == null
+                    //     ? _buildErrorContent(
+                    //       context,
+                    //       t.taker.paymentProcess.errors.missingPaymentHash,
+                    //     )
+                    //     :
+                    _buildPollingContent(context, ref
+                        // , paymentHash
+                    ),
               ),
+            ),
+          ],
         ),
       ),
     );
