@@ -536,12 +536,12 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                     ),
                                   ],
 
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: 20),
 
                                   // Separator line
                                   Container(height: 1, color: Colors.grey[300]),
 
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: 20),
 
                                   // Coordinator row
                                   coordinatorInfoAsync.when(
@@ -576,7 +576,7 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                             null) {
                                           return Column(
                                             children: [
-                                              const SizedBox(height: 16),
+                                              const SizedBox(height: 10),
                                               if (_isLoadingTerms)
                                                 const Padding(
                                                   padding: EdgeInsets.symmetric(
@@ -668,16 +668,17 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
                                       orElse: () => const SizedBox.shrink(),
                                     ),
 
-                                  const SizedBox(height: 10),
+                                  const SizedBox(height: 6),
 
-                                  // Action button
-                                  if (actionButton != null) actionButton,
-
-                                  // Lightning address widget for funded offers (moved below action button)
-                                  if (isFunded) ...[
+                                  // Lightning address widget for funded offers - only show if not set
+                                  if (isFunded && !hasLightningAddress) ...[
                                     const SizedBox(height: 10),
                                     const LightningAddressWidget(),
                                   ],
+                                  const SizedBox(height: 6),
+
+                                  // Action button
+                                  if (actionButton != null) actionButton,
                                 ],
                               ),
                             ),
