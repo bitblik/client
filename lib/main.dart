@@ -13,8 +13,7 @@ import 'package:bitblik/src/screens/taker_flow/taker_invalid_blik_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_failed_screen.dart';
 import 'package:bitblik/src/screens/taker_flow/taker_payment_process_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart'
-    show kIsWeb, kDebugMode; // Import kIsWeb
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode; // Import kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Keep for GlobalMaterialLocalizations.delegates
@@ -55,9 +54,7 @@ late AppLocale appLocale;
 final rustEventVerifier = RustEventVerifier();
 
 /// Listen to connectivity changes and reconnect NDK when connectivity is restored
-StreamSubscription<List<ConnectivityResult>> listenToConnectivityChanges(
-  WidgetRef ref,
-) {
+StreamSubscription<List<ConnectivityResult>> listenToConnectivityChanges(WidgetRef ref) {
   return Connectivity().onConnectivityChanged
       .skip(1) // do not fire on app startup
       .listen((List<ConnectivityResult> result) {
@@ -97,14 +94,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
         routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) => const RoleSelectionScreen(),
-          ),
-          GoRoute(
-            path: '/offers',
-            builder: (context, state) => const OfferListScreen(),
-          ),
+          GoRoute(path: '/', builder: (context, state) => const RoleSelectionScreen()),
+          GoRoute(path: '/offers', builder: (context, state) => const OfferListScreen()),
           GoRoute(
             path: '/offers/:id',
             builder: (context, state) {
@@ -115,26 +106,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               return OfferDetailsScreen(offerId: offerId);
             },
           ),
-          GoRoute(
-            path: '/create',
-            builder: (context, state) => const MakerAmountForm(),
-          ),
-          GoRoute(
-            path: '/pay',
-            builder: (context, state) => const MakerPayInvoiceScreen(),
-          ),
-          GoRoute(
-            path: '/wait-taker',
-            builder: (context, state) => const MakerWaitTakerScreen(),
-          ),
-          GoRoute(
-            path: '/wait-blik',
-            builder: (context, state) => const MakerWaitForBlikScreen(),
-          ),
-          GoRoute(
-            path: '/confirm-blik',
-            builder: (context, state) => const MakerConfirmPaymentScreen(),
-          ),
+          GoRoute(path: '/create', builder: (context, state) => const MakerAmountForm()),
+          GoRoute(path: '/pay', builder: (context, state) => const MakerPayInvoiceScreen()),
+          GoRoute(path: '/wait-taker', builder: (context, state) => const MakerWaitTakerScreen()),
+          GoRoute(path: '/wait-blik', builder: (context, state) => const MakerWaitForBlikScreen()),
+          GoRoute(path: '/confirm-blik', builder: (context, state) => const MakerConfirmPaymentScreen()),
           GoRoute(
             path: '/maker-success',
             builder: (context, state) {
@@ -146,22 +122,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               }
             },
           ),
-          GoRoute(
-            path: '/coordinators',
-            builder: (context, state) => const CoordinatorManagementScreen(),
-          ),
-          GoRoute(
-            path: '/settings',
-            builder: (context, state) => const SettingsScreen(),
-          ),
-          GoRoute(
-            path: '/wallet',
-            builder: (context, state) => const WalletScreen(),
-          ),
-          GoRoute(
-            path: '/neko-management',
-            builder: (context, state) => const NekoManagementScreen(),
-          ),
+          GoRoute(path: '/coordinators', builder: (context, state) => const CoordinatorManagementScreen()),
+          GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
+          GoRoute(path: '/wallet', builder: (context, state) => const WalletScreen()),
+          GoRoute(path: '/neko-management', builder: (context, state) => const NekoManagementScreen()),
           GoRoute(
             path: '/submit-blik',
             builder: (context, state) {
@@ -169,9 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 context.go("/");
                 return Container();
               } else {
-                return TakerSubmitBlikScreen(
-                  initialOffer: state.extra as Offer,
-                );
+                return TakerSubmitBlikScreen(initialOffer: state.extra as Offer);
               }
             },
           ),
@@ -197,10 +159,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               }
             },
           ),
-          GoRoute(
-            path: '/paying-taker',
-            builder: (context, state) => TakerPaymentProcessScreen(),
-          ),
+          GoRoute(path: '/paying-taker', builder: (context, state) => TakerPaymentProcessScreen()),
           GoRoute(
             path: '/taker-invalid-blik',
             builder: (context, state) {
@@ -214,9 +173,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/taker-conflict',
-            builder:
-                (context, state) =>
-                    TakerConflictScreen(offerId: state.extra as String),
+            builder: (context, state) => TakerConflictScreen(offerId: state.extra as String),
           ),
           GoRoute(
             path: '/maker-invalid-blik',
@@ -240,10 +197,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               }
             },
           ),
-          GoRoute(
-            path: FaqScreen.routeName,
-            builder: (context, state) => const FaqScreen(),
-          ),
+          GoRoute(path: FaqScreen.routeName, builder: (context, state) => const FaqScreen()),
         ],
       ),
     ],
@@ -295,9 +249,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       ref.read(keyServiceProvider);
       ref.read(apiServiceProvider);
 
-      Logger.log.i(
-        '🚀 App initialized: API service and coordinator discovery started',
-      );
+      Logger.log.i('🚀 App initialized: API service and coordinator discovery started');
     } catch (e) {
       Logger.log.e('❌ Error during app initialization: $e');
     }
@@ -318,9 +270,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         // Start listening to connectivity changes
         _connectivitySubscription = listenToConnectivityChanges(ref);
 
-        Logger.log.i(
-          '🚀 App initialized: API service and coordinator discovery started',
-        );
+        Logger.log.i('🚀 App initialized: API service and coordinator discovery started');
       } catch (e) {
         Logger.log.e('❌ Error during app initialization: $e');
       }
@@ -425,16 +375,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       builder: (context) {
         return AlertDialog(
           title: Text(t.generateNewKey.title),
-          content: Text(
-            activeOffer != null
-                ? t.generateNewKey.errors.activeOffer
-                : t.generateNewKey.description,
-          ),
+          content: Text(activeOffer != null ? t.generateNewKey.errors.activeOffer : t.generateNewKey.description),
           actions: <Widget>[
-            TextButton(
-              child: Text(t.common.buttons.cancel),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            TextButton(child: Text(t.common.buttons.cancel), onPressed: () => Navigator.of(context).pop()),
             if (activeOffer == null)
               TextButton(
                 child: Text(t.generateNewKey.buttons.generate),
@@ -443,9 +386,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.generateNewKeyPair();
 
                     // Clear the active offer when restoring a new key
-                    await ref
-                        .read(activeOfferProvider.notifier)
-                        .setActiveOffer(null);
+                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -458,9 +399,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder:
-                          (context) =>
-                              const Center(child: CircularProgressIndicator()),
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -469,19 +408,13 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close generate key dialog
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.generateNewKey.feedback.success),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(t.generateNewKey.feedback.success)));
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${t.generateNewKey.errors.failed}: ${e.toString()}',
-                        ),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('${t.generateNewKey.errors.failed}: ${e.toString()}')));
                   }
                 },
               ),
@@ -523,14 +456,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
               ),
               actions: <Widget>[
                 TextButton.icon(
-                  icon: Icon(
-                    isRevealed ? Icons.visibility_off : Icons.visibility,
-                  ),
-                  label: Text(
-                    isRevealed
-                        ? t.common.buttons.hide
-                        : t.common.buttons.reveal,
-                  ),
+                  icon: Icon(isRevealed ? Icons.visibility_off : Icons.visibility),
+                  label: Text(isRevealed ? t.common.buttons.hide : t.common.buttons.reveal),
                   onPressed: () {
                     setState(() {
                       isRevealed = !isRevealed;
@@ -541,12 +468,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   icon: const Icon(Icons.copy),
                   label: Text(t.common.buttons.copy),
                   onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: Nip19.encodePrivateKey(privateKey)),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.backup.feedback.copied)),
-                    );
+                    Clipboard.setData(ClipboardData(text: Nip19.encodePrivateKey(privateKey)));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.backup.feedback.copied)));
                   },
                 ),
                 TextButton(
@@ -577,10 +500,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             key: formKey,
             child: TextFormField(
               controller: privateKeyController,
-              decoration: InputDecoration(
-                labelText: t.restore.labels.privateKey,
-                hintText: 'e.g., nsec1...',
-              ),
+              decoration: InputDecoration(labelText: t.restore.labels.privateKey, hintText: 'e.g., nsec1...'),
               validator: (value) {
                 if (value == null || !Nip19.isPrivateKey(value)) {
                   return t.restore.errors.invalidKey;
@@ -605,9 +525,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     await keyService.savePrivateKey(pKey);
 
                     // Clear the active offer when restoring a new key
-                    await ref
-                        .read(activeOfferProvider.notifier)
-                        .setActiveOffer(null);
+                    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
 
                     // Invalidate providers to force re-initialization
                     ref.invalidate(keyServiceProvider);
@@ -620,9 +538,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder:
-                          (context) =>
-                              const Center(child: CircularProgressIndicator()),
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
 
                     // Re-initialize services
@@ -631,17 +547,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                     Navigator.of(context).pop(); // Close loading dialog
                     Navigator.of(context).pop(); // Close restore dialog
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.restore.feedback.success)),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.restore.feedback.success)));
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${t.restore.errors.failed}: ${e.toString()}',
-                        ),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('${t.restore.errors.failed}: ${e.toString()}')));
                   }
                 }
               },
@@ -652,22 +562,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     );
   }
 
-  Widget _buildNekoDrawer(
-    BuildContext context,
-    AsyncValue<String?> publicKeyAsync,
-  ) {
+  Widget _buildNekoDrawer(BuildContext context, AsyncValue<String?> publicKeyAsync) {
     final t = Translations.of(context);
     return Drawer(
       backgroundColor: Colors.white,
       child: publicKeyAsync.when(
         data: (publicKey) {
           if (publicKey == null) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('No Neko found'),
-              ),
-            );
+            return const Center(child: Padding(padding: EdgeInsets.all(16.0), child: Text('No Neko found')));
           }
           return ListView(
             padding: EdgeInsets.zero,
@@ -680,10 +582,8 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   children: [
                     CachedNetworkImage(
                       imageUrl: 'https://robohash.org/$publicKey?set=set4',
-                      placeholder:
-                          (context, url) => const CircularProgressIndicator(),
-                      errorWidget:
-                          (context, url, error) => const Icon(Icons.error),
+                      placeholder: (context, url) => const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
                       width: 80,
                       height: 80,
                     ),
@@ -699,17 +599,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       },
                       borderRadius: BorderRadius.circular(4),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              t.nekoInfo.title,
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                            Text(t.nekoInfo.title, style: const TextStyle(fontSize: 14)),
                             const SizedBox(width: 4),
                             const Icon(Icons.info_outline, size: 18),
                           ],
@@ -733,11 +627,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 },
               ),
               ListTile(
-                leading: Image.asset(
-                  'assets/sell-blik.png',
-                  width: 24,
-                  height: 24,
-                ),
+                leading: Image.asset('assets/sell-blik.png', width: 24, height: 24),
                 title: Text(t.landing.actions.sellBlik),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -779,20 +669,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             ],
           );
         },
-        loading:
-            () => const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: CircularProgressIndicator(),
-              ),
-            ),
+        loading: () => const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CircularProgressIndicator())),
         error:
-            (error, stack) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text('Error: ${error.toString()}'),
-              ),
-            ),
+            (error, stack) =>
+                Center(child: Padding(padding: const EdgeInsets.all(16.0), child: Text('Error: ${error.toString()}'))),
       ),
     );
   }
@@ -822,11 +702,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
             // Navigate to home
             context.go('/');
           },
-          child: Image.asset(
-            'assets/logo-horizontal.png',
-            height: 30,
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset('assets/logo-horizontal.png', height: 30, fit: BoxFit.cover),
         ),
       );
     }
@@ -836,15 +712,11 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading:
             !widget.hideBackButton &&
-            ((widget.pageTitle != null && widget.pageTitle!.isNotEmpty) ||
-                widget
-                    .showBackButton), // Show back button if pageTitle is present or showBackButton is true, unless hideBackButton is true
+            ((widget.pageTitle != null && widget.pageTitle!.isNotEmpty) || widget.showBackButton),
+        // Show back button if pageTitle is present or showBackButton is true, unless hideBackButton is true
         title: appBarTitle,
         // Add a divider at the bottom of the AppBar
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Divider(height: 1.0, thickness: 1.0),
-        ),
+        bottom: const PreferredSize(preferredSize: Size.fromHeight(1.0), child: Divider(height: 1.0, thickness: 1.0)),
         actions: [
           // Language Switcher Dropdown
           DropdownButtonHideUnderline(
@@ -859,27 +731,15 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   return Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 48),
-                    child: Image.asset(
-                      'assets/lang-switcher.png',
-                      width: 32,
-                      height: 32,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image.asset('assets/lang-switcher.png', width: 32, height: 32, fit: BoxFit.contain),
                   );
                 }).toList();
               },
               onChanged: (AppLocale? newLocale) async {
                 if (newLocale != null) {
-                  await asyncPrefs.setString(
-                    'app_locale',
-                    newLocale.languageCode,
-                  );
-                  if (LocaleSettings.currentLocale.languageCode !=
-                      newLocale.languageCode) {
-                    appLocale =
-                        newLocale.languageCode == 'pl'
-                            ? AppLocale.pl
-                            : AppLocale.en;
+                  await asyncPrefs.setString('app_locale', newLocale.languageCode);
+                  if (LocaleSettings.currentLocale.languageCode != newLocale.languageCode) {
+                    appLocale = newLocale.languageCode == 'pl' ? AppLocale.pl : AppLocale.en;
                     LocaleSettings.setLocale(appLocale);
                     // Force rebuild to update UI
                     if (mounted) {
@@ -889,9 +749,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                 }
               },
               items:
-                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((
-                    AppLocale locale,
-                  ) {
+                  AppLocale.values.map<DropdownMenuItem<AppLocale>>((AppLocale locale) {
                     final String flagEmoji =
                         locale.languageCode == 'en'
                             ? '🇬🇧'
@@ -934,19 +792,14 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                               (builderContext) => IconButton(
                                 icon: ClipOval(
                                   child: CachedNetworkImage(
-                                    imageUrl:
-                                        'https://robohash.org/$publicKey?set=set4',
+                                    imageUrl: 'https://robohash.org/$publicKey?set=set4',
                                     placeholder:
                                         (context, url) => const SizedBox(
                                           width: 32,
                                           height: 32,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
+                                          child: CircularProgressIndicator(strokeWidth: 2),
                                         ),
-                                    errorWidget:
-                                        (context, url, error) =>
-                                            const Icon(Icons.error, size: 24),
+                                    errorWidget: (context, url, error) => const Icon(Icons.error, size: 24),
                                     width: 32,
                                     height: 32,
                                     fit: BoxFit.cover,
@@ -990,60 +843,33 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: InkWell(
-                          onTap: () async {
-                            final Uri url = Uri.parse(
-                              'https://github.com/bitblik-user/client/releases',
-                            );
-                            await launchUrl(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
-                          },
+                          // onTap: () async {
+                          //   final Uri url = Uri.parse('https://github.com/bitblik-user/client/releases');
+                          //   await launchUrl(url, mode: LaunchMode.externalApplication);
+                          // },
                           child: Text(
                             _clientVersion != null ? 'v$_clientVersion' : '',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black45,
-                            ),
+                            style: const TextStyle(fontSize: 12, color: Colors.black45),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      InkWell(
-                        onTap: () async {
-                          final Uri url = Uri.parse(
-                            'https://github.com/bitblik-user/client',
-                          );
-                          await launchUrl(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        },
-                        child: const Icon(
-                          Icons.code,
-                          size: 20,
-                          color: Colors.black45,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
+                      // const SizedBox(width: 16),
+                      // InkWell(
+                      //   onTap: () async {
+                      //     final Uri url = Uri.parse('https://github.com/bitblik-user/client');
+                      //     await launchUrl(url, mode: LaunchMode.externalApplication);
+                      //   },
+                      //   child: Image.asset('assets/github.png', width: 20, height: 20),
+                      // ),
+                      // const SizedBox(width: 8),
                       InkWell(
                         onTap: () async {
                           final Uri url = Uri.parse(
                             'https://njump.to/npub1k3g092rlzvn7nftz3jte9pkx63zp705nh78r6hjpjm55fjg7r2cqx8stj3',
                           );
-                          await launchUrl(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
                         },
-                        child: Opacity(
-                          opacity: 1,
-                          child: Image.asset(
-                            'assets/nostr.png',
-                            width: 32,
-                            height: 32,
-                          ),
-                        ),
+                        child: Image.asset('assets/nostr.png', width: 32, height: 32),
                       ),
                     ],
                   ),
@@ -1054,27 +880,18 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       children: [
                         InkWell(
                           onTap: () async {
-                            final Uri url = Uri.parse(
-                              'https://github.com/bitblik/client/releases',
-                            );
+                            final Uri url = Uri.parse('https://github.com/bitblik/client/releases');
                             if (await canLaunchUrl(url)) {
                               await launchUrl(url);
                             } else {
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Could not open APK link.'),
-                                  ),
-                                );
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(SnackBar(content: Text('Could not open APK link.')));
                               }
                             }
                           },
-                          child: Image.asset(
-                            'assets/apk.png',
-                            width: 100,
-                            height: 31,
-                            fit: BoxFit.contain,
-                          ),
+                          child: Image.asset('assets/apk.png', width: 100, height: 31, fit: BoxFit.contain),
                         ),
                         const SizedBox(width: 16),
                         InkWell(
@@ -1082,12 +899,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                             final Uri url = Uri.parse('zapstore://app.bitblik');
                             await launchUrl(url);
                           },
-                          child: Image.asset(
-                            'assets/zapstore.png',
-                            width: 100,
-                            height: 31,
-                            fit: BoxFit.contain,
-                          ),
+                          child: Image.asset('assets/zapstore.png', width: 100, height: 31, fit: BoxFit.contain),
                         ),
                         const SizedBox(width: 8),
                       ],

@@ -144,6 +144,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/github.png
     - assets/simplex.png
     - assets/element.png
     - assets/logo.png

@@ -251,6 +251,34 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                 ),
                               ],
                             )
+                          : selectedAction == 'generating'
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const CircularProgressIndicator(),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        t.generateNewKey.buttons.generate,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                          : selectedAction == 'restoring'
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const CircularProgressIndicator(),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        t.restore.buttons.restore,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                    ],
+                                  ),
+                                )
                           : selectedAction == 'restore'
                               ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,6 +308,11 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                       onPressed: () async {
                                         if (formKey.currentState!.validate()) {
                                           try {
+                                            // Set loading state
+                                            setState(() {
+                                              selectedAction = 'restoring';
+                                            });
+
                                             String pKey = Nip19.decode(
                                               restoreKeyController.text,
                                             );
@@ -301,15 +334,6 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                               discoveredCoordinatorsProvider,
                                             );
 
-                                            // Show loading
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (context) => const Center(
-                                                child: CircularProgressIndicator(),
-                                              ),
-                                            );
-
                                             // Re-initialize services
                                             await ref.read(
                                               initializedApiServiceProvider.future,
@@ -321,15 +345,11 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                             final newPubKey =
                                                 newKeyService.publicKeyHex;
 
-                                            if (mounted) {
-                                              Navigator.of(context).pop(); // Close loading
-
-                                              if (newPubKey != null) {
-                                                setState(() {
-                                                  selectedAction = null;
-                                                  restoreKeyController.clear();
-                                                });
-                                              }
+                                            if (mounted && newPubKey != null) {
+                                              setState(() {
+                                                selectedAction = null;
+                                                restoreKeyController.clear();
+                                              });
 
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -342,8 +362,9 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                             }
                                           } catch (e) {
                                             if (mounted) {
-                                              Navigator.of(context)
-                                                  .pop(); // Close loading if open
+                                              setState(() {
+                                                selectedAction = 'restore';
+                                              });
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
@@ -375,6 +396,11 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                         label: Text(t.generateNewKey.buttons.generate),
                                         onPressed: () async {
                                           try {
+                                            // Set loading state
+                                            setState(() {
+                                              selectedAction = 'generating';
+                                            });
+
                                             await keyService.generateNewKeyPair();
 
                                             // Clear the active offer
@@ -393,15 +419,6 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                               discoveredCoordinatorsProvider,
                                             );
 
-                                            // Show loading
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (context) => const Center(
-                                                child: CircularProgressIndicator(),
-                                              ),
-                                            );
-
                                             // Re-initialize services
                                             await ref.read(
                                               initializedApiServiceProvider.future,
@@ -413,14 +430,10 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                             final newPubKey =
                                                 newKeyService.publicKeyHex;
 
-                                            if (mounted) {
-                                              Navigator.of(context).pop(); // Close loading
-
-                                              if (newPubKey != null) {
-                                                setState(() {
-                                                  selectedAction = null;
-                                                });
-                                              }
+                                            if (mounted && newPubKey != null) {
+                                              setState(() {
+                                                selectedAction = null;
+                                              });
 
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -433,8 +446,9 @@ class _NekoManagementScreenState extends ConsumerState<NekoManagementScreen> {
                                             }
                                           } catch (e) {
                                             if (mounted) {
-                                              Navigator.of(context)
-                                                  .pop(); // Close loading if open
+                                              setState(() {
+                                                selectedAction = 'generate';
+                                              });
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
