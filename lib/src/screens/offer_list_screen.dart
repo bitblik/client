@@ -384,7 +384,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -397,9 +397,9 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
             children: [
               Text(
                 t.home.notifications.title,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 20,
@@ -429,7 +429,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           const SizedBox(width: 8),
                           Text(
                             t.home.notifications.telegram,
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
@@ -458,7 +458,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           const SizedBox(width: 8),
                           Text(
                             t.home.notifications.element,
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
@@ -487,7 +487,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           const SizedBox(width: 8),
                           Text(
                             t.home.notifications.simplex,
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
@@ -516,7 +516,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                           const SizedBox(width: 8),
                           Text(
                             t.home.notifications.signal,
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
