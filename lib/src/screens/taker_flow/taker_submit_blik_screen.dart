@@ -621,28 +621,28 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
                     t.taker.submitBlik.details.requestedAmount,
                     '${formatDouble(activeOffer.fiatAmount)} ${activeOffer.fiatCurrency}',
                   ),
-                  const SizedBox(height: 12),
-                  // Exchange Rate row with tooltip - same as offer details
-                  _buildInfoRow(
-                    t.taker.submitBlik.details.exchangeRate,
-                    '${formatNumber(exchangeRate)} ${activeOffer.fiatCurrency}/BTC',
-                    hasInfoIcon: true,
-                    onInfoTap: () => _showExchangeRateSourcesDialog(context),
-                  ),
-                  const SizedBox(height: 12),
-                  // Taker fee row - same as offer details
-                  _buildInfoRow(
-                    t.offers.details.takerFeeLabel,
-                    '$takerFeeAmount sats',
-                  ),
-                  const SizedBox(height: 12),
-                  Divider(),
-                  // You'll receive row (highlighted) - same as offer details
-                  _buildInfoRow(
-                    t.taker.submitBlik.details.youllReceive,
-                    '$youllReceive sats',
-                    isHighlighted: true,
-                  ),
+                  // const SizedBox(height: 12),
+                  // // Exchange Rate row with tooltip - same as offer details
+                  // _buildInfoRow(
+                  //   t.taker.submitBlik.details.exchangeRate,
+                  //   '${formatNumber(exchangeRate)} ${activeOffer.fiatCurrency}/BTC',
+                  //   hasInfoIcon: true,
+                  //   onInfoTap: () => _showExchangeRateSourcesDialog(context),
+                  // ),
+                  // const SizedBox(height: 12),
+                  // // Taker fee row - same as offer details
+                  // _buildInfoRow(
+                  //   t.offers.details.takerFeeLabel,
+                  //   '$takerFeeAmount sats',
+                  // ),
+                  // const SizedBox(height: 12),
+                  // Divider(),
+                  // // You'll receive row (highlighted) - same as offer details
+                  // _buildInfoRow(
+                  //   t.taker.submitBlik.details.youllReceive,
+                  //   '$youllReceive sats',
+                  //   isHighlighted: true,
+                  // ),
                 ],
               ),
             ),

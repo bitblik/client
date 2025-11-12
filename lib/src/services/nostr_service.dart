@@ -520,6 +520,7 @@ class NostrService {
     }
     final reservedAt =  int.tryParse(tagMap['reserved_at'] ?? '0') ?? 0;
     final takerPaidAt =  int.tryParse(tagMap['paid_at'] ?? '0') ?? 0;
+    final createdAt =  int.tryParse(tagMap['created_at'] ?? '0') ?? 0;
     // Build Offer (fallback/default when fields missing!)
     final offer = Offer(
       id: tagMap['d'] ?? event.id,
@@ -531,7 +532,7 @@ class NostrService {
           (_mapOfferStatusToNip69Status(tagMap['s'] ?? 'pending') ??
                   OfferStatus.funded)
               .name,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(createdAt * 1000),
       makerPubkey: tagMap['maker'] ?? event.pubKey,
       coordinatorPubkey: tagMap['p'] ?? event.pubKey,
       // or from context
