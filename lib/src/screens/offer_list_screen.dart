@@ -388,21 +388,22 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 16.0),
-            child: LightningAddressWidget(),
-          ),
+          if (!hasLightningAddress)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 16.0),
+              child: LightningAddressWidget(),
+            ),
           Column(
             children: [
               Text(
                 t.home.notifications.title,
                 style: const TextStyle(fontSize: 14),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Wrap(
                 alignment: WrapAlignment.center,
-                spacing: 16,
-                runSpacing: 8,
+                spacing: 20,
+                runSpacing: 4,
                 children: [
                   // Telegram - only show if link is configured
                   if (GroupLinks.telegram.isNotEmpty)
@@ -925,7 +926,8 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                             createdAt: offer.createdAt,
                                           ),
                                         if (isReserved &&
-                                            offer.reservedAt != null)
+                                            offer.reservedAt != null &&
+                                            _reservationDuration != null)
                                           ReservationProgressIndicator(
                                             key: ValueKey(
                                               'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',

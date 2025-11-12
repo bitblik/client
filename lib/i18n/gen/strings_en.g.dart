@@ -58,6 +58,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLandingEn landing = TranslationsLandingEn.internal(_root);
 	late final TranslationsFaqEn faq = TranslationsFaqEn.internal(_root);
 	late final TranslationsSettingsEn settings = TranslationsSettingsEn.internal(_root);
+	late final TranslationsWalletEn wallet = TranslationsWalletEn.internal(_root);
 	late final TranslationsNekoManagementEn nekoManagement = TranslationsNekoManagementEn.internal(_root);
 }
 
@@ -351,6 +352,21 @@ class TranslationsSettingsEn {
 	String get title => 'Settings';
 }
 
+// Path: wallet
+class TranslationsWalletEn {
+	TranslationsWalletEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Wallet'
+	String get title => 'Wallet';
+
+	/// en: 'Manage your Lightning wallet settings'
+	String get description => 'Manage your Lightning wallet settings';
+}
+
 // Path: nekoManagement
 class TranslationsNekoManagementEn {
 	TranslationsNekoManagementEn.internal(this._root);
@@ -485,8 +501,8 @@ class TranslationsLightningAddressLabelsEn {
 
 	// Translations
 
-	/// en: 'Lightning Address'
-	String get address => 'Lightning Address';
+	/// en: 'Lightning Address (LNURL)'
+	String get address => 'Lightning Address (LNURL)';
 
 	/// en: 'user@domain.com'
 	String get hint => 'user@domain.com';
@@ -509,8 +525,8 @@ class TranslationsLightningAddressPromptsEn {
 	/// en: 'Enter your Lightning address to continue'
 	String get enter => 'Enter your Lightning address to continue';
 
-	/// en: 'Edit Lightning address'
-	String get edit => 'Edit Lightning address';
+	/// en: 'Edit'
+	String get edit => 'Edit';
 
 	/// en: 'Enter a valid Lightning address'
 	String get invalid => 'Enter a valid Lightning address';
@@ -524,14 +540,20 @@ class TranslationsLightningAddressPromptsEn {
 	/// en: 'Lightning address is missing. Please add one to be able to take offers.'
 	String get missing => 'Lightning address is missing. Please add one to be able to take offers.';
 
-	/// en: 'Add Lightning Address'
-	String get add => 'Add Lightning Address';
+	/// en: 'Add'
+	String get add => 'Add';
 
-	/// en: 'Delete Lightning Address'
-	String get delete => 'Delete Lightning Address';
+	/// en: 'Delete'
+	String get delete => 'Delete';
 
 	/// en: 'Are you sure you want to delete your Lightning address?'
 	String get confirmDelete => 'Are you sure you want to delete your Lightning address?';
+
+	/// en: 'Don't have a Lightning address yet? Learn how to get one!'
+	String get howToGet => 'Don\'t have a Lightning address yet? Learn how to get one!';
+
+	/// en: 'Learn more about Lightning Address'
+	String get learnMore => 'Learn more about Lightning Address';
 }
 
 // Path: lightningAddress.feedback
@@ -2504,19 +2526,21 @@ extension on Translations {
 			case 'common.clipboard.copied': return 'Copied to clipboard!';
 			case 'common.actions.cancelAndReturnToOffers': return 'Cancel and return to offers';
 			case 'common.actions.cancelAndReturnHome': return 'Cancel and return home';
-			case 'lightningAddress.labels.address': return 'Lightning Address';
+			case 'lightningAddress.labels.address': return 'Lightning Address (LNURL)';
 			case 'lightningAddress.labels.hint': return 'user@domain.com';
 			case 'lightningAddress.labels.short': return ({required Object address}) => 'Lightning Address: ${address}';
 			case 'lightningAddress.labels.receivingAddress': return 'Your receiving address:';
 			case 'lightningAddress.prompts.enter': return 'Enter your Lightning address to continue';
-			case 'lightningAddress.prompts.edit': return 'Edit Lightning address';
+			case 'lightningAddress.prompts.edit': return 'Edit';
 			case 'lightningAddress.prompts.invalid': return 'Enter a valid Lightning address';
 			case 'lightningAddress.prompts.required': return 'Lightning address is required.';
 			case 'lightningAddress.prompts.enterToTakeOffer': return 'You must set a Lightning address to take an offer.';
 			case 'lightningAddress.prompts.missing': return 'Lightning address is missing. Please add one to be able to take offers.';
-			case 'lightningAddress.prompts.add': return 'Add Lightning Address';
-			case 'lightningAddress.prompts.delete': return 'Delete Lightning Address';
+			case 'lightningAddress.prompts.add': return 'Add';
+			case 'lightningAddress.prompts.delete': return 'Delete';
 			case 'lightningAddress.prompts.confirmDelete': return 'Are you sure you want to delete your Lightning address?';
+			case 'lightningAddress.prompts.howToGet': return 'Don\'t have a Lightning address yet? Learn how to get one!';
+			case 'lightningAddress.prompts.learnMore': return 'Learn more about Lightning Address';
 			case 'lightningAddress.feedback.saved': return 'Lightning address saved!';
 			case 'lightningAddress.feedback.updated': return 'Lightning address updated!';
 			case 'lightningAddress.feedback.valid': return 'Valid Lightning address';
@@ -2873,6 +2897,8 @@ extension on Translations {
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
 			case 'settings.title': return 'Settings';
+			case 'wallet.title': return 'Wallet';
+			case 'wallet.description': return 'Manage your Lightning wallet settings';
 			case 'nekoManagement.title': return 'Neko';
 			default: return null;
 		}

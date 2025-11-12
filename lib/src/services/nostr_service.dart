@@ -518,6 +518,8 @@ class NostrService {
     for (final t in event.tags) {
       if (t.length >= 2) tagMap[t[0]] = t[1];
     }
+    final reservedAt =  int.tryParse(tagMap['reserved_at'] ?? '0') ?? 0;
+    final takerPaidAt =  int.tryParse(tagMap['paid_at'] ?? '0') ?? 0;
     // Build Offer (fallback/default when fields missing!)
     final offer = Offer(
       id: tagMap['d'] ?? event.id,
@@ -534,7 +536,6 @@ class NostrService {
       coordinatorPubkey: tagMap['p'] ?? event.pubKey,
       // or from context
       takerPubkey: tagMap['taker'],
-      reservedAt: null,
       blikReceivedAt: null,
       blikCode: null,
       holdInvoicePaymentHash: tagMap['pmt_hash'],
@@ -545,7 +546,8 @@ class NostrService {
       updatedAt: null,
       makerConfirmedAt: null,
       settledAt: null,
-      takerPaidAt: null,
+      reservedAt: reservedAt!=0 ?DateTime.fromMillisecondsSinceEpoch(reservedAt * 1000) : null,
+      takerPaidAt: takerPaidAt!=0 ?DateTime.fromMillisecondsSinceEpoch(takerPaidAt * 1000) : null,
       takerFees: int.tryParse(tagMap['taker_fees'] ?? '0'),
     );
     return offer;

@@ -416,57 +416,101 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
 
                                   const SizedBox(height: 32),
 
-                                  // Exchange Rate row
-                                  _buildInfoRow(
-                                    t.offers.details.exchangeRate,
-                                    '${_formatNumber(exchangeRate)} ${offer.fiatCurrency}/BTC',
-                                    hasInfoIcon: true,
-                                    onInfoTap:
-                                        () => _showExchangeRateSourcesDialog(
-                                          context,
-                                        ),
-                                  ),
+                                  // Exchange Rate row (hide for takerPaid)
+                                  if (offer.status != OfferStatus.takerPaid.name)
+                                    _buildInfoRow(
+                                      t.offers.details.exchangeRate,
+                                      '${_formatNumber(exchangeRate)} ${offer.fiatCurrency}/BTC',
+                                      hasInfoIcon: true,
+                                      onInfoTap:
+                                          () => _showExchangeRateSourcesDialog(
+                                            context,
+                                          ),
+                                    ),
 
-                                  const SizedBox(height: 16),
+                                  if (offer.status != OfferStatus.takerPaid.name)
+                                    const SizedBox(height: 16),
 
-                                  // Taker fee row
-                                  _buildInfoRow(
-                                    t.offers.details.takerFeeLabel,
-                                    '$takerFeeAmount sats',
-                                    hasInfoIcon: true,
-                                    onInfoTap: () {
-                                      coordinatorInfoAsync.whenData((coordInfo) {
-                                        if (coordInfo != null) {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: Text(t.offers.details.takerFeeLabel),
-                                              content: Text(
-                                                t.offers.tooltips.takerFeeInfo(
-                                                  feePercent: coordInfo.takerFee.toString(),
+                                  // Taker fee row (hide for takerPaid)
+                                  if (offer.status != OfferStatus.takerPaid.name)
+                                    _buildInfoRow(
+                                      t.offers.details.takerFeeLabel,
+                                      '$takerFeeAmount sats',
+                                      hasInfoIcon: true,
+                                      onInfoTap: () {
+                                        coordinatorInfoAsync.whenData((coordInfo) {
+                                          if (coordInfo != null) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text(t.offers.details.takerFeeLabel),
+                                                content: Text(
+                                                  t.offers.tooltips.takerFeeInfo(
+                                                    feePercent: coordInfo.takerFee.toString(),
+                                                  ),
                                                 ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(),
+                                                    child: Text(t.common.buttons.close),
+                                                  ),
+                                                ],
                                               ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(),
-                                                  child: Text(t.common.buttons.close),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                      });
-                                    },
-                                  ),
+                                            );
+                                          }
+                                        });
+                                      },
+                                    ),
 
-                                  const SizedBox(height: 24),
+                                  if (offer.status != OfferStatus.takerPaid.name)
+                                    const SizedBox(height: 24),
 
-                                  // You'll receive row (highlighted)
-                                  _buildInfoRow(
-                                    t.offers.details.youllReceive,
-                                    '$youllReceive sats',
-                                    isHighlighted: true,
-                                  ),
+                                  // You'll receive row (highlighted) (hide for takerPaid)
+                                  if (offer.status != OfferStatus.takerPaid.name)
+                                    _buildInfoRow(
+                                      t.offers.details.youllReceive,
+                                      '$youllReceive sats',
+                                      isHighlighted: true,
+                                    ),
+
+                                  // Timing information for completed offers (takerPaid status)
+                                  if (offer.status == OfferStatus.takerPaid.name &&
+                                      offer.reservedAt != null &&
+                                      offer.takerPaidAt != null) ...[
+                                    const SizedBox(height: 24),
+                                    
+                                    // Taken after
+                                    Text(
+                                      t.offers.details.takenAfter(
+                                        duration: _formatDuration(
+                                          offer.createdAt.difference(offer.reservedAt!),
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    
+                                    const SizedBox(height: 16),
+                                    
+                                    // Paid after (total time)
+                                    Text(
+                                      t.offers.details.paidAfter(
+                                        duration: _formatDuration(
+                                          offer.takerPaidAt!.difference(offer.createdAt),
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
 
                                   const SizedBox(height: 24),
 
@@ -686,6 +730,23 @@ class _OfferDetailsScreenState extends ConsumerState<OfferDetailsScreen> {
   String _formatNumber(int number) {
     final formatter = NumberFormat('#,###', 'en_US');
     return formatter.format(number).replaceAll(',', ' ');
+  }
+
+  /// Formats a duration in a human-readable format
+  String _formatDuration(Duration duration) {
+    final totalSeconds = duration.inSeconds;
+    
+    if (totalSeconds < 60) {
+      return '${totalSeconds}s';
+    } else if (totalSeconds < 3600) {
+      final minutes = totalSeconds ~/ 60;
+      final seconds = totalSeconds % 60;
+      return seconds > 0 ? '${minutes}m ${seconds}s' : '${minutes}m';
+    } else {
+      final hours = totalSeconds ~/ 3600;
+      final minutes = (totalSeconds % 3600) ~/ 60;
+      return minutes > 0 ? '${hours}h ${minutes}m' : '${hours}h';
+    }
   }
 
   /// Shows a dialog with exchange rate sources

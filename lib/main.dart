@@ -46,6 +46,7 @@ import 'src/utils/platform_detection.dart'; // Import our platform detection uti
 import 'src/screens/coordinator_management_screen.dart';
 import 'src/screens/settings_screen.dart';
 import 'src/screens/neko_management_screen.dart';
+import 'src/screens/wallet_screen.dart';
 
 final double kMakerFeePercentage = 0.5;
 final double kTakerFeePercentage = 0.5;
@@ -152,6 +153,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/wallet',
+            builder: (context, state) => const WalletScreen(),
           ),
           GoRoute(
             path: '/neko-management',

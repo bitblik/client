@@ -57,6 +57,7 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsLandingPl landing = _TranslationsLandingPl._(_root);
 	@override late final _TranslationsFaqPl faq = _TranslationsFaqPl._(_root);
 	@override late final _TranslationsSettingsPl settings = _TranslationsSettingsPl._(_root);
+	@override late final _TranslationsWalletPl wallet = _TranslationsWalletPl._(_root);
 	@override late final _TranslationsNekoManagementPl nekoManagement = _TranslationsNekoManagementPl._(_root);
 }
 
@@ -310,6 +311,17 @@ class _TranslationsSettingsPl extends TranslationsSettingsEn {
 	@override String get title => 'Ustawienia';
 }
 
+// Path: wallet
+class _TranslationsWalletPl extends TranslationsWalletEn {
+	_TranslationsWalletPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Portfel';
+	@override String get description => 'Zarządzaj ustawieniami portfela Lightning';
+}
+
 // Path: nekoManagement
 class _TranslationsNekoManagementPl extends TranslationsNekoManagementEn {
 	_TranslationsNekoManagementPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -395,7 +407,7 @@ class _TranslationsLightningAddressLabelsPl extends TranslationsLightningAddress
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get address => 'Adres Lightning';
+	@override String get address => 'Adres Lightning (LNURL)';
 	@override String get hint => 'uzytkownik@domena.com';
 	@override String short({required Object address}) => 'Adres Lightning: ${address}';
 	@override String get receivingAddress => 'Twój adres odbiorczy:';
@@ -409,14 +421,16 @@ class _TranslationsLightningAddressPromptsPl extends TranslationsLightningAddres
 
 	// Translations
 	@override String get enter => 'Wprowadź swój adres Lightning, aby kontynuować';
-	@override String get edit => 'Edytuj adres Lightning';
+	@override String get edit => 'Edytuj';
 	@override String get invalid => 'Wprowadź prawidłowy adres Lightning';
 	@override String get required => 'Adres Lightning jest wymagany.';
 	@override String get enterToTakeOffer => 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
 	@override String get missing => 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
-	@override String get add => 'Dodaj adres Lightning';
-	@override String get delete => 'Usuń adres Lightning';
+	@override String get add => 'Dodaj';
+	@override String get delete => 'Usuń';
 	@override String get confirmDelete => 'Czy na pewno chcesz usunąć swój adres Lightning?';
+	@override String get howToGet => 'Nie masz jeszcze adresu Lightning? Dowiedz się, jak go zdobyć!';
+	@override String get learnMore => 'Dowiedz się więcej o adresach Lightning';
 }
 
 // Path: lightningAddress.feedback
@@ -1693,19 +1707,21 @@ extension on TranslationsPl {
 			case 'common.clipboard.copied': return 'Skopiowano do schowka!';
 			case 'common.actions.cancelAndReturnToOffers': return 'Anuluj i wróć do ofert';
 			case 'common.actions.cancelAndReturnHome': return 'Anuluj i wróć do strony głównej';
-			case 'lightningAddress.labels.address': return 'Adres Lightning';
+			case 'lightningAddress.labels.address': return 'Adres Lightning (LNURL)';
 			case 'lightningAddress.labels.hint': return 'uzytkownik@domena.com';
 			case 'lightningAddress.labels.short': return ({required Object address}) => 'Adres Lightning: ${address}';
 			case 'lightningAddress.labels.receivingAddress': return 'Twój adres odbiorczy:';
 			case 'lightningAddress.prompts.enter': return 'Wprowadź swój adres Lightning, aby kontynuować';
-			case 'lightningAddress.prompts.edit': return 'Edytuj adres Lightning';
+			case 'lightningAddress.prompts.edit': return 'Edytuj';
 			case 'lightningAddress.prompts.invalid': return 'Wprowadź prawidłowy adres Lightning';
 			case 'lightningAddress.prompts.required': return 'Adres Lightning jest wymagany.';
 			case 'lightningAddress.prompts.enterToTakeOffer': return 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
 			case 'lightningAddress.prompts.missing': return 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
-			case 'lightningAddress.prompts.add': return 'Dodaj adres Lightning';
-			case 'lightningAddress.prompts.delete': return 'Usuń adres Lightning';
+			case 'lightningAddress.prompts.add': return 'Dodaj';
+			case 'lightningAddress.prompts.delete': return 'Usuń';
 			case 'lightningAddress.prompts.confirmDelete': return 'Czy na pewno chcesz usunąć swój adres Lightning?';
+			case 'lightningAddress.prompts.howToGet': return 'Nie masz jeszcze adresu Lightning? Dowiedz się, jak go zdobyć!';
+			case 'lightningAddress.prompts.learnMore': return 'Dowiedz się więcej o adresach Lightning';
 			case 'lightningAddress.feedback.saved': return 'Adres Lightning zapisany!';
 			case 'lightningAddress.feedback.updated': return 'Adres Lightning zaktualizowany!';
 			case 'lightningAddress.feedback.valid': return 'Prawidłowy adres Lightning';
@@ -2060,6 +2076,8 @@ extension on TranslationsPl {
 			case 'faq.screenTitle': return 'FAQ';
 			case 'faq.tooltip': return 'FAQ';
 			case 'settings.title': return 'Ustawienia';
+			case 'wallet.title': return 'Portfel';
+			case 'wallet.description': return 'Zarządzaj ustawieniami portfela Lightning';
 			case 'nekoManagement.title': return 'Neko';
 			default: return null;
 		}

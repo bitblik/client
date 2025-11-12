@@ -47,21 +47,23 @@ common:
 # =============================================================================
 lightningAddress:
   labels:
-    address: Lightning Address
+    address: Lightning Address (LNURL)
     hint: user@domain.com
     short: "Lightning Address: ${address}"
     receivingAddress: "Your receiving address:"
   
   prompts:
     enter: Enter your Lightning address to continue
-    edit: Edit Lightning address
+    edit: Edit
     invalid: Enter a valid Lightning address
     required: Lightning address is required.
     enterToTakeOffer: You must set a Lightning address to take an offer.
     missing: Lightning address is missing. Please add one to be able to take offers.
-    add: Add Lightning Address
-    delete: Delete Lightning Address
+    add: Add
+    delete: Delete
     confirmDelete: Are you sure you want to delete your Lightning address?
+    howToGet: "Don't have a Lightning address yet? Learn how to get one!"
+    learnMore: Learn more about Lightning Address
   
   feedback:
     saved: Lightning address saved!
@@ -656,6 +658,10 @@ faq:
 # =============================================================================
 settings:
   title: Settings
+
+wallet:
+  title: Wallet
+  description: Manage your Lightning wallet settings
 
 nekoManagement:
   title: Neko

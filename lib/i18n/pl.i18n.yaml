@@ -47,21 +47,23 @@ common:
 # =============================================================================
 lightningAddress:
   labels:
-    address: Adres Lightning
+    address: Adres Lightning (LNURL)
     hint: uzytkownik@domena.com
     short: "Adres Lightning: ${address}"
     receivingAddress: "Twój adres odbiorczy:"
   
   prompts:
     enter: Wprowadź swój adres Lightning, aby kontynuować
-    edit: Edytuj adres Lightning
+    edit: Edytuj
     invalid: Wprowadź prawidłowy adres Lightning
     required: Adres Lightning jest wymagany.
     enterToTakeOffer: Musisz ustawić adres Lightning, aby przyjąć ofertę.
     missing: Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.
-    add: Dodaj adres Lightning
-    delete: Usuń adres Lightning
+    add: Dodaj
+    delete: Usuń
     confirmDelete: Czy na pewno chcesz usunąć swój adres Lightning?
+    howToGet: "Nie masz jeszcze adresu Lightning? Dowiedz się, jak go zdobyć!"
+    learnMore: Dowiedz się więcej o adresach Lightning
   
   feedback:
     saved: Adres Lightning zapisany!
@@ -656,6 +658,10 @@ faq:
 # =============================================================================
 settings:
   title: Ustawienia
+
+wallet:
+  title: Portfel
+  description: Zarządzaj ustawieniami portfela Lightning
 
 nekoManagement:
   title: Neko

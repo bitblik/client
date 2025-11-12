@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../i18n/gen/strings.g.dart';
 import 'coordinator_management_screen.dart';
 import 'neko_management_screen.dart';
+import 'wallet_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -16,9 +17,7 @@ class SettingsScreen extends ConsumerWidget {
     final t = Translations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.settings.title),
-      ),
+      appBar: AppBar(title: Text(t.settings.title)),
       body: ListView(
         children: [
           ListTile(
@@ -30,6 +29,18 @@ class SettingsScreen extends ConsumerWidget {
                 context.go(NekoManagementScreen.routeName);
               } else {
                 context.push(NekoManagementScreen.routeName);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet),
+            title: Text(t.wallet.title),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              if (kIsWeb) {
+                context.go(WalletScreen.routeName);
+              } else {
+                context.push(WalletScreen.routeName);
               }
             },
           ),
@@ -50,4 +61,3 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-
