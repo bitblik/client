@@ -439,7 +439,12 @@ taker:
     waitingMakerConfirmation: "Oczekiwanie na potwierdzenie płatności BLIK przez Makera w jego aplikacji bankowej. Pozostały czas: ${seconds}s"
     importantNotice: "BARDZO WAŻNE: Upewnij się, że akceptujesz potwierdzenie BLIK tylko na kwotę ${amount} ${currency}"
     importantBlikAmountConfirmation: "BARDZO WAŻNE: W swojej aplikacji bankowej upewnij się, że potwierdzasz płatność BLIK na kwotę dokładnie ${amount} ${currency}."
-    instructions: Maker oferty otrzymał Twój kod BLIK i musi go wprowadzić do terminala płatniczego. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz prawidłową kwotę. Płatność Lightning otrzymasz automatycznie po potwierdzeniu.
+    instructions: "Osoba wystawiająca ofertę musi teraz wpisać kod BLIK w ciągu 2 minut. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej."
+    waitingForMakerToReceive: "Czekamy, aż twórca oferty otrzyma Twój kod BLIK..."
+    makerReceivedBlik: "Twórca oferty otrzymał Twój kod BLIK"
+    timerExpiredMessage: "Minął termin ważności kodu BLIK 2m. Czekamy na potwierdzenie lub oznaczenie kodu jako nieważnego przez wystawcę oferty."
+    timerExpiredActions: "Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować."
+    resendBlikButton: "Wyślij nowy kod BLIK"
     navigatedHome: "Przeniesiono na stronę główną."
     
     feedback:

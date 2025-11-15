@@ -657,18 +657,18 @@ packages:
     dependency: "direct main"
     description:
       name: ndk
-      sha256: cbace034c1c63b00239bc1d9f804f849641e5a7d31b1e866fb1183455903262e
+      sha256: a417482a369606326d695cf0f555aebc07fd07faf81b692f106b9780e3326441
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0-dev.6"
+    version: "0.6.0-dev.10"
   ndk_rust_verifier:
     dependency: "direct main"
     description:
       name: ndk_rust_verifier
-      sha256: ecb8627c2e4f6c90875ac7b1f10fc459b87c2e93ae477df13e046494cbb2a654
+      sha256: "5aa887d7bc6b55e74266d6a7bae63a975f22b91ecabbc0c0b1baf0b2b3a358b1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.2-dev.11"
+    version: "0.4.2-dev.15"
   neon_circular_timer:
     dependency: "direct main"
     description:

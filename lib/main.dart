@@ -580,12 +580,23 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl: 'https://robohash.org/$publicKey?set=set4',
-                      placeholder: (context, url) => const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      width: 80,
-                      height: 80,
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        if (kIsWeb) {
+                          context.go(NekoManagementScreen.routeName);
+                        } else {
+                          context.push(NekoManagementScreen.routeName);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(40),
+                      child: CachedNetworkImage(
+                        imageUrl: 'https://robohash.org/$publicKey?set=set4',
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        width: 80,
+                        height: 80,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     InkWell(

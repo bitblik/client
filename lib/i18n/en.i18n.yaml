@@ -439,13 +439,18 @@ taker:
     waitingMakerConfirmation: "Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s"
     importantNotice: "VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}"
     importantBlikAmountConfirmation: "VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}."
-    instructions: The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.
+    instructions: The maker must now enter it into the payment terminal within 2 minutes. You then must accept the BLIK code in your banking app.
+    waitingForMakerToReceive: "Waiting for maker to receive your BLIK code..."
+    makerReceivedBlik: "Maker has received your BLIK code."
+    timerExpiredMessage: "BLIK 2m expiration time has passed. Waiting for maker to confirm or mark code as invalid."
+    timerExpiredActions: "BLIK 2m expiration time has passed but the maker hasn't received the BLIK code. You can resend a new BLIK code or cancel."
+    resendBlikButton: "Resend New BLIK Code"
     navigatedHome: "Navigated home."
     
     feedback:
       makerConfirmed: Maker confirmed payment.
       paymentSuccessful: Payment successful! You will receive funds shortly.
-    
+
     errors:
       invalidOfferStateReceived: "Received an offer with an invalid state for this screen. Resetting."
 

@@ -928,7 +928,12 @@ class _TranslationsTakerWaitConfirmationPl extends TranslationsTakerWaitConfirma
 	@override String waitingMakerConfirmation({required Object seconds}) => 'Oczekiwanie na potwierdzenie płatności BLIK przez Makera w jego aplikacji bankowej. Pozostały czas: ${seconds}s';
 	@override String importantNotice({required Object amount, required Object currency}) => 'BARDZO WAŻNE: Upewnij się, że akceptujesz potwierdzenie BLIK tylko na kwotę ${amount} ${currency}';
 	@override String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'BARDZO WAŻNE: W swojej aplikacji bankowej upewnij się, że potwierdzasz płatność BLIK na kwotę dokładnie ${amount} ${currency}.';
-	@override String get instructions => 'Maker oferty otrzymał Twój kod BLIK i musi go wprowadzić do terminala płatniczego. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz prawidłową kwotę. Płatność Lightning otrzymasz automatycznie po potwierdzeniu.';
+	@override String get instructions => 'Osoba wystawiająca ofertę musi teraz wpisać kod BLIK w ciągu 2 minut. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej.';
+	@override String get waitingForMakerToReceive => 'Czekamy, aż twórca oferty otrzyma Twój kod BLIK...';
+	@override String get makerReceivedBlik => 'Twórca oferty otrzymał Twój kod BLIK';
+	@override String get timerExpiredMessage => 'Minął termin ważności kodu BLIK 2m. Czekamy na potwierdzenie lub oznaczenie kodu jako nieważnego przez wystawcę oferty.';
+	@override String get timerExpiredActions => 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
+	@override String get resendBlikButton => 'Wyślij nowy kod BLIK';
 	@override String get navigatedHome => 'Przeniesiono na stronę główną.';
 	@override late final _TranslationsTakerWaitConfirmationFeedbackPl feedback = _TranslationsTakerWaitConfirmationFeedbackPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationErrorsPl errors = _TranslationsTakerWaitConfirmationErrorsPl._(_root);
@@ -1965,7 +1970,12 @@ extension on TranslationsPl {
 			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Oczekiwanie na potwierdzenie płatności BLIK przez Makera w jego aplikacji bankowej. Pozostały czas: ${seconds}s';
 			case 'taker.waitConfirmation.importantNotice': return ({required Object amount, required Object currency}) => 'BARDZO WAŻNE: Upewnij się, że akceptujesz potwierdzenie BLIK tylko na kwotę ${amount} ${currency}';
 			case 'taker.waitConfirmation.importantBlikAmountConfirmation': return ({required Object amount, required Object currency}) => 'BARDZO WAŻNE: W swojej aplikacji bankowej upewnij się, że potwierdzasz płatność BLIK na kwotę dokładnie ${amount} ${currency}.';
-			case 'taker.waitConfirmation.instructions': return 'Maker oferty otrzymał Twój kod BLIK i musi go wprowadzić do terminala płatniczego. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz prawidłową kwotę. Płatność Lightning otrzymasz automatycznie po potwierdzeniu.';
+			case 'taker.waitConfirmation.instructions': return 'Osoba wystawiająca ofertę musi teraz wpisać kod BLIK w ciągu 2 minut. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej.';
+			case 'taker.waitConfirmation.waitingForMakerToReceive': return 'Czekamy, aż twórca oferty otrzyma Twój kod BLIK...';
+			case 'taker.waitConfirmation.makerReceivedBlik': return 'Twórca oferty otrzymał Twój kod BLIK';
+			case 'taker.waitConfirmation.timerExpiredMessage': return 'Minął termin ważności kodu BLIK 2m. Czekamy na potwierdzenie lub oznaczenie kodu jako nieważnego przez wystawcę oferty.';
+			case 'taker.waitConfirmation.timerExpiredActions': return 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
+			case 'taker.waitConfirmation.resendBlikButton': return 'Wyślij nowy kod BLIK';
 			case 'taker.waitConfirmation.navigatedHome': return 'Przeniesiono na stronę główną.';
 			case 'taker.waitConfirmation.feedback.makerConfirmed': return 'Maker potwierdził płatność.';
 			case 'taker.waitConfirmation.feedback.paymentSuccessful': return 'Płatność udana! Wkrótce otrzymasz środki.';

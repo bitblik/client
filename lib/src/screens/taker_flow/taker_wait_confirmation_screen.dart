@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ndk/shared/logger/logger.dart';
+import 'package:neon_circular_timer/neon_circular_timer.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -26,6 +27,9 @@ class _TakerWaitConfirmationScreenState
   Timer? _confirmationTimer;
   int _confirmationCountdownSeconds = 120;
   bool _timersInitialized = false;
+  bool _timerExpired = false;
+  bool _makerReceivedBlik = false;
+  Duration? _maxConfirmationTime;
 
   @override
   void initState() {
@@ -42,6 +46,34 @@ class _TakerWaitConfirmationScreenState
             t.taker.waitConfirmation.errors.invalidOfferStateReceived,
           );
         }
+      });
+    }
+    
+    // Fetch coordinator info for confirmation timeout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _fetchCoordinatorInfo();
+      }
+    });
+  }
+  
+  Future<void> _fetchCoordinatorInfo() async {
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(widget.offer.coordinatorPubkey);
+      if (coordinatorInfo != null) {
+        setState(() {
+          _maxConfirmationTime = Duration(seconds: 120); // Default 2 minutes for BLIK confirmation
+        });
+      } else {
+        setState(() {
+          _maxConfirmationTime = const Duration(seconds: 120);
+        });
+      }
+    } catch (e) {
+      Logger.log.e("[TakerWaitConfirmation] Error fetching coordinator info: $e");
+      setState(() {
+        _maxConfirmationTime = const Duration(seconds: 120);
       });
     }
   }
@@ -101,6 +133,9 @@ class _TakerWaitConfirmationScreenState
     _confirmationTimer?.cancel();
     if (mounted) {
       Logger.log.d("[TakerWaitConfirmation] Confirmation timer expired.");
+      setState(() {
+        _timerExpired = true;
+      });
     }
   }
 
@@ -134,6 +169,7 @@ class _TakerWaitConfirmationScreenState
   @override
   Widget build(BuildContext context) {
     // Watch the active offer provider to get real-time status updates
+    final t = Translations.of(context);
     final offer = ref.watch(activeOfferProvider);
 
     // Use addPostFrameCallback to handle navigation after the build phase
@@ -147,6 +183,13 @@ class _TakerWaitConfirmationScreenState
       }
 
       final currentStatusEnum = offer.statusEnum;
+      
+      // Track when maker receives BLIK code
+      if (currentStatusEnum == OfferStatus.blikSentToMaker && !_makerReceivedBlik) {
+        setState(() {
+          _makerReceivedBlik = true;
+        });
+      }
 
       if (currentStatusEnum == OfferStatus.makerConfirmed ||
           currentStatusEnum == OfferStatus.settled ||
@@ -155,14 +198,8 @@ class _TakerWaitConfirmationScreenState
         Logger.log.d(
           "[TakerWaitConfirmation] Status is $currentStatusEnum. Navigating to process screen.",
         );
-        // final paymentHash = offer.holdInvoicePaymentHash;
-        // if (paymentHash != null) {
-        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
           _confirmationTimer?.cancel();
           context.go("/paying-taker");
-        // } else {
-        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
-        // }
       } else if (currentStatusEnum == OfferStatus.invalidBlik) {
         _confirmationTimer?.cancel();
         context.go('/taker-invalid-blik', extra: offer);
@@ -170,14 +207,8 @@ class _TakerWaitConfirmationScreenState
         _confirmationTimer?.cancel();
         context.go('/taker-conflict', extra: offer.id);
       } else if (currentStatusEnum == OfferStatus.takerPaymentFailed) {
-        // final paymentHash = offer.holdInvoicePaymentHash;
-        // if (paymentHash != null) {
-        //   ref.read(paymentHashProvider.notifier).state = paymentHash;
           _confirmationTimer?.cancel();
           context.go('/paying-taker');
-        // } else {
-        //   _resetToOfferList(t.system.errors.internalOfferIncomplete);
-        // }
       } else if (currentStatusEnum != OfferStatus.blikReceived &&
           currentStatusEnum != OfferStatus.blikSentToMaker) {
         _resetToOfferList(
@@ -201,83 +232,370 @@ class _TakerWaitConfirmationScreenState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.taker.waitConfirmation.title),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: t.common.buttons.goHome,
-            onPressed: () {
-              _resetToOfferList(t.taker.waitConfirmation.navigatedHome);
-            },
-          ),
-        ],
-      ),
       body: _buildWaitingContent(context, offer),
     );
   }
 
   Widget _buildWaitingContent(BuildContext context, Offer offer) {
     final errorMessage = ref.watch(errorProvider);
+    final isLoading = ref.watch(isLoadingProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Progress indicator
-            const TakerProgressIndicator(activeStep: 2),
-            const SizedBox(height: 24),
-            if (errorMessage != null) ...[
-              Text(
-                errorMessage,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          // 3-Step Progress Indicator
+          const TakerProgressIndicator(activeStep: 2),
+          const SizedBox(height: 10),
+
+          // Info message based on status - only show if timer hasn't expired
+          if (!_timerExpired) ...[
+            if (offer.statusEnum == OfferStatus.blikReceived) ...[
+              // Waiting for maker to receive BLIK code
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        t.taker.waitConfirmation.waitingForMakerToReceive,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
+            ] else if (_makerReceivedBlik) ...[
+              // Maker has received BLIK code
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t.taker.waitConfirmation.makerReceivedBlik,
+                        style: const TextStyle(fontSize: 13, color: Colors.blue),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
-            Text(
-              t.common.labels.status(status: offer.status),
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              t.taker.waitConfirmation.waitingMakerConfirmation(
-                seconds: _confirmationCountdownSeconds,
-              ),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color:
-                    _confirmationCountdownSeconds <= 15
-                        ? Colors.orange
-                        : Theme.of(context).colorScheme.secondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              t.taker.waitConfirmation.importantBlikAmountConfirmation(
-                amount: formatDouble(offer.fiatAmount ?? 0.0),
-                currency: offer.fiatCurrency,
-              ),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            const Center(
-              child: Icon(Icons.timer_outlined, size: 40, color: Colors.grey),
-            ),
-            const SizedBox(height: 20),
-            Text(t.blik.instructions.taker, textAlign: TextAlign.center),
           ],
-        ),
+
+          // Instructional text - only show if timer hasn't expired and maker received BLIK
+          if (!_timerExpired && offer.statusEnum == OfferStatus.blikSentToMaker) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      t.taker.waitConfirmation.instructions,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+          ],
+
+          // Circular Countdown Timer
+          if (offer.blikReceivedAt != null && _maxConfirmationTime != null && !_timerExpired)
+            NeonCircularTimer(
+              width: 200,
+              isReverseAnimation: true,
+              isReverse: true,
+              duration: _maxConfirmationTime!.inSeconds,
+              controller: null,
+              isTimerTextShown: true,
+              neumorphicEffect: true,
+              innerFillGradient: LinearGradient(
+                colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400],
+              ),
+              neonGradient: LinearGradient(
+                colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400],
+              ),
+            )
+          else if (_timerExpired)
+            const Icon(Icons.timer_off, size: 100, color: Colors.red),
+
+          const SizedBox(height: 30),
+
+          // Important notice - only show if timer hasn't expired and maker has received BLIK
+          if (!_timerExpired && offer.statusEnum == OfferStatus.blikSentToMaker)
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      t.taker.waitConfirmation.importantBlikAmountConfirmation(
+                        amount: formatDouble(offer.fiatAmount),
+                        currency: offer.fiatCurrency,
+                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.orange),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          if (errorMessage != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              errorMessage,
+              style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          ],
+
+          const SizedBox(height: 20),
+
+          // Show warning and buttons if timer expired
+          if (_timerExpired) ...[
+            // Warning message if maker has received BLIK (blikSentToMaker)
+            if (offer.statusEnum == OfferStatus.blikSentToMaker) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t.taker.waitConfirmation.timerExpiredMessage,
+                        style: const TextStyle(fontSize: 13, color: Colors.orange),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+            
+            // Show action message and buttons if still in blikReceived status
+            if (offer.statusEnum == OfferStatus.blikReceived) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t.taker.waitConfirmation.timerExpiredActions,
+                        style: const TextStyle(fontSize: 13, color: Colors.orange),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Resend BLIK button
+              Container(
+                width: double.infinity,
+                height: 44,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      const Color(0xFFFF0000),
+                      const Color(0xFFFF007F),
+                    ],
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: isLoading ? null : () => _resendBlik(offer),
+                    borderRadius: BorderRadius.circular(24),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (isLoading) ...[
+                            const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ] else ...[
+                            const Icon(Icons.refresh, color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            t.taker.waitConfirmation.resendBlikButton,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Cancel Reservation Button
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red, width: 1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                    onPressed: isLoading ? null : () => _cancelReservation(offer),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                          child: const Icon(Icons.close, size: 16, color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.reservations.actions.cancel,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ],
       ),
     );
+  }
+
+  Future<void> _resendBlik(Offer offer) async {
+    // Navigate back to submit BLIK screen
+    _confirmationTimer?.cancel();
+    if (mounted) {
+      context.go('/submit-blik', extra: offer);
+    }
+  }
+
+  Future<void> _cancelReservation(Offer offer) async {
+    final takerId = ref.read(publicKeyProvider).value;
+    if (takerId == null) return;
+
+    ref.read(isLoadingProvider.notifier).state = true;
+    ref.read(errorProvider.notifier).state = null;
+
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      await apiService.cancelReservation(offer.id, takerId, offer.coordinatorPubkey);
+      if (mounted) {
+        _resetToOfferList(t.reservations.feedback.cancelled);
+      }
+    } catch (e) {
+      ref.read(errorProvider.notifier).state = t.reservations.errors.cancelling(error: e.toString());
+    } finally {
+      if (mounted) {
+        ref.read(isLoadingProvider.notifier).state = false;
+      }
+    }
   }
 }
 

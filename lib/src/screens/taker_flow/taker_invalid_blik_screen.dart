@@ -314,17 +314,17 @@ class _TakerInvalidBlikScreenState
                         )
                         : Text(t.taker.invalidBlik.actions.reportConflict),
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () async {
-                  // PILA no no no, we should cancel the reservation and go back to funded, TODO!!!!
-                  // await ref
-                  //     .read(activeOfferProvider.notifier)
-                  //     .setActiveOffer(null);
-                  context.go('/offers');
-                },
-                child: Text(t.common.actions.cancelAndReturnToOffers),
-              ),
+              // const SizedBox(height: 20),
+              // TextButton(
+              //   onPressed: () async {
+              //     // PILA no no no, we should cancel the reservation and go back to funded, TODO!!!!
+              //     // await ref
+              //     //     .read(activeOfferProvider.notifier)
+              //     //     .setActiveOffer(null);
+              //     context.go('/offers');
+              //   },
+              //   child: Text(t.common.actions.cancelAndReturnToOffers),
+              // ),
             ],
           ),
         ),

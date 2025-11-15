@@ -1422,8 +1422,23 @@ class TranslationsTakerWaitConfirmationEn {
 	/// en: 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.'
 	String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
 
-	/// en: 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.'
-	String get instructions => 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
+	/// en: 'The maker must now enter it into the payment terminal within 2 minutes. You then must accept the BLIK code in your banking app.'
+	String get instructions => 'The maker must now enter it into the payment terminal within 2 minutes. You then must accept the BLIK code in your banking app.';
+
+	/// en: 'Waiting for maker to receive your BLIK code...'
+	String get waitingForMakerToReceive => 'Waiting for maker to receive your BLIK code...';
+
+	/// en: 'Maker has received your BLIK code.'
+	String get makerReceivedBlik => 'Maker has received your BLIK code.';
+
+	/// en: 'BLIK 2m expiration time has passed. Waiting for maker to confirm or mark code as invalid.'
+	String get timerExpiredMessage => 'BLIK 2m expiration time has passed. Waiting for maker to confirm or mark code as invalid.';
+
+	/// en: 'BLIK 2m expiration time has passed but the maker hasn't received the BLIK code. You can resend a new BLIK code or cancel.'
+	String get timerExpiredActions => 'BLIK 2m expiration time has passed but the maker hasn\'t received the BLIK code. You can resend a new BLIK code or cancel.';
+
+	/// en: 'Resend New BLIK Code'
+	String get resendBlikButton => 'Resend New BLIK Code';
 
 	/// en: 'Navigated home.'
 	String get navigatedHome => 'Navigated home.';
@@ -2786,7 +2801,12 @@ extension on Translations {
 			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s';
 			case 'taker.waitConfirmation.importantNotice': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}';
 			case 'taker.waitConfirmation.importantBlikAmountConfirmation': return ({required Object amount, required Object currency}) => 'VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}.';
-			case 'taker.waitConfirmation.instructions': return 'The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.';
+			case 'taker.waitConfirmation.instructions': return 'The maker must now enter it into the payment terminal within 2 minutes. You then must accept the BLIK code in your banking app.';
+			case 'taker.waitConfirmation.waitingForMakerToReceive': return 'Waiting for maker to receive your BLIK code...';
+			case 'taker.waitConfirmation.makerReceivedBlik': return 'Maker has received your BLIK code.';
+			case 'taker.waitConfirmation.timerExpiredMessage': return 'BLIK 2m expiration time has passed. Waiting for maker to confirm or mark code as invalid.';
+			case 'taker.waitConfirmation.timerExpiredActions': return 'BLIK 2m expiration time has passed but the maker hasn\'t received the BLIK code. You can resend a new BLIK code or cancel.';
+			case 'taker.waitConfirmation.resendBlikButton': return 'Resend New BLIK Code';
 			case 'taker.waitConfirmation.navigatedHome': return 'Navigated home.';
 			case 'taker.waitConfirmation.feedback.makerConfirmed': return 'Maker confirmed payment.';
 			case 'taker.waitConfirmation.feedback.paymentSuccessful': return 'Payment successful! You will receive funds shortly.';
