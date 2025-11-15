@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/offer.dart'; // Import Offer which contains OfferStatus
 import '../../providers/providers.dart';
+import '../../widgets/progress_indicators.dart'; // Import for TakerProgressIndicator
 
 // Define the checklist steps and their corresponding statuses
 enum PaymentStep {
@@ -46,14 +47,26 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
       body: Padding(
         // Add padding around the checklist
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child:
-              paymentHash == null
-                  ? _buildErrorContent(
-                    context,
-                    t.taker.paymentProcess.errors.missingPaymentHash,
-                  )
-                  : _buildPollingContent(context, ref, paymentHash),
+        child: Column(
+          children: [
+            // Progress indicator
+            const TakerProgressIndicator(activeStep: 3),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Center(
+                child:
+                    // paymentHash == null
+                    //     ? _buildErrorContent(
+                    //       context,
+                    //       t.taker.paymentProcess.errors.missingPaymentHash,
+                    //     )
+                    //     :
+                    _buildPollingContent(context, ref
+                        // , paymentHash
+                    ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -62,44 +75,39 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
   Widget _buildPollingContent(
     BuildContext context,
     WidgetRef ref,
-    String paymentHash,
+    // String paymentHash,
   ) {
-    final statusAsyncValue = ref.watch(pollingOfferStatusProvider(paymentHash));
+    // Watch the active offer for real-time updates
+    final offer = ref.watch(activeOfferProvider);
 
-    return statusAsyncValue.when(
-      data: (status) {
-        if (status == null) {
-          // Still waiting for the first status update
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(t.taker.paymentProcess.waitingForOfferUpdate),
-            ],
-          );
-        }
+    if (offer == null) {
+      // Offer might be loading or cleared, show a loading indicator.
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(t.taker.paymentProcess.waitingForOfferUpdate),
+        ],
+      );
+    }
 
-        // Build the checklist UI based on the current status
-        return _PaymentChecklist(
-          currentStatus: status,
-          paymentHash: paymentHash, // Pass paymentHash
-        );
-      },
-      loading:
-          () => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(t.offers.display.loadingDetails),
-            ],
-          ),
-      error:
-          (error, stack) => _buildErrorContent(
-            context,
-            t.offers.errors.loading(details: error.toString()),
-          ),
+    OfferStatus? currentStatus;
+    try {
+      currentStatus = OfferStatus.values.byName(offer.status);
+    } catch (e) {
+      return _buildErrorContent(
+        context,
+        t.offers.errors.loading(
+          details: "Invalid offer status: ${offer.status}",
+        ),
+      );
+    }
+
+    // Build the checklist UI based on the current status from the active offer
+    return _PaymentChecklist(
+      currentStatus: currentStatus,
+      // paymentHash: paymentHash, // Pass paymentHash
     );
   }
 
@@ -136,11 +144,11 @@ class TakerPaymentProcessScreen extends ConsumerWidget {
 class _PaymentChecklist extends ConsumerWidget {
   // Make ConsumerWidget
   final OfferStatus currentStatus;
-  final String paymentHash; // Add paymentHash field
+  // final String paymentHash; // Add paymentHash field
 
   const _PaymentChecklist({
     required this.currentStatus,
-    required this.paymentHash, // Add paymentHash to constructor
+    // required this.paymentHash, // Add paymentHash to constructor
   });
 
   String _getStepText(PaymentStep step) {
@@ -207,7 +215,7 @@ class _PaymentChecklist extends ConsumerWidget {
             return _ChecklistItem(
               text: itemText,
               status: itemStatus,
-              paymentHash: paymentHash, // Pass paymentHash down
+              // paymentHash: paymentHash, // Pass paymentHash down
               isLastError:
                   isFailed && stepOrderIndex == successfulStepsOrder.length - 1,
             );
@@ -217,15 +225,16 @@ class _PaymentChecklist extends ConsumerWidget {
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  ref.read(appRoleProvider.notifier).state = AppRole.none;
-                  ref.read(activeOfferProvider.notifier).state = null;
+                onPressed: () async {
+                  await ref
+                      .read(activeOfferProvider.notifier)
+                      .setActiveOffer(null);
                   ref.read(holdInvoiceProvider.notifier).state = null;
                   ref.read(paymentHashProvider.notifier).state = null;
                   ref.read(receivedBlikCodeProvider.notifier).state = null;
                   ref.read(errorProvider.notifier).state = null;
                   ref.read(isLoadingProvider.notifier).state = false;
-                  ref.invalidate(availableOffersProvider); // Invalidate offer list
+                  ref.invalidate(availableOffersProvider);
                   context.go("/");
                 },
                 child: Text(t.common.buttons.done),
@@ -244,13 +253,13 @@ class _ChecklistItem extends ConsumerWidget {
   // Make ConsumerWidget
   final String text;
   final ChecklistItemStatus status;
-  final String paymentHash; // Add paymentHash field
+  // final String paymentHash; // Add paymentHash field
   final bool isLastError;
 
   const _ChecklistItem({
     required this.text,
     required this.status,
-    required this.paymentHash, // Add paymentHash to constructor
+    // required this.paymentHash, // Add paymentHash to constructor
     this.isLastError = false,
   });
 

@@ -1,6 +1,9 @@
 # Stage 1: Build the Flutter web application
 # Use an official Flutter image that includes the SDK
-FROM instrumentisto/flutter:3.32.0 AS build
+FROM instrumentisto/flutter:3.35.3 AS build
+
+# Build mode argument: can be "release" or "debug"
+ARG BUILD_MODE=release
 
 # Set working directory INSIDE the client directory structure for the build
 WORKDIR /app
@@ -17,13 +20,8 @@ RUN flutter pub get
 # Ensure web support is enabled (might be redundant if already enabled)
 RUN flutter config --enable-web
 
-# Build the web application
-# Note: Ensure the base URL in ApiService is correct for the containerized environment
-# or use build arguments/environment variables to configure it.
-# Example using build-arg:
-# ARG API_BASE_URL=http://localhost:8080
-# RUN flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
-RUN flutter build web --release --no-web-resources-cdn
+# Build the web application with the specified build mode
+RUN flutter build web --${BUILD_MODE} --no-web-resources-cdn
 
 # Stage 2: Serve the built web application using Nginx
 FROM nginx:stable-alpine
@@ -32,11 +30,18 @@ FROM nginx:stable-alpine
 # The output directory for flutter build web is build/web relative to WORKDIR
 COPY --from=build /app/build/web /usr/share/nginx/html
 
+# Copy the default config.js (can be overridden by mounting a volume or using entrypoint)
+COPY --from=build /app/web/config.js /usr/share/nginx/html/config.js
+
 # Copy the custom Nginx configuration (from the client directory)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy entrypoint script for generating config.js from environment variables
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Use entrypoint script to generate config.js from env vars, then start Nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -2,6 +2,7 @@ import '../../../i18n/gen/strings.g.dart'; // Corrected Slang import
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -26,6 +27,23 @@ class _TakerPaymentFailedScreenState
   final _bolt11Controller = TextEditingController();
   PaymentRetryState _currentState = PaymentRetryState.initial; // Initial state
   String? _errorMessage; // To store error messages
+
+  void _handleStatusUpdate(OfferStatus? status) {
+    if (status == null) return;
+
+    if (mounted) {
+      if (status == OfferStatus.takerPaid) {
+        setState(() {
+          _currentState = PaymentRetryState.success;
+        });
+      } else if (status == OfferStatus.takerPaymentFailed) {
+        setState(() {
+          _currentState = PaymentRetryState.failed;
+          _errorMessage = t.taker.paymentFailed.errors.paymentRetryFailed;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -62,54 +80,23 @@ class _TakerPaymentFailedScreenState
         offerId: widget.offer.id,
         newBolt11: newInvoice,
         userPubkey: userPubkey,
+        coordinatorPubkey: widget.offer.coordinatorPubkey,
       );
 
       // 2. Trigger the retry mechanism on the backend
       await apiService.retryTakerPayment(
         offerId: widget.offer.id,
         userPubkey: userPubkey,
+        coordinatorPubkey: widget.offer.coordinatorPubkey,
       );
 
-      // 3. Poll for the final status (success or persistent failure)
-      bool isFinalState = false;
-      String? finalStatus;
-      int attempts = 0;
-      const maxAttempts = 15; // Poll for ~30 seconds
-
-      while (!isFinalState && attempts < maxAttempts && mounted) {
-        attempts++;
-        await Future.delayed(const Duration(seconds: 2));
-        // Ensure still mounted after delay
-        if (!mounted) return;
-
-        final currentStatus = await apiService.getOfferStatus(
-          widget.offer.holdInvoicePaymentHash ?? '',
-        );
-
-        if (currentStatus == OfferStatus.takerPaid.name) {
-          isFinalState = true;
-          finalStatus = currentStatus;
-        } else if (currentStatus == OfferStatus.takerPaymentFailed.name) {
-          // Still failed after retry attempt, stop polling
-          isFinalState = true;
-          finalStatus = currentStatus;
-        }
-        // Continue polling if status is unchanged or in an intermediate state
-      }
-
-      // Update UI based on polling result, only if still mounted
+      // 3. Set up subscription to listen for status updates
       if (mounted) {
-        if (finalStatus == OfferStatus.takerPaid.name) {
-          setState(() {
-            _currentState = PaymentRetryState.success; // Set success state
-          });
-        } else {
-          // Still failed or timed out
-          setState(() {
-            _currentState = PaymentRetryState.failed; // Set failed state
-            _errorMessage = t.taker.paymentFailed.errors.paymentRetryFailed;
-          });
-        }
+        setState(() {
+          _currentState =
+              PaymentRetryState
+                  .loading; // Keep loading while waiting for status
+        });
       }
     } catch (e) {
       // Handle API errors or other exceptions, only if still mounted
@@ -126,6 +113,18 @@ class _TakerPaymentFailedScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Listen to the activeOfferProvider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null && next.id == widget.offer.id) {
+        try {
+          final status = OfferStatus.values.byName(next.status);
+          _handleStatusUpdate(status);
+        } catch (e) {
+          Logger.log.e("Error parsing offer status in TakerPaymentFailedScreen: $e");
+        }
+      }
+    });
+
     // Calculate net amount (moved here for access to widget.offer)
     final takerFees =
         widget.offer.takerFees ?? (widget.offer.amountSats * 0.005).ceil();
@@ -187,9 +186,10 @@ class _TakerPaymentFailedScreenState
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                ref.read(activeOfferProvider.notifier).state = null;
-                ref.read(appRoleProvider.notifier).state = AppRole.none;
+              onPressed: () async {
+                await ref
+                    .read(activeOfferProvider.notifier)
+                    .setActiveOffer(null);
                 if (mounted) {
                   context.go('/');
                 }
