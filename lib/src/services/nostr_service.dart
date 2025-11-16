@@ -838,12 +838,12 @@ class NostrService {
     _handleResponse(response, (result) => null);
   }
 
-  Future<void> markOfferConflict(
+  Future<void> markBlikCharged(
     String offerId,
     String coordinatorPubkey,
   ) async {
     final request = NostrRequest(
-      method: 'mark_offer_conflict',
+      method: 'mark_blik_charged',
       params: {'offer_id': offerId},
     );
 

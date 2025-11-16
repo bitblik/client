@@ -352,13 +352,12 @@ class ApiServiceNostr {
     }
   }
 
-  // POST /offers/{offerId}/conflict - via Nostr
-  Future<void> markOfferConflict(
+  Future<void> markBlikCharged(
     String offerId,
     String coordinatorPubKey,
   ) async {
     try {
-      await _nostrService.markOfferConflict(offerId, coordinatorPubKey);
+      await _nostrService.markBlikCharged(offerId, coordinatorPubKey);
     } catch (e) {
       Logger.log.e('Error calling markOfferConflict: $e');
       rethrow;

@@ -106,8 +106,7 @@ class _MakerWaitForBlikScreenState
 
     Logger.log.d("[MakerWaitForBlik] Status update received: $status");
 
-    if (status == OfferStatus.blikReceived ||
-        status == OfferStatus.blikSentToMaker) {
+    if (status == OfferStatus.blikReceived) {
       Logger.log.i("[MakerWaitForBlik] BLIK received/sent. Fetching code via API...");
 
       try {
@@ -137,13 +136,13 @@ class _MakerWaitForBlikScreenState
             "[MakerWaitForBlik] Error: Status is $status but API returned no BLIK code. Resetting.",
           );
           if (mounted) {
-            _resetToRoleSelection(t.system.errors.generic);
+            // _resetToRoleSelection(t.system.errors.generic);
           }
         }
       } catch (e) {
         Logger.log.e("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
         if (mounted) {
-          _resetToRoleSelection(t.system.errors.generic);
+          // _resetToRoleSelection(t.system.errors.generic);
         }
       }
     } else if (status == OfferStatus.funded) {
@@ -160,28 +159,28 @@ class _MakerWaitForBlikScreenState
         "[MakerWaitForBlik] Offer in unexpected state ($status). Resetting.",
       );
       if (mounted) {
-        _resetToRoleSelection(t.system.errors.generic);
+        // _resetToRoleSelection(t.system.errors.generic);
       }
     }
   }
 
-  Future<void> _resetToRoleSelection(String message) async {
-    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
-    ref.read(holdInvoiceProvider.notifier).state = null;
-    ref.read(paymentHashProvider.notifier).state = null;
-    ref.read(receivedBlikCodeProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-        if (scaffoldMessenger != null) {
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
-        }
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    });
-  }
+  // Future<void> _resetToRoleSelection(String message) async {
+  //   await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+  //   ref.read(holdInvoiceProvider.notifier).state = null;
+  //   ref.read(paymentHashProvider.notifier).state = null;
+  //   ref.read(receivedBlikCodeProvider.notifier).state = null;
+  //   ref.read(errorProvider.notifier).state = null;
+  //
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (mounted) {
+  //       final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+  //       if (scaffoldMessenger != null) {
+  //         scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
+  //       }
+  //       Navigator.of(context).popUntil((route) => route.isFirst);
+  //     }
+  //   });
+  // }
 
   void _goHome() {
     Navigator.of(context).popUntil((route) => route.isFirst);
@@ -253,60 +252,89 @@ class _MakerWaitForBlikScreenState
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const MakerProgressIndicator(activeStep: 2),
-              const SizedBox(height: 20),
-              // Top section: Message with refresh icon
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                    ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const MakerProgressIndicator(activeStep: 2),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.symmetric(horizontal: 60),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      t.maker.waitForBlik.message,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.black87,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Icon(Icons.info_outline, color: Colors.blue, size: 20),
                       ),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          t.maker.waitForBlik.messageInfo,
+                          style: const TextStyle(fontSize: 13, color: Colors.blue),
+                          softWrap: true,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 40),
-              
-              // Center: Large circular progress bar with time
-              Expanded(
-                child: Center(
+                ),
+                const SizedBox(height: 20),
+
+                // Top section: Message with refresh icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        t.maker.waitForBlik.messageWaiting,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                
+                // Center: Large circular progress bar with time
+                Center(
                   child: CircularCountdownTimer(
                     startTime: offer.reservedAt!,
                     maxDuration: _reservationDuration!,
                     size: 200,
-                    strokeWidth: 12,
-                    progressColor: Colors.orange,
-                    backgroundColor: Colors.grey[400]!,
+                    strokeWidth: 16,
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.white,
                     fontSize: 48,
                   ),
                 ),
-              ),
-              
-              // Bottom section: Offer details
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                
+                const SizedBox(height: 30),
+                
+                // Bottom section: Offer details
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   // Offer details (bottom left)
                   _buildDetailRow(
                     context,
@@ -322,6 +350,7 @@ class _MakerWaitForBlikScreenState
                 ],
               ),
             ],
+            ),
           ),
         ),
       ),

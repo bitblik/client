@@ -9,8 +9,111 @@ import 'package:ndk/shared/logger/logger.dart';
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart'; // Import providers
 
-class RoleSelectionScreen extends ConsumerWidget {
+class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
+
+  @override
+  ConsumerState<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+}
+
+class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
+  bool _isSyncing = false;
+  bool _hasTriggeredInitialSync = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Logger.log.d('[RoleSelectionScreen] initState called');
+  }
+
+  /// Syncs the local active offer state with the coordinator's state
+  Future<void> _syncActiveOfferWithCoordinator() async {
+    Logger.log.d('[RoleSelectionScreen] _syncActiveOfferWithCoordinator called');
+    
+    if (_isSyncing) {
+      Logger.log.d('[RoleSelectionScreen] Already syncing, skipping');
+      return;
+    }
+    
+    final activeOffer = ref.read(activeOfferProvider);
+    final publicKey = await ref.read(publicKeyProvider.future);
+    
+    Logger.log.d('[RoleSelectionScreen] activeOffer: ${activeOffer?.id}, publicKey: ${publicKey?.substring(0, 8)}...');
+    
+    // Only sync if we have an active offer and a public key
+    if (activeOffer == null) {
+      Logger.log.d('[RoleSelectionScreen] No active offer, skipping sync');
+      return;
+    }
+    
+    if (publicKey == null) {
+      Logger.log.d('[RoleSelectionScreen] No public key, skipping sync');
+      return;
+    }
+    
+    // Skip sync for offers with 'created' status - they only exist locally
+    if (activeOffer.status == OfferStatus.created.name) {
+      Logger.log.d('[RoleSelectionScreen] Offer has created status, skipping coordinator sync');
+      return;
+    }
+
+    // Mark that we're doing the sync
+    _hasTriggeredInitialSync = true;
+    
+    setState(() {
+      _isSyncing = true;
+    });
+
+    try {
+      Logger.log.i('[RoleSelectionScreen] Fetching active offer from coordinator for offer ${activeOffer.id}');
+      final apiService = ref.read(apiServiceProvider);
+      final fetchedOffer = await apiService.getMyActiveOffer(
+        publicKey,
+        activeOffer.coordinatorPubkey,
+      );
+      Logger.log.d('[RoleSelectionScreen] Fetched offer result: ${fetchedOffer != null ? "found" : "null"}');
+
+      final fetchedOfferObj = fetchedOffer!= null ? Offer.fromJson(fetchedOffer) : null ;
+
+      if (fetchedOfferObj == null ||
+          fetchedOfferObj.statusEnum == OfferStatus.takerPaid ||
+          fetchedOfferObj.statusEnum == OfferStatus.expired ||
+          fetchedOfferObj.statusEnum == OfferStatus.cancelled ||
+          fetchedOfferObj.id != activeOffer.id) {
+        // Coordinator says no active offer, or taker has paid - clear local state
+        Logger.log.i(
+          '[RoleSelectionScreen] No active offer on coordinator or taker has paid. Clearing local active offer.',
+        );
+        await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+      } else {
+        // Check if the status differs
+        if (fetchedOfferObj.status != activeOffer.status) {
+          Logger.log.i(
+            '[RoleSelectionScreen] Offer status mismatch. Local: ${activeOffer.status}, Coordinator: ${fetchedOfferObj
+                .status}. Updating local state.',
+          );
+
+          // Update local state to match coordinator
+          await ref.read(activeOfferProvider.notifier).setActiveOffer(fetchedOfferObj);
+        } else {
+          Logger.log.d(
+            '[RoleSelectionScreen] Offer status in sync: ${activeOffer.status}',
+          );
+        }
+      }
+    } catch (e) {
+      Logger.log.e(
+        '[RoleSelectionScreen] Error syncing active offer with coordinator: $e',
+      );
+      // Don't show error to user - this is a background sync operation
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+        });
+      }
+    }
+  }
 
   // Helper to navigate to the correct Maker step based on status
   void _navigateToMakerStep(BuildContext context, Offer offer) {
@@ -32,6 +135,12 @@ class RoleSelectionScreen extends ConsumerWidget {
       // Removed blikReceived and blikSentToMaker cases here.
       // They are now handled exclusively within the onTap handler
       // where the BLIK code is fetched before navigation.
+      case OfferStatus.expiredBlik:
+      case OfferStatus.expiredSentBlik:
+        // BLIK expired, maker needs to confirm payment manually
+        // These are handled in the special onTap handler to fetch BLIK code
+        Logger.log.d("Maker offer in expired BLIK state: $offerStatus");
+        break;
       case OfferStatus.conflict:
         // Navigate to the maker conflict screen
         context.go("/maker-conflict", extra: offer);
@@ -61,7 +170,10 @@ class RoleSelectionScreen extends ConsumerWidget {
       context.go('/submit-blik', extra: offer);
     } else if (offerStatus == OfferStatus.blikReceived ||
         offerStatus == OfferStatus.blikSentToMaker ||
-        offerStatus == OfferStatus.makerConfirmed) {
+        offerStatus == OfferStatus.makerConfirmed ||
+        offerStatus == OfferStatus.expiredBlik ||
+        offerStatus == OfferStatus.expiredSentBlik
+    ) {
       // Pass the offer to the constructor using offer
       context.go("/wait-confirmation", extra: offer);
     } else if (offerStatus == OfferStatus.takerPaymentFailed) {
@@ -89,11 +201,24 @@ class RoleSelectionScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final activeOffer = ref.watch(activeOfferProvider);
     final publicKeyAsync = ref.watch(publicKeyProvider);
     ref.watch(lightningAddressProvider);
     final t = Translations.of(context);
+    
+    // Listen for when activeOffer becomes available and trigger sync
+    ref.listen<Offer?>(activeOfferProvider, (previous, current) {
+      Logger.log.d('[RoleSelectionScreen] activeOfferProvider changed: previous=${previous?.id}, current=${current?.id}');
+      if (current != null && !_hasTriggeredInitialSync && !_isSyncing) {
+        Logger.log.d('[RoleSelectionScreen] Active offer loaded: ${current.id}, triggering sync');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _syncActiveOfferWithCoordinator();
+          }
+        });
+      }
+    });
 
     final currentPubKey = publicKeyAsync.value;
     bool hasActiveOffer = activeOffer != null && currentPubKey != null;
@@ -558,16 +683,20 @@ class RoleSelectionScreen extends ConsumerWidget {
     final offerStatus = OfferStatus.values.byName(activeOffer.status);
 
     if (offerStatus == OfferStatus.blikReceived ||
-        offerStatus == OfferStatus.blikSentToMaker) {
+        offerStatus == OfferStatus.blikSentToMaker ||
+        offerStatus == OfferStatus.expiredBlik ||
+        offerStatus == OfferStatus.expiredSentBlik) {
       try {
         ref.read(apiServiceProvider);
         if (currentPubKey == activeOffer.makerPubkey) {
+          // Maker needs to go to confirm payment screen
           if (kIsWeb) {
             context.go('/confirm-blik');
           } else {
             context.push('/confirm-blik');
           }
         } else if (currentPubKey == activeOffer.takerPubkey) {
+          // Taker needs to wait for confirmation
           if (kIsWeb) {
             context.go('/wait-confirmation', extra: activeOffer);
           } else {
@@ -581,7 +710,7 @@ class RoleSelectionScreen extends ConsumerWidget {
             backgroundColor: Colors.red,
           ),
         );
-        ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+        // ref.read(activeOfferProvider.notifier).setActiveOffer(null);
       }
     } else {
       if (currentPubKey == activeOffer.makerPubkey) {

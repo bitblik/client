@@ -318,7 +318,8 @@ maker:
   
   waitForBlik:
     title: Oczekiwanie na BLIK
-    message: Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...
+    messageInfo: Ktoś zarezerwował twoją ofertę!
+    messageWaiting: Oczekiwanie na kod BLIK...
     #timeLimitWithSeconds: "Taker ma ${seconds} sekund na podanie kodu BLIK."
     progressLabel: "Zarezerwowano: ${seconds} s pozostało"
   
@@ -330,10 +331,21 @@ maker:
     instruction2: Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.
     instruction3: "Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:"
     
+    expiredTitle: Kod BLIK wygasł
+    expiredWarning: "Kod BLIK wygasł. Musisz ręcznie potwierdzić status płatności:"
+    expiredInstruction1: "Jeśli płatność BLIK zakończyła się sukcesem i zrealizowałeś zakup, kliknij \"Potwierdź udaną płatność\" poniżej."
+    expiredInstruction2: "Jeśli płatność BLIK nie powiodła się lub nie została zrealizowana, kliknij \"Nieprawidłowy kod BLIK\" poniżej."
+    
     actions:
       confirm: Potwierdź udaną płatność
       markInvalid: Nieprawidłowy kod BLIK
       copyBlik: Kopiuj BLIK
+    
+    confirmDialog:
+      title: Potwierdzić płatność?
+      content: "Ta akcja jest nieodwracalna. Po potwierdzeniu:\n\n• Kupujący otrzyma środki natychmiast\n• Koordynator nie będzie mógł zakwestionować środków\n• Nie możesz cofnąć tej akcji\n\nPotwierdź tylko wtedy, gdy płatność BLIK zakończyła się sukcesem."
+      cancel: Anuluj
+      confirmButton: Tak, potwierdź płatność
     
     feedback:
       confirmed: Maker potwierdził płatność.
@@ -447,12 +459,25 @@ taker:
     resendBlikButton: "Wyślij nowy kod BLIK"
     navigatedHome: "Przeniesiono na stronę główną."
     
+    expiredTitle: "Kod BLIK wygasł"
+    expiredWarning: "Kod BLIK wygasł. Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?"
+    expiredInstruction1: "Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór."
+    expiredInstruction2: "Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację."
+    expiredInstruction3: "Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację."
+    
+    expiredActions:
+      reportConflict: "BLIK został pobrany z mojego konta"
+      renewReservation: "Spróbuj ponownie z nowym kodem BLIK"
+      cancelReservation: "Anuluj rezerwację"
+    
     feedback:
       makerConfirmed: Maker potwierdził płatność.
       paymentSuccessful: Płatność udana! Wkrótce otrzymasz środki.
+      conflictReported: Konflikt zgłoszony. Koordynator rozpatrzy sytuację.
 
     errors:
       invalidOfferStateReceived: "Otrzymano ofertę o nieprawidłowym stanie dla tego ekranu. Resetowanie."
+      reportingConflict: "Błąd zgłaszania konfliktu: ${details}"
 
   paymentProcess:
     title: Proces Płatności

@@ -6,7 +6,6 @@ import 'package:flutter/scheduler.dart'; // Import for SchedulerPhase
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ndk/shared/logger/logger.dart';
-import 'package:neon_circular_timer/neon_circular_timer.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart';
@@ -30,13 +29,20 @@ class _TakerWaitConfirmationScreenState
   bool _timerExpired = false;
   bool _makerReceivedBlik = false;
   Duration? _maxConfirmationTime;
+  
+  bool _isExpiredStatus(Offer offer) {
+    return offer.statusEnum == OfferStatus.expiredBlik ||
+           offer.statusEnum == OfferStatus.expiredSentBlik;
+  }
 
   @override
   void initState() {
     super.initState();
     if (widget.offer.status != OfferStatus.blikReceived.name &&
         widget.offer.status != OfferStatus.blikSentToMaker.name &&
-        widget.offer.status != OfferStatus.makerConfirmed.name) {
+        widget.offer.status != OfferStatus.makerConfirmed.name &&
+        widget.offer.status != OfferStatus.expiredBlik.name &&
+        widget.offer.status != OfferStatus.expiredSentBlik.name) {
       Logger.log.d(
         "[TakerWaitConfirmation initState] Error: Received invalid offer state: ${widget.offer.status}. Resetting.",
       );
@@ -210,7 +216,9 @@ class _TakerWaitConfirmationScreenState
           _confirmationTimer?.cancel();
           context.go('/paying-taker');
       } else if (currentStatusEnum != OfferStatus.blikReceived &&
-          currentStatusEnum != OfferStatus.blikSentToMaker) {
+          currentStatusEnum != OfferStatus.blikSentToMaker &&
+          currentStatusEnum != OfferStatus.expiredBlik &&
+          currentStatusEnum != OfferStatus.expiredSentBlik) {
         _resetToOfferList(
           t.offers.errors.unexpectedStateWithStatus(
             status: currentStatusEnum.name,
@@ -345,27 +353,37 @@ class _TakerWaitConfirmationScreenState
             const SizedBox(height: 30),
           ],
 
-          // Circular Countdown Timer
-          if (offer.blikReceivedAt != null && _maxConfirmationTime != null && !_timerExpired)
-            NeonCircularTimer(
-              width: 200,
-              isReverseAnimation: true,
-              isReverse: true,
-              duration: _maxConfirmationTime!.inSeconds,
-              controller: null,
-              isTimerTextShown: true,
-              neumorphicEffect: true,
-              innerFillGradient: LinearGradient(
-                colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400],
+          // Circular Countdown Timer or Expired Icon
+          if (_isExpiredStatus(offer))
+            // Show expired icon for expired statuses
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.orange.shade100,
               ),
-              neonGradient: LinearGradient(
-                colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400],
+              child: Icon(
+                Icons.timer_off_outlined,
+                size: 60,
+                color: Colors.orange.shade700,
               ),
+            )
+          else if (offer.blikReceivedAt != null && _maxConfirmationTime != null && !_timerExpired)
+            CircularCountdownTimer(
+              size: 200,
+              key: ValueKey('confirmation_timer_${offer.id}'),
+              startTime: offer.blikReceivedAt!,
+              maxDuration: _maxConfirmationTime!,
+              strokeWidth: 16,
+              progressColor: Colors.green,
+              backgroundColor: Colors.white,
+              fontSize: 48,
             )
           else if (_timerExpired)
             const Icon(Icons.timer_off, size: 100, color: Colors.red),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
 
           // Important notice - only show if timer hasn't expired and maker has received BLIK
           if (!_timerExpired && offer.statusEnum == OfferStatus.blikSentToMaker)
@@ -410,8 +428,200 @@ class _TakerWaitConfirmationScreenState
 
           const SizedBox(height: 20),
 
+          // Show expired status UI
+          if (_isExpiredStatus(offer)) ...[
+            // Expired title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                t.taker.waitConfirmation.expiredTitle,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Expired warning
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      t.taker.waitConfirmation.expiredWarning,
+                      style: const TextStyle(fontSize: 14, color: Colors.orange),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Instructions
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInstructionItem('1', t.taker.waitConfirmation.expiredInstruction1),
+                  const SizedBox(height: 12),
+                  _buildInstructionItem('2', t.taker.waitConfirmation.expiredInstruction2),
+                  const SizedBox(height: 12),
+                  _buildInstructionItem('3', t.taker.waitConfirmation.expiredInstruction3),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Renew Reservation button (green, primary action)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: isLoading ? null : () => _resendBlik(offer),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isLoading) ...[
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ] else ...[
+                      const Icon(Icons.refresh, size: 20),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      t.taker.waitConfirmation.expiredActions.renewReservation,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            
+            // Report Conflict button (red/warning)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: isLoading ? null : () => _reportConflict(offer),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isLoading) ...[
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ] else ...[
+                      const Icon(Icons.report_problem_outlined, size: 20),
+                      const SizedBox(width: 8),
+                    ],
+                    Flexible(
+                      child: Text(
+                        t.taker.waitConfirmation.expiredActions.reportConflict,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            
+            // Cancel Reservation button (outlined)
+            // Container(
+            //   width: double.infinity,
+            //   margin: const EdgeInsets.symmetric(horizontal: 20),
+            //   child: OutlinedButton(
+            //     style: OutlinedButton.styleFrom(
+            //       foregroundColor: Colors.red,
+            //       side: const BorderSide(color: Colors.red, width: 1),
+            //       padding: const EdgeInsets.symmetric(vertical: 16),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(24),
+            //       ),
+            //     ),
+            //     onPressed: isLoading ? null : () => _cancelReservation(offer),
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Container(
+            //           width: 20,
+            //           height: 20,
+            //           decoration: const BoxDecoration(
+            //             shape: BoxShape.circle,
+            //             color: Colors.red,
+            //           ),
+            //           child: const Icon(Icons.close, size: 14, color: Colors.white),
+            //         ),
+            //         const SizedBox(width: 8),
+            //         Text(
+            //           t.taker.waitConfirmation.expiredActions.cancelReservation,
+            //           style: const TextStyle(
+            //             fontSize: 16,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+          ]
           // Show warning and buttons if timer expired
-          if (_timerExpired) ...[
+          else if (_timerExpired) ...[
             // Warning message if maker has received BLIK (blikSentToMaker)
             if (offer.statusEnum == OfferStatus.blikSentToMaker) ...[
               Container(
@@ -569,10 +779,97 @@ class _TakerWaitConfirmationScreenState
   }
 
   Future<void> _resendBlik(Offer offer) async {
-    // Navigate back to submit BLIK screen
-    _confirmationTimer?.cancel();
-    if (mounted) {
-      context.go('/submit-blik', extra: offer);
+    Logger.log.d(
+      "[TakerInvalidBlikScreen] Retry selected for offer ${offer.id}",
+    );
+
+    final userPublicKey = await ref.read(
+      publicKeyProvider.future,
+    );
+
+    final takerId = userPublicKey;
+    final apiService = ref.read(apiServiceProvider);
+    final DateTime? reservationTimestamp = await apiService
+        .reserveOffer(
+      offer.id,
+      takerId!,
+      offer.coordinatorPubkey,
+    );
+
+    if (reservationTimestamp != null) {
+      final Offer updatedOffer = Offer(
+        id: offer.id,
+        amountSats: offer.amountSats,
+        makerFees: offer.makerFees,
+        fiatCurrency: offer.fiatCurrency,
+        fiatAmount: offer.fiatAmount,
+        coordinatorPubkey: offer.coordinatorPubkey,
+        status: OfferStatus.reserved.name,
+        createdAt: offer.createdAt,
+        makerPubkey: offer.makerPubkey,
+        takerPubkey: takerId,
+        reservedAt: reservationTimestamp,
+        blikReceivedAt: offer.blikReceivedAt,
+        blikCode: offer.blikCode,
+        holdInvoicePaymentHash: offer.holdInvoicePaymentHash,
+      );
+
+
+      await ref
+          .read(activeOfferProvider.notifier)
+          .setActiveOffer(updatedOffer);
+
+      context.go("/submit-blik", extra: updatedOffer);
+    } else {
+      // Handle reservation failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            t.taker.invalidBlik.errors.reservationFailed,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+
+    // // Navigate back to submit BLIK screen
+    // _confirmationTimer?.cancel();
+    // if (mounted) {
+    //   context.go('/submit-blik', extra: offer);
+    // }
+  }
+
+  Future<void> _reportConflict(Offer offer) async {
+    ref.read(isLoadingProvider.notifier).state = true;
+    ref.read(errorProvider.notifier).state = null;
+
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      Logger.log.i(
+        "[TakerWaitConfirmation] Reporting conflict for offer ${offer.id}",
+      );
+      await apiService.markBlikCharged(
+        offer.id,
+        offer.coordinatorPubkey,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.taker.waitConfirmation.feedback.conflictReported),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.go('/taker-conflict', extra: offer.id);
+      }
+    } catch (e) {
+      Logger.log.e("[TakerWaitConfirmation] Error reporting conflict: $e");
+      ref.read(errorProvider.notifier).state =
+          t.taker.waitConfirmation.errors.reportingConflict(details: e.toString());
+    } finally {
+      if (mounted) {
+        ref.read(isLoadingProvider.notifier).state = false;
+      }
     }
   }
 
@@ -596,6 +893,39 @@ class _TakerWaitConfirmationScreenState
         ref.read(isLoadingProvider.notifier).state = false;
       }
     }
+  }
+
+  Widget _buildInstructionItem(String number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.orange.shade100,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.orange.shade700,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 15, color: Colors.black87),
+          ),
+        ),
+      ],
+    );
   }
 }
 

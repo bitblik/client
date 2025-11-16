@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:neon_circular_timer/neon_circular_timer.dart';
 import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -431,6 +430,7 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
                   const SizedBox(
                     width: 14,
                     height: 14,
@@ -452,26 +452,18 @@ class _TakerSubmitBlikScreenState extends ConsumerState<TakerSubmitBlikScreen> {
 
             // Circular Countdown Timer
             if (activeOffer.reservedAt != null && _maxBlikInputTime != null)
-              NeonCircularTimer(
-                width: 200,
-                isReverseAnimation: true,
-                isReverse: true,
-                duration: _maxBlikInputTime!.inSeconds,
-                controller: null,
-                isTimerTextShown: true,
-                neumorphicEffect: true,
-                innerFillGradient: LinearGradient(colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400]),
-                neonGradient: LinearGradient(colors: [Colors.greenAccent.shade200, Colors.redAccent.shade400]),
-              ),
-
-            // CircularCountdownTimer(
-            //   size: 150,
-            //   key: ValueKey('blik_timer_${activeOffer.id}'),
-            //   startTime: activeOffer.reservedAt!,
-            //   maxDuration: _maxBlikInputTime!,
-            // )
-            // else
-            //   const SizedBox(height: 120),
+              CircularCountdownTimer(
+                size: 200,
+                key: ValueKey('blik_timer_${activeOffer.id}'),
+                startTime: activeOffer.reservedAt!,
+                maxDuration: _maxBlikInputTime!,
+                strokeWidth: 16,
+                progressColor: Colors.green,
+                backgroundColor: Colors.white,
+                fontSize: 48,
+              )
+            else
+              const SizedBox(height: 200),
             const SizedBox(height: 20),
             // Large BLIK Input Field
             Container(

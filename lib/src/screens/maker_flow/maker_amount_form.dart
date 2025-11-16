@@ -615,6 +615,11 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                   GestureDetector(
                     onTap: () {
                       // Show coordinator picker
+                      if (_selectedCoordinatorInfo==null) {
+                        ref
+                            .read(discoveredCoordinatorsProvider.notifier)
+                            .refreshDiscovery();
+                      }
                       _showCoordinatorPicker(context);
                     },
                     child: _buildDetailRow(
@@ -738,7 +743,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                   const Divider(height: 16),
 
                   // Satoshis to pay row
-                  _buildDetailRow(
+                  _selectedCoordinatorInfo!=null ? _buildDetailRow(
                     t.maker.amountForm.labels.satoshisToPay,
                     Text(
                       _satsEquivalent != null
@@ -765,7 +770,7 @@ class _MakerAmountFormState extends ConsumerState<MakerAmountForm> {
                         ),
                       );
                     },
-                  ),
+                  ): Container(),
                 ],
               ),
             ),

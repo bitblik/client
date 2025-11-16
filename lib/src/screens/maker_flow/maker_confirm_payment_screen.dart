@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:ndk/shared/logger/logger.dart';
 import '../../../i18n/gen/strings.g.dart';
+import '../../models/offer.dart';
 import '../../providers/providers.dart';
 import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
@@ -18,6 +19,14 @@ class MakerConfirmPaymentScreen extends ConsumerStatefulWidget {
 class _MakerConfirmPaymentScreenState
     extends ConsumerState<MakerConfirmPaymentScreen> {
   bool _fetchAttempted = false;
+  
+  bool _isExpiredStatus() {
+    final offer = ref.read(activeOfferProvider);
+    if (offer == null) return false;
+    return offer.status == OfferStatus.expiredBlik.name ||
+           offer.status == OfferStatus.expiredSentBlik.name;
+  }
+  
   @override
   void initState() {
     super.initState();
@@ -29,10 +38,13 @@ class _MakerConfirmPaymentScreenState
         ref.read(isLoadingProvider.notifier).state = false;
       }
     });
-    // Attempt immediately if key is already available
-    final pkNow = ref.read(publicKeyProvider).value;
-    if (pkNow != null) {
-      _fetchBlikCode();
+    // Only attempt to fetch BLIK code if status is NOT expired
+    if (!_isExpiredStatus()) {
+      // Attempt immediately if key is already available
+      final pkNow = ref.read(publicKeyProvider).value;
+      if (pkNow != null) {
+        _fetchBlikCode();
+      }
     }
   }
 
@@ -50,6 +62,41 @@ class _MakerConfirmPaymentScreenState
     );
     if (blikCode != null) {
       ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
+    }
+  }
+
+  Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(t.maker.confirmPayment.confirmDialog.title),
+          content: Text(t.maker.confirmPayment.confirmDialog.content),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.maker.confirmPayment.confirmDialog.cancel),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(t.maker.confirmPayment.confirmDialog.confirmButton),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _confirmPayment(context, ref);
     }
   }
 
@@ -186,15 +233,27 @@ class _MakerConfirmPaymentScreenState
       ref.read(isLoadingProvider.notifier).state = false;
     }
     // Listen for public key availability (must be done during build)
+    // Only fetch BLIK code if status is not expired
     ref.listen(publicKeyProvider, (previous, next) {
-      if (!_fetchAttempted && next.value != null) {
+      if (!_fetchAttempted && next.value != null && !_isExpiredStatus()) {
         _fetchBlikCode();
       }
     });
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        // Handle status update only if the status has actually changed
+        if (previous == null || previous.status != next.status) {
+          _handleStatusUpdate(next.statusEnum);
+        }
+      }
+    });
+
     final errorMessage = ref.watch(errorProvider);
     final receivedBlikCode = ref.watch(receivedBlikCodeProvider);
+    final isExpired = _isExpiredStatus();
 
-    final bool isFetchingBlik = receivedBlikCode == null;
+    final bool isFetchingBlik = receivedBlikCode == null && !isExpired;
     final formattedBlikCode = _formatBlikCode(receivedBlikCode ?? '··· ···');
     const TextStyle blikStyle = TextStyle(
       fontSize: 68,
@@ -226,96 +285,16 @@ class _MakerConfirmPaymentScreenState
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final upperContent = Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // BLIK code received text
-                        Text(
-                          t.maker.confirmPayment.title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        // Large BLIK code (with loading hint if needed)
-                        Column(
-                          children: [
-                            Text(
-                              formattedBlikCode,
-                              style: blikStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                            if (isFetchingBlik) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                t.maker.confirmPayment.retrieving,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        // Copy BLIK button with gradient
-                        Center(
-                          child: SizedBox(
-                            width: copyButtonWidth,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Color(0xFFFF0000),
-                                    Color(0xFFFF007F),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(40),
-                              ),
-                              child: ElevatedButton(
-                                onPressed:
-                                    receivedBlikCode == null
-                                        ? null
-                                        : () =>
-                                            _copyToClipboard(receivedBlikCode),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.copy,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      t.maker.confirmPayment.actions.copyBlik,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    final upperContent = isExpired
+                        ? _buildExpiredContent(t)
+                        : _buildNormalContent(
+                            t,
+                            formattedBlikCode,
+                            blikStyle,
+                            isFetchingBlik,
+                            receivedBlikCode,
+                            copyButtonWidth,
+                          );
                     // Make upper content scrollable only when needed
                     return SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
@@ -334,22 +313,24 @@ class _MakerConfirmPaymentScreenState
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Instructions
-                  _buildInstructionItem(
-                    '1',
-                    t.maker.confirmPayment.instruction1,
-                  ),
-                  const SizedBox(height: 6),
-                  _buildInstructionItem(
-                    '2',
-                    t.maker.confirmPayment.instruction2,
-                  ),
-                  const SizedBox(height: 6),
-                  _buildInstructionItem(
-                    '3',
-                    t.maker.confirmPayment.instruction3,
-                  ),
-                  const SizedBox(height: 12),
+                  // Instructions - only show for non-expired status
+                  if (!isExpired) ...[
+                    _buildInstructionItem(
+                      '1',
+                      t.maker.confirmPayment.instruction1,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildInstructionItem(
+                      '2',
+                      t.maker.confirmPayment.instruction2,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildInstructionItem(
+                      '3',
+                      t.maker.confirmPayment.instruction3,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Error message
                   if (errorMessage != null) ...[
@@ -365,7 +346,7 @@ class _MakerConfirmPaymentScreenState
 
                   // Confirm Successful Payment button (green)
                   ElevatedButton(
-                    onPressed: () => _confirmPayment(context, ref),
+                    onPressed: () => _showConfirmationDialog(context, ref),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -438,6 +419,169 @@ class _MakerConfirmPaymentScreenState
     );
   }
 
+  Widget _buildNormalContent(
+    Translations t,
+    String formattedBlikCode,
+    TextStyle blikStyle,
+    bool isFetchingBlik,
+    String? receivedBlikCode,
+    double copyButtonWidth,
+  ) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // BLIK code received text
+        Text(
+          t.maker.confirmPayment.title,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w400,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        // Large BLIK code (with loading hint if needed)
+        Column(
+          children: [
+            Text(
+              formattedBlikCode,
+              style: blikStyle,
+              textAlign: TextAlign.center,
+            ),
+            if (isFetchingBlik) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.maker.confirmPayment.retrieving,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ],
+        ),
+        // Copy BLIK button with gradient
+        Center(
+          child: SizedBox(
+            width: copyButtonWidth,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFFF0000),
+                    Color(0xFFFF007F),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: ElevatedButton(
+                onPressed: receivedBlikCode == null
+                    ? null
+                    : () => _copyToClipboard(receivedBlikCode),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.copy,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.maker.confirmPayment.actions.copyBlik,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpiredContent(Translations t) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Warning icon
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.orange.shade100,
+          ),
+          child: Icon(
+            Icons.warning_amber_rounded,
+            size: 48,
+            color: Colors.orange.shade700,
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Expired title
+        Text(
+          t.maker.confirmPayment.expiredTitle,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        // Warning message
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            t.maker.confirmPayment.expiredWarning,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Instructions
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInstructionItem(
+                '✓',
+                t.maker.confirmPayment.expiredInstruction1,
+              ),
+              const SizedBox(height: 12),
+              _buildInstructionItem(
+                '✗',
+                t.maker.confirmPayment.expiredInstruction2,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildInstructionItem(String number, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,5 +603,24 @@ class _MakerConfirmPaymentScreenState
         ),
       ],
     );
+  }
+
+  void _handleStatusUpdate(OfferStatus statusEnum) {
+    if (statusEnum == OfferStatus.expiredBlik ||
+        statusEnum == OfferStatus.expiredSentBlik) {
+      // No special action needed, UI will update accordingly
+      Logger.log.i(
+        "[MakerConfirmPaymentScreen] Offer status updated to expired. UI will reflect this.",
+      );
+      setState(() {
+      });
+    } else if (statusEnum == OfferStatus.takerCharged) {
+      // TODO
+    } else if (statusEnum == OfferStatus.reserved) {
+      // TODO taker re-took and reserved
+
+    } else if (statusEnum == OfferStatus.funded) {
+      // TODO taker cancelled reservation
+    }
   }
 }

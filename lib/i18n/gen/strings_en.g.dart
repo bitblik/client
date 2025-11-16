@@ -1236,8 +1236,11 @@ class TranslationsMakerWaitForBlikEn {
 	/// en: 'Waiting for BLIK'
 	String get title => 'Waiting for BLIK';
 
-	/// en: 'Taker has reserved offer! Waiting to provide BLIK code...'
-	String get message => 'Taker has reserved offer! Waiting to provide BLIK code...';
+	/// en: 'Taker has reserved offer!'
+	String get messageInfo => 'Taker has reserved offer!';
+
+	/// en: 'Waiting to provide BLIK code...'
+	String get messageWaiting => 'Waiting to provide BLIK code...';
 
 	/// en: 'Reserved: ${seconds} s left'
 	String progressLabel({required Object seconds}) => 'Reserved: ${seconds} s left';
@@ -1269,7 +1272,20 @@ class TranslationsMakerConfirmPaymentEn {
 	/// en: 'When payment is succesful, press Confirm below:'
 	String get instruction3 => 'When payment is succesful, press Confirm below:';
 
+	/// en: 'BLIK Code Expired'
+	String get expiredTitle => 'BLIK Code Expired';
+
+	/// en: 'The BLIK code has expired. You need to manually confirm the payment status:'
+	String get expiredWarning => 'The BLIK code has expired. You need to manually confirm the payment status:';
+
+	/// en: 'If the BLIK payment was successful and you completed your purchase, click "Confirm successful payment" below.'
+	String get expiredInstruction1 => 'If the BLIK payment was successful and you completed your purchase, click "Confirm successful payment" below.';
+
+	/// en: 'If the BLIK payment failed or was not completed, click "Invalid BLIK Code" below.'
+	String get expiredInstruction2 => 'If the BLIK payment failed or was not completed, click "Invalid BLIK Code" below.';
+
 	late final TranslationsMakerConfirmPaymentActionsEn actions = TranslationsMakerConfirmPaymentActionsEn.internal(_root);
+	late final TranslationsMakerConfirmPaymentConfirmDialogEn confirmDialog = TranslationsMakerConfirmPaymentConfirmDialogEn.internal(_root);
 	late final TranslationsMakerConfirmPaymentFeedbackEn feedback = TranslationsMakerConfirmPaymentFeedbackEn.internal(_root);
 	late final TranslationsMakerConfirmPaymentErrorsEn errors = TranslationsMakerConfirmPaymentErrorsEn.internal(_root);
 }
@@ -1443,6 +1459,22 @@ class TranslationsTakerWaitConfirmationEn {
 	/// en: 'Navigated home.'
 	String get navigatedHome => 'Navigated home.';
 
+	/// en: 'BLIK Code Expired'
+	String get expiredTitle => 'BLIK Code Expired';
+
+	/// en: 'The BLIK code has expired. The maker hasn't confirmed the payment yet. What would you like to do?'
+	String get expiredWarning => 'The BLIK code has expired. The maker hasn\'t confirmed the payment yet. What would you like to do?';
+
+	/// en: 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.'
+	String get expiredInstruction1 => 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
+
+	/// en: 'If you want to try again with a new BLIK code, renew the reservation.'
+	String get expiredInstruction2 => 'If you want to try again with a new BLIK code, renew the reservation.';
+
+	/// en: 'If you no longer want to complete this transaction, cancel the reservation.'
+	String get expiredInstruction3 => 'If you no longer want to complete this transaction, cancel the reservation.';
+
+	late final TranslationsTakerWaitConfirmationExpiredActionsEn expiredActions = TranslationsTakerWaitConfirmationExpiredActionsEn.internal(_root);
 	late final TranslationsTakerWaitConfirmationFeedbackEn feedback = TranslationsTakerWaitConfirmationFeedbackEn.internal(_root);
 	late final TranslationsTakerWaitConfirmationErrorsEn errors = TranslationsTakerWaitConfirmationErrorsEn.internal(_root);
 }
@@ -1969,6 +2001,27 @@ class TranslationsMakerConfirmPaymentActionsEn {
 	String get copyBlik => 'Copy BLIK';
 }
 
+// Path: maker.confirmPayment.confirmDialog
+class TranslationsMakerConfirmPaymentConfirmDialogEn {
+	TranslationsMakerConfirmPaymentConfirmDialogEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Confirm Payment?'
+	String get title => 'Confirm Payment?';
+
+	/// en: 'This action is irreversible. After confirming: • The Taker will receive the funds immediately • The coordinator will not be able to dispute the funds • You cannot undo this action Only confirm if the BLIK payment was successful.'
+	String get content => 'This action is irreversible. After confirming:\n\n• The Taker will receive the funds immediately\n• The coordinator will not be able to dispute the funds\n• You cannot undo this action\n\nOnly confirm if the BLIK payment was successful.';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Yes, Confirm Payment'
+	String get confirmButton => 'Yes, Confirm Payment';
+}
+
 // Path: maker.confirmPayment.feedback
 class TranslationsMakerConfirmPaymentFeedbackEn {
 	TranslationsMakerConfirmPaymentFeedbackEn.internal(this._root);
@@ -2175,6 +2228,24 @@ class TranslationsTakerSubmitBlikDetailsEn {
 	String get youllReceive => 'You\'ll receive';
 }
 
+// Path: taker.waitConfirmation.expiredActions
+class TranslationsTakerWaitConfirmationExpiredActionsEn {
+	TranslationsTakerWaitConfirmationExpiredActionsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'BLIK was charged from my bank account'
+	String get reportConflict => 'BLIK was charged from my bank account';
+
+	/// en: 'Try again with new BLIK code'
+	String get renewReservation => 'Try again with new BLIK code';
+
+	/// en: 'Cancel reservation'
+	String get cancelReservation => 'Cancel reservation';
+}
+
 // Path: taker.waitConfirmation.feedback
 class TranslationsTakerWaitConfirmationFeedbackEn {
 	TranslationsTakerWaitConfirmationFeedbackEn.internal(this._root);
@@ -2188,6 +2259,9 @@ class TranslationsTakerWaitConfirmationFeedbackEn {
 
 	/// en: 'Payment successful! You will receive funds shortly.'
 	String get paymentSuccessful => 'Payment successful! You will receive funds shortly.';
+
+	/// en: 'Conflict reported. Coordinator will review the situation.'
+	String get conflictReported => 'Conflict reported. Coordinator will review the situation.';
 }
 
 // Path: taker.waitConfirmation.errors
@@ -2200,6 +2274,9 @@ class TranslationsTakerWaitConfirmationErrorsEn {
 
 	/// en: 'Received an offer with an invalid state for this screen. Resetting.'
 	String get invalidOfferStateReceived => 'Received an offer with an invalid state for this screen. Resetting.';
+
+	/// en: 'Error reporting conflict: ${details}'
+	String reportingConflict({required Object details}) => 'Error reporting conflict: ${details}';
 }
 
 // Path: taker.paymentProcess.states
@@ -2728,7 +2805,8 @@ extension on Translations {
 			case 'maker.waitTaker.offerCancelledSuccessfully': return 'Offer cancelled successfully.';
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Failed to cancel offer: ${details}';
 			case 'maker.waitForBlik.title': return 'Waiting for BLIK';
-			case 'maker.waitForBlik.message': return 'Taker has reserved offer! Waiting to provide BLIK code...';
+			case 'maker.waitForBlik.messageInfo': return 'Taker has reserved offer!';
+			case 'maker.waitForBlik.messageWaiting': return 'Waiting to provide BLIK code...';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Reserved: ${seconds} s left';
 			case 'maker.confirmPayment.title': return 'BLIK code received!';
 			case 'maker.confirmPayment.retrieving': return 'Retrieving BLIK code...';
@@ -2736,9 +2814,17 @@ extension on Translations {
 			case 'maker.confirmPayment.instruction1': return 'Enter the code into the BLIK payment request.';
 			case 'maker.confirmPayment.instruction2': return 'Wait until Taker confirms the payment in their app.';
 			case 'maker.confirmPayment.instruction3': return 'When payment is succesful, press Confirm below:';
+			case 'maker.confirmPayment.expiredTitle': return 'BLIK Code Expired';
+			case 'maker.confirmPayment.expiredWarning': return 'The BLIK code has expired. You need to manually confirm the payment status:';
+			case 'maker.confirmPayment.expiredInstruction1': return 'If the BLIK payment was successful and you completed your purchase, click "Confirm successful payment" below.';
+			case 'maker.confirmPayment.expiredInstruction2': return 'If the BLIK payment failed or was not completed, click "Invalid BLIK Code" below.';
 			case 'maker.confirmPayment.actions.confirm': return 'Confirm successful payment';
 			case 'maker.confirmPayment.actions.markInvalid': return 'Invalid BLIK Code';
 			case 'maker.confirmPayment.actions.copyBlik': return 'Copy BLIK';
+			case 'maker.confirmPayment.confirmDialog.title': return 'Confirm Payment?';
+			case 'maker.confirmPayment.confirmDialog.content': return 'This action is irreversible. After confirming:\n\n• The Taker will receive the funds immediately\n• The coordinator will not be able to dispute the funds\n• You cannot undo this action\n\nOnly confirm if the BLIK payment was successful.';
+			case 'maker.confirmPayment.confirmDialog.cancel': return 'Cancel';
+			case 'maker.confirmPayment.confirmDialog.confirmButton': return 'Yes, Confirm Payment';
 			case 'maker.confirmPayment.feedback.confirmed': return 'Maker confirmed payment.';
 			case 'maker.confirmPayment.feedback.confirmedTakerPaid': return 'Payment confirmed! Taker will receive funds.';
 			case 'maker.confirmPayment.feedback.progressLabel': return ({required Object seconds}) => 'Confirming: ${seconds} s left';
@@ -2808,9 +2894,19 @@ extension on Translations {
 			case 'taker.waitConfirmation.timerExpiredActions': return 'BLIK 2m expiration time has passed but the maker hasn\'t received the BLIK code. You can resend a new BLIK code or cancel.';
 			case 'taker.waitConfirmation.resendBlikButton': return 'Resend New BLIK Code';
 			case 'taker.waitConfirmation.navigatedHome': return 'Navigated home.';
+			case 'taker.waitConfirmation.expiredTitle': return 'BLIK Code Expired';
+			case 'taker.waitConfirmation.expiredWarning': return 'The BLIK code has expired. The maker hasn\'t confirmed the payment yet. What would you like to do?';
+			case 'taker.waitConfirmation.expiredInstruction1': return 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
+			case 'taker.waitConfirmation.expiredInstruction2': return 'If you want to try again with a new BLIK code, renew the reservation.';
+			case 'taker.waitConfirmation.expiredInstruction3': return 'If you no longer want to complete this transaction, cancel the reservation.';
+			case 'taker.waitConfirmation.expiredActions.reportConflict': return 'BLIK was charged from my bank account';
+			case 'taker.waitConfirmation.expiredActions.renewReservation': return 'Try again with new BLIK code';
+			case 'taker.waitConfirmation.expiredActions.cancelReservation': return 'Cancel reservation';
 			case 'taker.waitConfirmation.feedback.makerConfirmed': return 'Maker confirmed payment.';
 			case 'taker.waitConfirmation.feedback.paymentSuccessful': return 'Payment successful! You will receive funds shortly.';
+			case 'taker.waitConfirmation.feedback.conflictReported': return 'Conflict reported. Coordinator will review the situation.';
 			case 'taker.waitConfirmation.errors.invalidOfferStateReceived': return 'Received an offer with an invalid state for this screen. Resetting.';
+			case 'taker.waitConfirmation.errors.reportingConflict': return ({required Object details}) => 'Error reporting conflict: ${details}';
 			case 'taker.paymentProcess.title': return 'Payment Process';
 			case 'taker.paymentProcess.waitingForOfferUpdate': return 'Waiting for offer status update...';
 			case 'taker.paymentProcess.states.preparing': return 'Preparing to send payment...';

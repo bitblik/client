@@ -72,33 +72,33 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
           }
         } else {
           if (mounted) {
-            _resetToRoleSelection(t.maker.waitTaker.errorFailedToRetrieveBlik);
+            // _resetToRoleSelection(t.maker.waitTaker.errorFailedToRetrieveBlik);
           }
         }
       } catch (e) {
         if (mounted) {
-          _resetToRoleSelection(
-            t.maker.waitTaker.errorRetrievingBlik(details: e.toString()),
-          );
+          // _resetToRoleSelection(
+          //   t.maker.waitTaker.errorRetrievingBlik(details: e.toString()),
+          // );
         }
       }
     } else if (status == OfferStatus.expired) {
       if (mounted) {
-        _resetToRoleSelection(
-          t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
-        );
+        // _resetToRoleSelection(
+        //   t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
+        // );
       }
     } else {
       if (mounted) {
-        _resetToRoleSelection(
-          t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
-        );
+        // _resetToRoleSelection(
+        //   t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
+        // );
       }
     }
   }
 
   Future<void> _resetToRoleSelection(String message) async {
-    await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+    // await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(holdInvoiceProvider.notifier).state = null;
     ref.read(paymentHashProvider.notifier).state = null;
     ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -187,63 +187,65 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Progress indicator (Step 2: Wait for Taker)
-              const MakerProgressIndicator(activeStep: 2),
-              const SizedBox(height: 20),
-              // Top section: Message with refresh icon
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      t.maker.waitTaker.message,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Progress indicator (Step 2: Wait for Taker)
+                const MakerProgressIndicator(activeStep: 2),
+                const SizedBox(height: 20),
+                // Top section: Message with refresh icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                       ),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              
-              // Center: Large circular green progress bar with time
-              Expanded(
-                child: Center(
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        t.maker.waitTaker.message,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                
+                // Center: Large circular progress bar with time
+                Center(
                   child: offer.status == OfferStatus.funded.name
                       ? CircularCountdownTimer(
                           startTime: offer.createdAt,
                           maxDuration: const Duration(minutes: 10),
                           size: 200,
-                          strokeWidth: 12,
+                          strokeWidth: 16,
                           progressColor: Colors.green,
-                          backgroundColor: Colors.grey[400]!,
+                          backgroundColor: Colors.white,
                           fontSize: 48,
                         )
                       : const CircularProgressIndicator(),
                 ),
-              ),
-              
-              // Bottom section: Offer details and Cancel button
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                
+                const SizedBox(height: 30),
+                
+                // Bottom section: Offer details and Cancel button
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   // Offer details (bottom left)
                   _buildDetailRow(
                     context,
@@ -341,6 +343,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
                 ],
               ),
             ],
+            ),
           ),
         ),
       ),

@@ -511,7 +511,7 @@ class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
   void initState() {
     super.initState();
     _calculateProgress();
-    if (_progress > 0) {
+    if (_remainingSeconds > 0) {
       _startTimer();
     }
   }
@@ -523,7 +523,7 @@ class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
         widget.maxDuration != oldWidget.maxDuration) {
       _timer?.cancel();
       _calculateProgress();
-      if (_progress > 0) _startTimer();
+      if (_remainingSeconds > 0) _startTimer();
     }
   }
 
@@ -538,15 +538,17 @@ class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
     final expiresAt = widget.startTime.add(widget.maxDuration);
     final totalDuration = widget.maxDuration.inMilliseconds;
     final remainingDuration = expiresAt.difference(now).inMilliseconds;
+    final elapsedDuration = now.difference(widget.startTime).inMilliseconds;
 
     if (!mounted) return;
 
     setState(() {
       if (remainingDuration <= 0) {
-        _progress = 0.0;
+        _progress = 1.0; // Full circle when time is up (all time spent)
         _remainingSeconds = 0;
       } else {
-        _progress = remainingDuration / totalDuration;
+        // Progress represents elapsed time (spent time)
+        _progress = (elapsedDuration / totalDuration).clamp(0.0, 1.0);
         _remainingSeconds = (remainingDuration / 1000).ceil().clamp(
           0,
           widget.maxDuration.inSeconds,
@@ -557,7 +559,7 @@ class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
 
   void _startTimer() {
     _timer?.cancel();
-    if (_progress <= 0) return;
+    if (_remainingSeconds <= 0) return;
 
     _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (!mounted) {
@@ -565,56 +567,61 @@ class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
         return;
       }
       _calculateProgress();
-      if (_progress <= 0) {
+      if (_remainingSeconds <= 0) {
         timer.cancel();
       }
     });
   }
 
-  String _formatMMSS(int totalSeconds) {
-    final minutes = (totalSeconds ~/ 60).toString();
-    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
+  String _formatTime(int totalSeconds) {
+    if (totalSeconds < 60) {
+      // Less than 1 minute: show as "Xs" (e.g., "45s")
+      return '${totalSeconds}s';
+    } else {
+      // 1 minute or more: show as "M:SS" (e.g., "5:30")
+      final minutes = (totalSeconds ~/ 60).toString();
+      final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+      return '$minutes:$seconds';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_progress <= 0) {
-      return const SizedBox.shrink();
-    }
-
+    // Calculate dynamic font size based on widget size (larger text)
+    final dynamicFontSize = widget.size * 0.35; // 35% of circle size for bigger text
+    
     return SizedBox(
       width: widget.size,
       height: widget.size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Background circle
+          // Background circle (white background for text)
           Container(
             width: widget.size,
             height: widget.size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: widget.backgroundColor.withOpacity(0.2),
+              color: Colors.white,
             ),
           ),
-          // Circular progress indicator
+          // Circular progress indicator (spent time - background color/white)
           SizedBox(
             width: widget.size,
             height: widget.size,
             child: CircularProgressIndicator(
               value: _progress,
-              backgroundColor: widget.backgroundColor.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor),
+              backgroundColor: widget.progressColor,
+              valueColor: AlwaysStoppedAnimation<Color>(widget.backgroundColor),
               strokeWidth: widget.strokeWidth,
             ),
           ),
           // Time display
           Text(
-            _formatMMSS(_remainingSeconds),
+            _formatTime(_remainingSeconds),
             style: TextStyle(
-              fontSize: widget.fontSize,
-              fontWeight: FontWeight.bold,
+              fontSize: dynamicFontSize,
+              fontWeight: FontWeight.normal,
               color: Colors.black,
             ),
           ),

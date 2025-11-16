@@ -319,7 +319,8 @@ maker:
   
   waitForBlik:
     title: Waiting for BLIK
-    message: Taker has reserved offer! Waiting to provide BLIK code...
+    messageInfo: Taker has reserved offer!
+    messageWaiting: Waiting to provide BLIK code...
     #timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
     progressLabel: "Reserved: ${seconds} s left"
   
@@ -331,10 +332,21 @@ maker:
     instruction2: Wait until Taker confirms the payment in their app.
     instruction3: "When payment is succesful, press Confirm below:"
     
+    expiredTitle: BLIK Code Expired
+    expiredWarning: "The BLIK code has expired. You need to manually confirm the payment status:"
+    expiredInstruction1: "If the BLIK payment was successful and you completed your purchase, click \"Confirm successful payment\" below."
+    expiredInstruction2: "If the BLIK payment failed or was not completed, click \"Invalid BLIK Code\" below."
+    
     actions:
       confirm: Confirm successful payment
       markInvalid: Invalid BLIK Code
       copyBlik: Copy BLIK
+    
+    confirmDialog:
+      title: Confirm Payment?
+      content: "This action is irreversible. After confirming:\n\n• The Taker will receive the funds immediately\n• The coordinator will not be able to dispute the funds\n• You cannot undo this action\n\nOnly confirm if the BLIK payment was successful."
+      cancel: Cancel
+      confirmButton: Yes, Confirm Payment
     
     feedback:
       confirmed: Maker confirmed payment.
@@ -447,12 +459,25 @@ taker:
     resendBlikButton: "Resend New BLIK Code"
     navigatedHome: "Navigated home."
     
+    expiredTitle: "BLIK Code Expired"
+    expiredWarning: "The BLIK code has expired. The maker hasn't confirmed the payment yet. What would you like to do?"
+    expiredInstruction1: "If the BLIK payment was charged from your bank account, report a conflict to start a dispute."
+    expiredInstruction2: "If you want to try again with a new BLIK code, renew the reservation."
+    expiredInstruction3: "If you no longer want to complete this transaction, cancel the reservation."
+    
+    expiredActions:
+      reportConflict: "BLIK was charged from my bank account"
+      renewReservation: "Try again with new BLIK code"
+      cancelReservation: "Cancel reservation"
+    
     feedback:
       makerConfirmed: Maker confirmed payment.
       paymentSuccessful: Payment successful! You will receive funds shortly.
+      conflictReported: Conflict reported. Coordinator will review the situation.
 
     errors:
       invalidOfferStateReceived: "Received an offer with an invalid state for this screen. Resetting."
+      reportingConflict: "Error reporting conflict: ${details}"
 
   paymentProcess:
     title: Payment Process

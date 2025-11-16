@@ -811,7 +811,8 @@ class _TranslationsMakerWaitForBlikPl extends TranslationsMakerWaitForBlikEn {
 
 	// Translations
 	@override String get title => 'Oczekiwanie na BLIK';
-	@override String get message => 'Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...';
+	@override String get messageInfo => 'Ktoś zarezerwował twoją ofertę!';
+	@override String get messageWaiting => 'Oczekiwanie na kod BLIK...';
 	@override String progressLabel({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 }
 
@@ -827,7 +828,12 @@ class _TranslationsMakerConfirmPaymentPl extends TranslationsMakerConfirmPayment
 	@override String get instruction1 => 'Wprowadź kod do systemu płatności BLIK.';
 	@override String get instruction2 => 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
 	@override String get instruction3 => 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
+	@override String get expiredTitle => 'Kod BLIK wygasł';
+	@override String get expiredWarning => 'Kod BLIK wygasł. Musisz ręcznie potwierdzić status płatności:';
+	@override String get expiredInstruction1 => 'Jeśli płatność BLIK zakończyła się sukcesem i zrealizowałeś zakup, kliknij "Potwierdź udaną płatność" poniżej.';
+	@override String get expiredInstruction2 => 'Jeśli płatność BLIK nie powiodła się lub nie została zrealizowana, kliknij "Nieprawidłowy kod BLIK" poniżej.';
 	@override late final _TranslationsMakerConfirmPaymentActionsPl actions = _TranslationsMakerConfirmPaymentActionsPl._(_root);
+	@override late final _TranslationsMakerConfirmPaymentConfirmDialogPl confirmDialog = _TranslationsMakerConfirmPaymentConfirmDialogPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentFeedbackPl feedback = _TranslationsMakerConfirmPaymentFeedbackPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentErrorsPl errors = _TranslationsMakerConfirmPaymentErrorsPl._(_root);
 }
@@ -935,6 +941,12 @@ class _TranslationsTakerWaitConfirmationPl extends TranslationsTakerWaitConfirma
 	@override String get timerExpiredActions => 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
 	@override String get resendBlikButton => 'Wyślij nowy kod BLIK';
 	@override String get navigatedHome => 'Przeniesiono na stronę główną.';
+	@override String get expiredTitle => 'Kod BLIK wygasł';
+	@override String get expiredWarning => 'Kod BLIK wygasł. Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?';
+	@override String get expiredInstruction1 => 'Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór.';
+	@override String get expiredInstruction2 => 'Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację.';
+	@override String get expiredInstruction3 => 'Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację.';
+	@override late final _TranslationsTakerWaitConfirmationExpiredActionsPl expiredActions = _TranslationsTakerWaitConfirmationExpiredActionsPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationFeedbackPl feedback = _TranslationsTakerWaitConfirmationFeedbackPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationErrorsPl errors = _TranslationsTakerWaitConfirmationErrorsPl._(_root);
 }
@@ -1309,6 +1321,19 @@ class _TranslationsMakerConfirmPaymentActionsPl extends TranslationsMakerConfirm
 	@override String get copyBlik => 'Kopiuj BLIK';
 }
 
+// Path: maker.confirmPayment.confirmDialog
+class _TranslationsMakerConfirmPaymentConfirmDialogPl extends TranslationsMakerConfirmPaymentConfirmDialogEn {
+	_TranslationsMakerConfirmPaymentConfirmDialogPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Potwierdzić płatność?';
+	@override String get content => 'Ta akcja jest nieodwracalna. Po potwierdzeniu:\n\n• Kupujący otrzyma środki natychmiast\n• Koordynator nie będzie mógł zakwestionować środków\n• Nie możesz cofnąć tej akcji\n\nPotwierdź tylko wtedy, gdy płatność BLIK zakończyła się sukcesem.';
+	@override String get cancel => 'Anuluj';
+	@override String get confirmButton => 'Tak, potwierdź płatność';
+}
+
 // Path: maker.confirmPayment.feedback
 class _TranslationsMakerConfirmPaymentFeedbackPl extends TranslationsMakerConfirmPaymentFeedbackEn {
 	_TranslationsMakerConfirmPaymentFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -1444,6 +1469,18 @@ class _TranslationsTakerSubmitBlikDetailsPl extends TranslationsTakerSubmitBlikD
 	@override String get youllReceive => 'Otrzymasz';
 }
 
+// Path: taker.waitConfirmation.expiredActions
+class _TranslationsTakerWaitConfirmationExpiredActionsPl extends TranslationsTakerWaitConfirmationExpiredActionsEn {
+	_TranslationsTakerWaitConfirmationExpiredActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get reportConflict => 'BLIK został pobrany z mojego konta';
+	@override String get renewReservation => 'Spróbuj ponownie z nowym kodem BLIK';
+	@override String get cancelReservation => 'Anuluj rezerwację';
+}
+
 // Path: taker.waitConfirmation.feedback
 class _TranslationsTakerWaitConfirmationFeedbackPl extends TranslationsTakerWaitConfirmationFeedbackEn {
 	_TranslationsTakerWaitConfirmationFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -1453,6 +1490,7 @@ class _TranslationsTakerWaitConfirmationFeedbackPl extends TranslationsTakerWait
 	// Translations
 	@override String get makerConfirmed => 'Maker potwierdził płatność.';
 	@override String get paymentSuccessful => 'Płatność udana! Wkrótce otrzymasz środki.';
+	@override String get conflictReported => 'Konflikt zgłoszony. Koordynator rozpatrzy sytuację.';
 }
 
 // Path: taker.waitConfirmation.errors
@@ -1463,6 +1501,7 @@ class _TranslationsTakerWaitConfirmationErrorsPl extends TranslationsTakerWaitCo
 
 	// Translations
 	@override String get invalidOfferStateReceived => 'Otrzymano ofertę o nieprawidłowym stanie dla tego ekranu. Resetowanie.';
+	@override String reportingConflict({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 }
 
 // Path: taker.paymentProcess.states
@@ -1897,16 +1936,25 @@ extension on TranslationsPl {
 			case 'maker.waitTaker.offerCancelledSuccessfully': return 'Oferta anulowana pomyślnie.';
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Nie udało się anulować oferty: ${details}';
 			case 'maker.waitForBlik.title': return 'Oczekiwanie na BLIK';
-			case 'maker.waitForBlik.message': return 'Ktoś zarezerwował twoją ofertę!\nOczekiwanie na kod BLIK...';
+			case 'maker.waitForBlik.messageInfo': return 'Ktoś zarezerwował twoją ofertę!';
+			case 'maker.waitForBlik.messageWaiting': return 'Oczekiwanie na kod BLIK...';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'maker.confirmPayment.title': return 'Otrzymano kod BLIK!';
 			case 'maker.confirmPayment.retrieving': return 'Pobieranie kodu BLIK...';
 			case 'maker.confirmPayment.instruction1': return 'Wprowadź kod do systemu płatności BLIK.';
 			case 'maker.confirmPayment.instruction2': return 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
 			case 'maker.confirmPayment.instruction3': return 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
+			case 'maker.confirmPayment.expiredTitle': return 'Kod BLIK wygasł';
+			case 'maker.confirmPayment.expiredWarning': return 'Kod BLIK wygasł. Musisz ręcznie potwierdzić status płatności:';
+			case 'maker.confirmPayment.expiredInstruction1': return 'Jeśli płatność BLIK zakończyła się sukcesem i zrealizowałeś zakup, kliknij "Potwierdź udaną płatność" poniżej.';
+			case 'maker.confirmPayment.expiredInstruction2': return 'Jeśli płatność BLIK nie powiodła się lub nie została zrealizowana, kliknij "Nieprawidłowy kod BLIK" poniżej.';
 			case 'maker.confirmPayment.actions.confirm': return 'Potwierdź udaną płatność';
 			case 'maker.confirmPayment.actions.markInvalid': return 'Nieprawidłowy kod BLIK';
 			case 'maker.confirmPayment.actions.copyBlik': return 'Kopiuj BLIK';
+			case 'maker.confirmPayment.confirmDialog.title': return 'Potwierdzić płatność?';
+			case 'maker.confirmPayment.confirmDialog.content': return 'Ta akcja jest nieodwracalna. Po potwierdzeniu:\n\n• Kupujący otrzyma środki natychmiast\n• Koordynator nie będzie mógł zakwestionować środków\n• Nie możesz cofnąć tej akcji\n\nPotwierdź tylko wtedy, gdy płatność BLIK zakończyła się sukcesem.';
+			case 'maker.confirmPayment.confirmDialog.cancel': return 'Anuluj';
+			case 'maker.confirmPayment.confirmDialog.confirmButton': return 'Tak, potwierdź płatność';
 			case 'maker.confirmPayment.feedback.confirmed': return 'Maker potwierdził płatność.';
 			case 'maker.confirmPayment.feedback.confirmedTakerPaid': return 'Płatność potwierdzona! Taker otrzyma środki.';
 			case 'maker.confirmPayment.feedback.progressLabel': return ({required Object seconds}) => 'Potwierdzanie: ${seconds} s pozostało';
@@ -1977,9 +2025,19 @@ extension on TranslationsPl {
 			case 'taker.waitConfirmation.timerExpiredActions': return 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
 			case 'taker.waitConfirmation.resendBlikButton': return 'Wyślij nowy kod BLIK';
 			case 'taker.waitConfirmation.navigatedHome': return 'Przeniesiono na stronę główną.';
+			case 'taker.waitConfirmation.expiredTitle': return 'Kod BLIK wygasł';
+			case 'taker.waitConfirmation.expiredWarning': return 'Kod BLIK wygasł. Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?';
+			case 'taker.waitConfirmation.expiredInstruction1': return 'Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór.';
+			case 'taker.waitConfirmation.expiredInstruction2': return 'Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację.';
+			case 'taker.waitConfirmation.expiredInstruction3': return 'Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację.';
+			case 'taker.waitConfirmation.expiredActions.reportConflict': return 'BLIK został pobrany z mojego konta';
+			case 'taker.waitConfirmation.expiredActions.renewReservation': return 'Spróbuj ponownie z nowym kodem BLIK';
+			case 'taker.waitConfirmation.expiredActions.cancelReservation': return 'Anuluj rezerwację';
 			case 'taker.waitConfirmation.feedback.makerConfirmed': return 'Maker potwierdził płatność.';
 			case 'taker.waitConfirmation.feedback.paymentSuccessful': return 'Płatność udana! Wkrótce otrzymasz środki.';
+			case 'taker.waitConfirmation.feedback.conflictReported': return 'Konflikt zgłoszony. Koordynator rozpatrzy sytuację.';
 			case 'taker.waitConfirmation.errors.invalidOfferStateReceived': return 'Otrzymano ofertę o nieprawidłowym stanie dla tego ekranu. Resetowanie.';
+			case 'taker.waitConfirmation.errors.reportingConflict': return ({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 			case 'taker.paymentProcess.title': return 'Proces Płatności';
 			case 'taker.paymentProcess.waitingForOfferUpdate': return 'Oczekiwanie na aktualizację statusu oferty...';
 			case 'taker.paymentProcess.states.preparing': return 'Przygotowywanie do wysłania płatności...';
