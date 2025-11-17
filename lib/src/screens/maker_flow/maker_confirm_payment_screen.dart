@@ -615,12 +615,11 @@ class _MakerConfirmPaymentScreenState
       setState(() {
       });
     } else if (statusEnum == OfferStatus.takerCharged) {
-      // TODO
+      context.go("/maker-invalid-blik");
     } else if (statusEnum == OfferStatus.reserved) {
-      // TODO taker re-took and reserved
-
+      context.go('/wait-blik');
     } else if (statusEnum == OfferStatus.funded) {
-      // TODO taker cancelled reservation
+      context.go('/wait-taker');
     }
   }
 }

@@ -841,7 +841,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
             // Version, GitHub link, and download buttons on the same line
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 3.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

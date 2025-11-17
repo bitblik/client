@@ -28,6 +28,17 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
             "[MakerInvalidBlikScreen] Offer status changed to reserved. Navigating back to wait-blik.",
           );
           context.go('/wait-blik', extra: offer);
+        } else if (status == OfferStatus.funded) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to funded. Navigating back to wait taker.",
+          );
+          context.go('/wait-taker', extra: offer);
+        } else if (status == OfferStatus.expired) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to expired. Navigating back to home.",
+          );
+          ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+          context.go('/');
         }
       }
     });

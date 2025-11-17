@@ -492,12 +492,16 @@ final offerStatusSubscriptionManagerProvider = Provider<void>((ref) {
         "[SubscriptionManager] Active offer changed to ${current.id}. Starting new status subscription.",
       );
       final apiService = ref.read(apiServiceProvider);
+      final keyService = ref.read(keyServiceProvider);
       final activeOfferNotifier = ref.read(activeOfferProvider.notifier);
+
+      final publiKey = keyService.publicKeyHex;
+      if (publiKey == null) return;
 
       // Start the subscription for the new active offer.
       apiService.startOfferStatusSubscription(
         current.coordinatorPubkey,
-        current.takerPubkey ?? current.makerPubkey,
+        publiKey,
       );
 
       // Listen to the stream for status updates.

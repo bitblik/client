@@ -189,7 +189,7 @@ class _TakerWaitConfirmationScreenState
       }
 
       final currentStatusEnum = offer.statusEnum;
-      
+
       // Track when maker receives BLIK code
       if (currentStatusEnum == OfferStatus.blikSentToMaker && !_makerReceivedBlik) {
         setState(() {
@@ -256,7 +256,6 @@ class _TakerWaitConfirmationScreenState
           // 3-Step Progress Indicator
           const TakerProgressIndicator(activeStep: 2),
           const SizedBox(height: 10),
-
           // Info message based on status - only show if timer hasn't expired
           if (!_timerExpired) ...[
             if (offer.statusEnum == OfferStatus.blikReceived) ...[
@@ -273,6 +272,7 @@ class _TakerWaitConfirmationScreenState
                         height: 14,
                         child: CircularProgressIndicator(
                           strokeWidth: 1,
+                          color: Colors.blue,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                         ),
                       ),
@@ -335,6 +335,7 @@ class _TakerWaitConfirmationScreenState
                       height: 14,
                       child: CircularProgressIndicator(
                         strokeWidth: 1,
+                        color: Colors.blue,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                       ),
                     ),
@@ -376,14 +377,14 @@ class _TakerWaitConfirmationScreenState
               startTime: offer.blikReceivedAt!,
               maxDuration: _maxConfirmationTime!,
               strokeWidth: 16,
-              progressColor: Colors.green,
+              progressColor: Colors.blue,
               backgroundColor: Colors.white,
-              fontSize: 48,
+              fontSize: 8,
             )
           else if (_timerExpired)
             const Icon(Icons.timer_off, size: 100, color: Colors.red),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
           // Important notice - only show if timer hasn't expired and maker has received BLIK
           if (!_timerExpired && offer.statusEnum == OfferStatus.blikSentToMaker)
@@ -513,6 +514,7 @@ class _TakerWaitConfirmationScreenState
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
+                          color: Colors.blue,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
@@ -535,6 +537,7 @@ class _TakerWaitConfirmationScreenState
             const SizedBox(height: 12),
             
             // Report Conflict button (red/warning)
+            offer.statusEnum == OfferStatus.expiredSentBlik ?
             Container(
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -557,6 +560,7 @@ class _TakerWaitConfirmationScreenState
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
+                          color: Colors.blue,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
@@ -578,47 +582,48 @@ class _TakerWaitConfirmationScreenState
                   ],
                 ),
               ),
-            ),
+            ): Container(),
             const SizedBox(height: 12),
             
             // Cancel Reservation button (outlined)
-            // Container(
-            //   width: double.infinity,
-            //   margin: const EdgeInsets.symmetric(horizontal: 20),
-            //   child: OutlinedButton(
-            //     style: OutlinedButton.styleFrom(
-            //       foregroundColor: Colors.red,
-            //       side: const BorderSide(color: Colors.red, width: 1),
-            //       padding: const EdgeInsets.symmetric(vertical: 16),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(24),
-            //       ),
-            //     ),
-            //     onPressed: isLoading ? null : () => _cancelReservation(offer),
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         Container(
-            //           width: 20,
-            //           height: 20,
-            //           decoration: const BoxDecoration(
-            //             shape: BoxShape.circle,
-            //             color: Colors.red,
-            //           ),
-            //           child: const Icon(Icons.close, size: 14, color: Colors.white),
-            //         ),
-            //         const SizedBox(width: 8),
-            //         Text(
-            //           t.taker.waitConfirmation.expiredActions.cancelReservation,
-            //           style: const TextStyle(
-            //             fontSize: 16,
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            offer.statusEnum == OfferStatus.expiredBlik ?
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red, width: 1),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: isLoading ? null : () => _cancelReservation(offer),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                      child: const Icon(Icons.close, size: 14, color: Colors.white),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.taker.waitConfirmation.expiredActions.cancelReservation,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ): Container(),
           ]
           // Show warning and buttons if timer expired
           else if (_timerExpired) ...[
@@ -714,6 +719,7 @@ class _TakerWaitConfirmationScreenState
                               height: 24,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
+                                color: Colors.blue,
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             ),
