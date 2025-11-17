@@ -465,7 +465,7 @@ class _TakerWaitConfirmationScreenState
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      t.taker.waitConfirmation.expiredWarning,
+                      offer.statusEnum == OfferStatus.expiredSentBlik? t.taker.waitConfirmation.expiredSentWarning : t.taker.waitConfirmation.expiredWarning,
                       style: const TextStyle(fontSize: 14, color: Colors.orange),
                       softWrap: true,
                     ),
@@ -484,8 +484,10 @@ class _TakerWaitConfirmationScreenState
                   _buildInstructionItem('1', t.taker.waitConfirmation.expiredInstruction1),
                   const SizedBox(height: 12),
                   _buildInstructionItem('2', t.taker.waitConfirmation.expiredInstruction2),
-                  const SizedBox(height: 12),
-                  _buildInstructionItem('3', t.taker.waitConfirmation.expiredInstruction3),
+                  if (offer.statusEnum == OfferStatus.expiredSentBlik) ...[
+                    const SizedBox(height: 12),
+                    _buildInstructionItem('3', t.taker.waitConfirmation.expiredInstruction3),
+                  ]
                 ],
               ),
             ),
@@ -655,129 +657,130 @@ class _TakerWaitConfirmationScreenState
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
             ],
             
             // Show action message and buttons if still in blikReceived status
-            if (offer.statusEnum == OfferStatus.blikReceived) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        t.taker.waitConfirmation.timerExpiredActions,
-                        style: const TextStyle(fontSize: 13, color: Colors.orange),
-                        softWrap: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              // Resend BLIK button
-              Container(
-                width: double.infinity,
-                height: 44,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      const Color(0xFFFF0000),
-                      const Color(0xFFFF007F),
-                    ],
-                  ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: isLoading ? null : () => _resendBlik(offer),
-                    borderRadius: BorderRadius.circular(24),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (isLoading) ...[
-                            const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.blue,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ] else ...[
-                            const Icon(Icons.refresh, color: Colors.white, size: 20),
-                            const SizedBox(width: 8),
-                          ],
-                          Text(
-                            t.taker.waitConfirmation.resendBlikButton,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Cancel Reservation Button
-              SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red, width: 1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                    onPressed: isLoading ? null : () => _cancelReservation(offer),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-                          child: const Icon(Icons.close, size: 16, color: Colors.white),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.reservations.actions.cancel,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            // if (offer.statusEnum == OfferStatus.blikReceived) ...[
+            //   Container(
+            //     padding: const EdgeInsets.all(12),
+            //     margin: const EdgeInsets.symmetric(horizontal: 20),
+            //     decoration: BoxDecoration(
+            //       color: Colors.orange.withValues(alpha: 0.1),
+            //       borderRadius: BorderRadius.circular(8),
+            //       border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+            //     ),
+            //     child: Row(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Padding(
+            //           padding: EdgeInsets.only(top: 2),
+            //           child: Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+            //         ),
+            //         const SizedBox(width: 12),
+            //         Expanded(
+            //           child: Text(
+            //             t.taker.waitConfirmation.timerExpiredActions,
+            //             style: const TextStyle(fontSize: 13, color: Colors.orange),
+            //             softWrap: true,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            //   const SizedBox(height: 20),
+            //
+            //   // Resend BLIK button
+            //   Container(
+            //     width: double.infinity,
+            //     height: 44,
+            //     margin: const EdgeInsets.symmetric(horizontal: 20),
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(24),
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topCenter,
+            //         end: Alignment.bottomCenter,
+            //         colors: [
+            //           const Color(0xFFFF0000),
+            //           const Color(0xFFFF007F),
+            //         ],
+            //       ),
+            //     ),
+            //     child: Material(
+            //       color: Colors.transparent,
+            //       child: InkWell(
+            //         onTap: isLoading ? null : () => _resendBlik(offer),
+            //         borderRadius: BorderRadius.circular(24),
+            //         child: Center(
+            //           child: Row(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             children: [
+            //               if (isLoading) ...[
+            //                 const SizedBox(
+            //                   width: 24,
+            //                   height: 24,
+            //                   child: CircularProgressIndicator(
+            //                     strokeWidth: 2,
+            //                     color: Colors.blue,
+            //                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            //                   ),
+            //                 ),
+            //                 const SizedBox(width: 8),
+            //               ] else ...[
+            //                 const Icon(Icons.refresh, color: Colors.white, size: 20),
+            //                 const SizedBox(width: 8),
+            //               ],
+            //               Text(
+            //                 t.taker.waitConfirmation.resendBlikButton,
+            //                 style: const TextStyle(
+            //                   fontSize: 16,
+            //                   fontWeight: FontWeight.w600,
+            //                   color: Colors.white,
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            //
+            //   const SizedBox(height: 16),
+            //
+            //   // Cancel Reservation Button
+            //   SizedBox(
+            //     width: double.infinity,
+            //     height: 44,
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: OutlinedButton(
+            //         style: OutlinedButton.styleFrom(
+            //           foregroundColor: Colors.red,
+            //           side: const BorderSide(color: Colors.red, width: 1),
+            //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            //         ),
+            //         onPressed: isLoading ? null : () => _cancelReservation(offer),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             Container(
+            //               width: 24,
+            //               height: 24,
+            //               decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+            //               child: const Icon(Icons.close, size: 16, color: Colors.white),
+            //             ),
+            //             const SizedBox(width: 8),
+            //             Text(
+            //               t.reservations.actions.cancel,
+            //               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ],
           ],
         ],
       ),

@@ -460,10 +460,11 @@ taker:
     navigatedHome: "Navigated home."
     
     expiredTitle: "BLIK Code Expired"
-    expiredWarning: "The BLIK code has expired. The maker hasn't confirmed the payment yet. What would you like to do?"
-    expiredInstruction1: "If the BLIK payment was charged from your bank account, report a conflict to start a dispute."
-    expiredInstruction2: "If you want to try again with a new BLIK code, renew the reservation."
-    expiredInstruction3: "If you no longer want to complete this transaction, cancel the reservation."
+    expiredWarning: "The maker did not receive the BLIK code so it couldn't have used it."
+    expiredSentWarning: "The maker hasn't confirmed the payment yet. What would you like to do?"
+    expiredInstruction1: "If you want to try again with a new BLIK code, renew the reservation."
+    expiredInstruction2: "If you no longer want to complete this transaction, cancel the reservation."
+    expiredInstruction3: "If the BLIK payment was charged from your bank account, report a conflict to start a dispute."
     
     expiredActions:
       reportConflict: "BLIK was charged from my bank account"

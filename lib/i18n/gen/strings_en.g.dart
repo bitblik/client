@@ -1462,17 +1462,20 @@ class TranslationsTakerWaitConfirmationEn {
 	/// en: 'BLIK Code Expired'
 	String get expiredTitle => 'BLIK Code Expired';
 
-	/// en: 'The BLIK code has expired. The maker hasn't confirmed the payment yet. What would you like to do?'
-	String get expiredWarning => 'The BLIK code has expired. The maker hasn\'t confirmed the payment yet. What would you like to do?';
+	/// en: 'The maker did not receive the BLIK code so it couldn't have used it.'
+	String get expiredWarning => 'The maker did not receive the BLIK code so it couldn\'t have used it.';
 
-	/// en: 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.'
-	String get expiredInstruction1 => 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
+	/// en: 'The maker hasn't confirmed the payment yet. What would you like to do?'
+	String get expiredSentWarning => 'The maker hasn\'t confirmed the payment yet. What would you like to do?';
 
 	/// en: 'If you want to try again with a new BLIK code, renew the reservation.'
-	String get expiredInstruction2 => 'If you want to try again with a new BLIK code, renew the reservation.';
+	String get expiredInstruction1 => 'If you want to try again with a new BLIK code, renew the reservation.';
 
 	/// en: 'If you no longer want to complete this transaction, cancel the reservation.'
-	String get expiredInstruction3 => 'If you no longer want to complete this transaction, cancel the reservation.';
+	String get expiredInstruction2 => 'If you no longer want to complete this transaction, cancel the reservation.';
+
+	/// en: 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.'
+	String get expiredInstruction3 => 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
 
 	late final TranslationsTakerWaitConfirmationExpiredActionsEn expiredActions = TranslationsTakerWaitConfirmationExpiredActionsEn.internal(_root);
 	late final TranslationsTakerWaitConfirmationFeedbackEn feedback = TranslationsTakerWaitConfirmationFeedbackEn.internal(_root);
@@ -2895,10 +2898,11 @@ extension on Translations {
 			case 'taker.waitConfirmation.resendBlikButton': return 'Resend New BLIK Code';
 			case 'taker.waitConfirmation.navigatedHome': return 'Navigated home.';
 			case 'taker.waitConfirmation.expiredTitle': return 'BLIK Code Expired';
-			case 'taker.waitConfirmation.expiredWarning': return 'The BLIK code has expired. The maker hasn\'t confirmed the payment yet. What would you like to do?';
-			case 'taker.waitConfirmation.expiredInstruction1': return 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
-			case 'taker.waitConfirmation.expiredInstruction2': return 'If you want to try again with a new BLIK code, renew the reservation.';
-			case 'taker.waitConfirmation.expiredInstruction3': return 'If you no longer want to complete this transaction, cancel the reservation.';
+			case 'taker.waitConfirmation.expiredWarning': return 'The maker did not receive the BLIK code so it couldn\'t have used it.';
+			case 'taker.waitConfirmation.expiredSentWarning': return 'The maker hasn\'t confirmed the payment yet. What would you like to do?';
+			case 'taker.waitConfirmation.expiredInstruction1': return 'If you want to try again with a new BLIK code, renew the reservation.';
+			case 'taker.waitConfirmation.expiredInstruction2': return 'If you no longer want to complete this transaction, cancel the reservation.';
+			case 'taker.waitConfirmation.expiredInstruction3': return 'If the BLIK payment was charged from your bank account, report a conflict to start a dispute.';
 			case 'taker.waitConfirmation.expiredActions.reportConflict': return 'BLIK was charged from my bank account';
 			case 'taker.waitConfirmation.expiredActions.renewReservation': return 'Try again with new BLIK code';
 			case 'taker.waitConfirmation.expiredActions.cancelReservation': return 'Cancel reservation';

@@ -460,10 +460,11 @@ taker:
     navigatedHome: "Przeniesiono na stronę główną."
     
     expiredTitle: "Kod BLIK wygasł"
-    expiredWarning: "Kod BLIK wygasł. Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?"
-    expiredInstruction1: "Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór."
-    expiredInstruction2: "Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację."
-    expiredInstruction3: "Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację."
+    expiredWarning: "Twórca oferty nie otrzymał kodu BLIK, więc nie mógł go użyć."
+    expiredSentWarning: "Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?"
+    expiredInstruction1: "Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację."
+    expiredInstruction2: "Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację."
+    expiredInstruction3: "Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór."
     
     expiredActions:
       reportConflict: "BLIK został pobrany z mojego konta"
