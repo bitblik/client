@@ -1458,6 +1458,7 @@ class OfferStatusUpdate {
   final String paymentHash;
   final String status;
   final String coordinatorPubkey;
+  DateTime? createdAt;
   DateTime? reservedAt;
   final DateTime timestamp;
 
@@ -1465,6 +1466,7 @@ class OfferStatusUpdate {
     required this.offerId,
     required this.paymentHash,
     required this.status,
+    this.createdAt,
     this.reservedAt,
     required this.coordinatorPubkey,
     required this.timestamp,

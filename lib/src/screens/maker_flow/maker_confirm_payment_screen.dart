@@ -620,6 +620,8 @@ class _MakerConfirmPaymentScreenState
       context.go('/wait-blik');
     } else if (statusEnum == OfferStatus.funded) {
       context.go('/wait-taker');
+    } else if (statusEnum == OfferStatus.expired) {
+      context.go('/');
     }
   }
 }

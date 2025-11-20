@@ -588,7 +588,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                     final bool isInvalidBlik =
                                         offer.status ==
                                         OfferStatus.invalidBlik.name;
-
+                                    final publicKey = publicKeyAsyncValue.value;
                                     Widget? trailingWidget;
 
                                     if (isFunded) {
@@ -774,6 +774,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                         child: Text(t.offers.actions.take),
                                       );
                                     } else if (myActiveOffer != null &&
+                                        offer.takerPubkey == publicKey &&
                                         offer.id == myActiveOffer.id &&
                                         (myActiveOffer.isInvalidBlik ||
                                             myActiveOffer.isConflict)) {

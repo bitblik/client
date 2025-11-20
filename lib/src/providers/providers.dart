@@ -442,7 +442,7 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
       );
       // Use initialized API service to ensure KeyService is ready
       final apiService = await ref.read(initializedApiServiceProvider.future);
-      final activeOfferNotifier = ref.read(activeOfferProvider.notifier);
+      // final activeOfferNotifier = ref.read(activeOfferProvider.notifier);
       final offersData = await apiService.getMyFinishedOffers(publicKey);
       final now = DateTime.now().toUtc();
 
@@ -451,7 +451,6 @@ final finishedOffersProvider = FutureProvider<List<Offer>>((ref) async {
           final paidAt = offer.takerPaidAt;
           return paidAt != null && now.difference(paidAt.toUtc()).inHours < 24;
         }
-        activeOfferNotifier.setActiveOffer(offer);
         return false;
       }).toList();
     },

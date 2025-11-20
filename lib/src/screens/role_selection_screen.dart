@@ -221,7 +221,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
     });
 
     final currentPubKey = publicKeyAsync.value;
-    bool hasActiveOffer = activeOffer != null && currentPubKey != null;
+    bool hasActiveOffer =
+        activeOffer != null && currentPubKey != null &&
+            (activeOffer.statusEnum != OfferStatus.expired) &&
+            (activeOffer.statusEnum != OfferStatus.cancelled);
     final isTakerPaid =
         hasActiveOffer && activeOffer.status == OfferStatus.takerPaid.name;
 
