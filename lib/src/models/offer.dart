@@ -1,3 +1,5 @@
+import 'package:ndk/shared/logger/logger.dart';
+
 enum OfferStatus {
   created, // Initial state, invoice generated but not paid
   funded, // Hold invoice paid by maker, offer listed
@@ -8,6 +10,10 @@ enum OfferStatus {
   reserved, // Taker has expressed interest, 15s timer started
   blikReceived, // Taker submitted BLIK, 120s timer started
   blikSentToMaker, // Maker requested BLIK code
+  expiredBlik, // BLIK not confirmed in time
+  expiredSentBlik, // Maker did not confirm BLIK in time
+
+  takerCharged, // taker reported BLIK charged to their account
 
   invalidBlik, // Maker marked the BLIK code as invalid
   conflict, // Taker reported conflict after Maker marked BLIK as invalid
@@ -31,11 +37,13 @@ class Offer {
   final String status; // e.g., "funded", "reserved", etc. Use OfferStatus.name
   final DateTime createdAt;
   final String makerPubkey;
+  final String coordinatorPubkey; // Added coordinator pubkey
   final String? takerPubkey;
   final DateTime? reservedAt;
   final DateTime? blikReceivedAt;
   final String? blikCode;
-  final String? holdInvoicePaymentHash;
+  String? holdInvoicePaymentHash;
+  final String? holdInvoice; // The actual bolt11 invoice string
   // Added fields based on DB schema that might be useful
   final String? takerLightningAddress;
   final String? takerInvoice;
@@ -104,11 +112,13 @@ class Offer {
     required this.fiatCurrency,
     required this.createdAt,
     required this.makerPubkey,
+    required this.coordinatorPubkey,
     this.takerPubkey,
     this.reservedAt,
     this.blikReceivedAt,
     this.blikCode,
     this.holdInvoicePaymentHash,
+    this.holdInvoice,
     this.takerLightningAddress,
     this.takerInvoice,
     this.holdInvoicePreimage,
@@ -121,8 +131,24 @@ class Offer {
 
   // Factory constructor to create an Offer from JSON data (Map).
   factory Offer.fromJson(Map<String, dynamic> json) {
-    DateTime? parseOptionalDateTime(String? dateString) {
-      return dateString != null ? DateTime.parse(dateString) : null;
+    DateTime? parseOptionalDateTime(dynamic value) {
+      if (value == null) return null;
+      if (value is int) {
+        return DateTime.fromMillisecondsSinceEpoch(value);
+      }
+      if (value is String) {
+        // Try ISO8601 first
+        try {
+          return DateTime.parse(value);
+        } catch (_) {
+          // Fallback: try parse as int millis inside a string
+          final asInt = int.tryParse(value);
+          if (asInt != null) {
+            return DateTime.fromMillisecondsSinceEpoch(asInt);
+          }
+        }
+      }
+      return null;
     }
 
     // Helper to safely parse string providing a default
@@ -143,22 +169,6 @@ class Offer {
       if (value is int) return value.toDouble();
       if (value is String) return double.tryParse(value) ?? defaultValue;
       return defaultValue;
-    }
-
-    // createdAt is essential and sent by coordinator. If it's null/missing, it's a bigger issue.
-    // For stats, offers without createdAt would be problematic.
-    final createdAtString = json['created_at'] as String?;
-    if (createdAtString == null) {
-      // This case should ideally not happen for offers in stats.
-      // Throwing an error or using a very old default date.
-      // For now, let's use epoch if it's absolutely missing, though this offer will be unusable.
-      print(
-        "Warning: Offer.fromJson received null or missing 'created_at'. Offer might be invalid for stats.",
-      );
-      // Fallback to a very old date or throw, depending on how critical it is.
-      // For stats display, an offer without created_at is problematic.
-      // Let's assume for now that `created_at` will always be present for successful offers.
-      // If not, the `DateTime.parse` will throw, which is acceptable to highlight data issue.
     }
 
     return Offer(
@@ -186,31 +196,40 @@ class Offer {
         json['status'],
         OfferStatus.takerPaid.name,
       ), // Default to takerPaid for stats if missing
-      createdAt: DateTime.parse(
-        json['created_at'] as String,
-      ), // Assumed to be present and valid
+      createdAt: () {
+        final v = json['created_at'];
+        if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+        if (v is String) {
+          try {
+            return DateTime.parse(v);
+          } catch (_) {
+            final asInt = int.tryParse(v);
+            if (asInt != null) return DateTime.fromMillisecondsSinceEpoch(asInt);
+          }
+        }
+        // Sensible fallback to "now" to avoid crash; ideally this should not happen.
+        return DateTime.now();
+      }(),
       makerPubkey: safeString(
         json['maker_pubkey'],
         'unknown_maker',
       ), // Default if 'maker_pubkey' is null or not a string
+      coordinatorPubkey: safeString(json['coordinator_pubkey'], 'unknown_coordinator'), // Added coordinator pubkey
       takerPubkey: json['taker_pubkey'] as String?, // Already nullable
-      reservedAt: parseOptionalDateTime(json['reserved_at'] as String?),
-      blikReceivedAt: parseOptionalDateTime(
-        json['blik_received_at'] as String?,
-      ),
+      reservedAt: parseOptionalDateTime(json['reserved_at']),
+      blikReceivedAt: parseOptionalDateTime(json['blik_received_at']),
       blikCode: json['blik_code'] as String?,
       holdInvoicePaymentHash: json['hold_invoice_payment_hash'] as String?,
+      holdInvoice: json['hold_invoice'] as String?,
       // Parse additional fields if present in JSON
       takerLightningAddress: json['taker_lightning_address'] as String?,
       takerInvoice: json['taker_invoice'] as String?,
       holdInvoicePreimage:
           json['hold_invoice_preimage'] as String?, // Be cautious exposing this
-      updatedAt: parseOptionalDateTime(json['updated_at'] as String?),
-      makerConfirmedAt: parseOptionalDateTime(
-        json['maker_confirmed_at'] as String?,
-      ),
-      settledAt: parseOptionalDateTime(json['settled_at'] as String?),
-      takerPaidAt: parseOptionalDateTime(json['taker_paid_at'] as String?),
+      updatedAt: parseOptionalDateTime(json['updated_at']),
+      makerConfirmedAt: parseOptionalDateTime(json['maker_confirmed_at']),
+      settledAt: parseOptionalDateTime(json['settled_at']),
+      takerPaidAt: parseOptionalDateTime(json['taker_paid_at']),
       takerFees: json['taker_fees'] as int?, // Renamed key and field
     );
   }
@@ -221,14 +240,18 @@ class Offer {
       'id': id,
       'amount_sats': amountSats,
       'maker_fees': makerFees, // Renamed key and field
+      'fiat_amount': fiatAmount,
+      'fiat_currency': fiatCurrency,
       'status': status,
       'created_at': createdAt.toIso8601String(),
       'maker_pubkey': makerPubkey,
+      'coordinator_pubkey': coordinatorPubkey,
       'taker_pubkey': takerPubkey,
       'reserved_at': reservedAt?.toIso8601String(),
       'blik_received_at': blikReceivedAt?.toIso8601String(),
       'blik_code': blikCode,
       'hold_invoice_payment_hash': holdInvoicePaymentHash,
+      'hold_invoice': holdInvoice,
       'taker_lightning_address': takerLightningAddress,
       'taker_invoice': takerInvoice,
       'hold_invoice_preimage': holdInvoicePreimage,
@@ -246,11 +269,17 @@ class Offer {
       return OfferStatus.values.byName(status);
     } catch (e) {
       // Handle cases where the string doesn't match any enum value
-      print('Warning: Unknown offer status "$status", defaulting to created.');
+      Logger.log.w('Warning: Unknown offer status "$status", defaulting to created.');
       return OfferStatus
           .created; // Or throw an error, depending on desired behavior
     }
   }
+
+  bool get isConflict => status == OfferStatus.conflict.name;
+
+  bool get isInvalidBlik => status == OfferStatus.invalidBlik.name;
+
+  bool get isDispute => status == OfferStatus.dispute.name;
 
   // copyWith method for updating state immutably
   Offer copyWith({
@@ -260,11 +289,13 @@ class Offer {
     String? status,
     DateTime? createdAt,
     String? makerPubkey,
+    String? coordinatorPubkey,
     String? takerPubkey,
     DateTime? reservedAt,
     DateTime? blikReceivedAt,
     String? blikCode,
     String? holdInvoicePaymentHash,
+    String? holdInvoice,
     String? takerLightningAddress,
     String? takerInvoice,
     String? holdInvoicePreimage,
@@ -283,12 +314,14 @@ class Offer {
       fiatCurrency: fiatCurrency,
       createdAt: createdAt ?? this.createdAt,
       makerPubkey: makerPubkey ?? this.makerPubkey,
+      coordinatorPubkey: coordinatorPubkey ?? this.coordinatorPubkey,
       takerPubkey: takerPubkey ?? this.takerPubkey,
       reservedAt: reservedAt ?? this.reservedAt,
       blikReceivedAt: blikReceivedAt ?? this.blikReceivedAt,
       blikCode: blikCode ?? this.blikCode,
       holdInvoicePaymentHash:
           holdInvoicePaymentHash ?? this.holdInvoicePaymentHash,
+      holdInvoice: holdInvoice ?? this.holdInvoice,
       takerLightningAddress:
           takerLightningAddress ?? this.takerLightningAddress,
       takerInvoice: takerInvoice ?? this.takerInvoice,

@@ -44,11 +44,21 @@ class TranslationsPl extends Translations {
 	@override late final _TranslationsOffersPl offers = _TranslationsOffersPl._(_root);
 	@override late final _TranslationsReservationsPl reservations = _TranslationsReservationsPl._(_root);
 	@override late final _TranslationsExchangePl exchange = _TranslationsExchangePl._(_root);
+	@override late final _TranslationsCoordinatorPl coordinator = _TranslationsCoordinatorPl._(_root);
 	@override late final _TranslationsMakerPl maker = _TranslationsMakerPl._(_root);
 	@override late final _TranslationsTakerPl taker = _TranslationsTakerPl._(_root);
 	@override late final _TranslationsBlikPl blik = _TranslationsBlikPl._(_root);
+	@override late final _TranslationsNekoInfoPl nekoInfo = _TranslationsNekoInfoPl._(_root);
+	@override late final _TranslationsGenerateNewKeyPl generateNewKey = _TranslationsGenerateNewKeyPl._(_root);
+	@override late final _TranslationsBackupPl backup = _TranslationsBackupPl._(_root);
+	@override late final _TranslationsRestorePl restore = _TranslationsRestorePl._(_root);
 	@override late final _TranslationsHomePl home = _TranslationsHomePl._(_root);
 	@override late final _TranslationsSystemPl system = _TranslationsSystemPl._(_root);
+	@override late final _TranslationsLandingPl landing = _TranslationsLandingPl._(_root);
+	@override late final _TranslationsFaqPl faq = _TranslationsFaqPl._(_root);
+	@override late final _TranslationsSettingsPl settings = _TranslationsSettingsPl._(_root);
+	@override late final _TranslationsWalletPl wallet = _TranslationsWalletPl._(_root);
+	@override late final _TranslationsNekoManagementPl nekoManagement = _TranslationsNekoManagementPl._(_root);
 }
 
 // Path: app
@@ -96,12 +106,14 @@ class _TranslationsOffersPl extends TranslationsOffersEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsOffersDisplayPl display = _TranslationsOffersDisplayPl._(_root);
 	@override late final _TranslationsOffersDetailsPl details = _TranslationsOffersDetailsPl._(_root);
+	@override late final _TranslationsOffersTooltipsPl tooltips = _TranslationsOffersTooltipsPl._(_root);
 	@override late final _TranslationsOffersActionsPl actions = _TranslationsOffersActionsPl._(_root);
 	@override late final _TranslationsOffersStatusPl status = _TranslationsOffersStatusPl._(_root);
+	@override late final _TranslationsOffersStatusMessagesPl statusMessages = _TranslationsOffersStatusMessagesPl._(_root);
 	@override late final _TranslationsOffersProgressPl progress = _TranslationsOffersProgressPl._(_root);
 	@override late final _TranslationsOffersErrorsPl errors = _TranslationsOffersErrorsPl._(_root);
+	@override late final _TranslationsOffersSuccessPl success = _TranslationsOffersSuccessPl._(_root);
 }
 
 // Path: reservations
@@ -126,6 +138,20 @@ class _TranslationsExchangePl extends TranslationsExchangeEn {
 	@override late final _TranslationsExchangeLabelsPl labels = _TranslationsExchangeLabelsPl._(_root);
 	@override late final _TranslationsExchangeFeedbackPl feedback = _TranslationsExchangeFeedbackPl._(_root);
 	@override late final _TranslationsExchangeErrorsPl errors = _TranslationsExchangeErrorsPl._(_root);
+}
+
+// Path: coordinator
+class _TranslationsCoordinatorPl extends TranslationsCoordinatorEn {
+	_TranslationsCoordinatorPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Koordynatorzy';
+	@override late final _TranslationsCoordinatorInfoPl info = _TranslationsCoordinatorInfoPl._(_root);
+	@override late final _TranslationsCoordinatorSelectorPl selector = _TranslationsCoordinatorSelectorPl._(_root);
+	@override late final _TranslationsCoordinatorDialogPl dialog = _TranslationsCoordinatorDialogPl._(_root);
+	@override late final _TranslationsCoordinatorManagementPl management = _TranslationsCoordinatorManagementPl._(_root);
 }
 
 // Path: maker
@@ -154,6 +180,7 @@ class _TranslationsTakerPl extends TranslationsTakerEn {
 
 	// Translations
 	@override late final _TranslationsTakerRoleSelectionPl roleSelection = _TranslationsTakerRoleSelectionPl._(_root);
+	@override late final _TranslationsTakerProgressPl progress = _TranslationsTakerProgressPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikPl submitBlik = _TranslationsTakerSubmitBlikPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationPl waitConfirmation = _TranslationsTakerWaitConfirmationPl._(_root);
 	@override late final _TranslationsTakerPaymentProcessPl paymentProcess = _TranslationsTakerPaymentProcessPl._(_root);
@@ -171,6 +198,61 @@ class _TranslationsBlikPl extends TranslationsBlikEn {
 
 	// Translations
 	@override late final _TranslationsBlikInstructionsPl instructions = _TranslationsBlikInstructionsPl._(_root);
+}
+
+// Path: nekoInfo
+class _TranslationsNekoInfoPl extends TranslationsNekoInfoEn {
+	_TranslationsNekoInfoPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Czym jest Neko?';
+	@override String get description => 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.\n\n⚠️ WAŻNE: Twój klucz prywatny jest przechowywany tylko na Twoim urządzeniu (po stronie klienta). Niezwykle ważne jest zarchiwizowanie klucza prywatnego, ponieważ utrata dostępu do niego może uniemożliwić rozstrzygnięcie sporów i odzyskanie środków.';
+	@override String get backupWarning => 'Pamiętaj, aby zarchiwizować swoje Neko';
+}
+
+// Path: generateNewKey
+class _TranslationsGenerateNewKeyPl extends TranslationsGenerateNewKeyEn {
+	_TranslationsGenerateNewKeyPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Nowy';
+	@override String get description => 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
+	@override late final _TranslationsGenerateNewKeyButtonsPl buttons = _TranslationsGenerateNewKeyButtonsPl._(_root);
+	@override late final _TranslationsGenerateNewKeyErrorsPl errors = _TranslationsGenerateNewKeyErrorsPl._(_root);
+	@override late final _TranslationsGenerateNewKeyFeedbackPl feedback = _TranslationsGenerateNewKeyFeedbackPl._(_root);
+	@override late final _TranslationsGenerateNewKeyTooltipsPl tooltips = _TranslationsGenerateNewKeyTooltipsPl._(_root);
+}
+
+// Path: backup
+class _TranslationsBackupPl extends TranslationsBackupEn {
+	_TranslationsBackupPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Zarchiwizuj';
+	@override String get description => 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
+	@override late final _TranslationsBackupFeedbackPl feedback = _TranslationsBackupFeedbackPl._(_root);
+	@override late final _TranslationsBackupTooltipsPl tooltips = _TranslationsBackupTooltipsPl._(_root);
+}
+
+// Path: restore
+class _TranslationsRestorePl extends TranslationsRestoreEn {
+	_TranslationsRestorePl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Przywróć';
+	@override late final _TranslationsRestoreLabelsPl labels = _TranslationsRestoreLabelsPl._(_root);
+	@override late final _TranslationsRestoreButtonsPl buttons = _TranslationsRestoreButtonsPl._(_root);
+	@override late final _TranslationsRestoreErrorsPl errors = _TranslationsRestoreErrorsPl._(_root);
+	@override late final _TranslationsRestoreFeedbackPl feedback = _TranslationsRestoreFeedbackPl._(_root);
+	@override late final _TranslationsRestoreTooltipsPl tooltips = _TranslationsRestoreTooltipsPl._(_root);
 }
 
 // Path: home
@@ -196,6 +278,60 @@ class _TranslationsSystemPl extends TranslationsSystemEn {
 	@override late final _TranslationsSystemBlikPl blik = _TranslationsSystemBlikPl._(_root);
 }
 
+// Path: landing
+class _TranslationsLandingPl extends TranslationsLandingEn {
+	_TranslationsLandingPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get mainTitle => 'Wymiana\n BLIK ⇄ bitcoin';
+	@override String get subtitle => 'Płać lub sprzedawaj kod BLIK za bitcoin';
+	@override late final _TranslationsLandingActionsPl actions = _TranslationsLandingActionsPl._(_root);
+}
+
+// Path: faq
+class _TranslationsFaqPl extends TranslationsFaqEn {
+	_TranslationsFaqPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get screenTitle => 'FAQ';
+	@override String get tooltip => 'FAQ';
+}
+
+// Path: settings
+class _TranslationsSettingsPl extends TranslationsSettingsEn {
+	_TranslationsSettingsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Ustawienia';
+}
+
+// Path: wallet
+class _TranslationsWalletPl extends TranslationsWalletEn {
+	_TranslationsWalletPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Portfel';
+	@override String get description => 'Zarządzaj ustawieniami portfela Lightning';
+}
+
+// Path: nekoManagement
+class _TranslationsNekoManagementPl extends TranslationsNekoManagementEn {
+	_TranslationsNekoManagementPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Neko';
+}
+
 // Path: common.buttons
 class _TranslationsCommonButtonsPl extends TranslationsCommonButtonsEn {
 	_TranslationsCommonButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -209,6 +345,12 @@ class _TranslationsCommonButtonsPl extends TranslationsCommonButtonsEn {
 	@override String get retry => 'Spróbuj ponownie';
 	@override String get goHome => 'Wróć do strony głównej';
 	@override String get saveAndContinue => 'Zapisz i kontynuuj';
+	@override String get reveal => 'Pokaż';
+	@override String get hide => 'Ukryj';
+	@override String get copy => 'Kopiuj';
+	@override String get close => 'Zamknij';
+	@override String get restore => 'Przywróć';
+	@override String get faq => 'FAQ';
 }
 
 // Path: common.labels
@@ -265,9 +407,10 @@ class _TranslationsLightningAddressLabelsPl extends TranslationsLightningAddress
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get address => 'Adres Lightning';
+	@override String get address => 'Adres Lightning (LNURL)';
 	@override String get hint => 'uzytkownik@domena.com';
 	@override String short({required Object address}) => 'Adres Lightning: ${address}';
+	@override String get receivingAddress => 'Twój adres odbiorczy:';
 }
 
 // Path: lightningAddress.prompts
@@ -278,9 +421,16 @@ class _TranslationsLightningAddressPromptsPl extends TranslationsLightningAddres
 
 	// Translations
 	@override String get enter => 'Wprowadź swój adres Lightning, aby kontynuować';
-	@override String get edit => 'Edytuj adres Lightning';
+	@override String get edit => 'Edytuj';
 	@override String get invalid => 'Wprowadź prawidłowy adres Lightning';
 	@override String get required => 'Adres Lightning jest wymagany.';
+	@override String get enterToTakeOffer => 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
+	@override String get missing => 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
+	@override String get add => 'Dodaj';
+	@override String get delete => 'Usuń';
+	@override String get confirmDelete => 'Czy na pewno chcesz usunąć swój adres Lightning?';
+	@override String get howToGet => 'Nie masz jeszcze adresu Lightning? Dowiedz się, jak go zdobyć!';
+	@override String get learnMore => 'Dowiedz się więcej o adresach Lightning';
 }
 
 // Path: lightningAddress.feedback
@@ -306,23 +456,6 @@ class _TranslationsLightningAddressErrorsPl extends TranslationsLightningAddress
 	@override String loading({required Object details}) => 'Błąd podczas ładowania adresu Lightning: ${details}';
 }
 
-// Path: offers.display
-class _TranslationsOffersDisplayPl extends TranslationsOffersDisplayEn {
-	_TranslationsOffersDisplayPl._(TranslationsPl root) : this._root = root, super.internal(root);
-
-	final TranslationsPl _root; // ignore: unused_field
-
-	// Translations
-	@override String get yourOffer => 'Twoja oferta:';
-	@override String get selectedOffer => 'Wybrana oferta:';
-	@override String get activeOffer => 'Masz aktywną ofertę:';
-	@override String get finishedOffers => 'Zakończone oferty';
-	@override String get finishedOffersWithTime => 'Zakończone oferty (ostatnie 24h):';
-	@override String get noAvailable => 'Brak dostępnych ofert.';
-	@override String get noSuccessfulTrades => 'Brak udanych transakcji.';
-	@override String get loadingDetails => 'Ładowanie szczegółów oferty...';
-}
-
 // Path: offers.details
 class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	_TranslationsOffersDetailsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -330,18 +463,43 @@ class _TranslationsOffersDetailsPl extends TranslationsOffersDetailsEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
+	@override String get yourOffer => 'Twoja oferta:';
+	@override String get selectedOffer => 'Oferta:';
+	@override String get activeOffer => 'Masz aktywną ofertę:';
+	@override String get finishedOffers => 'Zakończone oferty';
+	@override String get finishedOffersWithTime => 'Zakończone oferty (ostatnie 24h):';
+	@override String get noAvailable => 'Brak dostępnych ofert.';
+	@override String get noSuccessfulTrades => 'Brak udanych transakcji.';
+	@override String get loadingDetails => 'Ładowanie szczegółów oferty...';
 	@override String amount({required Object amount}) => 'Kwota: ${amount} satoshi';
 	@override String amountWithCurrency({required Object amount, required Object currency}) => '${amount} ${currency}';
-	@override String makerFee({required Object fee}) => 'Prowizja Maker: ${fee} satoshi';
-	@override String takerFee({required Object fee}) => 'Prowizja Taker: ${fee} satoshi';
-	@override String takerFeeWithStatus({required Object fee, required Object status}) => 'Prowizja Taker: ${fee} satoshi | Status: ${status}';
-	@override String subtitle({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}';
-	@override String subtitleWithDate({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}\nZapłacono: ${date}';
+	@override String makerFee({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
+	@override String takerFee({required Object fee}) => 'Opłata Taker: ${fee} satoshi';
+	@override String takerFeeWithStatus({required Object fee, required Object status}) => 'Opłata Taker: ${fee} satoshi | Status: ${status}';
+	@override String subtitle({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}';
+	@override String subtitleWithDate({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}\nZapłacono: ${date}';
 	@override String activeSubtitle({required Object status, required Object amount}) => 'Status: ${status}\nKwota: ${amount} satoshi';
 	@override String id({required Object id}) => 'ID Oferty: ${id}...';
 	@override String created({required Object dateTime}) => 'Utworzono: ${dateTime}';
 	@override String takenAfter({required Object duration}) => 'Przyjęto po: ${duration}';
 	@override String paidAfter({required Object duration}) => 'Zapłacono po: ${duration}';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get takerFeeLabel => 'Opłata';
+	@override String get amountLabel => 'Kwota';
+	@override String get feeLabel => 'Opłata';
+	@override String get statusLabel => 'Status';
+	@override String get youllReceive => 'Otrzymasz';
+	@override String get coordinator => 'Koordynator';
+}
+
+// Path: offers.tooltips
+class _TranslationsOffersTooltipsPl extends TranslationsOffersTooltipsEn {
+	_TranslationsOffersTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String takerFeeInfo({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla kupującego. Ta opłata jest odejmowana od kwoty, którą otrzymasz.';
 }
 
 // Path: offers.actions
@@ -352,13 +510,39 @@ class _TranslationsOffersActionsPl extends TranslationsOffersActionsEn {
 
 	// Translations
 	@override String get take => 'WEŹ';
-	@override String get resume => 'WZNÓW';
+	@override String get takeOffer => 'Weź ofertę';
+	@override String get resume => 'Wprowadź BLIK';
 	@override String get cancel => 'Anuluj ofertę';
+	@override String get view => 'Zobacz';
 }
 
 // Path: offers.status
 class _TranslationsOffersStatusPl extends TranslationsOffersStatusEn {
 	_TranslationsOffersStatusPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get created => 'Utworzona';
+	@override String get funded => 'Sfinansowana';
+	@override String get expired => 'Wygasła';
+	@override String get cancelled => 'Anulowana';
+	@override String get reserved => 'Zarezerwowana';
+	@override String get blikReceived => 'BLIK wysłany';
+	@override String get blikSentToMaker => 'Otrzymano BLIK';
+	@override String get invalidBlik => 'Nieprawidłowy BLIK';
+	@override String get conflict => 'Konflikt';
+	@override String get dispute => 'Spór';
+	@override String get makerConfirmed => 'Potwierdzona';
+	@override String get settled => 'Rozliczona';
+	@override String get payingTaker => 'Płacenie Takera';
+	@override String get takerPaymentFailed => 'Płatność Takera nieudana';
+	@override String get takerPaid => 'Zapłacony';
+}
+
+// Path: offers.statusMessages
+class _TranslationsOffersStatusMessagesPl extends TranslationsOffersStatusMessagesEn {
+	_TranslationsOffersStatusMessagesPl._(TranslationsPl root) : this._root = root, super.internal(root);
 
 	final TranslationsPl _root; // ignore: unused_field
 
@@ -409,6 +593,20 @@ class _TranslationsOffersErrorsPl extends TranslationsOffersErrorsEn {
 	@override String get takerPublicKeyNotFound => 'Nie znaleziono klucza publicznego Takera.';
 }
 
+// Path: offers.success
+class _TranslationsOffersSuccessPl extends TranslationsOffersSuccessEn {
+	_TranslationsOffersSuccessPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Oferta zakończona';
+	@override String get headline => 'Płatność potwierdzona!';
+	@override String get subtitle => 'Taker otrzymał zapłatę.';
+	@override String get detailsTitle => 'Szczegóły oferty:';
+	@override String duration({required Object time}) => 'Realizacja oferty zajęła ${time}.';
+}
+
 // Path: reservations.actions
 class _TranslationsReservationsActionsPl extends TranslationsReservationsActionsEn {
 	_TranslationsReservationsActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -452,8 +650,7 @@ class _TranslationsExchangeLabelsPl extends TranslationsExchangeLabelsEn {
 	// Translations
 	@override String get enterAmount => 'Wprowadź kwotę (PLN) do zapłaty:';
 	@override String equivalent({required Object sats}) => '≈ ${sats} satoshi';
-	@override String rate({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
-	@override String rangeHint({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
+	@override String rate({required Object rate}) => 'Kurs wymiany ≈ ${rate} PLN/BTC';
 }
 
 // Path: exchange.feedback
@@ -476,9 +673,79 @@ class _TranslationsExchangeErrorsPl extends TranslationsExchangeErrorsEn {
 	@override String get fetchingRate => 'Nie udało się pobrać kursu wymiany.';
 	@override String get invalidFormat => 'Nieprawidłowy format liczby';
 	@override String get mustBePositive => 'Kwota musi być dodatnia';
-	@override String get invalidFeePercentage => 'Nieprawidłowy procent prowizji';
+	@override String get invalidFeePercentage => 'Nieprawidłowy procent opłaty';
 	@override String tooLowFiat({required Object minAmount, required Object currency}) => 'Kwota jest za niska. Minimum to ${minAmount} ${currency}.';
 	@override String tooHighFiat({required Object maxAmount, required Object currency}) => 'Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}.';
+}
+
+// Path: coordinator.info
+class _TranslationsCoordinatorInfoPl extends TranslationsCoordinatorInfoEn {
+	_TranslationsCoordinatorInfoPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get fee => 'opłata';
+	@override String rangeDisplay({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
+	@override String feeDisplay({required Object fee}) => '${fee}% opłata';
+}
+
+// Path: coordinator.selector
+class _TranslationsCoordinatorSelectorPl extends TranslationsCoordinatorSelectorEn {
+	_TranslationsCoordinatorSelectorPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get loading => 'Ładowanie koordynatorów...';
+	@override String get errorLoading => 'Błąd ładowania koordynatorów';
+	@override String get choose => 'Wybierz koordynatora';
+	@override String get viewNostrProfile => 'Zobacz profil Nostr';
+	@override String get unresponsive => 'Ten koordynator nie odpowiada';
+	@override String get waitingResponse => 'Oczekiwanie na odpowiedź koordynatora';
+	@override String get termsAccept => 'Akceptuję ';
+	@override String get termsOfUsage => 'Warunki użytkowania';
+}
+
+// Path: coordinator.dialog
+class _TranslationsCoordinatorDialogPl extends TranslationsCoordinatorDialogEn {
+	_TranslationsCoordinatorDialogPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get makerFee => 'Opłata twórcy';
+	@override String get takerFee => 'Opłata odbiorcy';
+	@override String get amountRange => 'Zakres kwoty';
+	@override String get reservationTime => 'Czas rezerwacji';
+	@override String get currencies => 'Waluty';
+	@override String get viewTerms => 'Zobacz warunki';
+}
+
+// Path: coordinator.management
+class _TranslationsCoordinatorManagementPl extends TranslationsCoordinatorManagementEn {
+	_TranslationsCoordinatorManagementPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Zarządzanie Koordynatorami';
+	@override String get availableCoordinators => 'Dostępni Koordynatorzy';
+	@override String get noCoordinators => 'Nie odkryto jeszcze żadnych koordynatorów.';
+	@override String get online => 'Online';
+	@override String get unknownOffline => 'Nieznany/Offline';
+	@override String get openNostrProfile => 'Otwórz profil Nostr';
+	@override String get enable => 'Włącz';
+	@override String get remove => 'Usuń';
+	@override String get addCustomWhitelist => 'Dodaj koordynatora';
+	@override String get addCustomWhitelistHint => 'npub1...';
+	@override String get add => 'Dodaj';
+	@override String get coordinatorBlacklisted => 'Koordynator zablokowany';
+	@override String get coordinatorUnblacklisted => 'Koordynator odblokowany';
+	@override String get coordinatorAdded => 'Koordynator dodany do niestandardowej białej listy';
+	@override String get coordinatorRemoved => 'Koordynator usunięty z niestandardowej białej listy';
+	@override String get pleaseEnterNpub => 'Proszę wprowadzić npub';
+	@override String get error => 'Błąd';
 }
 
 // Path: maker.roleSelection
@@ -498,7 +765,10 @@ class _TranslationsMakerAmountFormPl extends TranslationsMakerAmountFormEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsMakerAmountFormProgressPl progress = _TranslationsMakerAmountFormProgressPl._(_root);
+	@override late final _TranslationsMakerAmountFormLabelsPl labels = _TranslationsMakerAmountFormLabelsPl._(_root);
 	@override late final _TranslationsMakerAmountFormActionsPl actions = _TranslationsMakerAmountFormActionsPl._(_root);
+	@override late final _TranslationsMakerAmountFormTooltipsPl tooltips = _TranslationsMakerAmountFormTooltipsPl._(_root);
 	@override late final _TranslationsMakerAmountFormErrorsPl errors = _TranslationsMakerAmountFormErrorsPl._(_root);
 }
 
@@ -522,8 +792,7 @@ class _TranslationsMakerWaitTakerPl extends TranslationsMakerWaitTakerEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get message => 'Oczekiwanie na Takera, który zarezerwuje Twoją ofertę...';
-	@override String progressLabel({required Object time}) => 'Oczekiwanie na takera: ${time}';
+	@override String get message => 'Oczekiwanie na rezerwację przez Kupującego...';
 	@override String get errorActiveOfferDetailsLost => 'Błąd: Utracono szczegóły aktywnej oferty.';
 	@override String get errorFailedToRetrieveBlik => 'Błąd: Nie udało się pobrać kodu BLIK.';
 	@override String errorRetrievingBlik({required Object details}) => 'Błąd pobierania kodu BLIK: ${details}';
@@ -542,8 +811,8 @@ class _TranslationsMakerWaitForBlikPl extends TranslationsMakerWaitForBlikEn {
 
 	// Translations
 	@override String get title => 'Oczekiwanie na BLIK';
-	@override String get message => 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-	@override String timeLimitWithSeconds({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
+	@override String get messageInfo => 'Ktoś zarezerwował twoją ofertę!';
+	@override String get messageWaiting => 'Oczekiwanie na kod BLIK...';
 	@override String progressLabel({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 }
 
@@ -556,8 +825,15 @@ class _TranslationsMakerConfirmPaymentPl extends TranslationsMakerConfirmPayment
 	// Translations
 	@override String get title => 'Otrzymano kod BLIK!';
 	@override String get retrieving => 'Pobieranie kodu BLIK...';
-	@override String get instructions => 'Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.';
+	@override String get instruction1 => 'Wprowadź kod do systemu płatności BLIK.';
+	@override String get instruction2 => 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
+	@override String get instruction3 => 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
+	@override String get expiredTitle => 'Kod BLIK wygasł';
+	@override String get expiredWarning => 'Kod BLIK wygasł. Musisz ręcznie potwierdzić status płatności:';
+	@override String get expiredInstruction1 => 'Jeśli płatność BLIK zakończyła się sukcesem i zrealizowałeś zakup, kliknij "Potwierdź udaną płatność" poniżej.';
+	@override String get expiredInstruction2 => 'Jeśli płatność BLIK nie powiodła się lub nie została zrealizowana, kliknij "Nieprawidłowy kod BLIK" poniżej.';
 	@override late final _TranslationsMakerConfirmPaymentActionsPl actions = _TranslationsMakerConfirmPaymentActionsPl._(_root);
+	@override late final _TranslationsMakerConfirmPaymentConfirmDialogPl confirmDialog = _TranslationsMakerConfirmPaymentConfirmDialogPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentFeedbackPl feedback = _TranslationsMakerConfirmPaymentFeedbackPl._(_root);
 	@override late final _TranslationsMakerConfirmPaymentErrorsPl errors = _TranslationsMakerConfirmPaymentErrorsPl._(_root);
 }
@@ -599,8 +875,9 @@ class _TranslationsMakerSuccessPl extends TranslationsMakerSuccessEn {
 	// Translations
 	@override String get title => 'Oferta zakończona';
 	@override String get headline => 'Płatność potwierdzona!';
-	@override String get subtitle => 'Taker otrzymał zapłatę.';
+	@override String get subtitle => 'Kupujący otrzymał zapłatę.';
 	@override String get detailsTitle => 'Szczegóły oferty:';
+	@override String duration({required Object time}) => 'Oferta zajęła ${time}!';
 }
 
 // Path: taker.roleSelection
@@ -613,6 +890,18 @@ class _TranslationsTakerRoleSelectionPl extends TranslationsTakerRoleSelectionEn
 	@override String get button => 'SPRZEDAJ kod BLIK za satoshi';
 }
 
+// Path: taker.progress
+class _TranslationsTakerProgressPl extends TranslationsTakerProgressEn {
+	_TranslationsTakerProgressPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get step1 => 'Wyślij BLIK';
+	@override String get step2 => 'Potwierdź BLIK';
+	@override String get step3 => 'Otrzymaj płatność';
+}
+
 // Path: taker.submitBlik
 class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	_TranslationsTakerSubmitBlikPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -620,14 +909,16 @@ class _TranslationsTakerSubmitBlikPl extends TranslationsTakerSubmitBlikEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Wprowadź 6-cyfrowy kod BLIK:';
+	@override String get title => 'Wpisz 6-cyfr BLIK';
 	@override String get label => 'Kod BLIK';
+	@override String get instruction => 'Wprowadź BLIK zanim upłynie czas...';
 	@override String timeLimit({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 	@override String get timeExpired => 'Czas na wprowadzenie kodu BLIK minął.';
 	@override late final _TranslationsTakerSubmitBlikActionsPl actions = _TranslationsTakerSubmitBlikActionsPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikFeedbackPl feedback = _TranslationsTakerSubmitBlikFeedbackPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikValidationPl validation = _TranslationsTakerSubmitBlikValidationPl._(_root);
 	@override late final _TranslationsTakerSubmitBlikErrorsPl errors = _TranslationsTakerSubmitBlikErrorsPl._(_root);
+	@override late final _TranslationsTakerSubmitBlikDetailsPl details = _TranslationsTakerSubmitBlikDetailsPl._(_root);
 }
 
 // Path: taker.waitConfirmation
@@ -643,8 +934,20 @@ class _TranslationsTakerWaitConfirmationPl extends TranslationsTakerWaitConfirma
 	@override String waitingMakerConfirmation({required Object seconds}) => 'Oczekiwanie na potwierdzenie płatności BLIK przez Makera w jego aplikacji bankowej. Pozostały czas: ${seconds}s';
 	@override String importantNotice({required Object amount, required Object currency}) => 'BARDZO WAŻNE: Upewnij się, że akceptujesz potwierdzenie BLIK tylko na kwotę ${amount} ${currency}';
 	@override String importantBlikAmountConfirmation({required Object amount, required Object currency}) => 'BARDZO WAŻNE: W swojej aplikacji bankowej upewnij się, że potwierdzasz płatność BLIK na kwotę dokładnie ${amount} ${currency}.';
-	@override String get instructions => 'Maker oferty otrzymał Twój kod BLIK i musi go wprowadzić do terminala płatniczego. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz prawidłową kwotę. Płatność Lightning otrzymasz automatycznie po potwierdzeniu.';
+	@override String get instructions => 'Osoba wystawiająca ofertę musi teraz wpisać kod BLIK w ciągu 2 minut. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej.';
+	@override String get waitingForMakerToReceive => 'Czekamy, aż twórca oferty otrzyma Twój kod BLIK...';
+	@override String get makerReceivedBlik => 'Twórca oferty otrzymał Twój kod BLIK';
+	@override String get timerExpiredMessage => 'Minął termin ważności kodu BLIK 2m. Czekamy na potwierdzenie lub oznaczenie kodu jako nieważnego przez wystawcę oferty.';
+	@override String get timerExpiredActions => 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
+	@override String get resendBlikButton => 'Wyślij nowy kod BLIK';
 	@override String get navigatedHome => 'Przeniesiono na stronę główną.';
+	@override String get expiredTitle => 'Kod BLIK wygasł';
+	@override String get expiredWarning => 'Twórca oferty nie otrzymał kodu BLIK, więc nie mógł go użyć.';
+	@override String get expiredSentWarning => 'Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?';
+	@override String get expiredInstruction1 => 'Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację.';
+	@override String get expiredInstruction2 => 'Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację.';
+	@override String get expiredInstruction3 => 'Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór.';
+	@override late final _TranslationsTakerWaitConfirmationExpiredActionsPl expiredActions = _TranslationsTakerWaitConfirmationExpiredActionsPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationFeedbackPl feedback = _TranslationsTakerWaitConfirmationFeedbackPl._(_root);
 	@override late final _TranslationsTakerWaitConfirmationErrorsPl errors = _TranslationsTakerWaitConfirmationErrorsPl._(_root);
 }
@@ -734,6 +1037,118 @@ class _TranslationsBlikInstructionsPl extends TranslationsBlikInstructionsEn {
 	@override String get taker => 'Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem.';
 }
 
+// Path: generateNewKey.buttons
+class _TranslationsGenerateNewKeyButtonsPl extends TranslationsGenerateNewKeyButtonsEn {
+	_TranslationsGenerateNewKeyButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get generate => 'Generuj';
+}
+
+// Path: generateNewKey.errors
+class _TranslationsGenerateNewKeyErrorsPl extends TranslationsGenerateNewKeyErrorsEn {
+	_TranslationsGenerateNewKeyErrorsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get activeOffer => 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
+	@override String get failed => 'Nie udało się wygenerować nowego Neko';
+}
+
+// Path: generateNewKey.feedback
+class _TranslationsGenerateNewKeyFeedbackPl extends TranslationsGenerateNewKeyFeedbackEn {
+	_TranslationsGenerateNewKeyFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get success => 'Nowe Neko wygenerowane pomyślnie!';
+}
+
+// Path: generateNewKey.tooltips
+class _TranslationsGenerateNewKeyTooltipsPl extends TranslationsGenerateNewKeyTooltipsEn {
+	_TranslationsGenerateNewKeyTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get generate => 'Wygeneruj nowe Neko';
+}
+
+// Path: backup.feedback
+class _TranslationsBackupFeedbackPl extends TranslationsBackupFeedbackEn {
+	_TranslationsBackupFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get copied => 'Klucz prywatny skopiowany do schowka!';
+}
+
+// Path: backup.tooltips
+class _TranslationsBackupTooltipsPl extends TranslationsBackupTooltipsEn {
+	_TranslationsBackupTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get backup => 'Zarchiwizuj Neko';
+}
+
+// Path: restore.labels
+class _TranslationsRestoreLabelsPl extends TranslationsRestoreLabelsEn {
+	_TranslationsRestoreLabelsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get privateKey => 'Klucz prywatny';
+}
+
+// Path: restore.buttons
+class _TranslationsRestoreButtonsPl extends TranslationsRestoreButtonsEn {
+	_TranslationsRestoreButtonsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get restore => 'Przywróć';
+}
+
+// Path: restore.errors
+class _TranslationsRestoreErrorsPl extends TranslationsRestoreErrorsEn {
+	_TranslationsRestoreErrorsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get invalidKey => 'Musi to być 64-znakowy ciąg szesnastkowy.';
+	@override String get failed => 'Przywracanie nie powiodło się';
+}
+
+// Path: restore.feedback
+class _TranslationsRestoreFeedbackPl extends TranslationsRestoreFeedbackEn {
+	_TranslationsRestoreFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get success => 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
+}
+
+// Path: restore.tooltips
+class _TranslationsRestoreTooltipsPl extends TranslationsRestoreTooltipsEn {
+	_TranslationsRestoreTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get restore => 'Przywróć Neko';
+}
+
 // Path: home.notifications
 class _TranslationsHomeNotificationsPl extends TranslationsHomeNotificationsEn {
 	_TranslationsHomeNotificationsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -741,8 +1156,11 @@ class _TranslationsHomeNotificationsPl extends TranslationsHomeNotificationsEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get simplex => 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
-	@override String get element => 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
+	@override String get title => 'Otrzymuj powiadomienia o nowych ofertach przez:';
+	@override String get telegram => 'Telegram';
+	@override String get simplex => 'SimpleX';
+	@override String get element => 'Element';
+	@override String get signal => 'Signal';
 }
 
 // Path: home.statistics
@@ -752,9 +1170,10 @@ class _TranslationsHomeStatisticsPl extends TranslationsHomeStatisticsEn {
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Ostatnie Transakcje';
+	@override String get title => 'Zakończone oferty';
 	@override String lifetimeCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 	@override String last7DaysCompact({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
+	@override String last7DaysSingleLine({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} ofert  |  Śr. BLIK: ${avgBlikTime}  |  Śr. płatność: ${avgPaidTime}';
 	@override late final _TranslationsHomeStatisticsErrorsPl errors = _TranslationsHomeStatisticsErrorsPl._(_root);
 }
 
@@ -783,6 +1202,47 @@ class _TranslationsSystemBlikPl extends TranslationsSystemBlikEn {
 	@override String get copied => 'Kod BLIK skopiowany do schowka';
 }
 
+// Path: landing.actions
+class _TranslationsLandingActionsPl extends TranslationsLandingActionsEn {
+	_TranslationsLandingActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get payBlik => 'Zapłać BLIK';
+	@override String get payBlikSubtitle => 'używając bitcoin';
+	@override String get sellBlik => 'Kup bitcoin';
+	@override String get sellBlikSubtitle => 'używając BLIK';
+	@override String get howItWorks => 'Jak to działa?';
+}
+
+// Path: maker.amountForm.progress
+class _TranslationsMakerAmountFormProgressPl extends TranslationsMakerAmountFormProgressEn {
+	_TranslationsMakerAmountFormProgressPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get step1 => '1. Utwórz Ofertę';
+	@override String get step2 => '2. Czekaj na zabranie';
+	@override String get step3 => '3. Użyj BLIK';
+}
+
+// Path: maker.amountForm.labels
+class _TranslationsMakerAmountFormLabelsPl extends TranslationsMakerAmountFormLabelsEn {
+	_TranslationsMakerAmountFormLabelsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get coordinator => 'Koordynator';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get fee => 'Opłata';
+	@override String get satoshisToPay => 'Do zapłaty';
+	@override String get enterAmount => 'Wprowadź kwotę';
+	@override String get tapToSelect => 'Kliknij, aby wybrać';
+}
+
 // Path: maker.amountForm.actions
 class _TranslationsMakerAmountFormActionsPl extends TranslationsMakerAmountFormActionsEn {
 	_TranslationsMakerAmountFormActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -791,6 +1251,17 @@ class _TranslationsMakerAmountFormActionsPl extends TranslationsMakerAmountFormA
 
 	// Translations
 	@override String get generateInvoice => 'Wygeneruj Fakturę';
+}
+
+// Path: maker.amountForm.tooltips
+class _TranslationsMakerAmountFormTooltipsPl extends TranslationsMakerAmountFormTooltipsEn {
+	_TranslationsMakerAmountFormTooltipsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String feeInfo({required Object feePercent}) => 'Koordynator pobiera od twórcy opłatę w wysokości ${feePercent}%. Ta opłata jest odejmowana od Twojej płatności Lightning.';
+	@override String get payInfo => 'Ta kalkulacja jest oparta na kursach wymiany pobranych po stronie klienta. Koordynator obliczy dokładną kwotę, a kwota faktury będzie ostateczną i dokładną kwotą do zapłaty.';
 }
 
 // Path: maker.amountForm.errors
@@ -848,6 +1319,20 @@ class _TranslationsMakerConfirmPaymentActionsPl extends TranslationsMakerConfirm
 	// Translations
 	@override String get confirm => 'Potwierdź udaną płatność';
 	@override String get markInvalid => 'Nieprawidłowy kod BLIK';
+	@override String get copyBlik => 'Kopiuj BLIK';
+}
+
+// Path: maker.confirmPayment.confirmDialog
+class _TranslationsMakerConfirmPaymentConfirmDialogPl extends TranslationsMakerConfirmPaymentConfirmDialogEn {
+	_TranslationsMakerConfirmPaymentConfirmDialogPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Potwierdzić płatność?';
+	@override String get content => 'Ta akcja jest nieodwracalna. Po potwierdzeniu:\n\n• Kupujący otrzyma środki natychmiast\n• Koordynator nie będzie mógł zakwestionować środków\n• Nie możesz cofnąć tej akcji\n\nPotwierdź tylko wtedy, gdy płatność BLIK zakończyła się sukcesem.';
+	@override String get cancel => 'Anuluj';
+	@override String get confirmButton => 'Tak, potwierdź płatność';
 }
 
 // Path: maker.confirmPayment.feedback
@@ -902,7 +1387,7 @@ class _TranslationsMakerConflictDisputeDialogPl extends TranslationsMakerConflic
 	// Translations
 	@override String get title => 'Otworzyć spór?';
 	@override String get content => 'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co zajmie czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura hold zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
-	@override String get contentDetailed => 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
+	@override String get contentDetailed => 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty). Upewnij się, że masz skonfigurowany adres Lightning.';
 	@override late final _TranslationsMakerConflictDisputeDialogActionsPl actions = _TranslationsMakerConflictDisputeDialogActionsPl._(_root);
 }
 
@@ -971,6 +1456,32 @@ class _TranslationsTakerSubmitBlikErrorsPl extends TranslationsTakerSubmitBlikEr
 	@override String get paymentHashMissing => 'Brak hasha płatności oferty po pobraniu.';
 }
 
+// Path: taker.submitBlik.details
+class _TranslationsTakerSubmitBlikDetailsPl extends TranslationsTakerSubmitBlikDetailsEn {
+	_TranslationsTakerSubmitBlikDetailsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get requestedAmount => 'Żądana kwota BLIK';
+	@override String get exchangeRate => 'Kurs wymiany';
+	@override String get takerFee => 'Opłata Taker';
+	@override String get status => 'Status';
+	@override String get youllReceive => 'Otrzymasz';
+}
+
+// Path: taker.waitConfirmation.expiredActions
+class _TranslationsTakerWaitConfirmationExpiredActionsPl extends TranslationsTakerWaitConfirmationExpiredActionsEn {
+	_TranslationsTakerWaitConfirmationExpiredActionsPl._(TranslationsPl root) : this._root = root, super.internal(root);
+
+	final TranslationsPl _root; // ignore: unused_field
+
+	// Translations
+	@override String get reportConflict => 'BLIK został pobrany z mojego konta';
+	@override String get renewReservation => 'Spróbuj ponownie z nowym kodem BLIK';
+	@override String get cancelReservation => 'Anuluj rezerwację';
+}
+
 // Path: taker.waitConfirmation.feedback
 class _TranslationsTakerWaitConfirmationFeedbackPl extends TranslationsTakerWaitConfirmationFeedbackEn {
 	_TranslationsTakerWaitConfirmationFeedbackPl._(TranslationsPl root) : this._root = root, super.internal(root);
@@ -980,6 +1491,7 @@ class _TranslationsTakerWaitConfirmationFeedbackPl extends TranslationsTakerWait
 	// Translations
 	@override String get makerConfirmed => 'Maker potwierdził płatność.';
 	@override String get paymentSuccessful => 'Płatność udana! Wkrótce otrzymasz środki.';
+	@override String get conflictReported => 'Konflikt zgłoszony. Koordynator rozpatrzy sytuację.';
 }
 
 // Path: taker.waitConfirmation.errors
@@ -990,6 +1502,7 @@ class _TranslationsTakerWaitConfirmationErrorsPl extends TranslationsTakerWaitCo
 
 	// Translations
 	@override String get invalidOfferStateReceived => 'Otrzymano ofertę o nieprawidłowym stanie dla tego ekranu. Resetowanie.';
+	@override String reportingConflict({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 }
 
 // Path: taker.paymentProcess.states
@@ -1131,7 +1644,8 @@ class _TranslationsTakerInvalidBlikActionsPl extends TranslationsTakerInvalidBli
 	final TranslationsPl _root; // ignore: unused_field
 
 	// Translations
-	@override String get retry => 'NIE ZAPŁACIŁEM, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+	@override String get retry => 'NIE zapłaciłem, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+	@override String get cancelReservation => 'NIE zapłaciłem, anuluj rezerwację';
 	@override String get reportConflict => 'POTWIERDZIŁEM KOD BLIK I ZOSTAŁ OBCIĄŻONY Z MOJEGO KONTA BANKOWEGO, Zgłoś konflikt, spowoduje to SPÓR!';
 	@override String get returnHome => 'Wróć do strony głównej';
 }
@@ -1221,6 +1735,12 @@ extension on TranslationsPl {
 			case 'common.buttons.retry': return 'Spróbuj ponownie';
 			case 'common.buttons.goHome': return 'Wróć do strony głównej';
 			case 'common.buttons.saveAndContinue': return 'Zapisz i kontynuuj';
+			case 'common.buttons.reveal': return 'Pokaż';
+			case 'common.buttons.hide': return 'Ukryj';
+			case 'common.buttons.copy': return 'Kopiuj';
+			case 'common.buttons.close': return 'Zamknij';
+			case 'common.buttons.restore': return 'Przywróć';
+			case 'common.buttons.faq': return 'FAQ';
 			case 'common.labels.amount': return 'Kwota (PLN)';
 			case 'common.labels.status': return ({required Object status}) => 'Status: ${status}';
 			case 'common.labels.role': return ({required Object role}) => 'Rola: ${role}';
@@ -1232,45 +1752,78 @@ extension on TranslationsPl {
 			case 'common.clipboard.copied': return 'Skopiowano do schowka!';
 			case 'common.actions.cancelAndReturnToOffers': return 'Anuluj i wróć do ofert';
 			case 'common.actions.cancelAndReturnHome': return 'Anuluj i wróć do strony głównej';
-			case 'lightningAddress.labels.address': return 'Adres Lightning';
+			case 'lightningAddress.labels.address': return 'Adres Lightning (LNURL)';
 			case 'lightningAddress.labels.hint': return 'uzytkownik@domena.com';
 			case 'lightningAddress.labels.short': return ({required Object address}) => 'Adres Lightning: ${address}';
+			case 'lightningAddress.labels.receivingAddress': return 'Twój adres odbiorczy:';
 			case 'lightningAddress.prompts.enter': return 'Wprowadź swój adres Lightning, aby kontynuować';
-			case 'lightningAddress.prompts.edit': return 'Edytuj adres Lightning';
+			case 'lightningAddress.prompts.edit': return 'Edytuj';
 			case 'lightningAddress.prompts.invalid': return 'Wprowadź prawidłowy adres Lightning';
 			case 'lightningAddress.prompts.required': return 'Adres Lightning jest wymagany.';
+			case 'lightningAddress.prompts.enterToTakeOffer': return 'Musisz ustawić adres Lightning, aby przyjąć ofertę.';
+			case 'lightningAddress.prompts.missing': return 'Brak adresu Lightning. Dodaj go, aby móc przyjmować oferty.';
+			case 'lightningAddress.prompts.add': return 'Dodaj';
+			case 'lightningAddress.prompts.delete': return 'Usuń';
+			case 'lightningAddress.prompts.confirmDelete': return 'Czy na pewno chcesz usunąć swój adres Lightning?';
+			case 'lightningAddress.prompts.howToGet': return 'Nie masz jeszcze adresu Lightning? Dowiedz się, jak go zdobyć!';
+			case 'lightningAddress.prompts.learnMore': return 'Dowiedz się więcej o adresach Lightning';
 			case 'lightningAddress.feedback.saved': return 'Adres Lightning zapisany!';
 			case 'lightningAddress.feedback.updated': return 'Adres Lightning zaktualizowany!';
 			case 'lightningAddress.feedback.valid': return 'Prawidłowy adres Lightning';
 			case 'lightningAddress.errors.saving': return ({required Object details}) => 'Błąd podczas zapisywania adresu: ${details}';
 			case 'lightningAddress.errors.loading': return ({required Object details}) => 'Błąd podczas ładowania adresu Lightning: ${details}';
-			case 'offers.display.yourOffer': return 'Twoja oferta:';
-			case 'offers.display.selectedOffer': return 'Wybrana oferta:';
-			case 'offers.display.activeOffer': return 'Masz aktywną ofertę:';
-			case 'offers.display.finishedOffers': return 'Zakończone oferty';
-			case 'offers.display.finishedOffersWithTime': return 'Zakończone oferty (ostatnie 24h):';
-			case 'offers.display.noAvailable': return 'Brak dostępnych ofert.';
-			case 'offers.display.noSuccessfulTrades': return 'Brak udanych transakcji.';
-			case 'offers.display.loadingDetails': return 'Ładowanie szczegółów oferty...';
+			case 'offers.details.yourOffer': return 'Twoja oferta:';
+			case 'offers.details.selectedOffer': return 'Oferta:';
+			case 'offers.details.activeOffer': return 'Masz aktywną ofertę:';
+			case 'offers.details.finishedOffers': return 'Zakończone oferty';
+			case 'offers.details.finishedOffersWithTime': return 'Zakończone oferty (ostatnie 24h):';
+			case 'offers.details.noAvailable': return 'Brak dostępnych ofert.';
+			case 'offers.details.noSuccessfulTrades': return 'Brak udanych transakcji.';
+			case 'offers.details.loadingDetails': return 'Ładowanie szczegółów oferty...';
 			case 'offers.details.amount': return ({required Object amount}) => 'Kwota: ${amount} satoshi';
 			case 'offers.details.amountWithCurrency': return ({required Object amount, required Object currency}) => '${amount} ${currency}';
-			case 'offers.details.makerFee': return ({required Object fee}) => 'Prowizja Maker: ${fee} satoshi';
-			case 'offers.details.takerFee': return ({required Object fee}) => 'Prowizja Taker: ${fee} satoshi';
-			case 'offers.details.takerFeeWithStatus': return ({required Object fee, required Object status}) => 'Prowizja Taker: ${fee} satoshi | Status: ${status}';
-			case 'offers.details.subtitle': return ({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}';
-			case 'offers.details.subtitleWithDate': return ({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (prowizja) satoshi\nStatus: ${status}\nZapłacono: ${date}';
+			case 'offers.details.makerFee': return ({required Object fee}) => 'Opłata Maker: ${fee} satoshi';
+			case 'offers.details.takerFee': return ({required Object fee}) => 'Opłata Taker: ${fee} satoshi';
+			case 'offers.details.takerFeeWithStatus': return ({required Object fee, required Object status}) => 'Opłata Taker: ${fee} satoshi | Status: ${status}';
+			case 'offers.details.subtitle': return ({required Object sats, required Object fee, required Object status}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}';
+			case 'offers.details.subtitleWithDate': return ({required Object sats, required Object fee, required Object status, required Object date}) => '${sats} + ${fee} (opłata) satoshi\nStatus: ${status}\nZapłacono: ${date}';
 			case 'offers.details.activeSubtitle': return ({required Object status, required Object amount}) => 'Status: ${status}\nKwota: ${amount} satoshi';
 			case 'offers.details.id': return ({required Object id}) => 'ID Oferty: ${id}...';
 			case 'offers.details.created': return ({required Object dateTime}) => 'Utworzono: ${dateTime}';
 			case 'offers.details.takenAfter': return ({required Object duration}) => 'Przyjęto po: ${duration}';
 			case 'offers.details.paidAfter': return ({required Object duration}) => 'Zapłacono po: ${duration}';
+			case 'offers.details.exchangeRate': return 'Kurs wymiany';
+			case 'offers.details.takerFeeLabel': return 'Opłata';
+			case 'offers.details.amountLabel': return 'Kwota';
+			case 'offers.details.feeLabel': return 'Opłata';
+			case 'offers.details.statusLabel': return 'Status';
+			case 'offers.details.youllReceive': return 'Otrzymasz';
+			case 'offers.details.coordinator': return 'Koordynator';
+			case 'offers.tooltips.takerFeeInfo': return ({required Object feePercent}) => 'Koordynator pobiera ${feePercent}% opłaty dla kupującego. Ta opłata jest odejmowana od kwoty, którą otrzymasz.';
 			case 'offers.actions.take': return 'WEŹ';
-			case 'offers.actions.resume': return 'WZNÓW';
+			case 'offers.actions.takeOffer': return 'Weź ofertę';
+			case 'offers.actions.resume': return 'Wprowadź BLIK';
 			case 'offers.actions.cancel': return 'Anuluj ofertę';
-			case 'offers.status.reserved': return 'Oferta zarezerwowana przez Takera!';
-			case 'offers.status.cancelled': return 'Oferta anulowana pomyślnie.';
-			case 'offers.status.cancelledOrExpired': return 'Oferta została anulowana lub wygasła.';
-			case 'offers.status.noLongerAvailable': return ({required Object status}) => 'Oferta nie jest już dostępna (Status: ${status}).';
+			case 'offers.actions.view': return 'Zobacz';
+			case 'offers.status.created': return 'Utworzona';
+			case 'offers.status.funded': return 'Sfinansowana';
+			case 'offers.status.expired': return 'Wygasła';
+			case 'offers.status.cancelled': return 'Anulowana';
+			case 'offers.status.reserved': return 'Zarezerwowana';
+			case 'offers.status.blikReceived': return 'BLIK wysłany';
+			case 'offers.status.blikSentToMaker': return 'Otrzymano BLIK';
+			case 'offers.status.invalidBlik': return 'Nieprawidłowy BLIK';
+			case 'offers.status.conflict': return 'Konflikt';
+			case 'offers.status.dispute': return 'Spór';
+			case 'offers.status.makerConfirmed': return 'Potwierdzona';
+			case 'offers.status.settled': return 'Rozliczona';
+			case 'offers.status.payingTaker': return 'Płacenie Takera';
+			case 'offers.status.takerPaymentFailed': return 'Płatność Takera nieudana';
+			case 'offers.status.takerPaid': return 'Zapłacony';
+			case 'offers.statusMessages.reserved': return 'Oferta zarezerwowana przez Takera!';
+			case 'offers.statusMessages.cancelled': return 'Oferta anulowana pomyślnie.';
+			case 'offers.statusMessages.cancelledOrExpired': return 'Oferta została anulowana lub wygasła.';
+			case 'offers.statusMessages.noLongerAvailable': return ({required Object status}) => 'Oferta nie jest już dostępna (Status: ${status}).';
 			case 'offers.progress.waitingForTaker': return ({required Object time}) => 'Oczekiwanie na takera: ${time}';
 			case 'offers.progress.reserved': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'offers.progress.confirming': return ({required Object seconds}) => 'Potwierdzanie: ${seconds} s pozostało';
@@ -1293,6 +1846,11 @@ extension on TranslationsPl {
 			case 'offers.errors.resuming': return ({required Object details}) => 'Błąd wznawiania oferty: ${details}';
 			case 'offers.errors.makerPublicKeyNotFound': return 'Nie znaleziono klucza publicznego Makera';
 			case 'offers.errors.takerPublicKeyNotFound': return 'Nie znaleziono klucza publicznego Takera.';
+			case 'offers.success.title': return 'Oferta zakończona';
+			case 'offers.success.headline': return 'Płatność potwierdzona!';
+			case 'offers.success.subtitle': return 'Taker otrzymał zapłatę.';
+			case 'offers.success.detailsTitle': return 'Szczegóły oferty:';
+			case 'offers.success.duration': return ({required Object time}) => 'Realizacja oferty zajęła ${time}.';
 			case 'reservations.actions.cancel': return 'Anuluj rezerwację';
 			case 'reservations.feedback.cancelled': return 'Rezerwacja anulowana.';
 			case 'reservations.errors.cancelling': return ({required Object error}) => 'Nie udało się anulować rezerwacji: ${error}';
@@ -1302,17 +1860,62 @@ extension on TranslationsPl {
 			case 'reservations.errors.notReserved': return ({required Object status}) => 'Oferta nie jest już w stanie zarezerwowanym (${status}).';
 			case 'exchange.labels.enterAmount': return 'Wprowadź kwotę (PLN) do zapłaty:';
 			case 'exchange.labels.equivalent': return ({required Object sats}) => '≈ ${sats} satoshi';
-			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs śr. PLN/BTC ≈ ${rate}';
-			case 'exchange.labels.rangeHint': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Min/Max: ${minAmount}-${maxAmount} ${currency}';
+			case 'exchange.labels.rate': return ({required Object rate}) => 'Kurs wymiany ≈ ${rate} PLN/BTC';
 			case 'exchange.feedback.fetching': return 'Pobieranie kursu wymiany...';
 			case 'exchange.errors.fetchingRate': return 'Nie udało się pobrać kursu wymiany.';
 			case 'exchange.errors.invalidFormat': return 'Nieprawidłowy format liczby';
 			case 'exchange.errors.mustBePositive': return 'Kwota musi być dodatnia';
-			case 'exchange.errors.invalidFeePercentage': return 'Nieprawidłowy procent prowizji';
+			case 'exchange.errors.invalidFeePercentage': return 'Nieprawidłowy procent opłaty';
 			case 'exchange.errors.tooLowFiat': return ({required Object minAmount, required Object currency}) => 'Kwota jest za niska. Minimum to ${minAmount} ${currency}.';
 			case 'exchange.errors.tooHighFiat': return ({required Object maxAmount, required Object currency}) => 'Kwota jest za wysoka. Maksimum to ${maxAmount} ${currency}.';
+			case 'coordinator.title': return 'Koordynatorzy';
+			case 'coordinator.info.fee': return 'opłata';
+			case 'coordinator.info.rangeDisplay': return ({required Object minAmount, required Object maxAmount, required Object currency}) => 'Kwota: ${minAmount}-${maxAmount} ${currency}';
+			case 'coordinator.info.feeDisplay': return ({required Object fee}) => '${fee}% opłata';
+			case 'coordinator.selector.loading': return 'Ładowanie koordynatorów...';
+			case 'coordinator.selector.errorLoading': return 'Błąd ładowania koordynatorów';
+			case 'coordinator.selector.choose': return 'Wybierz koordynatora';
+			case 'coordinator.selector.viewNostrProfile': return 'Zobacz profil Nostr';
+			case 'coordinator.selector.unresponsive': return 'Ten koordynator nie odpowiada';
+			case 'coordinator.selector.waitingResponse': return 'Oczekiwanie na odpowiedź koordynatora';
+			case 'coordinator.selector.termsAccept': return 'Akceptuję ';
+			case 'coordinator.selector.termsOfUsage': return 'Warunki użytkowania';
+			case 'coordinator.dialog.makerFee': return 'Opłata twórcy';
+			case 'coordinator.dialog.takerFee': return 'Opłata odbiorcy';
+			case 'coordinator.dialog.amountRange': return 'Zakres kwoty';
+			case 'coordinator.dialog.reservationTime': return 'Czas rezerwacji';
+			case 'coordinator.dialog.currencies': return 'Waluty';
+			case 'coordinator.dialog.viewTerms': return 'Zobacz warunki';
+			case 'coordinator.management.title': return 'Zarządzanie Koordynatorami';
+			case 'coordinator.management.availableCoordinators': return 'Dostępni Koordynatorzy';
+			case 'coordinator.management.noCoordinators': return 'Nie odkryto jeszcze żadnych koordynatorów.';
+			case 'coordinator.management.online': return 'Online';
+			case 'coordinator.management.unknownOffline': return 'Nieznany/Offline';
+			case 'coordinator.management.openNostrProfile': return 'Otwórz profil Nostr';
+			case 'coordinator.management.enable': return 'Włącz';
+			case 'coordinator.management.remove': return 'Usuń';
+			case 'coordinator.management.addCustomWhitelist': return 'Dodaj koordynatora';
+			case 'coordinator.management.addCustomWhitelistHint': return 'npub1...';
+			case 'coordinator.management.add': return 'Dodaj';
+			case 'coordinator.management.coordinatorBlacklisted': return 'Koordynator zablokowany';
+			case 'coordinator.management.coordinatorUnblacklisted': return 'Koordynator odblokowany';
+			case 'coordinator.management.coordinatorAdded': return 'Koordynator dodany do niestandardowej białej listy';
+			case 'coordinator.management.coordinatorRemoved': return 'Koordynator usunięty z niestandardowej białej listy';
+			case 'coordinator.management.pleaseEnterNpub': return 'Proszę wprowadzić npub';
+			case 'coordinator.management.error': return 'Błąd';
 			case 'maker.roleSelection.button': return 'ZAPŁAĆ przez Lightning';
+			case 'maker.amountForm.progress.step1': return '1. Utwórz Ofertę';
+			case 'maker.amountForm.progress.step2': return '2. Czekaj na zabranie';
+			case 'maker.amountForm.progress.step3': return '3. Użyj BLIK';
+			case 'maker.amountForm.labels.coordinator': return 'Koordynator';
+			case 'maker.amountForm.labels.exchangeRate': return 'Kurs wymiany';
+			case 'maker.amountForm.labels.fee': return 'Opłata';
+			case 'maker.amountForm.labels.satoshisToPay': return 'Do zapłaty';
+			case 'maker.amountForm.labels.enterAmount': return 'Wprowadź kwotę';
+			case 'maker.amountForm.labels.tapToSelect': return 'Kliknij, aby wybrać';
 			case 'maker.amountForm.actions.generateInvoice': return 'Wygeneruj Fakturę';
+			case 'maker.amountForm.tooltips.feeInfo': return ({required Object feePercent}) => 'Koordynator pobiera od twórcy opłatę w wysokości ${feePercent}%. Ta opłata jest odejmowana od Twojej płatności Lightning.';
+			case 'maker.amountForm.tooltips.payInfo': return 'Ta kalkulacja jest oparta na kursach wymiany pobranych po stronie klienta. Koordynator obliczy dokładną kwotę, a kwota faktury będzie ostateczną i dokładną kwotą do zapłaty.';
 			case 'maker.amountForm.errors.initiating': return ({required Object details}) => 'Błąd inicjowania oferty: ${details}';
 			case 'maker.amountForm.errors.publicKeyNotLoaded': return 'Błąd: Klucz publiczny nie został jeszcze załadowany.';
 			case 'maker.payInvoice.title': return 'Zapłać tę fakturę Hold:';
@@ -1324,8 +1927,7 @@ extension on TranslationsPl {
 			case 'maker.payInvoice.errors.openingApp': return ({required Object details}) => 'Błąd otwierania aplikacji Lightning: ${details}';
 			case 'maker.payInvoice.errors.publicKeyNotAvailable': return 'Klucz publiczny nie jest dostępny.';
 			case 'maker.payInvoice.errors.couldNotFetchActive': return 'Nie udało się pobrać szczegółów aktywnej oferty. Mogła wygasnąć.';
-			case 'maker.waitTaker.message': return 'Oczekiwanie na Takera, który zarezerwuje Twoją ofertę...';
-			case 'maker.waitTaker.progressLabel': return ({required Object time}) => 'Oczekiwanie na takera: ${time}';
+			case 'maker.waitTaker.message': return 'Oczekiwanie na rezerwację przez Kupującego...';
 			case 'maker.waitTaker.errorActiveOfferDetailsLost': return 'Błąd: Utracono szczegóły aktywnej oferty.';
 			case 'maker.waitTaker.errorFailedToRetrieveBlik': return 'Błąd: Nie udało się pobrać kodu BLIK.';
 			case 'maker.waitTaker.errorRetrievingBlik': return ({required Object details}) => 'Błąd pobierania kodu BLIK: ${details}';
@@ -1335,14 +1937,25 @@ extension on TranslationsPl {
 			case 'maker.waitTaker.offerCancelledSuccessfully': return 'Oferta anulowana pomyślnie.';
 			case 'maker.waitTaker.failedToCancelOffer': return ({required Object details}) => 'Nie udało się anulować oferty: ${details}';
 			case 'maker.waitForBlik.title': return 'Oczekiwanie na BLIK';
-			case 'maker.waitForBlik.message': return 'Oczekiwanie na podanie kodu BLIK przez Takera.';
-			case 'maker.waitForBlik.timeLimitWithSeconds': return ({required Object seconds}) => 'Taker ma ${seconds} sekund na podanie kodu BLIK.';
+			case 'maker.waitForBlik.messageInfo': return 'Ktoś zarezerwował twoją ofertę!';
+			case 'maker.waitForBlik.messageWaiting': return 'Oczekiwanie na kod BLIK...';
 			case 'maker.waitForBlik.progressLabel': return ({required Object seconds}) => 'Zarezerwowano: ${seconds} s pozostało';
 			case 'maker.confirmPayment.title': return 'Otrzymano kod BLIK!';
 			case 'maker.confirmPayment.retrieving': return 'Pobieranie kodu BLIK...';
-			case 'maker.confirmPayment.instructions': return 'Wprowadź ten kod do terminala płatniczego. Gdy Taker potwierdzi w swojej aplikacji bankowej i płatność zakończy się sukcesem, naciśnij Potwierdź poniżej.';
+			case 'maker.confirmPayment.instruction1': return 'Wprowadź kod do systemu płatności BLIK.';
+			case 'maker.confirmPayment.instruction2': return 'Poczekaj, aż Kupujący potwierdzi płatność w swojej aplikacji banku.';
+			case 'maker.confirmPayment.instruction3': return 'Gdy płatność zakończy się sukcesem, naciśnij Potwierdź poniżej:';
+			case 'maker.confirmPayment.expiredTitle': return 'Kod BLIK wygasł';
+			case 'maker.confirmPayment.expiredWarning': return 'Kod BLIK wygasł. Musisz ręcznie potwierdzić status płatności:';
+			case 'maker.confirmPayment.expiredInstruction1': return 'Jeśli płatność BLIK zakończyła się sukcesem i zrealizowałeś zakup, kliknij "Potwierdź udaną płatność" poniżej.';
+			case 'maker.confirmPayment.expiredInstruction2': return 'Jeśli płatność BLIK nie powiodła się lub nie została zrealizowana, kliknij "Nieprawidłowy kod BLIK" poniżej.';
 			case 'maker.confirmPayment.actions.confirm': return 'Potwierdź udaną płatność';
 			case 'maker.confirmPayment.actions.markInvalid': return 'Nieprawidłowy kod BLIK';
+			case 'maker.confirmPayment.actions.copyBlik': return 'Kopiuj BLIK';
+			case 'maker.confirmPayment.confirmDialog.title': return 'Potwierdzić płatność?';
+			case 'maker.confirmPayment.confirmDialog.content': return 'Ta akcja jest nieodwracalna. Po potwierdzeniu:\n\n• Kupujący otrzyma środki natychmiast\n• Koordynator nie będzie mógł zakwestionować środków\n• Nie możesz cofnąć tej akcji\n\nPotwierdź tylko wtedy, gdy płatność BLIK zakończyła się sukcesem.';
+			case 'maker.confirmPayment.confirmDialog.cancel': return 'Anuluj';
+			case 'maker.confirmPayment.confirmDialog.confirmButton': return 'Tak, potwierdź płatność';
 			case 'maker.confirmPayment.feedback.confirmed': return 'Maker potwierdził płatność.';
 			case 'maker.confirmPayment.feedback.confirmedTakerPaid': return 'Płatność potwierdzona! Taker otrzyma środki.';
 			case 'maker.confirmPayment.feedback.progressLabel': return ({required Object seconds}) => 'Potwierdzanie: ${seconds} s pozostało';
@@ -1367,18 +1980,23 @@ extension on TranslationsPl {
 			case 'maker.conflict.actions.submitDispute': return 'Zgłoś Spór';
 			case 'maker.conflict.disputeDialog.title': return 'Otworzyć spór?';
 			case 'maker.conflict.disputeDialog.content': return 'Otwarcie sporu wymaga ręcznej weryfikacji przez koordynatora, co zajmie czas. Opłata za spór zostanie potrącona, jeśli spór zostanie rozstrzygnięty na Twoją niekorzyść. Faktura hold zostanie rozliczona, aby zapobiec jej wygaśnięciu. Jeśli spór zostanie rozstrzygnięty na Twoją korzyść, otrzymasz zwrot środków (pomniejszony o opłaty) na Twój adres Lightning.';
-			case 'maker.conflict.disputeDialog.contentDetailed': return 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty za spór). Upewnij się, że masz skonfigurowany adres Lightning.';
+			case 'maker.conflict.disputeDialog.contentDetailed': return 'Otwarcie sporu będzie wymagało ręcznej interwencji koordynatora, co zajmuje czas i wiąże się z opłatą za spór.\n\nFaktura hold zostanie natychmiast rozliczona, aby zapobiec jej wygaśnięciu przed rozstrzygnięciem sporu.\n\nJeśli spór zostanie rozstrzygnięty na Twoją korzyść, kwota satoshi zostanie zwrócona na Twój adres Lightning (pomniejszona o opłaty). Upewnij się, że masz skonfigurowany adres Lightning.';
 			case 'maker.conflict.disputeDialog.actions.confirm': return 'Otwórz Spór';
 			case 'maker.conflict.disputeDialog.actions.cancel': return 'Anuluj';
 			case 'maker.conflict.feedback.disputeOpenedSuccess': return 'Spór pomyślnie otwarty. Koordynator rozpatrzy sprawę.';
 			case 'maker.conflict.errors.openingDispute': return ({required Object error}) => 'Błąd otwierania sporu: ${error}';
 			case 'maker.success.title': return 'Oferta zakończona';
 			case 'maker.success.headline': return 'Płatność potwierdzona!';
-			case 'maker.success.subtitle': return 'Taker otrzymał zapłatę.';
+			case 'maker.success.subtitle': return 'Kupujący otrzymał zapłatę.';
 			case 'maker.success.detailsTitle': return 'Szczegóły oferty:';
+			case 'maker.success.duration': return ({required Object time}) => 'Oferta zajęła ${time}!';
 			case 'taker.roleSelection.button': return 'SPRZEDAJ kod BLIK za satoshi';
-			case 'taker.submitBlik.title': return 'Wprowadź 6-cyfrowy kod BLIK:';
+			case 'taker.progress.step1': return 'Wyślij BLIK';
+			case 'taker.progress.step2': return 'Potwierdź BLIK';
+			case 'taker.progress.step3': return 'Otrzymaj płatność';
+			case 'taker.submitBlik.title': return 'Wpisz 6-cyfr BLIK';
 			case 'taker.submitBlik.label': return 'Kod BLIK';
+			case 'taker.submitBlik.instruction': return 'Wprowadź BLIK zanim upłynie czas...';
 			case 'taker.submitBlik.timeLimit': return ({required Object seconds}) => 'Wprowadź BLIK w ciągu: ${seconds} s';
 			case 'taker.submitBlik.timeExpired': return 'Czas na wprowadzenie kodu BLIK minął.';
 			case 'taker.submitBlik.actions.submit': return 'Wyślij BLIK';
@@ -1390,17 +2008,38 @@ extension on TranslationsPl {
 			case 'taker.submitBlik.errors.stateNotValid': return 'Błąd: Stan oferty nie jest już ważny.';
 			case 'taker.submitBlik.errors.fetchedIdMismatch': return ({required Object fetchedId, required Object initialId}) => 'Pobrane ID aktywnej oferty (${fetchedId}) nie pasuje do początkowego ID oferty (${initialId}). Niezgodność stanu?';
 			case 'taker.submitBlik.errors.paymentHashMissing': return 'Brak hasha płatności oferty po pobraniu.';
+			case 'taker.submitBlik.details.requestedAmount': return 'Żądana kwota BLIK';
+			case 'taker.submitBlik.details.exchangeRate': return 'Kurs wymiany';
+			case 'taker.submitBlik.details.takerFee': return 'Opłata Taker';
+			case 'taker.submitBlik.details.status': return 'Status';
+			case 'taker.submitBlik.details.youllReceive': return 'Otrzymasz';
 			case 'taker.waitConfirmation.title': return 'Oczekiwanie na Makera';
 			case 'taker.waitConfirmation.statusLabel': return ({required Object status}) => 'Status oferty: ${status}';
 			case 'taker.waitConfirmation.waitingMaker': return ({required Object seconds}) => 'Oczekiwanie na potwierdzenie Makera: ${seconds} s';
 			case 'taker.waitConfirmation.waitingMakerConfirmation': return ({required Object seconds}) => 'Oczekiwanie na potwierdzenie płatności BLIK przez Makera w jego aplikacji bankowej. Pozostały czas: ${seconds}s';
 			case 'taker.waitConfirmation.importantNotice': return ({required Object amount, required Object currency}) => 'BARDZO WAŻNE: Upewnij się, że akceptujesz potwierdzenie BLIK tylko na kwotę ${amount} ${currency}';
 			case 'taker.waitConfirmation.importantBlikAmountConfirmation': return ({required Object amount, required Object currency}) => 'BARDZO WAŻNE: W swojej aplikacji bankowej upewnij się, że potwierdzasz płatność BLIK na kwotę dokładnie ${amount} ${currency}.';
-			case 'taker.waitConfirmation.instructions': return 'Maker oferty otrzymał Twój kod BLIK i musi go wprowadzić do terminala płatniczego. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej, upewnij się, że akceptujesz prawidłową kwotę. Płatność Lightning otrzymasz automatycznie po potwierdzeniu.';
+			case 'taker.waitConfirmation.instructions': return 'Osoba wystawiająca ofertę musi teraz wpisać kod BLIK w ciągu 2 minut. Następnie musisz zaakceptować kod BLIK w swojej aplikacji bankowej.';
+			case 'taker.waitConfirmation.waitingForMakerToReceive': return 'Czekamy, aż twórca oferty otrzyma Twój kod BLIK...';
+			case 'taker.waitConfirmation.makerReceivedBlik': return 'Twórca oferty otrzymał Twój kod BLIK';
+			case 'taker.waitConfirmation.timerExpiredMessage': return 'Minął termin ważności kodu BLIK 2m. Czekamy na potwierdzenie lub oznaczenie kodu jako nieważnego przez wystawcę oferty.';
+			case 'taker.waitConfirmation.timerExpiredActions': return 'Minął termin ważności kodu BLIK 2m, ale wystawca nie otrzymał kodu BLIK. Możesz wysłać nowy kod BLIK lub anulować.';
+			case 'taker.waitConfirmation.resendBlikButton': return 'Wyślij nowy kod BLIK';
 			case 'taker.waitConfirmation.navigatedHome': return 'Przeniesiono na stronę główną.';
+			case 'taker.waitConfirmation.expiredTitle': return 'Kod BLIK wygasł';
+			case 'taker.waitConfirmation.expiredWarning': return 'Twórca oferty nie otrzymał kodu BLIK, więc nie mógł go użyć.';
+			case 'taker.waitConfirmation.expiredSentWarning': return 'Twórca oferty jeszcze nie potwierdził płatności. Co chcesz zrobić?';
+			case 'taker.waitConfirmation.expiredInstruction1': return 'Jeśli chcesz spróbować ponownie z nowym kodem BLIK, odnów rezerwację.';
+			case 'taker.waitConfirmation.expiredInstruction2': return 'Jeśli nie chcesz już dokończyć tej transakcji, anuluj rezerwację.';
+			case 'taker.waitConfirmation.expiredInstruction3': return 'Jeśli płatność BLIK została pobrana z Twojego konta bankowego, zgłoś konflikt, aby rozpocząć spór.';
+			case 'taker.waitConfirmation.expiredActions.reportConflict': return 'BLIK został pobrany z mojego konta';
+			case 'taker.waitConfirmation.expiredActions.renewReservation': return 'Spróbuj ponownie z nowym kodem BLIK';
+			case 'taker.waitConfirmation.expiredActions.cancelReservation': return 'Anuluj rezerwację';
 			case 'taker.waitConfirmation.feedback.makerConfirmed': return 'Maker potwierdził płatność.';
 			case 'taker.waitConfirmation.feedback.paymentSuccessful': return 'Płatność udana! Wkrótce otrzymasz środki.';
+			case 'taker.waitConfirmation.feedback.conflictReported': return 'Konflikt zgłoszony. Koordynator rozpatrzy sytuację.';
 			case 'taker.waitConfirmation.errors.invalidOfferStateReceived': return 'Otrzymano ofertę o nieprawidłowym stanie dla tego ekranu. Resetowanie.';
+			case 'taker.waitConfirmation.errors.reportingConflict': return ({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 			case 'taker.paymentProcess.title': return 'Proces Płatności';
 			case 'taker.paymentProcess.waitingForOfferUpdate': return 'Oczekiwanie na aktualizację statusu oferty...';
 			case 'taker.paymentProcess.states.preparing': return 'Przygotowywanie do wysłania płatności...';
@@ -1443,7 +2082,8 @@ extension on TranslationsPl {
 			case 'taker.invalidBlik.title': return 'Nieprawidłowy Kod BLIK';
 			case 'taker.invalidBlik.message': return 'Maker Odrzucił Kod BLIK';
 			case 'taker.invalidBlik.explanation': return 'Maker oferty wskazał, że podany przez Ciebie kod BLIK był nieprawidłowy lub nie zadziałał. Co chcesz zrobić?';
-			case 'taker.invalidBlik.actions.retry': return 'NIE ZAPŁACIŁEM, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+			case 'taker.invalidBlik.actions.retry': return 'NIE zapłaciłem, zarezerwuj ofertę ponownie i wyślij nowy kod BLIK';
+			case 'taker.invalidBlik.actions.cancelReservation': return 'NIE zapłaciłem, anuluj rezerwację';
 			case 'taker.invalidBlik.actions.reportConflict': return 'POTWIERDZIŁEM KOD BLIK I ZOSTAŁ OBCIĄŻONY Z MOJEGO KONTA BANKOWEGO, Zgłoś konflikt, spowoduje to SPÓR!';
 			case 'taker.invalidBlik.actions.returnHome': return 'Wróć do strony głównej';
 			case 'taker.invalidBlik.feedback.conflictReportedSuccess': return 'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';
@@ -1457,11 +2097,36 @@ extension on TranslationsPl {
 			case 'taker.conflict.feedback.reported': return 'Konflikt zgłoszony. Koordynator rozpatrzy sprawę.';
 			case 'taker.conflict.errors.reporting': return ({required Object details}) => 'Błąd zgłaszania konfliktu: ${details}';
 			case 'blik.instructions.taker': return 'Gdy Maker wprowadzi kod BLIK, będziesz musiał potwierdzić płatność w swojej aplikacji bankowej. Upewnij się, że kwota jest poprawna przed potwierdzeniem.';
-			case 'home.notifications.simplex': return 'Otrzymuj powiadomienia o nowych zamówieniach przez SimpleX';
-			case 'home.notifications.element': return 'Otrzymuj powiadomienia o nowych zamówieniach przez Element';
-			case 'home.statistics.title': return 'Ostatnie Transakcje';
+			case 'nekoInfo.title': return 'Czym jest Neko?';
+			case 'nekoInfo.description': return 'Twoje Neko to Twoja tożsamość do korzystania z BitBlik. Składa się z klucza prywatnego i publicznego, aby zapewnić kryptograficznie bezpieczną komunikację z koordynatorem.\n\nAby zapewnić większą anonimowość, zaleca się używanie nowego, świeżego Neko dla każdej oferty.\n\n⚠️ WAŻNE: Twój klucz prywatny jest przechowywany tylko na Twoim urządzeniu (po stronie klienta). Niezwykle ważne jest zarchiwizowanie klucza prywatnego, ponieważ utrata dostępu do niego może uniemożliwić rozstrzygnięcie sporów i odzyskanie środków.';
+			case 'nekoInfo.backupWarning': return 'Pamiętaj, aby zarchiwizować swoje Neko';
+			case 'generateNewKey.title': return 'Nowy';
+			case 'generateNewKey.description': return 'Czy na pewno chcesz wygenerować nowe Neko? Twoje obecne zostanie utracone na zawsze, jeśli go nie zarchiwizowałeś.';
+			case 'generateNewKey.buttons.generate': return 'Generuj';
+			case 'generateNewKey.errors.activeOffer': return 'Nie możesz wygenerować nowego Neko, gdy masz aktywną ofertę.';
+			case 'generateNewKey.errors.failed': return 'Nie udało się wygenerować nowego Neko';
+			case 'generateNewKey.feedback.success': return 'Nowe Neko wygenerowane pomyślnie!';
+			case 'generateNewKey.tooltips.generate': return 'Wygeneruj nowe Neko';
+			case 'backup.title': return 'Zarchiwizuj';
+			case 'backup.description': return 'To jest Twój klucz prywatny. Zabezpiecza on komunikację z koordynatorem. Nigdy nikomu go nie ujawniaj. Zarchiwizuj go w bezpiecznym miejscu, aby uniknąć problemów podczas sporów.';
+			case 'backup.feedback.copied': return 'Klucz prywatny skopiowany do schowka!';
+			case 'backup.tooltips.backup': return 'Zarchiwizuj Neko';
+			case 'restore.title': return 'Przywróć';
+			case 'restore.labels.privateKey': return 'Klucz prywatny';
+			case 'restore.buttons.restore': return 'Przywróć';
+			case 'restore.errors.invalidKey': return 'Musi to być 64-znakowy ciąg szesnastkowy.';
+			case 'restore.errors.failed': return 'Przywracanie nie powiodło się';
+			case 'restore.feedback.success': return 'Neko przywrócone pomyślnie! Aplikacja zostanie ponownie uruchomiona.';
+			case 'restore.tooltips.restore': return 'Przywróć Neko';
+			case 'home.notifications.title': return 'Otrzymuj powiadomienia o nowych ofertach przez:';
+			case 'home.notifications.telegram': return 'Telegram';
+			case 'home.notifications.simplex': return 'SimpleX';
+			case 'home.notifications.element': return 'Element';
+			case 'home.notifications.signal': return 'Signal';
+			case 'home.statistics.title': return 'Zakończone oferty';
 			case 'home.statistics.lifetimeCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Wszystkie: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
 			case 'home.statistics.last7DaysCompact': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} transakcji\nŚr. czas oczekiwania na BLIK: ${avgBlikTime}\nŚr. czas realizacji: ${avgPaidTime}';
+			case 'home.statistics.last7DaysSingleLine': return ({required Object count, required Object avgBlikTime, required Object avgPaidTime}) => 'Ost. 7 dni: ${count} ofert  |  Śr. BLIK: ${avgBlikTime}  |  Śr. płatność: ${avgPaidTime}';
 			case 'home.statistics.errors.loading': return ({required Object error}) => 'Błąd ładowania statystyk: ${error}';
 			case 'system.loadingPublicKey': return 'Ładowanie Twojego klucza publicznego...';
 			case 'system.errors.generic': return 'Wystąpił nieoczekiwany błąd. Proszę spróbować ponownie.';
@@ -1471,6 +2136,19 @@ extension on TranslationsPl {
 			case 'system.errors.internalOfferIncomplete': return 'Błąd wewnętrzny: Szczegóły oferty są niekompletne. Spróbuj ponownie.';
 			case 'system.errors.loadingPublicKey': return 'Błąd ładowania Twojego klucza publicznego. Uruchom ponownie aplikację.';
 			case 'system.blik.copied': return 'Kod BLIK skopiowany do schowka';
+			case 'landing.mainTitle': return 'Wymiana\n BLIK ⇄ bitcoin';
+			case 'landing.subtitle': return 'Płać lub sprzedawaj kod BLIK za bitcoin';
+			case 'landing.actions.payBlik': return 'Zapłać BLIK';
+			case 'landing.actions.payBlikSubtitle': return 'używając bitcoin';
+			case 'landing.actions.sellBlik': return 'Kup bitcoin';
+			case 'landing.actions.sellBlikSubtitle': return 'używając BLIK';
+			case 'landing.actions.howItWorks': return 'Jak to działa?';
+			case 'faq.screenTitle': return 'FAQ';
+			case 'faq.tooltip': return 'FAQ';
+			case 'settings.title': return 'Ustawienia';
+			case 'wallet.title': return 'Portfel';
+			case 'wallet.description': return 'Zarządzaj ustawieniami portfela Lightning';
+			case 'nekoManagement.title': return 'Neko';
 			default: return null;
 		}
 	}

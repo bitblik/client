@@ -4,8 +4,10 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import '../../i18n/gen/strings.g.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:go_router/go_router.dart';
 
 class FaqScreen extends ConsumerStatefulWidget {
   const FaqScreen({super.key});
@@ -32,7 +34,7 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
     _localeSubscription = LocaleSettings.getLocaleStream().listen((locale) {
       // Check if the locale actually changed to avoid redundant loads if the stream emits the same locale
       if (_currentLocale != locale) {
-        print("FAQ Screen: Locale changed to $locale, reloading content.");
+        Logger.log.d("FAQ Screen: Locale changed to $locale, reloading content.");
         _currentLocale = locale;
         _loadFaqContent();
       }
@@ -61,7 +63,7 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
     // This ensures that if _loadFaqContent is called before the stream listener has a chance to update _currentLocale
     // (e.g. during initState), it still uses the correct, most up-to-date locale.
     final localeToLoad = _currentLocale ?? LocaleSettings.currentLocale;
-    print("FAQ Screen: Loading content for locale: $localeToLoad");
+    Logger.log.d("FAQ Screen: Loading content for locale: $localeToLoad");
 
     setState(() {
       _isLoading = true;
@@ -76,13 +78,13 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
       try {
         markdownData = await rootBundle.loadString(filePath);
       } catch (e) {
-        print('Could not load FAQ for language: $langCode. Falling back to English. Error: $e');
+        Logger.log.w('Could not load FAQ for language: $langCode. Falling back to English. Error: $e');
         langCode = 'en';
         filePath = 'assets/faq/faq_$langCode.md';
         try {
           markdownData = await rootBundle.loadString(filePath);
         } catch (fallbackError) {
-          print('Could not load English fallback FAQ. Error: $fallbackError');
+          Logger.log.w('Could not load English fallback FAQ. Error: $fallbackError');
           throw Exception('Failed to load FAQ content for $langCode and fallback en.');
         }
       }
@@ -97,7 +99,7 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
       setState(() {
         _error = 'Failed to load FAQ content: ${e.toString()}';
       });
-      print('Error loading FAQ: $_error');
+      Logger.log.e('Error loading FAQ: $_error');
     } finally {
       setState(() {
         _isLoading = false;
@@ -109,41 +111,81 @@ class _FaqScreenState extends ConsumerState<FaqScreen> {
   Widget build(BuildContext context) {
     // final t = Translations.of(context); // Access translations if needed for other parts
 
+    Widget backButton = Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/');
+          }
+        },
+        tooltip: 'Back',
+      ),
+    );
+
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Column(
+        children: [
+          backButton,
+          const Expanded(child: Center(child: CircularProgressIndicator())),
+        ],
+      );
     }
 
     if (_error.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            _error,
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
+      return Column(
+        children: [
+          backButton,
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _error,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
     if (_htmlContent == null) {
-      return const Center(child: Text('No FAQ content available.'));
+      return Column(
+        children: [
+          backButton,
+          const Expanded(child: Center(child: Text('No FAQ content available.'))),
+        ],
+      );
     }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0), // Apply padding to SingleChildScrollView
-      child: Html(
-        data: _htmlContent!,
-        onLinkTap: (url, attributes, element) {
-          if (url != null) {
-            launchUrlString(url);
-          }
-        },
-        // You can customize styles using the style parameter for flutter_html
-        // style: {
-        //   "h1": Style(textAlign: TextAlign.center),
-        //   // Add more styles as needed
-        // },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Back arrow button at the top
+          backButton,
+          // FAQ content
+          Html(
+            data: _htmlContent!,
+            onLinkTap: (url, attributes, element) {
+              if (url != null) {
+                launchUrlString(url);
+              }
+            },
+            // You can customize styles using the style parameter for flutter_html
+            // style: {
+            //   "h1": Style(textAlign: TextAlign.center),
+            //   // Add more styles as needed
+            // },
+          ),
+        ],
       ),
     );
   }

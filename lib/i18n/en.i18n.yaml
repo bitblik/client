@@ -16,6 +16,12 @@ common:
     retry: Retry
     goHome: Go Home
     saveAndContinue: Save and Continue
+    reveal: Reveal
+    hide: Hide
+    copy: Copy
+    close: Close
+    restore: Restore
+    faq: FAQ
   
   labels:
     amount: "Amount (PLN)"
@@ -41,15 +47,23 @@ common:
 # =============================================================================
 lightningAddress:
   labels:
-    address: Lightning Address
+    address: Lightning Address (LNURL)
     hint: user@domain.com
     short: "Lightning Address: ${address}"
+    receivingAddress: "Your receiving address:"
   
   prompts:
     enter: Enter your Lightning address to continue
-    edit: Edit Lightning address
+    edit: Edit
     invalid: Enter a valid Lightning address
     required: Lightning address is required.
+    enterToTakeOffer: You must set a Lightning address to take an offer.
+    missing: Lightning address is missing. Please add one to be able to take offers.
+    add: Add
+    delete: Delete
+    confirmDelete: Are you sure you want to delete your Lightning address?
+    howToGet: "Don't have a Lightning address yet? Learn how to get one!"
+    learnMore: Learn more about Lightning Address
   
   feedback:
     saved: Lightning address saved!
@@ -64,9 +78,9 @@ lightningAddress:
 # OFFERS AND TRANSACTIONS
 # =============================================================================
 offers:
-  display:
+  details:
     yourOffer: "Your offer:"
-    selectedOffer: "Selected offer:"
+    selectedOffer: "Offer:"
     activeOffer: "You have an active offer:"
     finishedOffers: Finished offers
     finishedOffersWithTime: "Finished offers (last 24h):"
@@ -74,7 +88,6 @@ offers:
     noSuccessfulTrades: No successful trades.
     loadingDetails: "Loading offer details..." # Used by taker.paymentProcess & taker.waitConfirmation
   
-  details:
     amount: "Amount: ${amount} satoshi"
     amountWithCurrency: "${amount} ${currency}"
     makerFee: "Maker fee: ${fee} satoshi"
@@ -87,13 +100,43 @@ offers:
     created: "Created: ${dateTime}"
     takenAfter: "Taken after: ${duration}"
     paidAfter: "Paid after: ${duration}"
+    exchangeRate: "Exchange Rate"
+    amountLabel: "Amount"
+    makerFeeLabel: "Maker fee"
+    takerFeeLabel: "Taker fee"
+    feeLabel: "Fee"
+    statusLabel: "Status"
+    youllReceive: "You'll receive"
+    coordinator: "Coordinator"
+  
+  tooltips:
+    takerFeeInfo: "Coordinator charges a ${feePercent}% taker fee. This fee is deducted from the amount you receive."
   
   actions:
     take: TAKE
-    resume: RESUME
+    takeOffer: Take Offer
+    resume: ENTER BLIK
     cancel: Cancel offer
+    View: View details
   
   status:
+    created: "Created"
+    funded: "Funded"
+    expired: "Expired"
+    cancelled: "Cancelled"
+    reserved: "Reserved"
+    blikReceived: "BLIK Sent"
+    blikSentToMaker: "BLIK Received"
+    invalidBlik: "Invalid BLIK"
+    conflict: "Conflict"
+    dispute: "Dispute"
+    makerConfirmed: "Confirmed"
+    settled: "Settled"
+    payingTaker: "Paying Taker"
+    takerPaymentFailed: "Payment Failed"
+    takerPaid: "Taker Paid"
+    
+  statusMessages:
     reserved: Offer reserved by Taker!
     cancelled: Offer cancelled successfully.
     cancelledOrExpired: Offer has been cancelled or expired. # Used by taker.waitConfirmation
@@ -125,6 +168,13 @@ offers:
     makerPublicKeyNotFound: Maker public key not found
     takerPublicKeyNotFound: Taker public key not found.
 
+  success:
+    title: Offer completed
+    headline: Payment confirmed!
+    subtitle: Taker has been paid.
+    detailsTitle: "Offer details:"
+    duration: "Offer took ${time} to complete."
+
 # =============================================================================
 # RESERVATIONS
 # =============================================================================
@@ -149,9 +199,8 @@ exchange:
   labels:
     enterAmount: "Enter amount (PLN) to pay:"
     equivalent: "≈ ${sats} satoshi"
-    rate: "Average PLN/BTC rate ≈ ${rate}"
-    rangeHint: "Min/Max: ${minAmount}-${maxAmount} ${currency}"
-  
+    rate: "Exchange rate ≈ ${rate} PLN/BTC"
+
   feedback:
     fetching: Fetching exchange rate...
   
@@ -164,6 +213,53 @@ exchange:
     tooHighFiat: "Amount is too high. Maximum is ${maxAmount} ${currency}."
 
 # =============================================================================
+# COORDINATOR INFORMATION
+# =============================================================================
+coordinator:
+  title: "Coordinators"
+  info:
+    fee: "fee"
+    rangeDisplay: "Amount: ${minAmount}-${maxAmount} ${currency}"
+    feeDisplay: "${fee}% fee"
+  
+  selector:
+    loading: "Loading Coordinators..."
+    errorLoading: "Error Loading Coordinators"
+    choose: "Choose Coordinator"
+    viewNostrProfile: "View Nostr profile"
+    unresponsive: "This coordinator is unresponsive"
+    waitingResponse: "Waiting for coordinator response"
+    termsAccept: "I accept coordinator's "
+    termsOfUsage: "Terms of Usage"
+  
+  dialog:
+    makerFee: "Maker Fee"
+    takerFee: "Taker Fee"
+    amountRange: "Amount Range"
+    reservationTime: "Reservation Time"
+    currencies: "Currencies"
+    viewTerms: "View Terms"
+  
+  management:
+    title: "Coordinator Management"
+    availableCoordinators: "Available Coordinators"
+    noCoordinators: "No coordinators discovered yet."
+    online: "Online"
+    unknownOffline: "Unknown/Offline"
+    openNostrProfile: "Open Nostr Profile"
+    enable: "Enable"
+    remove: "Remove"
+    addCustomWhitelist: "Add custom coordinator"
+    addCustomWhitelistHint: "npub1..."
+    add: "Add"
+    coordinatorBlacklisted: "Coordinator blacklisted"
+    coordinatorUnblacklisted: "Coordinator unblacklisted"
+    coordinatorAdded: "Coordinator added to custom whitelist"
+    coordinatorRemoved: "Coordinator removed from custom whitelist"
+    pleaseEnterNpub: "Please enter an npub"
+    error: "Error"
+
+# =============================================================================
 # MAKER FLOW
 # =============================================================================
 maker:
@@ -171,8 +267,23 @@ maker:
     button: PAY with Lightning
   
   amountForm:
+    progress:
+      step1: "1. Create Offer"
+      step2: "2. Wait for Taker"
+      step3: "3. Use BLIK"
+    labels:
+      coordinator: Coordinator
+      exchangeRate: Exchange Rate
+      fee: Fee
+      satoshisToPay: Amount to Pay
+      enterAmount: Enter amount
+      tapToSelect: Tap to select
     actions:
       generateInvoice: Generate Invoice
+    
+    tooltips:
+      feeInfo: "Coordinator charges a ${feePercent}% maker fee. This fee is deducted from your Lightning payment."
+      payInfo: "This calculation is based on client-side fetched exchange rates. The coordinator will calculate the exact amount, and the invoice amount will be the final and exact amount to pay."
     
     errors:
       initiating: "Error initiating offer: ${details}"
@@ -208,18 +319,34 @@ maker:
   
   waitForBlik:
     title: Waiting for BLIK
-    message: Waiting for Taker to provide BLIK code.
-    timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
+    messageInfo: Taker has reserved offer!
+    messageWaiting: Waiting to provide BLIK code...
+    #timeLimitWithSeconds: "Taker has ${seconds} seconds to provide BLIK code."
     progressLabel: "Reserved: ${seconds} s left"
   
   confirmPayment:
     title: BLIK code received!
     retrieving: Retrieving BLIK code...
     instructions: Enter this code into the payment terminal. When Taker confirms in their banking app and payment is successful, press Confirm below.
+    instruction1: Enter the code into the BLIK payment request.
+    instruction2: Wait until Taker confirms the payment in their app.
+    instruction3: "When payment is succesful, press Confirm below:"
+    
+    expiredTitle: BLIK Code Expired
+    expiredWarning: "The BLIK code has expired. You need to manually confirm the payment status:"
+    expiredInstruction1: "If the BLIK payment was successful and you completed your purchase, click \"Confirm successful payment\" below."
+    expiredInstruction2: "If the BLIK payment failed or was not completed, click \"Invalid BLIK Code\" below."
     
     actions:
       confirm: Confirm successful payment
       markInvalid: Invalid BLIK Code
+      copyBlik: Copy BLIK
+    
+    confirmDialog:
+      title: Confirm Payment?
+      content: "This action is irreversible. After confirming:\n\n• The Taker will receive the funds immediately\n• The coordinator will not be able to dispute the funds\n• You cannot undo this action\n\nOnly confirm if the BLIK payment was successful."
+      cancel: Cancel
+      confirmButton: Yes, Confirm Payment
     
     feedback:
       confirmed: Maker confirmed payment.
@@ -256,7 +383,7 @@ maker:
     disputeDialog:
       title: Open dispute?
       content: Opening a dispute requires manual verification by the coordinator, which will take time. A dispute fee will be deducted if the dispute is ruled against you. The hold invoice will be settled to prevent it from expiring. If the dispute is ruled in your favor, you will receive a refund (minus fees) to your Lightning address.
-      contentDetailed: "Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus dispute fees). Make sure you have a Lightning address configured."
+      contentDetailed: "Opening a dispute will require manual coordinator intervention, which takes time and incurs a dispute fee.\n\nThe hold invoice will be immediately settled to prevent it from expiring before the dispute is resolved.\n\nIf the dispute is ruled in your favor, the satoshi amount will be refunded to your Lightning address (minus fees). Make sure you have a Lightning address configured."
       actions:
         confirm: Open Dispute
         cancel: Cancel
@@ -280,9 +407,15 @@ taker:
   roleSelection:
     button: SELL BLIK code for satoshi
   
+  progress:
+    step1: Submit BLIK
+    step2: Confirm BLIK
+    step3: Get Paid
+  
   submitBlik:
-    title: "Enter 6-digit BLIK code:"
+    title: "Enter 6-digit BLIK"
     label: BLIK Code
+    instruction: "Enter BLIK before time ends..."
     
     timeLimit: "Enter BLIK within: ${seconds} s"
     timeExpired: Time to enter BLIK code has expired.
@@ -303,6 +436,13 @@ taker:
       stateNotValid: "Error: Offer state is no longer valid."
       fetchedIdMismatch: "Fetched active offer ID (${fetchedId}) does not match initial offer ID (${initialId}). State mismatch?"
       paymentHashMissing: Offer payment hash missing after fetch.
+    
+    details:
+      requestedAmount: "Requested BLIK amount"
+      exchangeRate: "Exchange Rate"
+      takerFee: "Taker fee"
+      status: "Status"
+      youllReceive: "You'll receive"
   
   waitConfirmation:
     title: "Waiting for Maker"
@@ -311,15 +451,34 @@ taker:
     waitingMakerConfirmation: "Waiting for Maker to confirm BLIK is correct. Time remaining: ${seconds}s"
     importantNotice: "VERY IMPORTANT: Make sure you only accept BLIK confirmation for ${amount} ${currency}"
     importantBlikAmountConfirmation: "VERY IMPORTANT: In your banking app, ensure you are confirming a BLIK payment for exactly ${amount} ${currency}."
-    instructions: The offer maker has received your BLIK code and must enter it into the payment terminal. You then must accept the BLIK code in your banking app, make sure you only accept the correct amount. You will receive Lightning payment automatically after confirmation.
+    instructions: The maker must now enter it into the payment terminal within 2 minutes. You then must accept the BLIK code in your banking app.
+    waitingForMakerToReceive: "Waiting for maker to receive your BLIK code..."
+    makerReceivedBlik: "Maker has received your BLIK code."
+    timerExpiredMessage: "BLIK 2m expiration time has passed. Waiting for maker to confirm or mark code as invalid."
+    timerExpiredActions: "BLIK 2m expiration time has passed but the maker hasn't received the BLIK code. You can resend a new BLIK code or cancel."
+    resendBlikButton: "Resend New BLIK Code"
     navigatedHome: "Navigated home."
+    
+    expiredTitle: "BLIK Code Expired"
+    expiredWarning: "The maker did not receive the BLIK code so it couldn't have used it."
+    expiredSentWarning: "The maker hasn't confirmed the payment yet. What would you like to do?"
+    expiredInstruction1: "If you want to try again with a new BLIK code, renew the reservation."
+    expiredInstruction2: "If you no longer want to complete this transaction, cancel the reservation."
+    expiredInstruction3: "If the BLIK payment was charged from your bank account, report a conflict to start a dispute."
+    
+    expiredActions:
+      reportConflict: "BLIK was charged from my bank account"
+      renewReservation: "Try again with new BLIK code"
+      cancelReservation: "Cancel reservation"
     
     feedback:
       makerConfirmed: Maker confirmed payment.
       paymentSuccessful: Payment successful! You will receive funds shortly.
-    
+      conflictReported: Conflict reported. Coordinator will review the situation.
+
     errors:
       invalidOfferStateReceived: "Received an offer with an invalid state for this screen. Resetting."
+      reportingConflict: "Error reporting conflict: ${details}"
 
   paymentProcess:
     title: Payment Process
@@ -389,6 +548,7 @@ taker:
     
     actions:
       retry: I DID NOT PAY, reserve offer again and send new BLIK code
+      cancelReservation: I DID NOT PAY, cancel the reservation
       reportConflict: I CONFIRMED BLIK CODE AND IT WAS CHARGED FROM MY BANK ACCOUNT, Report conflict, will cause DISPUTE!
       returnHome: Return to home
     
@@ -426,16 +586,66 @@ blik:
 # =============================================================================
 home:
   notifications:
-    simplex: Get notified about new orders via SimpleX
-    element: Get notified about new orders via Element
+    title: "Get notified about new offers via:"
+    telegram: Telegram
+    simplex: SimpleX
+    element: Element
+    signal: Signal
   
   statistics:
-    title: Recent Transactions
+    title: Finished Offers
     lifetimeCompact: "All: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
     last7DaysCompact: "Last 7d: ${count} transactions\nAvg wait for BLIK: ${avgBlikTime}\nAvg completion time: ${avgPaidTime}"
+    last7DaysSingleLine: "Last 7d: ${count} offers  |  Avg BLIK: ${avgBlikTime}  |  Avg Paid: ${avgPaidTime}"
     
     errors:
       loading: "Error loading statistics: ${error}"
+
+# =============================================================================
+# KEY MANAGEMENT
+# =============================================================================
+nekoInfo:
+  title: What is a Neko?
+  description: "Your Neko is your identity for using BitBlik. It's composed of a private and public key to ensure cryptographically secure communication with the coordinator.\n\nTo ensure greater anonymity, it is recommended to use a new, fresh Neko for each offer.\n\n⚠️ IMPORTANT: Your private key is only stored on your device (client-side). It is critically important to backup your private key, as losing access to it may prevent you from resolving disputes and recovering your funds."
+  backupWarning: "Remember to backup your Neko"
+
+generateNewKey:
+  title: New
+  description: Are you sure you want to generate a new Neko? Your current one will be lost forever if you haven't backed it up.
+  buttons:
+    generate: Generate
+  errors:
+    activeOffer: You cannot generate a new Neko while you have an active offer.
+    failed: "Failed to generate new Neko"
+  feedback:
+    success: New Neko generated successfully!
+  tooltips:
+    generate: Generate New Neko
+
+# =============================================================================
+# BACKUP AND RESTORE
+# =============================================================================
+backup:
+  title: Backup
+  description: This is your private key. It secures communication with the coordinator. Never reveal it to anyone. Back it up in a secure place to prevent issues during disputes.
+  feedback:
+    copied: Private key copied to clipboard!
+  tooltips:
+    backup: Backup Neko
+
+restore:
+  title: Restore
+  labels:
+    privateKey: Private Key
+  buttons:
+    restore: Restore
+  errors:
+    invalidKey: Must be a 64-character hex string.
+    failed: "Restore failed"
+  feedback:
+    success: Neko restored successfully! App will restart.
+  tooltips:
+    restore: Restore Neko
 
 # =============================================================================
 # SYSTEM ERRORS AND CONFIGURATIONS
@@ -452,3 +662,37 @@ system:
   
   blik:
     copied: BLIK code copied to clipboard
+
+# =============================================================================
+# MAIN LANDING PAGE
+# =============================================================================
+landing:
+  mainTitle: "Your BLIK ⇄ bitcoin Bridge"
+  subtitle: "Pay for or sell your BLIK code with bitcoin"
+  
+  actions:
+    payBlik: "Pay BLIK"
+    payBlikSubtitle: "with bitcoin"
+    sellBlik: "Buy bitcoin"
+    sellBlikSubtitle: "with BLIK"
+    howItWorks: "How it works?"
+
+# =============================================================================
+# FAQ
+# =============================================================================
+faq:
+  screenTitle: FAQ
+  tooltip: FAQ
+
+# =============================================================================
+# SETTINGS
+# =============================================================================
+settings:
+  title: Settings
+
+wallet:
+  title: Wallet
+  description: Manage your Lightning wallet settings
+
+nekoManagement:
+  title: Neko

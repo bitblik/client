@@ -1,8 +1,64 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import '../providers/providers.dart'; // Needed for ref.invalidate
 import '../../i18n/gen/strings.g.dart';
+
+// Taker Progress Indicator Widget - reusable for taker flow screens
+class TakerProgressIndicator extends StatelessWidget {
+  final int activeStep; // 1, 2, or 3
+  
+  const TakerProgressIndicator({
+    super.key,
+    this.activeStep = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8.0,
+        runSpacing: 4.0,
+        children: [
+          // Step 1: Submit BLIK
+          Text(
+            '1. ${t.taker.progress.step1}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep >= 1 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep == 1 ? Colors.black : Colors.grey,
+            ),
+          ),
+          const Text(' > ', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          // Step 2: Confirm BLIK
+          Text(
+            '2. ${t.taker.progress.step2}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep >= 2 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep == 2 ? Colors.black : Colors.grey,
+            ),
+          ),
+          const Text(' > ', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          // Step 3: Get Paid
+          Text(
+            '3. ${t.taker.progress.step3}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: activeStep == 3 ? FontWeight.w500 : FontWeight.w400,
+              color: activeStep >= 3 ? Colors.black : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // Widget for 10min Funded Offer Progress Bar
 class FundedOfferProgressIndicator extends ConsumerStatefulWidget {
@@ -89,7 +145,6 @@ class _FundedOfferProgressIndicatorState
   Future<void> _triggerRefresh() async {
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     }
   }
 
@@ -106,17 +161,21 @@ class _FundedOfferProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[400],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.waitingForTaker(time: _formatMMSS(_remainingSeconds)),
@@ -173,7 +232,7 @@ class _ReservationProgressIndicatorState
     // Check if either reservedAt or maxDuration changed
     if (widget.reservedAt != oldWidget.reservedAt ||
         widget.maxDuration != oldWidget.maxDuration) {
-      print(
+      Logger.log.d(
         "[ReservationProgress] reservedAt or maxDuration changed. Recalculating.",
       );
       _timer?.cancel();
@@ -236,12 +295,11 @@ class _ReservationProgressIndicatorState
   }
 
   Future<void> _triggerRefresh() async {
-    print("[ReservationProgress] Timer expired. Refreshing providers.");
+    Logger.log.d("[ReservationProgress] Timer expired. Refreshing providers.");
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     } else {
-      print("[ReservationProgress] Widget disposed before refresh.");
+      Logger.log.d("[ReservationProgress] Widget disposed before refresh.");
     }
   }
 
@@ -252,17 +310,21 @@ class _ReservationProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[500], // Darker background
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.reserved(seconds: _remainingSeconds),
@@ -316,7 +378,7 @@ class _BlikConfirmationProgressIndicatorState
   void didUpdateWidget(covariant BlikConfirmationProgressIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.blikReceivedAt != oldWidget.blikReceivedAt) {
-      print("[BlikConfirmProgress] blikReceivedAt changed. Recalculating.");
+      Logger.log.d("[BlikConfirmProgress] blikReceivedAt changed. Recalculating.");
       _timer?.cancel();
       _calculateProgress();
       if (_progress > 0) {
@@ -370,12 +432,11 @@ class _BlikConfirmationProgressIndicatorState
   }
 
   Future<void> _triggerRefresh() async {
-    print("[BlikConfirmProgress] Timer expired. Refreshing providers.");
+    Logger.log.d("[BlikConfirmProgress] Timer expired. Refreshing providers.");
     if (mounted) {
       ref.invalidate(availableOffersProvider);
-      ref.invalidate(initialActiveOfferProvider);
     } else {
-      print("[BlikConfirmProgress] Widget disposed before refresh.");
+      Logger.log.d("[BlikConfirmProgress] Widget disposed before refresh.");
     }
   }
 
@@ -386,17 +447,21 @@ class _BlikConfirmationProgressIndicatorState
       padding: const EdgeInsets.only(
         top: 4.0,
         bottom: 8.0,
-        left: 16.0,
-        right: 16.0,
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-            minHeight: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              height: 20,
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: Colors.grey[500],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
           Text(
             t.offers.progress.confirming(seconds: _remainingSeconds),
@@ -404,6 +469,160 @@ class _BlikConfirmationProgressIndicatorState
               color: Colors.black,
               fontWeight: FontWeight.bold,
               fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Circular Countdown Timer Widget - reusable for multiple screens
+class CircularCountdownTimer extends StatefulWidget {
+  final DateTime startTime;
+  final Duration maxDuration;
+  final double size;
+  final double strokeWidth;
+  final Color progressColor;
+  final Color backgroundColor;
+  final double fontSize;
+
+  const CircularCountdownTimer({
+    super.key,
+    required this.startTime,
+    required this.maxDuration,
+    this.size = 120,
+    this.strokeWidth = 12,
+    this.progressColor = Colors.green,
+    this.backgroundColor = Colors.white,
+    this.fontSize = 40,
+  });
+
+  @override
+  State<CircularCountdownTimer> createState() => _CircularCountdownTimerState();
+}
+
+class _CircularCountdownTimerState extends State<CircularCountdownTimer> {
+  Timer? _timer;
+  double _progress = 1.0;
+  int _remainingSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateProgress();
+    if (_remainingSeconds > 0) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CircularCountdownTimer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.startTime != oldWidget.startTime ||
+        widget.maxDuration != oldWidget.maxDuration) {
+      _timer?.cancel();
+      _calculateProgress();
+      if (_remainingSeconds > 0) _startTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _calculateProgress() {
+    final now = DateTime.now();
+    final expiresAt = widget.startTime.add(widget.maxDuration);
+    final totalDuration = widget.maxDuration.inMilliseconds;
+    final remainingDuration = expiresAt.difference(now).inMilliseconds;
+    final elapsedDuration = now.difference(widget.startTime).inMilliseconds;
+
+    if (!mounted) return;
+
+    setState(() {
+      if (remainingDuration <= 0) {
+        _progress = 1.0; // Full circle when time is up (all time spent)
+        _remainingSeconds = 0;
+      } else {
+        // Progress represents elapsed time (spent time)
+        _progress = (elapsedDuration / totalDuration).clamp(0.0, 1.0);
+        _remainingSeconds = (remainingDuration / 1000).ceil().clamp(
+          0,
+          widget.maxDuration.inSeconds,
+        );
+      }
+    });
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (_remainingSeconds <= 0) return;
+
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      _calculateProgress();
+      if (_remainingSeconds <= 0) {
+        timer.cancel();
+      }
+    });
+  }
+
+  String _formatTime(int totalSeconds) {
+    if (totalSeconds < 60) {
+      // Less than 1 minute: show as "Xs" (e.g., "45s")
+      return '${totalSeconds}s';
+    } else {
+      // 1 minute or more: show as "M:SS" (e.g., "5:30")
+      final minutes = (totalSeconds ~/ 60).toString();
+      final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+      return '$minutes:$seconds';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Calculate dynamic font size based on widget size (larger text)
+    final dynamicFontSize = widget.size * 0.35; // 35% of circle size for bigger text
+    
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background circle (white background for text)
+          Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+          ),
+          // Circular progress indicator (spent time - background color/white)
+          SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: CircularProgressIndicator(
+              value: _progress,
+              backgroundColor: widget.progressColor,
+              valueColor: AlwaysStoppedAnimation<Color>(widget.backgroundColor),
+              strokeWidth: widget.strokeWidth,
+            ),
+          ),
+          // Time display
+          Text(
+            _formatTime(_remainingSeconds),
+            style: TextStyle(
+              fontSize: dynamicFontSize,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
             ),
           ),
         ],

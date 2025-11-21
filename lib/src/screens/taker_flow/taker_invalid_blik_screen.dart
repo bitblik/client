@@ -2,6 +2,7 @@ import '../../../i18n/gen/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // Import providers
@@ -26,7 +27,7 @@ class _TakerInvalidBlikScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.taker.invalidBlik.title), 
+        title: Text(t.taker.invalidBlik.title),
         automaticallyImplyLeading: false, // Prevent back navigation
       ),
       body: Padding(
@@ -43,30 +44,34 @@ class _TakerInvalidBlikScreenState
               ),
               const SizedBox(height: 20),
               Text(
-                t.taker.invalidBlik.message, 
+                t.taker.invalidBlik.message,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
               Text(
-                t.taker.invalidBlik.explanation, 
+                t.taker.invalidBlik.explanation,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  print(
+                  Logger.log.d(
                     "[TakerInvalidBlikScreen] Retry selected for offer ${offer.id}",
                   );
 
                   final userPublicKey = await ref.read(
                     publicKeyProvider.future,
-                  ); 
+                  );
 
                   final takerId = userPublicKey;
                   final apiService = ref.read(apiServiceProvider);
                   final DateTime? reservationTimestamp = await apiService
-                      .reserveOffer(offer.id, takerId!);
+                      .reserveOffer(
+                        offer.id,
+                        takerId!,
+                        offer.coordinatorPubkey,
+                      );
 
                   if (reservationTimestamp != null) {
                     final Offer updatedOffer = Offer(
@@ -75,6 +80,7 @@ class _TakerInvalidBlikScreenState
                       makerFees: offer.makerFees,
                       fiatCurrency: offer.fiatCurrency,
                       fiatAmount: offer.fiatAmount,
+                      coordinatorPubkey: offer.coordinatorPubkey,
                       status: OfferStatus.reserved.name,
                       createdAt: offer.createdAt,
                       makerPubkey: offer.makerPubkey,
@@ -85,15 +91,19 @@ class _TakerInvalidBlikScreenState
                       holdInvoicePaymentHash: offer.holdInvoicePaymentHash,
                     );
 
-                    ref.read(activeOfferProvider.notifier).state = updatedOffer;
-                    ref.read(appRoleProvider.notifier).state = AppRole.taker;
+
+                    await ref
+                        .read(activeOfferProvider.notifier)
+                        .setActiveOffer(updatedOffer);
 
                     context.go("/submit-blik", extra: updatedOffer);
                   } else {
                     // Handle reservation failure
-                     ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(t.taker.invalidBlik.errors.reservationFailed),
+                        content: Text(
+                          t.taker.invalidBlik.errors.reservationFailed,
+                        ),
                         backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
@@ -109,7 +119,7 @@ class _TakerInvalidBlikScreenState
               ElevatedButton(
                 onPressed:
                     _isLoading
-                        ? null 
+                        ? null
                         : () async {
                           setState(() {
                             _isLoading = true;
@@ -117,13 +127,20 @@ class _TakerInvalidBlikScreenState
                           final apiService = ref.read(apiServiceProvider);
                           final userPublicKey = await ref.read(
                             publicKeyProvider.future,
-                          ); 
+                          );
 
                           if (userPublicKey == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(t.maker.confirmPayment.errors.missingHashOrKey),
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                content: Text(
+                                  t
+                                      .maker
+                                      .confirmPayment
+                                      .errors
+                                      .missingHashOrKey,
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                             setState(() {
@@ -133,19 +150,122 @@ class _TakerInvalidBlikScreenState
                           }
 
                           try {
-                            print(
-                              "[TakerInvalidBlikScreen] Reporting conflict for offer ${offer.id} by taker $userPublicKey",
+                            Logger.log.d(
+                              "[TakerInvalidBlikScreen] Canceling reservation for offer ${offer.id} by taker $userPublicKey",
                             );
-                            await apiService.markOfferConflict(
+                            await apiService.cancelReservation(
                               offer.id,
                               userPublicKey,
+                              offer.coordinatorPubkey,
+                            );
+
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    t.reservations.feedback.cancelled,
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              await ref
+                                  .read(activeOfferProvider.notifier)
+                                  .setActiveOffer(null);
+                              context.go('/offers');
+                            }
+                          } catch (e) {
+                            Logger.log.d(
+                              "[TakerInvalidBlikScreen] Error canceling reservation: $e",
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  t.reservations.errors.cancelling(
+                                    error: e.toString(),
+                                  ),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
+                              ),
+                            );
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
+                          }
+                        },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                        : Text(t.taker.invalidBlik.actions.cancelReservation),
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                onPressed:
+                    _isLoading
+                        ? null
+                        : () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          final apiService = ref.read(apiServiceProvider);
+                          final userPublicKey = await ref.read(
+                            publicKeyProvider.future,
+                          );
+
+                          if (userPublicKey == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  t
+                                      .maker
+                                      .confirmPayment
+                                      .errors
+                                      .missingHashOrKey,
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
+                              ),
+                            );
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            return;
+                          }
+
+                          try {
+                            Logger.log.d(
+                              "[TakerInvalidBlikScreen] Reporting conflict for offer ${offer.id} by taker $userPublicKey",
+                            );
+                            await apiService.markBlikCharged(
+                              offer.id,
+                              offer.coordinatorPubkey,
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.taker.invalidBlik.feedback.conflictReportedSuccess,
-                                ), 
+                                  t
+                                      .taker
+                                      .invalidBlik
+                                      .feedback
+                                      .conflictReportedSuccess,
+                                ),
                                 backgroundColor: Colors.green,
                               ),
                             );
@@ -154,15 +274,18 @@ class _TakerInvalidBlikScreenState
                               context.go('/taker-conflict', extra: offer.id);
                             }
                           } catch (e) {
-                            print(
+                            Logger.log.d(
                               "[TakerInvalidBlikScreen] Error reporting conflict: $e",
                             );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  t.taker.invalidBlik.errors.conflictReport(details: e.toString()),
-                                ), 
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                  t.taker.invalidBlik.errors.conflictReport(
+                                    details: e.toString(),
+                                  ),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             );
                           } finally {
@@ -191,14 +314,17 @@ class _TakerInvalidBlikScreenState
                         )
                         : Text(t.taker.invalidBlik.actions.reportConflict),
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  ref.read(activeOfferProvider.notifier).state = null;
-                  context.go('/offers');
-                },
-                child: Text(t.common.actions.cancelAndReturnToOffers),
-              ),
+              // const SizedBox(height: 20),
+              // TextButton(
+              //   onPressed: () async {
+              //     // PILA no no no, we should cancel the reservation and go back to funded, TODO!!!!
+              //     // await ref
+              //     //     .read(activeOfferProvider.notifier)
+              //     //     .setActiveOffer(null);
+              //     context.go('/offers');
+              //   },
+              //   child: Text(t.common.actions.cancelAndReturnToOffers),
+              // ),
             ],
           ),
         ),

@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import '../../../i18n/gen/strings.g.dart'; // Correct Slang import
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart'; // For OfferStatus enum
 import '../../providers/providers.dart';
 import '../../widgets/progress_indicators.dart';
+import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
 class MakerWaitTakerScreen extends ConsumerStatefulWidget {
   const MakerWaitTakerScreen({super.key});
@@ -18,155 +20,85 @@ class MakerWaitTakerScreen extends ConsumerStatefulWidget {
 }
 
 class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
-  Timer? _statusCheckTimer;
-  bool _isChecking = false;
   bool _isCancelling = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _startStatusCheckTimer();
-      }
-    });
+    final offer = ref.read(activeOfferProvider);
+    _handleStatusUpdate(offer?.statusEnum);
   }
 
   @override
   void dispose() {
-    _statusCheckTimer?.cancel();
     super.dispose();
   }
 
-  void _startStatusCheckTimer({bool checkImmediately = false}) {
-    _statusCheckTimer?.cancel();
-    if (checkImmediately) {
-      _checkOfferStatus();
-    }
-    _statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (!_isChecking) {
-        await _checkOfferStatus();
-      }
-    });
-  }
-
-  Future<void> _checkOfferStatus() async {
-    if (_isChecking) return;
+  void _handleStatusUpdate(OfferStatus? status) async {
+    if (status == null) return;
 
     final offer = ref.read(activeOfferProvider);
-    final paymentHash = offer?.holdInvoicePaymentHash;
     final makerId = ref.read(publicKeyProvider).value;
+    final coordinatorPubkey = offer?.coordinatorPubkey;
 
-    if (paymentHash == null || makerId == null || offer == null) {
+    if (offer == null || makerId == null || coordinatorPubkey == null) {
       if (offer == null && mounted) {
         _resetToRoleSelection(t.maker.waitTaker.errorActiveOfferDetailsLost);
       }
       return;
     }
 
-    _isChecking = true;
+    Logger.log.d("[MakerWaitTaker] Status update received: $status");
 
-    try {
-      final apiService = ref.read(apiServiceProvider);
-      final statusString = await apiService.getOfferStatus(paymentHash);
-
-      if (statusString == null) {
-        return;
-      }
-
-      var currentStatus = OfferStatus.values.byName(statusString);
-
-      if (offer.status != currentStatus.name) {
-        final updatedOfferData = await apiService.getMyActiveOffer(makerId);
-        if (updatedOfferData != null) {
-          final updatedOffer = Offer.fromJson(updatedOfferData);
-          ref.read(activeOfferProvider.notifier).state = updatedOffer;
-          if (updatedOffer.status == OfferStatus.reserved.name) {
-            currentStatus = OfferStatus.reserved;
-          }
-        }
-      }
-
-      if (currentStatus == OfferStatus.reserved) {
-        _statusCheckTimer?.cancel();
-        if (mounted) {
-          context.go('/wait-blik');
-          if (mounted) {
-            final currentOfferState = ref.read(activeOfferProvider);
-            if (currentOfferState != null &&
-                (currentOfferState.status == OfferStatus.funded.name)) {
-              _startStatusCheckTimer();
-            }
-          }
-        }
-      } else if (currentStatus == OfferStatus.funded) {
-        // Timer continues
-      } else if (currentStatus == OfferStatus.blikReceived ||
-          currentStatus == OfferStatus.blikSentToMaker) {
-        _statusCheckTimer?.cancel();
-        try {
-          final String offerId = offer.id;
-          final blikCode = await apiService.getBlikCodeForMaker(
-            offerId,
-            makerId,
-          );
-          if (blikCode != null && blikCode.isNotEmpty) {
-            ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
-            if (mounted) {
-              context.go('/confirm-blik');
-            }
-          } else {
-            if (mounted) {
-              _resetToRoleSelection(
-                t.maker.waitTaker.errorFailedToRetrieveBlik,
-              );
-            }
-          }
-        } catch (e) {
-          if (mounted) {
-            _resetToRoleSelection(
-              t.maker.waitTaker.errorRetrievingBlik(details: e.toString()),
-            );
-          }
-        }
-      } else if (currentStatus == OfferStatus.expired) {
-        _statusCheckTimer?.cancel();
-        if (mounted) {
-          _resetToRoleSelection(
-            t.maker.waitTaker.offerNoLongerAvailable(
-              status: currentStatus.name,
-            ),
-          );
-        }
-      } else {
-        _statusCheckTimer?.cancel();
-        if (mounted) {
-          _resetToRoleSelection(
-            t.maker.waitTaker.offerNoLongerAvailable(
-              status: currentStatus.name,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle error
-    } finally {
+    if (status == OfferStatus.reserved) {
       if (mounted) {
-        _isChecking = false;
+        context.go('/wait-blik');
+      }
+    } else if (status == OfferStatus.funded) {
+      // Continue waiting
+    } else if (status == OfferStatus.blikReceived ||
+        status == OfferStatus.blikSentToMaker) {
+      try {
+        final apiService = ref.read(apiServiceProvider);
+        final blikCode = await apiService.getBlikCodeForMaker(
+          offer.id,
+          makerId,
+          coordinatorPubkey,
+        );
+        if (blikCode != null && blikCode.isNotEmpty) {
+          ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
+          if (mounted) {
+            context.go('/confirm-blik');
+          }
+        } else {
+          if (mounted) {
+            // _resetToRoleSelection(t.maker.waitTaker.errorFailedToRetrieveBlik);
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          // _resetToRoleSelection(
+          //   t.maker.waitTaker.errorRetrievingBlik(details: e.toString()),
+          // );
+        }
+      }
+    } else if (status == OfferStatus.expired) {
+      if (mounted) {
+        // _resetToRoleSelection(
+        //   t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
+        // );
+      }
+    } else {
+      if (mounted) {
+        // _resetToRoleSelection(
+        //   t.maker.waitTaker.offerNoLongerAvailable(status: status.name),
+        // );
       }
     }
   }
 
-  void _resetToRoleSelection(String message) {
-    _statusCheckTimer?.cancel();
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
+  Future<void> _resetToRoleSelection(String message) async {
+    // await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
     ref.read(holdInvoiceProvider.notifier).state = null;
     ref.read(paymentHashProvider.notifier).state = null;
     ref.read(receivedBlikCodeProvider.notifier).state = null;
@@ -185,9 +117,9 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
   Future<void> _cancelOffer() async {
     final offer = ref.read(activeOfferProvider);
-    final makerId = ref.read(publicKeyProvider).value;
+    final makerPubKey = ref.read(publicKeyProvider).value;
 
-    if (offer == null || makerId == null) {
+    if (offer == null || makerPubKey == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.maker.waitTaker.errorCouldNotIdentifyOffer)),
@@ -215,7 +147,7 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      await apiService.cancelOffer(offer.id, makerId);
+      await apiService.cancelOffer(offer.id, offer.coordinatorPubkey);
       _resetToRoleSelection(t.maker.waitTaker.offerCancelledSuccessfully);
     } catch (e) {
       if (mounted) {
@@ -238,104 +170,206 @@ class _MakerWaitTakerScreenState extends ConsumerState<MakerWaitTakerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the active offer provider to get real-time status updates
     final offer = ref.watch(activeOfferProvider);
+    final t = Translations.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            if (offer != null) ...[
-              Text(
-                t.offers.display.yourOffer, // Changed to common key
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                // Common key
-                t.offers.details.amount(amount: offer.amountSats.toString()),
-              ),
-              Text(
-                // Common key
-                t.offers.details.makerFee(fee: offer.makerFees.toString()),
-              ),
-              Text(
-                // Common key
-                t.common.labels.status(status: offer.status.toUpperCase()),
-              ),
-              const SizedBox(height: 30),
-            ],
-            if (offer != null && offer.status == OfferStatus.funded.name)
-              FundedOfferProgressIndicator(
-                key: ValueKey('progress_funded_${offer.id}'),
-                createdAt: offer.createdAt,
-              ),
-            Text(
-              t
-                  .maker
-                  .waitTaker
-                  .message, // Changed to use existing YAML key 'message'
-              style: const TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            if (offer == null || offer.status != OfferStatus.funded.name)
-              const CircularProgressIndicator(),
-            const SizedBox(height: 40),
-            Consumer(
-              builder: (context, ref, _) {
-                final error = ref.watch(errorProvider);
-                if (error != null &&
-                    error.startsWith(
-                      // Specific key
-                      t.maker.waitTaker
-                          .failedToCancelOffer(details: '')
-                          .split(' {details}')[0],
-                    )) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Text(
-                      error,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null && mounted) {
+        _handleStatusUpdate(next.statusEnum);
+      }
+    });
+
+    if (offer == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Progress indicator (Step 2: Wait for Taker)
+                const MakerProgressIndicator(activeStep: 2),
+                const SizedBox(height: 20),
+                // Top section: Message with refresh icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-            ElevatedButton(
-              onPressed:
-                  _isCancelling ||
-                          (offer != null &&
-                              offer.status != OfferStatus.funded.name)
-                      ? null
-                      : _cancelOffer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-              ),
-              child:
-                  _isCancelling
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        t.maker.waitTaker.message,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
                         ),
-                      )
-                      : Text(
-                        t.offers.actions.cancel, // Changed to common key
+                        textAlign: TextAlign.center,
+                        softWrap: true,
                       ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                
+                // Center: Large circular progress bar with time
+                Center(
+                  child: offer.status == OfferStatus.funded.name
+                      ? CircularCountdownTimer(
+                          startTime: offer.createdAt,
+                          maxDuration: const Duration(minutes: 10),
+                          size: 200,
+                          strokeWidth: 16,
+                          progressColor: Colors.green,
+                          backgroundColor: Colors.white,
+                          fontSize: 48,
+                        )
+                      : const CircularProgressIndicator(),
+                ),
+                
+                const SizedBox(height: 30),
+                
+                // Bottom section: Offer details and Cancel button
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  // Offer details (bottom left)
+                  _buildDetailRow(
+                    context,
+
+                    t.offers.details.amountLabel,
+                    '${(offer.fiatAmount * 100).round() % 100 == 0 ? offer.fiatAmount.toStringAsFixed(0) : offer.fiatAmount.toStringAsFixed(2)} ${offer.fiatCurrency}',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    context,
+                    t.maker.amountForm.labels.fee,
+                    '${offer.makerFees} sats',
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  // Error message
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final error = ref.watch(errorProvider);
+                      if (error != null &&
+                          error.startsWith(
+                            t.maker.waitTaker
+                                .failedToCancelOffer(details: '')
+                                .split(' {details}')[0],
+                          )) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: Text(
+                            error,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  
+                  // Cancel Offer button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _isCancelling ||
+                              (offer.status != OfferStatus.funded.name)
+                          ? null
+                          : _cancelOffer,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red, width: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: _isCancelling
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.red),
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.offers.actions.cancel,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

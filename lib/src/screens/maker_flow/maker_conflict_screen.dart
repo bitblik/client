@@ -27,6 +27,41 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
   //   super.dispose();
   // }
 
+  Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(t.maker.confirmPayment.confirmDialog.title),
+          content: Text(t.maker.confirmPayment.confirmDialog.content),
+          actions: <Widget>[
+            TextButton(
+              child: Text(t.maker.confirmPayment.confirmDialog.cancel),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(t.maker.confirmPayment.confirmDialog.confirmButton),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _confirmPayment(context, ref);
+    }
+  }
+
   Future<void> _confirmPayment(BuildContext context, WidgetRef ref) async {
     final apiService = ref.read(apiServiceProvider);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -43,7 +78,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
     ref.read(errorProvider.notifier).state = null;
 
     try {
-      await apiService.confirmMakerPayment(widget.offer.id, makerId);
+      await apiService.confirmMakerPayment(widget.offer.id, makerId, widget.offer.coordinatorPubkey);
 
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text(t.maker.confirmPayment.feedback.confirmedTakerPaid)),
@@ -102,7 +137,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
 
     try {
       // Assuming openDispute is now markOfferConflict
-      await apiService.markOfferConflict(widget.offer.id, makerId);
+      await apiService.openDispute(widget.offer.id,  widget.offer.coordinatorPubkey);
 
       setState(() {
         _isDisputeOpened = true; 
@@ -169,7 +204,7 @@ class _MakerConflictScreenState extends ConsumerState<MakerConflictScreen> {
                         backgroundColor: Colors.green,
                         foregroundColor:  Colors.white,
                       ),
-                      onPressed: () => _confirmPayment(context, ref),
+                      onPressed: () => _showConfirmationDialog(context, ref),
                       child: Text(t.maker.conflict.actions.confirmPayment),
                     ),
                     const SizedBox(height: 16),

@@ -2,6 +2,7 @@ import '../../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Use Riverpod
 import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:ndk/shared/logger/logger.dart';
 
 import '../../models/offer.dart';
 import '../../providers/providers.dart'; // Import providers
@@ -13,54 +14,38 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final paymentHash = offer.holdInvoicePaymentHash;
-    if (paymentHash == null) {
-      print(
-        "[MakerInvalidBlikScreen] Error: Payment hash is null, cannot poll status.",
-      );
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.notifications.error), // Corrected usage of t
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              t
-                  .taker
-                  .paymentProcess
-                  .errors
-                  .missingPaymentHash, // Corrected usage of t
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    } else {
-      ref.listen<
-        AsyncValue<OfferStatus?>
-      >(pollingOfferStatusProvider(paymentHash), (previous, next) {
-        next.whenData((status) {
-          if (status == OfferStatus.conflict) {
-            print(
-              "[MakerInvalidBlikScreen] Offer status changed to conflict. Navigating...",
-            );
-            context.go('/maker-conflict', extra: offer);
-          } else if (status == OfferStatus.reserved) {
-            print(
-              "[MakerInvalidBlikScreen] Offer status changed to reserved. Navigating back to wait-blik.",
-            );
-            context.go('/wait-blik', extra: offer);
-          }
-        });
-      });
-    }
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null && next.id == offer.id) {
+        final status = next.statusEnum;
+        if (status == OfferStatus.conflict) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to conflict. Navigating...",
+          );
+          context.go('/maker-conflict', extra: offer);
+        } else if (status == OfferStatus.reserved) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to reserved. Navigating back to wait-blik.",
+          );
+          context.go('/wait-blik', extra: offer);
+        } else if (status == OfferStatus.funded) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to funded. Navigating back to wait taker.",
+          );
+          context.go('/wait-taker', extra: offer);
+        } else if (status == OfferStatus.expired) {
+          Logger.log.d(
+            "[MakerInvalidBlikScreen] Offer status changed to expired. Navigating back to home.",
+          );
+          ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+          context.go('/');
+        }
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.maker.invalidBlik.title), // Corrected usage of t
+        title: Text(t.maker.invalidBlik.title),
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -76,16 +61,13 @@ class MakerInvalidBlikScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                t.maker.invalidBlik.info, // Corrected usage of t
+                t.maker.invalidBlik.info,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 24),
               Text(
-                // Using a generic offer ID display string
-                t.offers.details.id(
-                  id: offer.id.substring(0, 8),
-                ), // Corrected usage of t and key
+                t.offers.details.id(id: offer.id.substring(0, 8)),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 16),

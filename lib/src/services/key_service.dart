@@ -3,6 +3,7 @@ import 'dart:typed_data'; // For Uint8List
 
 import 'package:bip340/bip340.dart' as bip340;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 // Helper function for hex encoding
 String bytesToHex(List<int> bytes) {
@@ -56,22 +57,22 @@ class KeyService {
           _publicKeyHex = bip340.getPublicKey(
             _privateKeyHex!,
           ); // Pass hex string
-          print('✅ Loaded existing key pair. Public key: $_publicKeyHex');
+          Logger.log.i('✅ Loaded existing key pair. Public key: $_publicKeyHex');
         } else {
-          print(
+          Logger.log.w(
             '⚠️ Stored private key hex is invalid ($storedPrivateKeyHex). Generating new key pair.',
           );
-          await _generateAndStoreKeyPair();
+          await generateNewKeyPair();
         }
       } else {
         // Generate new key pair
-        await _generateAndStoreKeyPair();
-        print(
+        await generateNewKeyPair();
+        Logger.log.i(
           '🔑 Generated and stored new key pair. Public key: $_publicKeyHex',
         );
       }
     } catch (e) {
-      print('❌ Error initializing KeyService: $e');
+      Logger.log.e('❌ Error initializing KeyService: $e');
       _publicKeyHex = null;
       _privateKeyHex = null;
       // Consider attempting to generate fresh keys on error?
@@ -80,7 +81,7 @@ class KeyService {
   }
 
   // Generates a new key pair and stores the private key
-  Future<void> _generateAndStoreKeyPair() async {
+  Future<void> generateNewKeyPair() async {
     // Generate 32 random bytes for the private key
     final random = Random.secure();
     final privateKeyBytes = Uint8List.fromList(
@@ -96,15 +97,34 @@ class KeyService {
     await _storage.write(key: _privateKeyStorageKey, value: _privateKeyHex);
   }
 
+  // Saves a provided private key, replacing the existing one.
+  Future<void> savePrivateKey(String privateKeyHex) async {
+    // Basic validation
+    if (privateKeyHex.length != 64 ||
+        !RegExp(r'^[0-9a-fA-F]+$').hasMatch(privateKeyHex)) {
+      throw ArgumentError(
+        'Invalid private key format. It must be a 64-character hex string.',
+      );
+    }
+
+    // Update the in-memory keys
+    _privateKeyHex = privateKeyHex;
+    _publicKeyHex = bip340.getPublicKey(_privateKeyHex!);
+
+    // Store the new private key securely, overwriting the old one
+    await _storage.write(key: _privateKeyStorageKey, value: _privateKeyHex);
+    Logger.log.i('✅ Restored and saved new key pair. Public key: $_publicKeyHex');
+  }
+
   // Optional: Method to delete keys (for testing or user request)
   Future<void> deleteKeys() async {
     await _storage.delete(key: _privateKeyStorageKey);
     _publicKeyHex = null;
     _privateKeyHex = null;
-    print('🔑 Deleted stored key pair.');
+    Logger.log.i('🔑 Deleted stored key pair.');
     // Also delete lightning address
     await _storage.delete(key: _lightningAddressStorageKey);
-    print('⚡️ Deleted stored Lightning Address.');
+    Logger.log.i('⚡️ Deleted stored Lightning Address.');
   }
 
   // --- Lightning Address Methods ---
@@ -113,9 +133,9 @@ class KeyService {
   Future<void> saveLightningAddress(String address) async {
     try {
       await _storage.write(key: _lightningAddressStorageKey, value: address);
-      print('⚡️ Saved Lightning Address.');
+      Logger.log.i('⚡️ Saved Lightning Address.');
     } catch (e) {
-      print('❌ Error saving Lightning Address: $e');
+      Logger.log.e('❌ Error saving Lightning Address: $e');
       rethrow; // Allow calling code to handle error
     }
   }
@@ -124,10 +144,10 @@ class KeyService {
   Future<String?> getLightningAddress() async {
     try {
       final address = await _storage.read(key: _lightningAddressStorageKey);
-      print('⚡️ Retrieved Lightning Address: $address');
+      Logger.log.i('⚡️ Retrieved Lightning Address: $address');
       return address;
     } catch (e) {
-      print('❌ Error retrieving Lightning Address: $e');
+      Logger.log.e('❌ Error retrieving Lightning Address: $e');
       return null; // Return null on error
     }
   }

@@ -12,6 +12,7 @@ class CoordinatorInfo {
   final String? nostrNpub; // Made nullable
   final String? version; // Added version
   final String? icon; // Added icon
+  final String? termsOfUsageNaddr; // NIP-19 naddr for terms of usage
 
   const CoordinatorInfo({
     required this.name,
@@ -24,6 +25,7 @@ class CoordinatorInfo {
     required this.nostrNpub,
     this.version, // Added version
     this.icon, // Added icon
+    this.termsOfUsageNaddr, // Added terms of usage naddr
   });
 
   factory CoordinatorInfo.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class CoordinatorInfo {
       nostrNpub: json['nostr_npub'] as String?, // Ensure this is String?
       version: json['version'] as String?, // Added version
       icon: json['icon'] as String?, // Added icon
+      termsOfUsageNaddr: json['terms_of_usage_naddr'] as String?, // Added terms of usage naddr
     );
   }
 
@@ -56,6 +59,7 @@ class CoordinatorInfo {
       'nostr_npub': nostrNpub,
       if (version != null) 'version': version, // Added version
       if (icon != null) 'icon': icon, // Added icon
+      if (termsOfUsageNaddr != null) 'terms_of_usage_naddr': termsOfUsageNaddr, // Added terms of usage naddr
     };
   }
 }

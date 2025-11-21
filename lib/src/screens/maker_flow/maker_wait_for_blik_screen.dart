@@ -2,13 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ndk/shared/logger/logger.dart';
 import '../../providers/providers.dart';
 import '../../models/offer.dart';
-import '../../models/coordinator_info.dart'; // Added
-// Added
-import '../../widgets/progress_indicators.dart'; // Correct import for progress indicator
-// Import next screen
-import '../../../i18n/gen/strings.g.dart'; // Import Slang - CORRECTED PATH
+import '../../widgets/progress_indicators.dart';
+import '../../../i18n/gen/strings.g.dart';
+import 'maker_amount_form.dart'; // For MakerProgressIndicator
 
 class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
   const MakerWaitForBlikScreen({super.key});
@@ -20,12 +19,10 @@ class MakerWaitForBlikScreen extends ConsumerStatefulWidget {
 
 class _MakerWaitForBlikScreenState
     extends ConsumerState<MakerWaitForBlikScreen> {
-  Timer? _statusCheckTimer;
-  bool _isChecking = false;
-  CoordinatorInfo? _coordinatorInfo;
   Duration? _reservationDuration;
   bool _isLoadingConfig = true;
   String? _configError;
+
 
   @override
   void initState() {
@@ -41,13 +38,19 @@ class _MakerWaitForBlikScreenState
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      final offer = ref.read(activeOfferProvider);
+      final coordinatorPubkey = offer?.coordinatorPubkey;
+      if (coordinatorPubkey == null)
+        throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+        coordinatorPubkey,
+      );
+      if (coordinatorInfo == null)
+        throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
-
       setState(() {
-        _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
-          seconds: coordinatorInfo.reservationSeconds, // Corrected field access
+          seconds: coordinatorInfo.reservationSeconds,
         );
         _isLoadingConfig = false;
       });
@@ -55,8 +58,8 @@ class _MakerWaitForBlikScreenState
       _startStatusCheckTimer();
     } catch (e) {
       if (!mounted) return;
-      print(
-        "[MakerWaitForBlikScreen] Error loading coordinator info: ${e.toString()}",
+      Logger.log.e(
+        "[MakerWaitForBlikScreen] Error loading coordinator info:  [1m${e.toString()} [0m",
       );
       setState(() {
         _isLoadingConfig = false;
@@ -68,14 +71,13 @@ class _MakerWaitForBlikScreenState
 
   @override
   void dispose() {
-    _statusCheckTimer?.cancel();
     super.dispose();
   }
 
   void _startStatusCheckTimer() {
     // Ensure this is called only after _reservationDuration is set
     if (_reservationDuration == null) {
-      print(
+      Logger.log.w(
         "[MakerWaitForBlikScreen] _startStatusCheckTimer called before _reservationDuration is set. Aborting timer start.",
       );
       if (mounted && _configError == null && !_isLoadingConfig) {
@@ -85,206 +87,131 @@ class _MakerWaitForBlikScreenState
       }
       return;
     }
-    _statusCheckTimer?.cancel();
-    _checkOfferStatus(); // Check immediately
-    _statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (!_isChecking) {
-        await _checkOfferStatus();
-      }
-    });
+    // No longer need timer - will use subscription instead
   }
 
-  Future<void> _checkOfferStatus() async {
-    if (_isChecking) return;
+  void _handleStatusUpdate(OfferStatus? status) async {
+    if (status == null) return;
 
     final offer = ref.read(activeOfferProvider);
-    final paymentHash = offer?.holdInvoicePaymentHash;
-    final makerId =
-        ref.read(publicKeyProvider).value; // Needed for getMyActiveOffer
+    final makerId = ref.read(publicKeyProvider).value;
+    final coordinatorPubkey = offer?.coordinatorPubkey;
 
-    if (paymentHash == null || makerId == null || offer == null) {
-      print(
-        "[MakerWaitForBlik] Error: Missing offer, payment hash or public key.",
+    if (offer == null || makerId == null || coordinatorPubkey == null) {
+      Logger.log.e(
+        "[MakerWaitForBlik] Error: Missing offer, public key or coordinator pubkey.",
       );
-      if (offer == null && mounted) {
-        _resetToRoleSelection(t.offers.errors.detailsMissing);
-      }
       return;
     }
 
-    // Check if reservation time expired locally first
-    if (offer.reservedAt != null && _reservationDuration != null) {
-      final expiresAt = offer.reservedAt!.add(_reservationDuration!);
-      if (DateTime.now().isAfter(expiresAt)) {
-        print(
-          "[MakerWaitForBlik] Reservation time likely expired locally. Popping back.",
+    Logger.log.d("[MakerWaitForBlik] Status update received: $status");
+
+    if (status == OfferStatus.blikReceived) {
+      Logger.log.i("[MakerWaitForBlik] BLIK received/sent. Fetching code via API...");
+
+      try {
+        final apiService = ref.read(apiServiceProvider);
+        final blikCode = await apiService.getBlikCodeForMaker(
+          offer.id,
+          makerId,
+          coordinatorPubkey,
         );
-        _statusCheckTimer?.cancel(); // Stop polling
-        if (mounted) {
-          print(
-            "[MakerWaitForBlik] Popping self and pushing MakerConfirmPaymentScreen...",
+        Logger.log.d("[MakerWaitForBlik] API returned blikCode: $blikCode");
+
+        if (blikCode != null && blikCode.isNotEmpty) {
+          Logger.log.d(
+            "[MakerWaitForBlik] BLIK code is valid. Storing in provider...",
           );
-          context.go('/wait-taker');
-        }
-        return; // Don't proceed with API check if locally expired
-      }
-    }
+          ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
+          Logger.log.i("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
 
-    _isChecking = true;
-
-    try {
-      final apiService = ref.read(apiServiceProvider);
-      final statusString = await apiService.getOfferStatus(paymentHash);
-      print("[MakerWaitForBlik] Poll result for $paymentHash: $statusString");
-
-      if (statusString == null) {
-        print("[MakerWaitForBlik] Warning: Status check returned null.");
-        return; // Exit early, finally block will still run
-      }
-
-      var currentStatus = OfferStatus.values.byName(statusString);
-
-      Offer offerToCheck = offer;
-      if (offer.status != currentStatus.name) {
-        final updatedOfferData = await apiService.getMyActiveOffer(makerId);
-        if (updatedOfferData != null) {
-          final updatedOffer = Offer.fromJson(updatedOfferData);
-          ref.read(activeOfferProvider.notifier).state = updatedOffer;
-          offerToCheck = updatedOffer;
-          print(
-            "[MakerWaitForBlik] Updated activeOfferProvider with status: ${offerToCheck.status}",
-          );
-          currentStatus = OfferStatus.values.byName(offerToCheck.status);
-        } else {
-          print(
-            "[MakerWaitForBlik] Warning: Failed to fetch updated offer details after status change.",
-          );
-        }
-      }
-
-      final String offerId = offerToCheck.id;
-
-      if (currentStatus == OfferStatus.blikReceived ||
-          currentStatus == OfferStatus.blikSentToMaker) {
-        print(
-          "[MakerWaitForBlik] BLIK received/sent. Fetching code via API...",
-        );
-        _statusCheckTimer?.cancel();
-
-        try {
-          print(
-            "[MakerWaitForBlik] Calling getBlikCodeForMaker with offerId: $offerId, makerId: $makerId",
-          );
-          final blikCode = await apiService.getBlikCodeForMaker(
-            offerId,
-            makerId,
-          );
-          print("[MakerWaitForBlik] API returned blikCode: $blikCode");
-
-          if (blikCode != null && blikCode.isNotEmpty) {
-            print(
-              "[MakerWaitForBlik] BLIK code is valid. Storing in provider...",
-            );
-            ref.read(receivedBlikCodeProvider.notifier).state = blikCode;
-            print("[MakerWaitForBlik] Stored BLIK code from API: $blikCode");
-
-            if (mounted) {
-              print(
-                "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
-              );
-              context.go('/confirm-blik');
-            }
-          } else {
-            print(
-              "[MakerWaitForBlik] Error: Status is ${currentStatus.name} but API returned no BLIK code. Resetting.",
-            );
-            if (mounted) {
-              _resetToRoleSelection(t.system.errors.generic); // Generic error
-            }
-          }
-        } catch (e) {
-          print("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
           if (mounted) {
-            _resetToRoleSelection(t.system.errors.generic); // Generic error
+            Logger.log.d(
+              "[MakerWaitForBlik] Navigating to MakerConfirmPaymentScreen...",
+            );
+            context.go('/confirm-blik');
+          }
+        } else {
+          Logger.log.e(
+            "[MakerWaitForBlik] Error: Status is $status but API returned no BLIK code. Resetting.",
+          );
+          if (mounted) {
+            // _resetToRoleSelection(t.system.errors.generic);
           }
         }
-      } else if (currentStatus == OfferStatus.funded) {
-        print(
-          "[MakerWaitForBlik] Offer reverted to FUNDED (Taker likely timed out). Popping back.",
-        );
-        _statusCheckTimer?.cancel();
+      } catch (e) {
+        Logger.log.e("[MakerWaitForBlik] Error calling getBlikCodeForMaker: $e");
         if (mounted) {
-          context.go('/wait-taker');
-        }
-      } else if (currentStatus == OfferStatus.reserved) {
-        print(
-          "[MakerWaitForBlik] Still waiting for BLIK (Status: $currentStatus).",
-        );
-      } else {
-        print(
-          "[MakerWaitForBlik] Offer in unexpected state ($currentStatus). Resetting.",
-        );
-        _statusCheckTimer?.cancel();
-        if (mounted) {
-          _resetToRoleSelection(t.system.errors.generic); // Generic error
+          // _resetToRoleSelection(t.system.errors.generic);
         }
       }
-    } catch (e) {
-      print('[MakerWaitForBlik] Error checking offer status: $e');
-    } finally {
+    } else if (status == OfferStatus.funded) {
+      Logger.log.i(
+        "[MakerWaitForBlik] Offer reverted to FUNDED (Taker likely timed out). Popping back.",
+      );
       if (mounted) {
-        _isChecking = false;
+        context.go('/wait-taker');
+      }
+    } else if (status == OfferStatus.reserved) {
+      Logger.log.d("[MakerWaitForBlik] Still waiting for BLIK (Status: $status).");
+    } else {
+      Logger.log.w(
+        "[MakerWaitForBlik] Offer in unexpected state ($status). Resetting.",
+      );
+      if (mounted) {
+        // _resetToRoleSelection(t.system.errors.generic);
       }
     }
   }
 
-  void _resetToRoleSelection(String message) {
-    _statusCheckTimer?.cancel();
-    ref.read(appRoleProvider.notifier).state = AppRole.none;
-    ref.read(activeOfferProvider.notifier).state = null;
-    ref.read(holdInvoiceProvider.notifier).state = null;
-    ref.read(paymentHashProvider.notifier).state = null;
-    ref.read(receivedBlikCodeProvider.notifier).state = null;
-    ref.read(errorProvider.notifier).state = null;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-        if (scaffoldMessenger != null) {
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
-        }
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    });
-  }
+  // Future<void> _resetToRoleSelection(String message) async {
+  //   await ref.read(activeOfferProvider.notifier).setActiveOffer(null);
+  //   ref.read(holdInvoiceProvider.notifier).state = null;
+  //   ref.read(paymentHashProvider.notifier).state = null;
+  //   ref.read(receivedBlikCodeProvider.notifier).state = null;
+  //   ref.read(errorProvider.notifier).state = null;
+  //
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (mounted) {
+  //       final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+  //       if (scaffoldMessenger != null) {
+  //         scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
+  //       }
+  //       Navigator.of(context).popUntil((route) => route.isFirst);
+  //     }
+  //   });
+  // }
 
   void _goHome() {
-    _statusCheckTimer?.cancel();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    // Watch the active offer to get the latest data
     final offer = ref.watch(activeOfferProvider);
 
+    // Listen to the active offer provider for status changes
+    ref.listen<Offer?>(activeOfferProvider, (previous, next) {
+      if (next != null) {
+        // Handle status update only if the status has actually changed
+        if (previous == null || previous.status != next.status) {
+          _handleStatusUpdate(next.statusEnum);
+        }
+      }
+    });
+
     if (_isLoadingConfig) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.maker.waitForBlik.title)),
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_configError != null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.notifications.error),
-        ), // Corrected path
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -293,7 +220,7 @@ class _MakerWaitForBlikScreenState
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadInitialData,
-                child: Text(t.common.buttons.retry), // Corrected path
+                child: Text(t.common.buttons.retry),
               ),
             ],
           ),
@@ -305,9 +232,7 @@ class _MakerWaitForBlikScreenState
         offer.reservedAt == null ||
         _reservationDuration == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.notifications.error),
-        ), // Corrected path
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -325,56 +250,133 @@ class _MakerWaitForBlikScreenState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.maker.waitForBlik.title),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: t.common.buttons.goHome,
-            onPressed: _goHome,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                t.maker.waitForBlik.message, // Corrected from offerReserved
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const MakerProgressIndicator(activeStep: 2),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.symmetric(horizontal: 60),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          t.maker.waitForBlik.messageInfo,
+                          style: const TextStyle(fontSize: 13, color: Colors.blue),
+                          softWrap: true,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 15),
-              const SizedBox(height: 20),
-              ReservationProgressIndicator(
-                key: ValueKey(
-                  'res_timer_${offer.id}_${_reservationDuration!.inSeconds}',
+                const SizedBox(height: 20),
+
+                // Top section: Message with refresh icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        t.maker.waitForBlik.messageWaiting,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
                 ),
-                reservedAt: offer.reservedAt!,
-                maxDuration: _reservationDuration!,
-              ),
-              const SizedBox(height: 30),
-              const CircularProgressIndicator(),
-              const SizedBox(height: 20),
-              Text(
-                // Using timeLimitWithSeconds as it seems more appropriate here
-                t.maker.waitForBlik.timeLimitWithSeconds(
-                  seconds: _reservationDuration!.inSeconds,
+                const SizedBox(height: 40),
+                
+                // Center: Large circular progress bar with time
+                Center(
+                  child: CircularCountdownTimer(
+                    startTime: offer.reservedAt!,
+                    maxDuration: _reservationDuration!,
+                    size: 200,
+                    strokeWidth: 16,
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.white,
+                    fontSize: 48,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
+                
+                const SizedBox(height: 30),
+                
+                // Bottom section: Offer details
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  // Offer details (bottom left)
+                  _buildDetailRow(
+                    context,
+                    t.offers.details.amountLabel,
+                    '${(offer.fiatAmount * 100).round() % 100 == 0 ? offer.fiatAmount.toStringAsFixed(0) : offer.fiatAmount.toStringAsFixed(2)} ${offer.fiatCurrency}',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    context,
+                    t.offers.details.makerFeeLabel,
+                    '${offer.makerFees} sats',
+                  ),
+                ],
               ),
             ],
+            ),
           ),
         ),
       ),
     );
   }
-} // Added missing closing brace for the class
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,14 +1,15 @@
 import 'package:flutter_webln/flutter_webln.dart';
+import 'package:ndk/shared/logger/logger.dart';
 
 Future<bool> get isWeblnSupported async {
   try {
     await FlutterWebln.enable();
     final weblnValue = weblnDecode(FlutterWebln.webln);
-    print("!!!!!!!!!!!!!: isWeblnSupported weblnValue: $weblnValue");
+    Logger.log.d("!!!!!!!!!!!!!: isWeblnSupported weblnValue: $weblnValue");
     if (weblnValue.isNotEmpty) {
       try {
         bool a = await FlutterWebln.getInfo().then(allowInterop((response) {
-          print('[!] getInfo method is $response');
+          Logger.log.d('[!] getInfo method is $response');
           if (response!=null) {
             return true;
           }
@@ -16,13 +17,13 @@ Future<bool> get isWeblnSupported async {
         }));
         return a;
       } catch (error) {
-        print('[!] Error in getInfo method is $error');
+        Logger.log.d('[!] Error in getInfo method is $error');
         return false;
       }
     }
     return false;
   } catch (e) {
-    print("!!!!!!!!!!!!!: isWeblnSupported $e");
+    Logger.log.d("!!!!!!!!!!!!!: isWeblnSupported $e");
     return false;
   }
 }
@@ -32,12 +33,12 @@ Future<void> sendWeblnPayment(String invoice) async {
     await FlutterWebln.enable();
     final result = FlutterWebln.sendPayment(invoice: invoice);
     if (result is Future) {
-      print("!!!! send payment result ${await result}");
+      Logger.log.d("!!!! send payment result ${await result}");
     } else {
-      print("!!!! send payment result $result");
+      Logger.log.d("!!!! send payment result $result");
     }
   } catch(e) {
-    print("!!!!!!!!!!!!! send payment: $e");
+    Logger.log.d("!!!!!!!!!!!!! send payment: $e");
     rethrow;
   }
 }

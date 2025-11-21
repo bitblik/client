@@ -1,16 +1,21 @@
 import 'dart:async'; // Import async for Timer
 
+import 'package:flutter/foundation.dart';
+
 import '../../i18n/gen/strings.g.dart'; // Import Slang
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:ndk/shared/logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/group_links.dart';
 import '../models/coordinator_info.dart'; // Added
 import '../models/offer.dart'; // Import Offer model
 import '../providers/providers.dart';
-import '../utils/ln.dart';
+import '../widgets/lightning_address_widget.dart';
 import '../widgets/progress_indicators.dart'; // Import the progress indicators
 import 'taker_flow/taker_submit_blik_screen.dart'; // Import new screen
 import 'taker_flow/taker_wait_confirmation_screen.dart'; // Import new screen
@@ -25,20 +30,6 @@ class OfferListScreen extends ConsumerStatefulWidget {
 }
 
 class _OfferListScreenState extends ConsumerState<OfferListScreen> {
-  Timer? _refreshTimer;
-
-  bool _timerActive = false;
-  bool _requestedFocus = false;
-  String? _validationError;
-  bool _hasValidatedInitialAddress = false;
-  bool _isValidating = false;
-
-  // Persistent controller and form key for lightning address input
-  final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
-  final TextEditingController _addressController = TextEditingController();
-  final FocusNode _addressFocusNode = FocusNode();
-
-  // For Coordinator Config
   CoordinatorInfo? _coordinatorInfo;
   Duration? _reservationDuration;
   bool _isLoadingCoordinatorConfig = true;
@@ -47,9 +38,296 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   @override
   void initState() {
     super.initState();
-    _hasValidatedInitialAddress = false;
-    _isValidating = false;
-    _loadCoordinatorConfig();
+    // _loadCoordinatorConfig();
+  }
+
+  Future<bool> _checkTermsAcceptance(
+    String coordinatorPubkey,
+    String? termsOfUsageNaddr,
+  ) async {
+    if (termsOfUsageNaddr == null) {
+      return true; // No terms, so accepted by default
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'terms_accepted_$coordinatorPubkey';
+    return prefs.getBool(key) ?? false;
+  }
+
+  Future<void> _openTermsOfUsage(String naddr) async {
+    final url = 'https://njump.to/$naddr';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _openNostrProfile(String npub) async {
+    final url = 'https://njump.to/$npub';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _showTermsAcceptanceDialog(
+    BuildContext context,
+    Offer offer,
+    CoordinatorInfo? coordInfo,
+    String publicKey,
+    WidgetRef ref,
+  ) async {
+    final t = Translations.of(context);
+    final router = GoRouter.of(context);
+    bool termsAccepted = false;
+    bool isLoadingTerms = true;
+
+    // Load current acceptance state
+    if (coordInfo?.termsOfUsageNaddr != null) {
+      final accepted = await _checkTermsAcceptance(
+        offer.coordinatorPubkey,
+        coordInfo!.termsOfUsageNaddr,
+      );
+      termsAccepted = accepted;
+      isLoadingTerms = false;
+    } else {
+      termsAccepted = true; // No terms, so accepted by default
+      isLoadingTerms = false;
+    }
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> saveTermsAcceptance(bool accepted) async {
+              if (coordInfo?.termsOfUsageNaddr == null) return;
+
+              final prefs = await SharedPreferences.getInstance();
+              final key = 'terms_accepted_${offer.coordinatorPubkey}';
+              await prefs.setBool(key, accepted);
+
+              setState(() {
+                termsAccepted = accepted;
+              });
+            }
+
+            return AlertDialog(
+              title: Text(t.coordinator.selector.termsOfUsage),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (coordInfo != null && coordInfo.name.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        if (coordInfo.icon != null &&
+                            coordInfo.icon!.isNotEmpty)
+                          (coordInfo.icon!.startsWith('http')
+                              ? Image.network(
+                                coordInfo.icon!,
+                                width: 32,
+                                height: 32,
+                                errorBuilder:
+                                    (context, error, stackTrace) => const Icon(
+                                      Icons.account_circle,
+                                      size: 32,
+                                    ),
+                              )
+                              : Image.asset(
+                                coordInfo.icon!,
+                                width: 32,
+                                height: 32,
+                                errorBuilder:
+                                    (context, error, stackTrace) => const Icon(
+                                      Icons.account_circle,
+                                      size: 32,
+                                    ),
+                              ))
+                        else
+                          const Icon(Icons.account_circle, size: 32),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            coordInfo.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        if (coordInfo.nostrNpub != null) ...[
+                          const SizedBox(width: 16),
+                          IconButton(
+                            icon: Image.asset(
+                              'assets/nostr.png',
+                              width: 32,
+                              height: 32,
+                            ),
+                            tooltip: t.coordinator.selector.viewNostrProfile,
+                            onPressed:
+                                () => _openNostrProfile(coordInfo.nostrNpub!),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (isLoadingTerms)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: termsAccepted,
+                          onChanged: (bool? value) {
+                            saveTermsAcceptance(value ?? false);
+                          },
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    saveTermsAcceptance(!termsAccepted);
+                                  },
+                                  child: Text(
+                                    t.coordinator.selector.termsAccept,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                    ),
+                                    softWrap: true,
+                                  ),
+                                ),
+                              ),
+                              Flexible(
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap:
+                                        () => _openTermsOfUsage(
+                                          coordInfo!.termsOfUsageNaddr!,
+                                        ),
+                                    child: Text(
+                                      t.coordinator.selector.termsOfUsage,
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 14,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text(t.common.buttons.cancel),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                ),
+                ElevatedButton(
+                  child: Text(t.offers.actions.takeOffer),
+                  onPressed:
+                      termsAccepted
+                          ? () async {
+                            // Pop the terms dialog first
+                            Navigator.of(dialogContext).pop();
+
+                            // Terms are already saved via checkbox, proceed with taking offer
+
+                            // Proceed with taking the offer
+                            final takerId = publicKey;
+                            final apiService = ref.read(apiServiceProvider);
+                            final scaffoldMessenger = ScaffoldMessenger.of(
+                              context,
+                            );
+
+                            try {
+                              final reservationTimestamp = await apiService
+                                  .reserveOffer(
+                                    offer.id,
+                                    takerId,
+                                    offer.coordinatorPubkey,
+                                  );
+
+                              if (reservationTimestamp != null) {
+                                final Offer updatedOffer = Offer(
+                                  id: offer.id,
+                                  amountSats: offer.amountSats,
+                                  takerFees: offer.takerFees,
+                                  makerFees: offer.makerFees,
+                                  fiatCurrency: offer.fiatCurrency,
+                                  fiatAmount: offer.fiatAmount,
+                                  status: OfferStatus.reserved.name,
+                                  coordinatorPubkey: offer.coordinatorPubkey,
+                                  createdAt: offer.createdAt,
+                                  makerPubkey: offer.makerPubkey,
+                                  takerPubkey: takerId,
+                                  reservedAt: reservationTimestamp,
+                                  blikReceivedAt: offer.blikReceivedAt,
+                                  blikCode: offer.blikCode,
+                                  holdInvoicePaymentHash:
+                                      offer.holdInvoicePaymentHash,
+                                );
+
+                                await ref
+                                    .read(activeOfferProvider.notifier)
+                                    .setActiveOffer(updatedOffer);
+
+                                // Navigate to submit BLIK screen
+                                router.go("/submit-blik", extra: updatedOffer);
+                              } else {
+                                ref.read(errorProvider.notifier).state =
+                                    t.reservations.errors.failedNoTimestamp;
+                                if (scaffoldMessenger.mounted) {
+                                  scaffoldMessenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        t.reservations.errors.failedNoTimestamp,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                ref.invalidate(availableOffersProvider);
+                              }
+                            } catch (e) {
+                              final errorMsg = t.reservations.errors
+                                  .failedToReserve(details: e.toString());
+                              ref.read(errorProvider.notifier).state = errorMsg;
+                              if (scaffoldMessenger.mounted) {
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(content: Text(errorMsg)),
+                                );
+                              }
+                              ref.invalidate(availableOffersProvider);
+                            }
+                          }
+                          : null,
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _loadCoordinatorConfig() async {
@@ -60,9 +338,16 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
     });
     try {
       final apiService = ref.read(apiServiceProvider);
-      final coordinatorInfo = await apiService.getCoordinatorInfo();
+      final offer = ref.read(activeOfferProvider);
+      final coordinatorPubkey = offer?.coordinatorPubkey;
+      if (coordinatorPubkey == null)
+        throw Exception('No coordinator pubkey for active offer');
+      final coordinatorInfo = apiService.getCoordinatorInfoByPubkey(
+        coordinatorPubkey,
+      );
+      if (coordinatorInfo == null)
+        throw Exception('No coordinator info found for pubkey');
       if (!mounted) return;
-
       setState(() {
         _coordinatorInfo = coordinatorInfo;
         _reservationDuration = Duration(
@@ -72,7 +357,7 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      print(
+      Logger.log.e(
         "[OfferListScreen] Error loading coordinator info: ${e.toString()}",
       );
       setState(() {
@@ -83,898 +368,633 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
   }
 
   @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    _addressFocusNode.dispose();
-    super.dispose();
-  }
-
-  void _startRefreshTimer() {
-    if (_timerActive) return;
-    _timerActive = true;
-    _refreshTimer?.cancel();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
-      }
-    });
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (mounted) {
-        print("[OfferListScreen] Periodic refresh.");
-        ref.invalidate(availableOffersProvider);
-        ref.invalidate(initialActiveOfferProvider);
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  void _stopRefreshTimer() {
-    _refreshTimer?.cancel();
-    _timerActive = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final router = GoRouter.of(context);
     final lightningAddressAsync = ref.watch(lightningAddressProvider);
     final keyService = ref.read(keyServiceProvider);
+    final t = Translations.of(context);
 
     final offersAsyncValue = ref.watch(availableOffersProvider);
     final publicKeyAsyncValue = ref.watch(publicKeyProvider);
-    final myActiveOfferAsyncValue = ref.watch(initialActiveOfferProvider);
+    final myActiveOffer = ref.watch(activeOfferProvider);
+
+    final hasLightningAddress = lightningAddressAsync.maybeWhen(
+      data: (address) => address != null && address.isNotEmpty,
+      orElse: () => false,
+    );
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: lightningAddressAsync.when(
-        loading: () {
-          _stopRefreshTimer();
-          return const Center(child: CircularProgressIndicator());
-        },
-        error: (e, s) {
-          _stopRefreshTimer();
-
-          return Center(
-            child: Text(
-              t.lightningAddress.errors.loading(details: e.toString()),
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!hasLightningAddress)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 16.0),
+              child: LightningAddressWidget(),
             ),
-          );
-        },
-        data: (lightningAddress) {
-          // Perform one-time validation when address is loaded
-          if (!_hasValidatedInitialAddress &&
-              lightningAddress != null &&
-              lightningAddress.isNotEmpty) {
-            _hasValidatedInitialAddress = true;
-            setState(() {
-              _isValidating = true;
-            });
-            validateLightningAddress(lightningAddress, t).then((error) {
-              if (mounted) {
-                setState(() {
-                  _validationError = error;
-                  _isValidating = false;
-                });
-              }
-            });
-          }
-
-          if (lightningAddress == null || lightningAddress.isEmpty) {
-            _stopRefreshTimer();
-
-            // Only request focus the first time after widget is mounted and input is shown
-            if (_requestedFocus && _addressFocusNode.hasFocus) {
-              // do nothing, already focused
-            } else if (!_requestedFocus) {
-              _requestedFocus = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && !_addressFocusNode.hasFocus) {
-                  _addressFocusNode.requestFocus();
-                }
-              });
-            }
-
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            children: [
+              Text(
+                t.home.notifications.title,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 20,
+                runSpacing: 4,
                 children: [
-                  Text(
-                    t.lightningAddress.prompts.enter,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Form(
-                    key: _addressFormKey,
-                    child: TextFormField(
-                      controller: _addressController,
-                      focusNode: _addressFocusNode,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: t.lightningAddress.labels.hint,
-                        labelText: t.lightningAddress.labels.address,
-                        border: const OutlineInputBorder(),
+                  // Telegram - only show if link is configured
+                  if (GroupLinks.telegram.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.telegram);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/telegram.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.telegram,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
                       ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return t.lightningAddress.prompts.invalid;
-                        }
-                        return _validationError;
-                      },
-                      onChanged: (value) async {
-                        if (value.isNotEmpty && value.contains('@')) {
-                          final error = await validateLightningAddress(
-                            value,
-                            t,
-                          );
-                          if (mounted) {
-                            setState(() {
-                              _validationError = error;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            _validationError = null;
-                          });
-                        }
-                      },
-                      onFieldSubmitted: (value) async {
-                        if (_addressFormKey.currentState!.validate() &&
-                            _validationError == null) {
-                          try {
-                            await keyService.saveLightningAddress(
-                              _addressController.text,
-                            );
-                            ref.invalidate(lightningAddressProvider);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.feedback.saved,
-                                ),
-                              ),
-                            );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  t.lightningAddress.errors.saving(
-                                    details: e.toString(),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_addressFormKey.currentState!.validate() &&
-                          _validationError == null) {
-                        try {
-                          await keyService.saveLightningAddress(
-                            _addressController.text,
-                          );
-                          ref.invalidate(lightningAddressProvider);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(t.lightningAddress.feedback.saved),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                t.lightningAddress.errors.saving(
-                                  details: e.toString(),
-                                ),
+                  // Element - only show if link is configured
+                  if (GroupLinks.element.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.element);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/element.png',
+                                fit: BoxFit.contain,
                               ),
                             ),
-                          );
-                        }
-                      }
-                    },
-                    child: Text(t.common.buttons.saveAndContinue),
-                  ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.element,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // SimpleX - only show if link is configured
+                  if (GroupLinks.simplex.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.simplex);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/simplex.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.simplex,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // Signal - only show if link is configured
+                  if (GroupLinks.signal.isNotEmpty)
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(GroupLinks.signal);
+                        await launchUrl(url);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 23,
+                            height: 23,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/signal.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.home.notifications.signal,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
-            );
-          }
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: offersAsyncValue.when(
+              data: (offers) {
+                if (offers.isEmpty) {
+                  return Center(child: Text(t.offers.details.noAvailable));
+                }
+                // Separate finished offers
+                final finishedStatuses = [
+                  OfferStatus.settled.name,
+                  OfferStatus.takerPaid.name,
+                  OfferStatus.expired.name,
+                  OfferStatus.cancelled.name,
+                ];
+                final finishedOffers =
+                    offers
+                        .where(
+                          (offer) => finishedStatuses.contains(offer.status),
+                        )
+                        .toList();
+                final activeOffers =
+                    offers
+                        .where(
+                          (offer) => !finishedStatuses.contains(offer.status),
+                        )
+                        .toList();
 
-          // Lightning address exists, show offers list as before
-          _requestedFocus = false;
-          _startRefreshTimer();
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                final bool showActiveOffersList = activeOffers.isNotEmpty;
+
+                return Column(
                   children: [
-                    if (_isValidating)
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else if (_validationError == null &&
-                        _hasValidatedInitialAddress)
-                      Tooltip(
-                        message: t.lightningAddress.feedback.valid,
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 20,
-                        ),
-                      )
-                    else if (_validationError != null)
-                      Tooltip(
-                        message: _validationError!,
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                      ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        lightningAddress,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: t.lightningAddress.prompts.edit,
-                      onPressed: () async {
-                        final editController = TextEditingController(
-                          text: lightningAddress,
-                        );
-                        final editFormKey = GlobalKey<FormState>();
-                        final editFocusNode = FocusNode();
-                        String? editValidationError;
+                    // Active offers
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          Logger.log.d(
+                            "[OfferListScreen] Manual refresh triggered.",
+                          );
+                          ref.invalidate(availableOffersProvider);
+                          ref.invalidate(activeOfferProvider);
+                          await ref.read(availableOffersProvider.future);
+                        },
+                        child:
+                            (!showActiveOffersList)
+                                ? Container() // TODO empty no offers placeholder
+                                : ListView.builder(
+                                  itemCount: activeOffers.length,
+                                  itemBuilder: (innerContext, index) {
+                                    final offer = activeOffers[index];
+                                    final bool isFunded =
+                                        offer.status == OfferStatus.funded.name;
+                                    final bool isReserved =
+                                        offer.status ==
+                                        OfferStatus.reserved.name;
+                                    final bool isBlikReceived =
+                                        offer.status ==
+                                        OfferStatus.blikReceived.name;
+                                    final bool isConflict =
+                                        offer.status ==
+                                        OfferStatus.conflict.name;
+                                    final bool isInvalidBlik =
+                                        offer.status ==
+                                        OfferStatus.invalidBlik.name;
+                                    final publicKey = publicKeyAsyncValue.value;
+                                    Widget? trailingWidget;
 
-                        final result = await showDialog<String>(
-                          context: context,
-                          builder: (context) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              editFocusNode.requestFocus();
-                            });
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return AlertDialog(
-                                  title: Text(t.lightningAddress.prompts.edit),
-                                  content: Form(
-                                    key: editFormKey,
-                                    child: TextFormField(
-                                      controller: editController,
-                                      focusNode: editFocusNode,
-                                      keyboardType: TextInputType.emailAddress,
-                                      decoration: InputDecoration(
-                                        hintText:
-                                            t.lightningAddress.labels.hint,
-                                        labelText:
-                                            t.lightningAddress.labels.address,
-                                      ),
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty ||
-                                            !value.contains('@')) {
-                                          return t
-                                              .lightningAddress
-                                              .prompts
-                                              .invalid;
-                                        }
-                                        return editValidationError;
-                                      },
-                                      onChanged: (value) async {
-                                        if (value.isNotEmpty &&
-                                            value.contains('@')) {
-                                          final error =
-                                              await validateLightningAddress(
-                                                value,
-                                                t,
-                                              );
-                                          setState(() {
-                                            editValidationError = error;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            editValidationError = null;
-                                          });
-                                        }
-                                      },
-                                      onFieldSubmitted: (value) async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
-                                          try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
-                                                );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
+                                    if (isFunded) {
+                                      trailingWidget = ElevatedButton(
+                                        onPressed: publicKeyAsyncValue.maybeWhen(
+                                          data:
+                                              (publicKey) => () async {
+                                                if (publicKey == null) {
+                                                  return;
+                                                }
+
+                                                // Check if lightning address is set
+                                                if (!hasLightningAddress) {
+                                                  LightningAddressWidget.showLightningAddressRequiredDialog(
+                                                    context,
+                                                    ref,
+                                                    keyService,
+                                                    t,
+                                                  );
+                                                  return;
+                                                }
+
+                                                // Check terms acceptance
+                                                final coordinatorInfoAsync = ref
+                                                    .read(
+                                                      coordinatorInfoByPubkeyProvider(
+                                                        offer.coordinatorPubkey,
                                                       ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(),
-                                      child: Text(t.common.buttons.cancel),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        if (editFormKey.currentState!
-                                                .validate() &&
-                                            editValidationError == null) {
-                                          try {
-                                            await keyService
-                                                .saveLightningAddress(
-                                                  editController.text,
+                                                    );
+                                                final coordInfo =
+                                                    coordinatorInfoAsync
+                                                        .valueOrNull;
+
+                                                if (coordInfo
+                                                        ?.termsOfUsageNaddr !=
+                                                    null) {
+                                                  final termsAccepted =
+                                                      await _checkTermsAcceptance(
+                                                        offer.coordinatorPubkey,
+                                                        coordInfo!
+                                                            .termsOfUsageNaddr,
+                                                      );
+
+                                                  if (!termsAccepted) {
+                                                    await _showTermsAcceptanceDialog(
+                                                      context,
+                                                      offer,
+                                                      coordInfo,
+                                                      publicKey,
+                                                      ref,
+                                                    );
+                                                    return;
+                                                  }
+                                                }
+
+                                                final takerId = publicKey;
+                                                final apiService = ref.read(
+                                                  apiServiceProvider,
                                                 );
-                                            ref.invalidate(
-                                              lightningAddressProvider,
-                                            );
-                                            Navigator.of(
-                                              context,
-                                            ).pop(editController.text);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t
-                                                      .lightningAddress
-                                                      .feedback
-                                                      .updated,
-                                                ),
-                                              ),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  t.lightningAddress.errors
-                                                      .saving(
-                                                        details: e.toString(),
-                                                      ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                      child: Text(t.common.buttons.save),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        );
-                        if (result != null && result != lightningAddress) {
-                          ref.invalidate(lightningAddressProvider);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: InkWell(
-                  onTap: () async {
-                    final Uri url = Uri.parse(
-                      'https://simplex.chat/contact#/?v=2-7&smp=smp%3A%2F%2Fu2dS9sG8nMNURyZwqASV4yROM28Er0luVTx5X1CsMrU%3D%40smp4.simplex.im%2FjwS8YtivATVUtHogkN2QdhVkw2H6XmfX%23%2F%3Fv%3D1-3%26dh%3DMCowBQYDK2VuAyEAsNpGcPiALZKbKfIXTQdJAuFxOmvsuuxMLR9rwMIBUWY%253D%26srv%3Do5vmywmrnaxalvz6wi3zicyftgio6psuvyniis6gco6bp6ekl4cqj4id.onion&data=%7B%22groupLinkId%22%3A%22hCkt5Ph057tSeJdyEI0uug%3D%3D%22%7D',
-                    );
-                    await launchUrl(url);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset('assets/simplex.png', height: 24, width: 24),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          t.home.notifications.simplex,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Center(
-                child: InkWell(
-                  onTap: () async {
-                    final Uri url = Uri.parse(
-                      'https://matrix.to/#/#bitblik-offers:matrix.org',
-                    );
-                    await launchUrl(url);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset('assets/element.png', height: 24, width: 24),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          t.home.notifications.element,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: offersAsyncValue.when(
-                  data: (offers) {
-                    if (offers.isEmpty) {
-                      return Center(child: Text(t.offers.display.noAvailable));
-                    }
-                    // Separate finished offers
-                    final finishedStatuses = [
-                      OfferStatus.settled.name,
-                      OfferStatus.takerPaid.name,
-                      OfferStatus.expired.name,
-                      OfferStatus.cancelled.name,
-                    ];
-                    final finishedOffers =
-                        offers
-                            .where(
-                              (offer) =>
-                                  finishedStatuses.contains(offer.status),
-                            )
-                            .toList();
-                    final activeOffers =
-                        offers
-                            .where(
-                              (offer) =>
-                                  !finishedStatuses.contains(offer.status),
-                            )
-                            .toList();
+                                                final scaffoldMessenger =
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    );
 
-                    final bool showActiveOffersList = activeOffers.isNotEmpty;
+                                                try {
+                                                  final reservationTimestamp =
+                                                      await apiService
+                                                          .reserveOffer(
+                                                            offer.id,
+                                                            takerId,
+                                                            offer
+                                                                .coordinatorPubkey,
+                                                          );
 
-                    return Column(
-                      children: [
-                        // Active offers
-                        if (showActiveOffersList)
-                          Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: () async {
-                                print(
-                                  "[OfferListScreen] Manual refresh triggered.",
-                                );
-                                ref.invalidate(availableOffersProvider);
-                                ref.invalidate(initialActiveOfferProvider);
-                                await ref.read(availableOffersProvider.future);
-                              },
-                              child: ListView.builder(
-                                itemCount: activeOffers.length,
-                                itemBuilder: (context, index) {
-                                  final offer = activeOffers[index];
-                                  final bool isFunded =
-                                      offer.status == OfferStatus.funded.name;
-                                  final bool isReserved =
-                                      offer.status == OfferStatus.reserved.name;
-                                  final bool isBlikReceived =
-                                      offer.status ==
-                                      OfferStatus.blikReceived.name;
+                                                  if (reservationTimestamp !=
+                                                      null) {
+                                                    final Offer
+                                                    updatedOffer = Offer(
+                                                      id: offer.id,
+                                                      amountSats:
+                                                          offer.amountSats,
+                                                      takerFees:
+                                                          offer.takerFees,
+                                                      makerFees:
+                                                          offer.makerFees,
+                                                      fiatCurrency:
+                                                          offer.fiatCurrency,
+                                                      fiatAmount:
+                                                          offer.fiatAmount,
+                                                      status:
+                                                          OfferStatus
+                                                              .reserved
+                                                              .name,
+                                                      coordinatorPubkey:
+                                                          offer
+                                                              .coordinatorPubkey,
+                                                      createdAt:
+                                                          offer.createdAt,
+                                                      makerPubkey:
+                                                          offer.makerPubkey,
+                                                      takerPubkey: takerId,
+                                                      reservedAt:
+                                                          reservationTimestamp,
+                                                      blikReceivedAt:
+                                                          offer.blikReceivedAt,
+                                                      blikCode: offer.blikCode,
+                                                      holdInvoicePaymentHash:
+                                                          offer
+                                                              .holdInvoicePaymentHash,
+                                                    );
 
-                                  Widget? trailingWidget;
-
-                                  if (isFunded) {
-                                    trailingWidget = ElevatedButton(
-                                      onPressed: publicKeyAsyncValue.maybeWhen(
-                                        data:
-                                            (publicKey) => () async {
-                                              if (publicKey == null) {
-                                                return;
-                                              }
-
-                                              final takerId = publicKey;
-                                              final apiService = ref.read(
-                                                apiServiceProvider,
-                                              );
-                                              final scaffoldMessenger =
-                                                  ScaffoldMessenger.of(context);
-
-                                              showDialog(
-                                                context: context,
-                                                barrierDismissible: false,
-                                                builder:
-                                                    (context) => const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    ),
-                                              );
-                                              try {
-                                                final DateTime?
-                                                reservationTimestamp =
-                                                    await apiService
-                                                        .reserveOffer(
-                                                          offer.id,
-                                                          takerId,
+                                                    ref
+                                                        .read(
+                                                          activeOfferProvider
+                                                              .notifier,
+                                                        )
+                                                        .setActiveOffer(
+                                                          updatedOffer,
                                                         );
 
-                                                if (reservationTimestamp !=
-                                                    null) {
-                                                  final Offer
-                                                  updatedOffer = Offer(
-                                                    id: offer.id,
-                                                    amountSats:
-                                                        offer.amountSats,
-                                                    takerFees: offer.takerFees,
-                                                    makerFees: offer.makerFees,
-                                                    fiatCurrency:
-                                                        offer.fiatCurrency,
-                                                    fiatAmount:
-                                                        offer.fiatAmount,
-                                                    status:
-                                                        OfferStatus
-                                                            .reserved
-                                                            .name,
-                                                    createdAt: offer.createdAt,
-                                                    makerPubkey:
-                                                        offer.makerPubkey,
-                                                    takerPubkey: takerId,
-                                                    reservedAt:
-                                                        reservationTimestamp,
-                                                    blikReceivedAt:
-                                                        offer.blikReceivedAt,
-                                                    blikCode: offer.blikCode,
-                                                    holdInvoicePaymentHash:
-                                                        offer
-                                                            .holdInvoicePaymentHash,
-                                                  );
-
-                                                  ref
-                                                      .read(
-                                                        activeOfferProvider
-                                                            .notifier,
-                                                      )
-                                                      .state = updatedOffer;
-                                                  ref
-                                                      .read(
-                                                        appRoleProvider
-                                                            .notifier,
-                                                      )
-                                                      .state = AppRole.taker;
-
-                                                  context.go(
-                                                    "/submit-blik",
-                                                    extra: updatedOffer,
-                                                  );
-                                                } else {
-                                                  Navigator.of(context).pop();
+                                                    // Navigate to submit BLIK screen
+                                                    router.go(
+                                                      "/submit-blik",
+                                                      extra: updatedOffer,
+                                                    );
+                                                  } else {
+                                                    ref
+                                                        .read(
+                                                          errorProvider
+                                                              .notifier,
+                                                        )
+                                                        .state = t
+                                                            .reservations
+                                                            .errors
+                                                            .failedNoTimestamp;
+                                                    if (scaffoldMessenger
+                                                        .mounted) {
+                                                      scaffoldMessenger.showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            t
+                                                                .reservations
+                                                                .errors
+                                                                .failedNoTimestamp,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                    ref.invalidate(
+                                                      availableOffersProvider,
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  final errorMsg = t
+                                                      .reservations
+                                                      .errors
+                                                      .failedToReserve(
+                                                        details: e.toString(),
+                                                      );
                                                   ref
                                                       .read(
                                                         errorProvider.notifier,
                                                       )
-                                                      .state = t
-                                                          .reservations
-                                                          .errors
-                                                          .failedNoTimestamp;
+                                                      .state = errorMsg;
                                                   if (scaffoldMessenger
                                                       .mounted) {
-                                                    scaffoldMessenger.showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          t
-                                                              .reservations
-                                                              .errors
-                                                              .failedNoTimestamp,
-                                                        ),
-                                                      ),
-                                                    );
+                                                    scaffoldMessenger
+                                                        .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                              errorMsg,
+                                                            ),
+                                                          ),
+                                                        );
                                                   }
                                                   ref.invalidate(
                                                     availableOffersProvider,
                                                   );
                                                 }
-                                              } catch (e) {
-                                                if (Navigator.of(
-                                                  context,
-                                                ).canPop()) {
-                                                  Navigator.of(context).pop();
-                                                }
-                                                final errorMsg = t
-                                                    .reservations
-                                                    .errors
-                                                    .failedToReserve(
-                                                      details: e.toString(),
-                                                    );
-                                                ref
-                                                    .read(
-                                                      errorProvider.notifier,
-                                                    )
-                                                    .state = errorMsg;
-                                                if (scaffoldMessenger.mounted) {
-                                                  scaffoldMessenger
-                                                      .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            errorMsg,
-                                                          ),
-                                                        ),
-                                                      );
-                                                }
-                                                ref.invalidate(
-                                                  availableOffersProvider,
-                                                );
-                                              }
-                                            },
-                                        orElse: () => null,
-                                      ),
-                                      child: Text(t.offers.actions.take),
-                                    );
-                                  } else if (isReserved || isBlikReceived) {
-                                    trailingWidget = myActiveOfferAsyncValue.when(
-                                      data: (myOffer) {
-                                        if (myOffer != null &&
-                                            offer.id == myOffer.id) {
-                                          return ElevatedButton(
-                                            child: Text(
-                                              t.offers.actions.resume,
-                                            ),
-                                            onPressed: () {
-                                              ref
-                                                  .read(
-                                                    activeOfferProvider
-                                                        .notifier,
-                                                  )
-                                                  .state = myOffer;
-                                              ref
-                                                  .read(
-                                                    appRoleProvider.notifier,
-                                                  )
-                                                  .state = AppRole.taker;
+                                              },
+                                          orElse: () => null,
+                                        ),
+                                        child: Text(t.offers.actions.take),
+                                      );
+                                    } else if (myActiveOffer != null &&
+                                        offer.takerPubkey == publicKey &&
+                                        offer.id == myActiveOffer.id &&
+                                        (myActiveOffer.isInvalidBlik ||
+                                            myActiveOffer.isConflict)) {
+                                      // Show button for conflict or invalidBlik if it's the active offer
+                                      trailingWidget = ElevatedButton(
+                                        child: Text(t.offers.actions.View),
+                                        onPressed: () {
+                                          if (myActiveOffer.isInvalidBlik) {
+                                            router.go(
+                                              '/taker-invalid-blik',
+                                              extra: myActiveOffer,
+                                            );
+                                          } else if (myActiveOffer.isConflict) {
+                                            router.go(
+                                              '/taker-conflict',
+                                              extra: myActiveOffer.id,
+                                            );
+                                          }
+                                        },
+                                      );
+                                    } else if (isReserved || isBlikReceived) {
+                                      if (myActiveOffer != null &&
+                                          offer.id == myActiveOffer.id &&
+                                          !myActiveOffer.isDispute) {
+                                        trailingWidget = ElevatedButton(
+                                          child: Text(t.offers.actions.View),
+                                          onPressed: () {
+                                            ref
+                                                .read(
+                                                  activeOfferProvider.notifier,
+                                                )
+                                                .setActiveOffer(myActiveOffer);
 
-                                              // Determine which screen to navigate to based on status
-                                              Widget destinationScreen;
-                                              if (myOffer.status ==
-                                                  OfferStatus.reserved.name) {
-                                                destinationScreen =
-                                                    TakerSubmitBlikScreen(
-                                                      initialOffer: myOffer,
-                                                    );
-                                              } else if (myOffer.status ==
-                                                      OfferStatus
-                                                          .blikReceived
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .blikSentToMaker
-                                                          .name ||
-                                                  myOffer.status ==
-                                                      OfferStatus
-                                                          .makerConfirmed
-                                                          .name) {
-                                                destinationScreen =
-                                                    TakerWaitConfirmationScreen(
-                                                      offer: myOffer,
-                                                    );
-                                              } else {
-                                                print(
-                                                  "[OfferListScreen] Error: Resuming offer in unexpected state: ${myOffer.status}",
-                                                );
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      t
-                                                          .offers
-                                                          .errors
-                                                          .unexpectedState,
-                                                    ),
-                                                  ),
-                                                );
-                                                return;
-                                              }
-
-                                              Navigator.of(
+                                            // Determine which screen to navigate to based on status
+                                            Widget destinationScreen;
+                                            if (myActiveOffer.status ==
+                                                OfferStatus.reserved.name) {
+                                              destinationScreen =
+                                                  TakerSubmitBlikScreen(
+                                                    initialOffer: myActiveOffer,
+                                                  );
+                                            } else if (myActiveOffer.status ==
+                                                    OfferStatus
+                                                        .blikReceived
+                                                        .name ||
+                                                myActiveOffer.status ==
+                                                    OfferStatus
+                                                        .blikSentToMaker
+                                                        .name ||
+                                                myActiveOffer.status ==
+                                                    OfferStatus
+                                                        .makerConfirmed
+                                                        .name) {
+                                              destinationScreen =
+                                                  TakerWaitConfirmationScreen(
+                                                    offer: myActiveOffer,
+                                                  );
+                                            } else {
+                                              Logger.log.e(
+                                                "[OfferListScreen] Error: Resuming offer in unexpected state: ${myActiveOffer.status}",
+                                              );
+                                              ScaffoldMessenger.of(
                                                 context,
-                                                rootNavigator: true,
-                                              ).push(
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (context) =>
-                                                          destinationScreen,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    t
+                                                        .offers
+                                                        .errors
+                                                        .unexpectedState,
+                                                  ),
                                                 ),
                                               );
-                                            },
-                                          );
-                                        } else {
-                                          return Text(
-                                            offer.status.toUpperCase(),
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      loading:
-                                          () => const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                      error: (e, s) {
-                                        print(
-                                          "Error loading myActiveOffer: $e",
+                                              return;
+                                            }
+
+                                            Navigator.of(
+                                              context,
+                                              rootNavigator: true,
+                                            ).push(
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        destinationScreen,
+                                              ),
+                                            );
+                                          },
                                         );
-                                        return Text(
+                                      } else {
+                                        trailingWidget = Text(
                                           offer.status.toUpperCase(),
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontWeight: FontWeight.bold,
                                           ),
                                         );
-                                      },
-                                    );
-                                  } else {
-                                    trailingWidget = Text(
-                                      offer.status.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  }
-
-                                  trailingWidget ??= const SizedBox.shrink();
-
-                                  return Column(
-                                    children: [
-                                      Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 5.0,
+                                      }
+                                    } else {
+                                      trailingWidget = Text(
+                                        offer.status.toUpperCase(),
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        child: ListTile(
-                                          title: Text(
-                                            t.offers.details.amountWithCurrency(
-                                              amount: formatDouble(
-                                                offer.fiatAmount ?? 0.0,
+                                      );
+                                    }
+
+                                    trailingWidget ??= const SizedBox.shrink();
+
+                                    return Column(
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            if (kIsWeb) {
+                                              context.go('/offers/${offer.id}');
+                                            } else {
+                                              context.push(
+                                                '/offers/${offer.id}',
+                                              );
+                                            }
+                                          },
+                                          child: Card(
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 5.0,
+                                            ),
+                                            child: ListTile(
+                                              title: Text(
+                                                t.offers.details
+                                                    .amountWithCurrency(
+                                                      amount: formatDouble(
+                                                        offer.fiatAmount ?? 0.0,
+                                                      ),
+                                                      currency:
+                                                          offer.fiatCurrency,
+                                                    ),
                                               ),
-                                              currency: offer.fiatCurrency,
+                                              subtitle: Text(
+                                                '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
+                                              ),
+                                              isThreeLine: true,
+                                              trailing: trailingWidget,
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
-                                          ),
-                                          isThreeLine: true,
-                                          trailing: trailingWidget,
                                         ),
-                                      ),
-                                      if (isFunded)
-                                        FundedOfferProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_funded_${offer.id}',
+                                        if (isFunded)
+                                          FundedOfferProgressIndicator(
+                                            key: ValueKey(
+                                              'progress_funded_${offer.id}',
+                                            ),
+                                            createdAt: offer.createdAt,
                                           ),
-                                          createdAt: offer.createdAt,
-                                        ),
-                                      if (isReserved &&
-                                          offer.reservedAt != null)
-                                        ReservationProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
+                                        if (isReserved &&
+                                            offer.reservedAt != null &&
+                                            _reservationDuration != null)
+                                          ReservationProgressIndicator(
+                                            key: ValueKey(
+                                              'progress_res_${offer.id}_${_reservationDuration!.inSeconds}',
+                                            ),
+                                            reservedAt: offer.reservedAt!,
+                                            maxDuration: _reservationDuration!,
                                           ),
-                                          reservedAt: offer.reservedAt!,
-                                          maxDuration: _reservationDuration!,
-                                        ),
-                                      if (isBlikReceived &&
-                                          offer.blikReceivedAt != null)
-                                        BlikConfirmationProgressIndicator(
-                                          key: ValueKey(
-                                            'progress_blik_${offer.id}',
+                                        if (isBlikReceived &&
+                                            offer.blikReceivedAt != null)
+                                          BlikConfirmationProgressIndicator(
+                                            key: ValueKey(
+                                              'progress_blik_${offer.id}',
+                                            ),
+                                            blikReceivedAt:
+                                                offer.blikReceivedAt!,
                                           ),
-                                          blikReceivedAt: offer.blikReceivedAt!,
-                                        ),
-                                    ],
-                                  );
-                                },
+                                      ],
+                                    );
+                                  },
+                                ),
+                      ),
+                    ),
+                    // Finished offers section
+                    if (finishedOffers.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: showActiveOffersList ? 16.0 : 0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.offers.details.finishedOffers,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                          ),
-                        // Finished offers section
-                        if (finishedOffers.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: showActiveOffersList ? 16.0 : 0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.offers.display.finishedOffers,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                SizedBox(
-                                  height:
-                                      72, // further reduce height for compactness
-                                  child: Scrollbar(
-                                    child: ListView.builder(
-                                      shrinkWrap: !showActiveOffersList,
-                                      physics:
-                                          !showActiveOffersList
-                                              ? const NeverScrollableScrollPhysics()
-                                              : null,
-                                      itemCount: finishedOffers.length,
-                                      itemBuilder: (context, index) {
-                                        final offer = finishedOffers[index];
-                                        return Card(
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 5.0,
-                                          ),
-                                          child: ListTile(
-                                            title: Text(
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height:
+                                  72, // further reduce height for compactness
+                              child: Scrollbar(
+                                child: ListView.builder(
+                                  shrinkWrap: !showActiveOffersList,
+                                  physics:
+                                      !showActiveOffersList
+                                          ? const NeverScrollableScrollPhysics()
+                                          : null,
+                                  itemCount: finishedOffers.length,
+                                  itemBuilder: (context, index) {
+                                    final offer = finishedOffers[index];
+                                    return Card(
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 5.0,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                          vertical: 12.0,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
                                               t.offers.details
                                                   .amountWithCurrency(
                                                     amount: formatDouble(
@@ -983,54 +1003,83 @@ class _OfferListScreenState extends ConsumerState<OfferListScreen> {
                                                     currency:
                                                         offer.fiatCurrency,
                                                   ),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            subtitle: Text(
-                                              '${t.offers.details.amount(amount: offer.amountSats.toString())}\n${t.offers.details.takerFeeWithStatus(fee: offer.takerFees?.toString() ?? "0", status: offer.status)}',
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              t.offers.details.amount(
+                                                amount:
+                                                    offer.amountSats.toString(),
+                                              ),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            isThreeLine: true,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
+                                            Text(
+                                              t.offers.details
+                                                  .takerFeeWithStatus(
+                                                    fee:
+                                                        offer.takerFees
+                                                            ?.toString() ??
+                                                        "0",
+                                                    status: offer.status,
+                                                  ),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                  loading:
-                      () => const Center(child: CircularProgressIndicator()),
-                  error:
-                      (error, stackTrace) => Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              t.offers.errors.loading(
-                                details: error.toString(),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed:
-                                  () => ref.invalidate(availableOffersProvider),
-                              child: Text(t.common.buttons.retry),
                             ),
                           ],
                         ),
                       ),
-                ),
-              ),
-              const Divider(height: 32, thickness: 1),
-              _buildStatsSection(
-                context,
-                ref.watch(successfulOffersStatsProvider),
-              ),
-            ],
-          );
-        },
+                  ],
+                );
+              },
+              loading:
+                  () =>
+                      Container(), //const Center(child: CircularProgressIndicator()),
+              error:
+                  (error, stackTrace) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.offers.errors.loading(details: error.toString()),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed:
+                              () => ref.invalidate(availableOffersProvider),
+                          child: Text(t.common.buttons.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+            ),
+          ),
+          const Divider(height: 32, thickness: 1),
+          _buildStatsSection(
+            context,
+            ref.watch(successfulOffersStatsProvider),
+            t,
+          ),
+        ],
       ),
     );
   }
@@ -1093,6 +1142,7 @@ String _formatTimeAgo(DateTime dateTime) {
 Widget _buildStatsSection(
   BuildContext context,
   AsyncValue<Map<String, dynamic>> statsAsyncValue,
+  Translations t,
 ) {
   return statsAsyncValue.when(
     data: (data) {
@@ -1131,20 +1181,27 @@ Widget _buildStatsSection(
               children: [
                 // Combine last 7d and avg stats into one line
                 Text(
-                  'Last 7d: 	${numberFormat.format(last7Days['count'] ?? 0)}  |  '
-                  'Avg BLIK: ${_formatDurationFromSeconds(last7DaysBlikTime?.round())}  |  '
-                  'Avg Paid: ${_formatDurationFromSeconds(last7DaysPaidTime?.round())}',
+                  t.home.statistics.last7DaysSingleLine(
+                    count: numberFormat.format(last7Days['count'] ?? 0),
+                    avgBlikTime: _formatDurationFromSeconds(
+                      last7DaysBlikTime?.round(),
+                    ),
+                    avgPaidTime: _formatDurationFromSeconds(
+                      last7DaysPaidTime?.round(),
+                    ),
+                  ),
                   style: const TextStyle(fontSize: 13),
                 ),
+
                 const SizedBox(height: 8),
                 if (recentOffers.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(t.offers.display.noSuccessfulTrades),
+                    child: Text(t.offers.details.noSuccessfulTrades),
                   )
                 else
                   SizedBox(
-                    height: 72, // further reduce height for compactness
+                    height: 150, // further reduce height for compactness
                     child: Scrollbar(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -1152,66 +1209,99 @@ Widget _buildStatsSection(
                         itemCount: recentOffers.length,
                         itemBuilder: (context, index) {
                           final offer = recentOffers[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 2.0,
-                              horizontal: 0,
-                            ), // less margin
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 4.0,
-                              ), // less padding
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Amount and currency
-                                  Text(
-                                    t.offers.details.amountWithCurrency(
-                                      amount: formatDouble(
-                                        offer.fiatAmount ?? 0.0,
-                                      ),
-                                      currency: offer.fiatCurrency,
-                                    ),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  // Date (now as time ago)
-                                  Text(
-                                    _formatTimeAgo(offer.createdAt.toLocal()),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  // Taken after (if available)
-                                  if (offer.timeToReserveSeconds != null)
+                          return InkWell(
+                            onTap: () {
+                              if (kIsWeb) {
+                                context.go('/offers/${offer.id}');
+                              } else {
+                                context.push('/offers/${offer.id}');
+                              }
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 1.0,
+                                horizontal: 0,
+                              ), // less margin
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                  vertical: 8.0,
+                                ), // less padding
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Amount and currency
                                     Text(
-                                      t.offers.details.takenAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.timeToReserveSeconds,
+                                      t.offers.details.amountWithCurrency(
+                                        amount: formatDouble(
+                                          offer.fiatAmount ?? 0.0,
                                         ),
+                                        currency: offer.fiatCurrency,
                                       ),
-                                      style: const TextStyle(fontSize: 12),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  if (offer.timeToReserveSeconds != null)
-                                    const SizedBox(width: 8),
-                                  // Paid after (if available)
-                                  if (offer.totalCompletionTimeTakerSeconds !=
-                                      null)
+                                    const SizedBox(width: 10),
+                                    // Date (now as time ago)
                                     Text(
-                                      t.offers.details.paidAfter(
-                                        duration: _formatDurationFromSeconds(
-                                          offer.totalCompletionTimeTakerSeconds,
-                                        ),
+                                      _formatTimeAgo(offer.createdAt.toLocal()),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
                                       ),
-                                      style: const TextStyle(fontSize: 12),
                                     ),
-                                ],
+                                    const SizedBox(width: 10),
+                                    // Taken after and Paid after (flexible to prevent overflow)
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          // Taken after (if available)
+                                          if (offer.timeToReserveSeconds !=
+                                              null)
+                                            Flexible(
+                                              child: Text(
+                                                t.offers.details.takenAfter(
+                                                  duration:
+                                                      _formatDurationFromSeconds(
+                                                        offer
+                                                            .timeToReserveSeconds,
+                                                      ),
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          if (offer.timeToReserveSeconds !=
+                                              null)
+                                            const SizedBox(width: 8),
+                                          // Paid after (if available)
+                                          if (offer
+                                                  .totalCompletionTimeMakerSeconds !=
+                                              null)
+                                            Flexible(
+                                              child: Text(
+                                                t.offers.details.paidAfter(
+                                                  duration:
+                                                      _formatDurationFromSeconds(
+                                                        offer
+                                                            .totalCompletionTimeMakerSeconds,
+                                                      ),
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );

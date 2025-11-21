@@ -106,6 +106,10 @@ android {
         release {
             signingConfig = cfg
         }
+        debug {
+            applicationIdSuffix = ".dev"
+            signingConfig = cfg
+        }
     }
 }
 
